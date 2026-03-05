@@ -1,0 +1,113 @@
+---
+- name: Create coredns user
+  ansible.builtin.user:
+    name: coredns
+    system: true
+    shell: /usr/sbin/nologin
+    create_home: false
+
+- name: Download CoreDNS
+  ansible.builtin.get_url:
+    url: "https://github.com/coredns/coredns/releases/download/v{{ coredns_version }}/coredns_{{ coredns_version }}_linux_amd64.tgz"
+    dest: /tmp/coredns.tgz
+    mode: "0644"
+
+- name: Extract CoreDNS
+  ansible.builtin.unarchive:
+    src: /tmp/coredns.tgz
+    dest: /tmp/
+    remote_src: true
+
+- name: Install CoreDNS binary
+  ansible.builtin.copy:
+    src: /tmp/coredns
+    dest: /usr/local/bin/coredns
+    owner: root
+    group: root
+    mode: "0755"
+    remote_src: true
+  notify: restart coredns
+
+- name: Allow coredns to bind to privileged ports
+  community.general.capabilities:
+    path: /usr/local/bin/coredns
+    capability: cap_net_bind_service=+ep
+    state: present
+
+- name: Create CoreDNS config directory
+  ansible.builtin.file:
+    path: /etc/coredns
+    state: directory
+    owner: coredns
+    group: coredns
+    mode: "0755"
+
+- name: Deploy Corefile
+  ansible.builtin.template:
+    src: Corefile.j2
+    dest: /etc/coredns/Corefile
+    owner: coredns
+    group: coredns
+    mode: "0644"
+  notify: restart coredns
+
+- name: Deploy zone file
+  ansible.builtin.template:
+    src: zone.j2
+    dest: "/etc/coredns/{{ domain }}.zone"
+    owner: coredns
+    group: coredns
+    mode: "0644"
+  notify: restart coredns
+
+- name: Disable systemd-resolved (conflicts with port 53)
+  ansible.builtin.service:
+    name: systemd-resolved
+    state: stopped
+    enabled: false
+  ignore_errors: true
+
+- name: Set resolv.conf to use local DNS
+  ansible.builtin.copy:
+    dest: /etc/resolv.conf
+    content: |
+      nameserver 127.0.0.1
+      search {{ domain }}
+    mode: "0644"
+
+- name: Create CoreDNS systemd service
+  ansible.builtin.copy:
+    dest: /etc/systemd/system/coredns.service
+    mode: "0644"
+    content: |
+      [Unit]
+      Description=CoreDNS DNS Server
+      After=network-online.target
+      Wants=network-online.target
+
+      [Service]
+      User=coredns
+      Group=coredns
+      Type=simple
+      ExecStart=/usr/local/bin/coredns -conf /etc/coredns/Corefile
+      Restart=on-failure
+      LimitNOFILE=1048576
+
+      [Install]
+      WantedBy=multi-user.target
+  notify: restart coredns
+
+- name: Enable and start CoreDNS
+  ansible.builtin.systemd:
+    name: coredns
+    state: started
+    enabled: true
+    daemon_reload: true
+
+- name: Clean up download
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - /tmp/coredns.tgz
+    - /tmp/coredns

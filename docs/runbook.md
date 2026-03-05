@@ -1,0 +1,224 @@
+# 運用 Runbook
+
+homelab の日常運用・障害対応・バックアップに関する手順書。
+
+## バックアップ
+
+### Proxmox VM バックアップ
+
+Proxmox の組み込みバックアップ機能を使用する。
+
+```bash
+# 手動バックアップ（Proxmox ホスト上で実行）
+vzdump <vmid> --storage local --compress zstd --mode snapshot
+
+# 例: vm-infra (VMID 111) をバックアップ
+vzdump 111 --storage local --compress zstd --mode snapshot
+```
+
+自動バックアップは Proxmox Web UI > Datacenter > Backup から設定:
+- スケジュール: 毎日 02:00
+- 保持: 最新 3 世代
+- 圧縮: zstd
+
+### Docker ボリュームバックアップ
+
+```bash
+# Prometheus データバックアップ
+docker run --rm -v monitoring_prometheus_data:/data -v $(pwd):/backup \
+  alpine tar czf /backup/prometheus-backup-$(date +%Y%m%d).tar.gz -C /data .
+
+# Grafana データバックアップ
+docker run --rm -v monitoring_grafana_data:/data -v $(pwd):/backup \
+  alpine tar czf /backup/grafana-backup-$(date +%Y%m%d).tar.gz -C /data .
+```
+
+### 設定ファイルバックアップ
+
+このリポジトリ自体が設定のバックアップ。ただし以下は別途保管:
+
+- `terraform.tfvars`（暗号化して保管）
+- Ansible Vault のパスワード
+- SSH 秘密鍵
+- `.env` ファイル
+
+## 更新手順
+
+### OS アップデート（全 VM）
+
+```bash
+# Ansible で一括実行
+cd ansible
+ansible all -m apt -a "upgrade=dist update_cache=yes" --become
+
+# 再起動が必要な場合
+ansible all -m reboot --become
+```
+
+### Docker イメージ更新
+
+```bash
+# vm-monitoring 上で
+cd /opt/monitoring
+docker compose pull
+docker compose up -d
+
+# 古いイメージの削除
+docker image prune -f
+```
+
+### Terraform Provider 更新
+
+```bash
+cd terraform/proxmox
+terraform init -upgrade
+terraform plan   # 差分を確認
+```
+
+## 障害時切り分け
+
+### VM が応答しない
+
+```
+1. ping で疎通確認
+   $ ping 192.168.11.XX
+
+2. Proxmox Web UI で VM のステータス確認
+   → https://192.168.11.10:8006
+
+3. Proxmox コンソールからログイン
+   → Web UI > VM > Console
+
+4. VM を再起動
+   $ ssh root@192.168.11.10 "qm reboot <vmid>"
+
+5. VM を強制停止・起動
+   $ ssh root@192.168.11.10 "qm stop <vmid> && qm start <vmid>"
+```
+
+### サービスが応答しない
+
+```
+1. Docker コンテナのステータス確認
+   $ docker compose ps
+
+2. ログ確認
+   $ docker compose logs --tail=50 <service>
+
+3. コンテナ再起動
+   $ docker compose restart <service>
+
+4. コンテナ再作成
+   $ docker compose up -d --force-recreate <service>
+```
+
+### DNS が引けない
+
+```
+1. CoreDNS のステータス確認
+   $ ssh ubuntu@192.168.11.11 "systemctl status coredns"
+
+2. CoreDNS のログ確認
+   $ ssh ubuntu@192.168.11.11 "journalctl -u coredns --tail=50"
+
+3. 直接クエリして確認
+   $ dig @192.168.11.11 grafana.home.lab
+
+4. CoreDNS を再起動
+   $ ssh ubuntu@192.168.11.11 "sudo systemctl restart coredns"
+```
+
+### Prometheus がスクレイプに失敗
+
+```
+1. Prometheus の Targets ページを確認
+   → http://192.168.11.13:9090/targets
+
+2. ターゲット VM の node_exporter を確認
+   $ curl http://192.168.11.XX:9100/metrics
+
+3. ファイアウォール確認
+   $ ssh ubuntu@192.168.11.XX "sudo ufw status"
+
+4. node_exporter を再起動
+   $ ssh ubuntu@192.168.11.XX "sudo systemctl restart node_exporter"
+```
+
+### Grafana にログインできない
+
+```
+1. Grafana のステータス確認
+   $ docker compose -f /opt/monitoring/docker-compose.yml ps grafana
+
+2. パスワードリセット
+   $ docker compose -f /opt/monitoring/docker-compose.yml exec grafana \
+       grafana cli admin reset-admin-password <new-password>
+```
+
+## 秘密情報管理
+
+### 方針
+
+| 方法 | 用途 | 状態 |
+|---|---|---|
+| `.env` ファイル | Docker Compose 環境変数 | `.gitignore` で除外 |
+| `terraform.tfvars` | Terraform 変数 | `.gitignore` で除外 |
+| Ansible Vault | Ansible 変数の暗号化 | Git 管理可能 |
+| SOPS + age | 汎用的な暗号化 | Git 管理可能（推奨） |
+
+### SOPS + age の導入手順
+
+```bash
+# age 鍵の生成
+age-keygen -o ~/.config/sops/age/keys.txt
+
+# 公開鍵を .sops.yaml に設定（リポジトリルート）
+# age: age1xxxxxxxxx...
+
+# ファイルを暗号化
+sops -e secrets.yml > secrets.enc.yml
+
+# ファイルを復号
+sops -d secrets.enc.yml
+
+# 直接編集（復号 → エディタ → 再暗号化）
+sops secrets.enc.yml
+```
+
+### Ansible Vault の使い方
+
+```bash
+# 暗号化
+ansible-vault encrypt inventory/group_vars/all.yml
+
+# 復号
+ansible-vault decrypt inventory/group_vars/all.yml
+
+# 暗号化したまま playbook 実行
+ansible-playbook playbooks/site.yml --ask-vault-pass
+
+# パスワードファイルを使う場合
+echo "your-vault-password" > ~/.vault_password
+chmod 600 ~/.vault_password
+ansible-playbook playbooks/site.yml --vault-password-file ~/.vault_password
+```
+
+## LAN 内 TLS
+
+### 推奨構成
+
+- Caddy の内部 CA 機能（`tls internal`）で自己署名証明書を自動発行
+- 各クライアントに Caddy の Root CA 証明書をインストール
+
+### Caddy Root CA 証明書の取得
+
+```bash
+# vm-infra 上で
+sudo cat /data/caddy/pki/authorities/local/root.crt
+
+# クライアント（macOS）にインストール
+sudo security add-trusted-cert -d -r trustRoot \
+  -k /Library/Keychains/System.keychain root.crt
+```
+
+将来的に、独自ドメインを持っている場合は Let's Encrypt + DNS-01 チャレンジで正規証明書を取得できる。

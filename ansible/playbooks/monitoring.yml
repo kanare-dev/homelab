@@ -1,0 +1,45 @@
+---
+- name: Setup monitoring VM (Prometheus + Grafana)
+  hosts: monitoring
+  tasks:
+    - name: Create monitoring directory
+      ansible.builtin.file:
+        path: /opt/monitoring
+        state: directory
+        owner: "{{ ansible_user }}"
+        mode: "0755"
+
+    - name: Copy docker-compose.yml
+      ansible.builtin.copy:
+        src: "{{ playbook_dir }}/../../docker/compose/monitoring/docker-compose.yml"
+        dest: /opt/monitoring/docker-compose.yml
+        mode: "0644"
+
+    - name: Create prometheus config directory
+      ansible.builtin.file:
+        path: /opt/monitoring/prometheus
+        state: directory
+        mode: "0755"
+
+    - name: Copy prometheus.yml
+      ansible.builtin.copy:
+        src: "{{ playbook_dir }}/../../docker/compose/monitoring/prometheus/prometheus.yml"
+        dest: /opt/monitoring/prometheus/prometheus.yml
+        mode: "0644"
+
+    - name: Create grafana provisioning directory
+      ansible.builtin.file:
+        path: /opt/monitoring/grafana/provisioning/datasources
+        state: directory
+        mode: "0755"
+
+    - name: Copy grafana datasource config
+      ansible.builtin.copy:
+        src: "{{ playbook_dir }}/../../docker/compose/monitoring/grafana/provisioning/datasources/prometheus.yml"
+        dest: /opt/monitoring/grafana/provisioning/datasources/prometheus.yml
+        mode: "0644"
+
+    - name: Start monitoring stack
+      community.docker.docker_compose_v2:
+        project_src: /opt/monitoring
+        state: present

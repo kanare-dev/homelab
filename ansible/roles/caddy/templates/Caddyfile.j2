@@ -1,0 +1,13 @@
+{
+	# LAN 内部のため内部 CA を使用
+	local_certs
+	auto_https disable_redirects
+}
+
+{% for site in caddy_sites %}
+{{ site.domain }} {
+	reverse_proxy {{ site.upstream }}
+	tls internal
+}
+
+{% endfor %}

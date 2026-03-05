@@ -1,0 +1,47 @@
+---
+# infra グループ変数
+
+caddy_email: "admin@home.lab"
+
+# CoreDNS
+coredns_version: "1.11.1"
+coredns_listen_port: 53
+coredns_upstream_dns:
+  - "1.1.1.1"
+  - "8.8.8.8"
+
+# DNS レコード
+dns_records:
+  - name: proxmox
+    ip: "192.168.11.10"
+  - name: infra
+    ip: "192.168.11.11"
+  - name: monitoring
+    ip: "192.168.11.13"
+  - name: grafana
+    ip: "192.168.11.13"
+  - name: prometheus
+    ip: "192.168.11.13"
+  - name: apps
+    ip: "192.168.11.20"
+  - name: dev
+    ip: "192.168.11.21"
+
+# Caddy reverse proxy 設定
+caddy_sites:
+  - domain: "grafana.home.lab"
+    upstream: "192.168.11.13:3000"
+  - domain: "prometheus.home.lab"
+    upstream: "192.168.11.13:9090"
+  - domain: "proxmox.home.lab"
+    upstream: "192.168.11.10:8006"
+
+# UFW
+ufw_allowed_ports:
+  - { port: 22, proto: tcp }
+  - { port: 53, proto: tcp }
+  - { port: 53, proto: udp }
+  - { port: 80, proto: tcp }
+  - { port: 443, proto: tcp }
+  - { port: 51820, proto: udp }   # WireGuard
+  - { port: 9100, proto: tcp }    # node_exporter

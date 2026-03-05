@@ -1,0 +1,41 @@
+# Terraform
+terraform/.terraform/
+terraform/**/.terraform/
+*.tfstate
+*.tfstate.backup
+*.tfplan
+terraform.tfvars
+.terraform.lock.hcl
+
+# Ansible
+ansible/*.retry
+ansible/**/*.retry
+
+# Secrets
+.env
+*.pem
+*.key
+*_rsa
+*_ed25519
+!*.pub
+secrets/
+vault_password
+
+# SOPS
+*.dec
+*.decrypted
+
+# Docker
+docker/compose/**/.env
+docker/compose/**/data/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~

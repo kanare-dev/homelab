@@ -1,0 +1,6 @@
+---
+- name: Setup infra VM (DNS + Reverse Proxy)
+  hosts: infra
+  roles:
+    - coredns
+    - caddy

@@ -1,0 +1,46 @@
+proxmox_api_url          = "https://192.168.11.10:8006/api2/json"
+proxmox_api_token_id     = "terraform@pam!terraform-token"
+proxmox_api_token_secret = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+
+proxmox_node  = "pve"
+template_name = "ubuntu-cloud"
+
+ssh_public_key = "ssh-ed25519 AAAAC3... user@host"
+
+gateway    = "192.168.11.1"
+nameserver = "192.168.11.11"
+
+vms = {
+  "vm-infra" = {
+    vmid   = 111
+    ip     = "192.168.11.11/24"
+    cores  = 2
+    memory = 2048
+    disk   = "20G"
+    tags   = ["infra", "dns", "proxy"]
+  }
+  "vm-monitoring" = {
+    vmid   = 113
+    ip     = "192.168.11.13/24"
+    cores  = 2
+    memory = 4096
+    disk   = "40G"
+    tags   = ["monitoring", "prometheus", "grafana"]
+  }
+  "vm-apps" = {
+    vmid   = 120
+    ip     = "192.168.11.20/24"
+    cores  = 2
+    memory = 4096
+    disk   = "40G"
+    tags   = ["apps"]
+  }
+  "vm-dev" = {
+    vmid   = 121
+    ip     = "192.168.11.21/24"
+    cores  = 2
+    memory = 2048
+    disk   = "30G"
+    tags   = ["dev", "playground"]
+  }
+}

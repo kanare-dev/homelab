@@ -1,0 +1,12 @@
+{{ domain }} {
+    file /etc/coredns/{{ domain }}.zone
+    log
+    errors
+}
+
+. {
+    forward . {{ coredns_upstream_dns | join(' ') }}
+    cache 30
+    log
+    errors
+}

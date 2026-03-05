@@ -1,0 +1,37 @@
+---
+# 全ホスト共通変数
+
+ansible_user: ubuntu
+ansible_python_interpreter: /usr/bin/python3
+
+# ネットワーク
+lan_network: "192.168.11.0/24"
+gateway: "192.168.11.1"
+dns_server: "192.168.11.11"
+domain: "home.lab"
+
+# NTP
+ntp_servers:
+  - ntp.nict.jp
+  - time.google.com
+
+# SSH
+ssh_permit_root_login: "no"
+ssh_password_authentication: "no"
+
+# node_exporter
+node_exporter_version: "1.7.0"
+node_exporter_port: 9100
+
+# パッケージ
+common_packages:
+  - curl
+  - wget
+  - vim
+  - htop
+  - jq
+  - unzip
+  - ufw
+  - ca-certificates
+  - gnupg
+  - lsb-release

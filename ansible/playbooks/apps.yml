@@ -1,0 +1,14 @@
+---
+- name: Setup apps VM
+  hosts: apps
+  tasks:
+    - name: Create apps directory
+      ansible.builtin.file:
+        path: /opt/apps
+        state: directory
+        owner: "{{ ansible_user }}"
+        mode: "0755"
+
+    - name: Placeholder — add app-specific tasks here
+      ansible.builtin.debug:
+        msg: "Apps VM is ready. Add services as needed."

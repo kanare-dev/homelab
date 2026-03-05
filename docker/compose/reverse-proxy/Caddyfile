@@ -1,0 +1,24 @@
+{
+	# LAN 内部のため内部 CA を使用
+	local_certs
+	auto_https disable_redirects
+}
+
+grafana.home.lab {
+	reverse_proxy 192.168.11.13:3000
+	tls internal
+}
+
+prometheus.home.lab {
+	reverse_proxy 192.168.11.13:9090
+	tls internal
+}
+
+proxmox.home.lab {
+	reverse_proxy https://192.168.11.10:8006 {
+		transport http {
+			tls_insecure_skip_verify
+		}
+	}
+	tls internal
+}
