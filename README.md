@@ -9,6 +9,14 @@ Proxmox 上に複数 VM を構築し、IaC（Terraform + Ansible）と Docker Co
 - **ドキュメント駆動** — このリポジトリを読めば全体像・IP 設計・セットアップ手順・運用方法が分かる
 - **観測可能性** — Prometheus + Grafana で全 VM・サービスの状態を可視化する
 
+## ハードウェア
+
+| 機器 | モデル | スペック | IP | 備考 |
+|---|---|---|---|---|
+| ルーター | Buffalo WSR-1800AX4P | — | `192.168.11.1` | Wi-Fi 6 対応 |
+| サーバー | Lenovo ThinkCentre M70q Tiny | i5-10400T / 8GB RAM / 256GB NVMe | `192.168.11.10` | Proxmox VE ホスト。メモリ増設予定 |
+| IoT | ESP32 | — | `192.168.11.100` | — |
+
 ## アーキテクチャ概要
 
 ```
