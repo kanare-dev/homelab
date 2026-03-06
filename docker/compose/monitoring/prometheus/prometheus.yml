@@ -41,8 +41,12 @@ scrape_configs:
   - job_name: "esp32"
     scrape_interval: 30s
     static_configs:
-      - targets:
-          - "192.168.11.100:80"    # 01-esp32
+      - targets: ["192.168.11.100:80"]    # 01-esp32
         labels:
           env: "homelab"
-          device: "esp32"
+          host: "esp32-01"
+          role: "iot"
+          device: "esp32-01"
+    relabel_configs:
+      - source_labels: ["device"]
+        target_label: instance
