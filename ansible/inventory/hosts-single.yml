@@ -1,5 +1,9 @@
 all:
   children:
+    proxmox:
+      hosts:
+        pve:
+          ansible_host: 192.168.11.10
     monitoring:
       hosts:
         vm-apps:

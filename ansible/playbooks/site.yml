@@ -1,12 +1,13 @@
 ---
 # 全 VM の一括セットアップ
 - name: Setup all VMs
-  hosts: all
+  hosts: infra:monitoring:apps:dev
   roles:
     - common
     - docker
     - node_exporter
 
+- import_playbook: proxmox.yml
 - import_playbook: infra.yml
 - import_playbook: monitoring.yml
 - import_playbook: apps.yml

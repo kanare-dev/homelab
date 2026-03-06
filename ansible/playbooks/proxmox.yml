@@ -1,0 +1,5 @@
+---
+- name: Setup Proxmox host monitoring
+  hosts: proxmox
+  roles:
+    - node_exporter
