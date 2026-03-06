@@ -143,20 +143,21 @@ Plan A は VM 数を最小化し、1 つの edge VM に DNS・VPN・reverse prox
 
 ### Prometheus + Grafana
 
-- **Prometheus**: 各 VM の node_exporter からメトリクスを pull 方式で収集
+- **Prometheus**: 各 VM の node_exporter および IoT デバイスからメトリクスを pull 方式で収集
 - **Grafana**: ダッシュボードで可視化（Node Exporter Full ダッシュボードを推奨）
 - **node_exporter**: 全 VM に Ansible role でデプロイ
+- **ESP32**: Prometheus 形式でセンサデータを export（`/metrics` エンドポイント）
 - **alertmanager**: 将来的に追加（Slack / Discord 通知）
 
 ```
-┌─ vm-monitoring ─────────────────────────────┐
-│                                             │
-│  Prometheus ──scrape──▶ node_exporter (各VM) │
-│      │                                      │
-│      ▼                                      │
-│  Grafana (dashboard)                        │
-│                                             │
-└─────────────────────────────────────────────┘
+┌─ vm-monitoring ─────────────────────────────────┐
+│                                                 │
+│  Prometheus ──scrape──▶ node_exporter (各VM)     │
+│      │       ──scrape──▶ ESP32 (IoT sensors)     │
+│      ▼                                          │
+│  Grafana (dashboard)                            │
+│                                                 │
+└─────────────────────────────────────────────────┘
 ```
 
 ## リポジトリ構成

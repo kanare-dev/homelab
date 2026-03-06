@@ -16,3 +16,12 @@ scrape_configs:
           - "192.168.11.21:9100"   # vm-dev
         labels:
           env: "homelab"
+
+  - job_name: "esp32"
+    scrape_interval: 30s
+    static_configs:
+      - targets:
+          - "192.168.11.100:80"    # 01-esp32
+        labels:
+          env: "homelab"
+          device: "esp32"
