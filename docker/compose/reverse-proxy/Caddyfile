@@ -4,17 +4,17 @@
 	auto_https disable_redirects
 }
 
-grafana.home.lab {
+grafana.lab.kanare.dev {
 	reverse_proxy 192.168.11.13:3000
 	tls internal
 }
 
-prometheus.home.lab {
+prometheus.lab.kanare.dev {
 	reverse_proxy 192.168.11.13:9090
 	tls internal
 }
 
-proxmox.home.lab {
+pve.lab.kanare.dev {
 	reverse_proxy https://192.168.11.10:8006 {
 		transport http {
 			tls_insecure_skip_verify

@@ -16,7 +16,7 @@ Day 0 は「何を作るか」を決め、基盤を準備するフェーズ。
 - [ ] Cloud-init テンプレート VM を作成（`terraform/proxmox/README.md` 参照）
 - [ ] Proxmox API トークン発行
 - [ ] `terraform.tfvars` を準備
-- [ ] DNS ドメイン（`home.lab`）を決定
+- [ ] DNS ドメイン（`lab.kanare.dev`）を決定
 - [ ] 秘密情報管理方針を決定（SOPS + age または Ansible Vault）
 
 ### 実行
@@ -62,7 +62,7 @@ cd ansible
 ansible-playbook playbooks/site.yml
 
 # 2. DNS 動作確認（vm-infra 上で）
-dig @192.168.11.11 grafana.home.lab
+dig @192.168.11.11 grafana.lab.kanare.dev
 
 # 3. Monitoring 動作確認
 # ブラウザで http://192.168.11.13:3000 にアクセス
@@ -70,7 +70,7 @@ dig @192.168.11.11 grafana.home.lab
 # "Node Exporter Full" ダッシュボードをインポート（ID: 1860）
 
 # 4. Reverse Proxy 動作確認
-# ブラウザで https://grafana.home.lab にアクセス
+# ブラウザで https://grafana.lab.kanare.dev にアクセス
 ```
 
 ### 推奨ダッシュボード（Grafana）

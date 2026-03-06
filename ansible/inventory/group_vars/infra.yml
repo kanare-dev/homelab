@@ -1,7 +1,7 @@
 ---
 # infra グループ変数
 
-caddy_email: "admin@home.lab"
+caddy_email: "admin@kanare.dev"
 
 # CoreDNS
 coredns_version: "1.11.1"
@@ -12,7 +12,7 @@ coredns_upstream_dns:
 
 # DNS レコード
 dns_records:
-  - name: proxmox
+  - name: pve
     ip: "192.168.11.10"
   - name: infra
     ip: "192.168.11.11"
@@ -29,11 +29,11 @@ dns_records:
 
 # Caddy reverse proxy 設定
 caddy_sites:
-  - domain: "grafana.home.lab"
+  - domain: "grafana.lab.kanare.dev"
     upstream: "192.168.11.13:3000"
-  - domain: "prometheus.home.lab"
+  - domain: "prometheus.lab.kanare.dev"
     upstream: "192.168.11.13:9090"
-  - domain: "proxmox.home.lab"
+  - domain: "pve.lab.kanare.dev"
     upstream: "192.168.11.10:8006"
 
 # UFW

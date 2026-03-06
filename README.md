@@ -112,19 +112,19 @@ Plan A は VM 数を最小化し、1 つの edge VM に DNS・VPN・reverse prox
 
 ### ドメイン命名規約
 
-ローカル DNS に `home.lab` ゾーンを使用する。
+内部 DNS に `lab.kanare.dev` ゾーンを使用する。
 
 | FQDN | IP | 用途 |
 |---|---|---|
-| `proxmox.home.lab` | `192.168.11.10` | Proxmox Web UI |
-| `infra.home.lab` | `192.168.11.11` | インフラ VM |
-| `grafana.home.lab` | `192.168.11.13` | Grafana（reverse proxy 経由） |
-| `prometheus.home.lab` | `192.168.11.13` | Prometheus（reverse proxy 経由） |
-| `apps.home.lab` | `192.168.11.20` | アプリケーション VM |
-| `dev.home.lab` | `192.168.11.21` | 開発 VM |
+| `pve.lab.kanare.dev` | `192.168.11.10` | Proxmox Web UI |
+| `infra.lab.kanare.dev` | `192.168.11.11` | インフラ VM |
+| `grafana.lab.kanare.dev` | `192.168.11.13` | Grafana（reverse proxy 経由） |
+| `prometheus.lab.kanare.dev` | `192.168.11.13` | Prometheus（reverse proxy 経由） |
+| `apps.lab.kanare.dev` | `192.168.11.20` | アプリケーション VM |
+| `dev.lab.kanare.dev` | `192.168.11.21` | 開発 VM |
 
 > [!TIP]
-> 独自ドメイン（例: `lab.example.com`）を持っている場合は、`home.lab` を置き換えて使用できる。Split DNS で外部と内部を使い分けると便利。
+> Split DNS を使えば、外部からは `kanare.dev` の公開レコード、LAN 内では `lab.kanare.dev` の内部レコードを返すように使い分けられる。
 
 ## Reverse Proxy 方針
 

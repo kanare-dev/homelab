@@ -122,7 +122,7 @@ terraform plan   # 差分を確認
    $ ssh ubuntu@192.168.11.11 "journalctl -u coredns --tail=50"
 
 3. 直接クエリして確認
-   $ dig @192.168.11.11 grafana.home.lab
+   $ dig @192.168.11.11 grafana.lab.kanare.dev
 
 4. CoreDNS を再起動
    $ ssh ubuntu@192.168.11.11 "sudo systemctl restart coredns"
