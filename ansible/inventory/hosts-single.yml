@@ -1,0 +1,10 @@
+all:
+  children:
+    monitoring:
+      hosts:
+        vm-apps:
+          ansible_host: 192.168.11.20
+    apps:
+      hosts:
+        vm-apps:
+          ansible_host: 192.168.11.20
