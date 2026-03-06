@@ -27,11 +27,14 @@
         dest: /opt/monitoring/prometheus/prometheus.yml
         mode: "0644"
 
-    - name: Create grafana provisioning directory
+    - name: Create grafana provisioning directories
       ansible.builtin.file:
-        path: /opt/monitoring/grafana/provisioning/datasources
+        path: "{{ item }}"
         state: directory
         mode: "0755"
+      loop:
+        - /opt/monitoring/grafana/provisioning/datasources
+        - /opt/monitoring/grafana/provisioning/dashboards/json
 
     - name: Copy grafana datasource config
       ansible.builtin.copy:
@@ -39,7 +42,26 @@
         dest: /opt/monitoring/grafana/provisioning/datasources/prometheus.yml
         mode: "0644"
 
+    - name: Copy grafana dashboard provisioning config
+      ansible.builtin.copy:
+        src: "{{ playbook_dir }}/../../docker/compose/monitoring/grafana/provisioning/dashboards/dashboards.yml"
+        dest: /opt/monitoring/grafana/provisioning/dashboards/dashboards.yml
+        mode: "0644"
+
+    - name: Download Node Exporter Full dashboard
+      ansible.builtin.get_url:
+        url: https://grafana.com/api/dashboards/1860/revisions/latest/download
+        dest: /opt/monitoring/grafana/provisioning/dashboards/json/node-exporter-full.json
+        mode: "0644"
+
     - name: Start monitoring stack
       community.docker.docker_compose_v2:
         project_src: /opt/monitoring
         state: present
+
+    - name: Restart Grafana to load provisioning changes
+      community.docker.docker_compose_v2:
+        project_src: /opt/monitoring
+        services:
+          - grafana
+        state: restarted
