@@ -54,6 +54,12 @@
         dest: /opt/monitoring/grafana/provisioning/dashboards/json/node-exporter-full.json
         mode: "0644"
 
+    - name: Download ESP32 environment dashboard
+      ansible.builtin.get_url:
+        url: https://raw.githubusercontent.com/kanare-dev/iot-env-monitor/main/infra/grafana/dashboards/environment.json
+        dest: /opt/monitoring/grafana/provisioning/dashboards/json/esp32-environment.json
+        mode: "0644"
+
     - name: Start monitoring stack
       community.docker.docker_compose_v2:
         project_src: /opt/monitoring
