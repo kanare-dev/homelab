@@ -9,14 +9,34 @@ scrape_configs:
 
   - job_name: "node"
     static_configs:
-      - targets:
-          - "192.168.11.10:9100"   # proxmox
-          - "192.168.11.11:9100"   # vm-infra
-          - "192.168.11.13:9100"   # vm-monitoring
-          - "192.168.11.20:9100"   # vm-apps
-          - "192.168.11.21:9100"   # vm-dev
+      - targets: ["192.168.11.10:9100"]   # proxmox
         labels:
           env: "homelab"
+          host: "pve"
+          role: "proxmox"
+      - targets: ["192.168.11.11:9100"]   # vm-infra
+        labels:
+          env: "homelab"
+          host: "vm-infra"
+          role: "infra"
+      - targets: ["192.168.11.13:9100"]   # vm-monitoring
+        labels:
+          env: "homelab"
+          host: "vm-monitoring"
+          role: "monitoring"
+      - targets: ["192.168.11.20:9100"]   # vm-apps
+        labels:
+          env: "homelab"
+          host: "vm-apps"
+          role: "apps"
+      - targets: ["192.168.11.21:9100"]   # vm-dev
+        labels:
+          env: "homelab"
+          host: "vm-dev"
+          role: "dev"
+    relabel_configs:
+      - source_labels: ["host"]
+        target_label: instance
 
   - job_name: "esp32"
     scrape_interval: 30s
