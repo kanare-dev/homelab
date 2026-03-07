@@ -282,7 +282,3 @@ docker compose up -d
 - **LAN 内 TLS** — Caddy の内部 CA 機能でローカル証明書を自動発行
 - **SSH 鍵認証のみ** — パスワード認証は無効化（`common` role で設定）
 - **ファイアウォール** — `ufw` を各 VM で有効化し、必要なポートのみ開放
-
-## ライセンス
-
-[MIT](LICENSE)
