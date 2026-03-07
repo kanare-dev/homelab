@@ -65,9 +65,10 @@
         project_src: /opt/monitoring
         state: present
 
-    - name: Restart Grafana to load provisioning changes
+    - name: Restart monitoring services to load config changes
       community.docker.docker_compose_v2:
         project_src: /opt/monitoring
         services:
+          - prometheus
           - grafana
         state: restarted
