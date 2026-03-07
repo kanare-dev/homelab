@@ -2,6 +2,19 @@
 
 Proxmox 上に複数 VM を構築し、IaC（Terraform + Ansible）と Docker Compose で再現可能に運用する homelab リポジトリ。
 
+## 技術スタック
+
+| レイヤ | 採用技術 | 用途 |
+|---|---|---|
+| ハイパーバイザ | Proxmox VE | VM の作成・実行・管理 |
+| IaC | Terraform | Proxmox 上の VM プロビジョニング |
+| 構成管理 | Ansible | OS 初期設定、Docker、node_exporter、監視基盤のデプロイ |
+| コンテナ実行 | Docker Compose | Prometheus、Grafana、リバースプロキシの起動 |
+| 監視 | Prometheus, Grafana, node_exporter | VM / ホスト / IoT デバイスのメトリクス収集と可視化 |
+| ネットワーク | CoreDNS, Caddy, WireGuard | 内部 DNS、リバースプロキシ、VPN |
+| IoT | ESP32, BME280, Prometheus metrics | 温湿度・気圧の収集と公開 |
+| 秘密情報管理 | SOPS + age, Ansible Vault | 機密情報の暗号化と運用 |
+
 ## 思想
 
 - **再現可能性** — すべての構成をコードで管理し、いつでも同じ環境を再構築できる
