@@ -234,6 +234,33 @@ open http://192.168.11.13:9090
 
 詳細な手順は `docs/next.md` を参照。
 
+## Screenshots
+
+### Proxmox VE — VM 稼働状況
+
+Terraform でプロビジョニングした vm-infra (111) と vm-monitoring (113) が running 状態。
+
+![Proxmox VMs Running](docs/screenshots/proxmox-vms-running.png)
+
+### Grafana — Node Exporter ダッシュボード
+
+`https://grafana.lab.kanare.dev`（CoreDNS + Caddy 経由）で Grafana にアクセスし、
+node_exporter で収集した VM のメトリクスを可視化している。
+
+![Grafana Node Exporter Dashboard](docs/screenshots/grafana-node-exporter-dashboard.png)
+
+### Terraform — 構成の冪等性
+
+`terraform apply` を実行すると `No changes.` となり、実インフラがコードと完全に一致していることを確認。
+
+![Terraform Apply Output](docs/screenshots/terraform-apply-output.png)
+
+### Ansible — Playbook 実行結果
+
+`ansible-playbook` で vm-infra・vm-monitoring の両 VM に設定を適用。`failed=0` で正常完了。
+
+![Ansible Playbook Recap](docs/screenshots/ansible-playbook-recap.png)
+
 ## セキュリティ
 
 - **秘密情報は Git に入れない**: `.env`, `terraform.tfvars`, Ansible Vault ファイルは除外する
