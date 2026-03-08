@@ -13,15 +13,15 @@ coredns_upstream_dns:
 # DNS レコード
 dns_records:
   - name: pve
-    ip: "192.168.11.10"
+    ip: "192.168.11.11"
   - name: infra
     ip: "192.168.11.11"
   - name: monitoring
     ip: "192.168.11.13"
   - name: grafana
-    ip: "192.168.11.13"
+    ip: "192.168.11.11"
   - name: prometheus
-    ip: "192.168.11.13"
+    ip: "192.168.11.11"
   - name: apps
     ip: "192.168.11.20"
   - name: dev

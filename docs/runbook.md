@@ -225,14 +225,33 @@ Proxmox は自己署名証明書のため初回ブラウザ警告が出るが、
 
 #### B. ローカル CA を Mac に信頼させる（`tls internal` のまま使う）
 
+Caddy は起動時に独自のローカル CA（認証局）を自動生成し、それで `*.lab.kanare.dev` の証明書を発行する。
+ブラウザはこの CA を知らないため「証明書エラー」になる。
+解決策は Caddy の CA ルート証明書を Mac のキーチェーンに登録して信頼させること。
+
+`/tmp/caddy-root.crt` は vm-infra 上の Caddy が生成したルート証明書を Mac にコピーしたもの。
+Mac のキーチェーンへの登録が完了すれば `/tmp/` のファイルは不要（削除してよい）。
+
 ```bash
-# vm-infra からルート証明書を取得
+# Caddy のルート証明書を vm-infra から取得して /tmp に保存
 ssh vm-infra "sudo cat /var/lib/caddy/.local/share/caddy/pki/authorities/local/root.crt" > /tmp/caddy-root.crt
 
-# macOS のキーチェーンに追加
+# macOS のキーチェーンに登録（これ以降ブラウザが証明書を信頼する）
 sudo security add-trusted-cert -d -r trustRoot \
   -k /Library/Keychains/System.keychain /tmp/caddy-root.crt
+
+# 登録後は不要なので削除
+rm /tmp/caddy-root.crt
 ```
+
+登録されたか確認する場合:
+
+```bash
+security find-certificate -c "Caddy" /Library/Keychains/System.keychain
+```
+
+> **注意**: Caddy を再インストールしたり vm-infra を作り直したりすると CA が再生成されるため、
+> この手順を再度実行する必要がある。
 
 加えて、Proxmox（HTTPS）へのリバースプロキシは Caddy がバックエンドの自己署名証明書を検証できないため、
 `infra.yml` の Caddy 設定で upstream を `https://192.168.11.10:8006` に変更し、
