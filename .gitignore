@@ -39,3 +39,6 @@ Thumbs.db
 *.swp
 *.swo
 *~
+
+# diagrams
+diagrams/**/reference/**

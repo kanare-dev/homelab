@@ -79,13 +79,13 @@ Proxmox 上に複数 VM を構築し、IaC（Terraform + Ansible）と Docker Co
 
 ## VM 一覧
 
-| 名前 | IP | 役割 | 主なサービス | 依存関係 |
-|---|---|---|---|---|
-| Proxmox | `192.168.11.10` | ハイパーバイザ | Proxmox VE | — |
-| vm-infra | `192.168.11.11` | インフラ基盤 | CoreDNS, Caddy, WireGuard | Proxmox |
-| vm-monitoring | `192.168.11.13` | 監視 | Prometheus, Grafana, node_exporter | Proxmox, vm-infra (DNS) |
-| vm-apps | `192.168.11.20` | アプリケーション | 各種サービス | Proxmox, vm-infra |
-| vm-dev | `192.168.11.21` | 開発・実験 | playground | Proxmox, vm-infra |
+| 名前 | VMID | IP | 役割 | 主なサービス | 依存関係 |
+| --- | --- | --- | --- | --- | --- |
+| Proxmox | — | `192.168.11.10` | ハイパーバイザ | Proxmox VE | — |
+| vm-infra | `111` | `192.168.11.11` | インフラ基盤 | CoreDNS, Caddy, WireGuard | Proxmox |
+| vm-monitoring | `113` | `192.168.11.13` | 監視 | Prometheus, Grafana, node_exporter | Proxmox, vm-infra (DNS) |
+| vm-apps | `120` | `192.168.11.20` | アプリケーション | 各種サービス | Proxmox, vm-infra |
+| vm-dev | `121` | `192.168.11.21` | 開発・実験 | playground | Proxmox, vm-infra |
 
 ## 推奨アーキテクチャ: Plan B（VM 分割ベース）
 
@@ -230,7 +230,7 @@ homelab/
 │           ├── docker-compose.yml
 │           └── Caddyfile
 ├── diagrams/
-│   └── architecture.excalidraw
+│   └── architecture.drawio
 └── docs/
     ├── runbook.md
     └── day0-day1-day2.md
