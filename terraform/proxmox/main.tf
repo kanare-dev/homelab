@@ -11,9 +11,9 @@ module "vm" {
   memory = each.value.memory
   disk   = each.value.disk
 
-  ip_address     = each.value.ip
-  gateway        = var.gateway
-  nameserver     = var.nameserver
-  ssh_public_key = var.ssh_public_key
-  tags           = each.value.tags
+  ip_address       = each.value.ip
+  gateway          = var.gateway
+  nameserver       = var.nameserver
+  ssh_public_key   = coalesce(var.ssh_public_key, trimspace(file(pathexpand("~/.ssh/id_ed25519_homelab.pub"))))
+  tags             = each.value.tags
 }

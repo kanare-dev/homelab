@@ -28,8 +28,9 @@ variable "template_name" {
 }
 
 variable "ssh_public_key" {
-  description = "SSH public key for VM access"
+  description = "SSH public key for VM access (default: ~/.ssh/id_ed25519_homelab.pub)"
   type        = string
+  default     = null
 }
 
 variable "gateway" {
