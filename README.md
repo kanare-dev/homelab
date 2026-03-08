@@ -2,6 +2,10 @@
 
 Proxmox 上に複数 VM を構築し、IaC（Terraform + Ansible）と Docker Compose で再現可能に運用する homelab リポジトリ。
 
+## 構成図
+
+![構成図](diagrams/drawio/architecture.drawio.svg)
+
 ## 技術スタック
 
 | レイヤ | 採用技術 | 用途 |
@@ -229,8 +233,8 @@ homelab/
 │       └── reverse-proxy/
 │           ├── docker-compose.yml
 │           └── Caddyfile
-├── diagrams/
-│   └── architecture.drawio
+├── diagrams/drawio
+│   └── architecture.drawio.svg
 └── docs/
     ├── runbook.md
     └── day0-day1-day2.md
