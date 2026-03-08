@@ -205,20 +205,43 @@ ansible-playbook playbooks/site.yml --vault-password-file ~/.vault_password
 
 ## LAN 内 TLS
 
-### 推奨構成
+### 現在の構成
 
-- Caddy の内部 CA 機能（`tls internal`）で自己署名証明書を自動発行
-- 各クライアントに Caddy の Root CA 証明書をインストール
+Caddy の `tls internal`（ローカル CA）で証明書を自動発行している。
+ブラウザはこの CA を信頼していないため、アクセスには以下のいずれかが必要。
 
-### Caddy Root CA 証明書の取得
+### 選択肢
+
+#### A. 各サービスに IP で直接アクセス（一番手軽）
+
+| サービス | URL |
+| --- | --- |
+| Proxmox | <https://192.168.11.10:8006> |
+| Grafana | <http://192.168.11.13:3000> |
+| Prometheus | <http://192.168.11.13:9090> |
+
+Proxmox は自己署名証明書のため初回ブラウザ警告が出るが、「続ける」で許可すれば使える。
+リバースプロキシを使わないため、追加設定不要。
+
+#### B. ローカル CA を Mac に信頼させる（`tls internal` のまま使う）
 
 ```bash
-# vm-infra 上で
-sudo cat /data/caddy/pki/authorities/local/root.crt
+# vm-infra からルート証明書を取得
+ssh vm-infra "sudo cat /var/lib/caddy/.local/share/caddy/pki/authorities/local/root.crt" > /tmp/caddy-root.crt
 
-# クライアント（macOS）にインストール
+# macOS のキーチェーンに追加
 sudo security add-trusted-cert -d -r trustRoot \
-  -k /Library/Keychains/System.keychain root.crt
+  -k /Library/Keychains/System.keychain /tmp/caddy-root.crt
 ```
 
-将来的に、独自ドメインを持っている場合は Let's Encrypt + DNS-01 チャレンジで正規証明書を取得できる。
+加えて、Proxmox（HTTPS）へのリバースプロキシは Caddy がバックエンドの自己署名証明書を検証できないため、
+`infra.yml` の Caddy 設定で upstream を `https://192.168.11.10:8006` に変更し、
+Caddyfile テンプレートに TLS 検証スキップの設定が必要。
+
+#### C. Let's Encrypt DNS-01 チャレンジ（正規証明書・推奨）
+
+`kanare.dev` を Cloudflare で管理しているため、Caddy に Cloudflare API トークンを渡すことで
+`*.lab.kanare.dev` のワイルドカード証明書をブラウザが信頼する正規の証明書として発行できる。
+クライアント側の設定不要で、全デバイスから証明書警告なしにアクセス可能になる。
+
+→ `docs/roadmap.md` の改善ロードマップに記載済み。
