@@ -55,6 +55,7 @@ resource "proxmox_vm_qemu" "vm" {
   lifecycle {
     ignore_changes = [
       network,
+      startup_shutdown,
     ]
   }
 }
