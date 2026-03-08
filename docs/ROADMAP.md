@@ -12,3 +12,4 @@
   - VLAN50 Guests
 
 - home-assistantを使えるようにしたい
+- ThinkCentre Tinyをラックに乗せたい
