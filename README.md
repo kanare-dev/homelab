@@ -165,6 +165,10 @@ Proxmox 上に複数 VM を構築し、Terraform + Ansible + Docker Compose で�
 ```text
 homelab/
 ├── README.md
+├── tools/
+│   └── lab/                # 監視 CLI (Go)
+│       ├── lab.yaml        # VM・サービス定義
+│       └── README.md
 ├── terraform/
 │   └── proxmox/
 ├── ansible/
@@ -230,6 +234,9 @@ open http://192.168.11.13:3000
 
 # Prometheus
 open http://192.168.11.13:9090
+
+# lab CLI で一括確認
+cd tools/lab && go mod tidy && go build -o lab . && ./lab status
 ```
 
 詳細な手順は `docs/next.md` を参照。

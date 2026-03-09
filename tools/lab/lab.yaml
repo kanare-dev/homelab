@@ -1,0 +1,37 @@
+# homelab 監視 CLI 設定
+# VM 名、サービス、チェック方法を定義
+
+hosts:
+  vm-infra:
+    ip: 192.168.11.11
+    services:
+      - name: coredns
+        check: tcp
+        port: 53
+      - name: caddy
+        check: http
+        url: http://192.168.11.11:80/
+      - name: wireguard
+        check: udp
+        port: 51820
+  vm-monitoring:
+    ip: 192.168.11.13
+    services:
+      - name: grafana
+        check: http
+        url: http://192.168.11.13:3000/api/health
+      - name: prometheus
+        check: http
+        url: http://192.168.11.13:9090/-/healthy
+      - name: node_exporter
+        check: tcp
+        port: 9100
+  vm-dev:
+    ip: 192.168.11.21
+    services:
+      - name: node_exporter
+        check: tcp
+        port: 9100
+  vm-apps:
+    ip: 192.168.11.20
+    services: []
