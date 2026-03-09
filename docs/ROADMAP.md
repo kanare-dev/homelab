@@ -8,6 +8,14 @@ README に書く現行構成は `8GB` 前提の最小実用構成とし、この
 - [ ] `vm-dev` を Ansible、Docker、ネットワーク設定の破壊検証用として運用する
 - [ ] Alertmanager を追加して監視通知を受け取れるようにする
 - [ ] TO-BEとAS-ISの構成図を描く
+- WireGuardを使えるようにする
+- pveのドメイン名を解決できるようにする
+- DNS設計
+- Let's Encrypt
+- Cloudflare Tunnel
+- Split-Horizon DNS
+- ルータ側でDNS=192.168.11.11に設定する
+- blackbox_exporter 
 
 ## メモリ増設後にやりたいこと
 
@@ -36,6 +44,7 @@ README に書く現行構成は `8GB` 前提の最小実用構成とし、この
 - OPNSenseの導入
 - truenasの導入
 - telegraf, influxDBの導入
+
 
 - 以下の構成：
 
