@@ -4,9 +4,10 @@ README に書く現行構成は `8GB` 前提の最小実用構成とし、この
 
 ## 近い将来
 
-- `vm-infra` と `vm-monitoring` の構成を Terraform + Ansible で完全再現できるようにする
-- `vm-dev` を Ansible、Docker、ネットワーク設定の破壊検証用として運用する
-- Alertmanager を追加して監視通知を受け取れるようにする
+- [x] `vm-infra` と `vm-monitoring` の構成を Terraform + Ansible で完全再現できるようにする
+- [ ] `vm-dev` を Ansible、Docker、ネットワーク設定の破壊検証用として運用する
+- [ ] Alertmanager を追加して監視通知を受け取れるようにする
+- [ ] TO-BEとAS-ISの構成図を描く
 
 ## メモリ増設後にやりたいこと
 
@@ -30,3 +31,31 @@ README に書く現行構成は `8GB` 前提の最小実用構成とし、この
 - WireGuard を外部アクセスの標準入口にする
 - ThinkCentre Tiny をラックに搭載する
 - メモリ増設後に k3s などのクラスタ構成を検討する
+- portainerの導入
+- treafikの導入
+- OPNSenseの導入
+- truenasの導入
+- telegraf, influxDBの導入
+
+- 以下の構成：
+
+```plaintext
+Traefik
+↓
+HomeAssistant
+Emby
+Frigate
+Grafana
+```
+
+```plaintext
+ESP32
+↓
+MQTT (Mosquitto)
+↓
+HomeAssistant
+↓
+Prometheus
+↓
+Grafana
+```
