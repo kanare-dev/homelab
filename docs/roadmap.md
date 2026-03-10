@@ -49,6 +49,9 @@ README に書く現行構成は `8GB` 前提の最小実用構成とし、この
 - OPNSenseの導入
 - truenasの導入
 - telegraf, influxDBの導入
+- uptime-kumaの導入
+- embyの導入
+- frigateの導入
 
 - 以下の構成：
 
