@@ -15,7 +15,10 @@ README に書く現行構成は `8GB` 前提の最小実用構成とし、この
 - [ ] Proxmox 上でホームラボのトップページをホスティングしたい
 - [ ] blackbox_exporter で外形監視を追加する
 - [ ] Portainer で Docker の状態を可視化する
-- [ ] Pi-hole を入れてみたい
+- [ ] DNS を AdGuard Home + Unbound に移行する（CoreDNS を置き換え）
+  - AdGuard Home: 広告ブロック・クエリログ・`lab.kanare.dev` 内部レコード管理
+  - Unbound: フルリゾルバ（1.1.1.1 等に依存せずルートから再帰解決・プライバシー向上）
+  - vm-infra 上の Docker Compose に両方載せる
 
 ## 外部アクセス（将来）
 
