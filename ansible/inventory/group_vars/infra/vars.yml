@@ -1,5 +1,6 @@
 ---
 cloudflare_api_token: "{{ vault_cloudflare_api_token }}"
+tailscale_authkey: "{{ vault_tailscale_authkey }}"
 
 # CoreDNS
 domain: "lab.kanare.dev"
