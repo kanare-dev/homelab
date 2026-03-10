@@ -5,20 +5,23 @@ README に書く現行構成は `8GB` 前提の最小実用構成とし、この
 ## 近い将来
 
 - [x] `vm-infra` と `vm-monitoring` の構成を Terraform + Ansible で完全再現できるようにする
+- [x] CoreDNS で `lab.kanare.dev` 内部ゾーンを運用する
+- [x] Caddy を Docker Compose 化し、Cloudflare DNS-01 チャレンジで Let's Encrypt 証明書を取得する
+- [x] `pve.lab.kanare.dev` を Caddy 経由で解決できるようにする
+- [ ] Tailscale を vm-infra にサブネットルーターとして導入し、外出先からホームラボにアクセスできるようにする（二重NAT環境のためWireGuardの代替）
 - [ ] `vm-dev` を Ansible、Docker、ネットワーク設定の破壊検証用として運用する
 - [ ] Alertmanager を追加して監視通知を受け取れるようにする
-- [ ] TO-BEとAS-ISの構成図を描く
-- WireGuardを使えるようにする
-- pveのドメイン名を解決できるようにする
-- DNS設計
-- Let's EncryptnoDNS-01チャレンジでDNSのTXTレコードを書き換える
-- Cloudflare Tunnel
-- Split-Horizon DNS
-- ルータ側でDNS=192.168.11.11に設定する(落ちても大丈夫なようにセカンダリも設定したい)
-- Proxmox上でhomelabのトップページをホスティングしたい
-- blackbox_exporter
-- PortainerでDockerの状態を可視化
-- Piholeを入れてみたい
+- [ ] TO-BE と AS-IS の構成図を描く
+- [ ] Proxmox 上でホームラボのトップページをホスティングしたい
+- [ ] blackbox_exporter で外形監視を追加する
+- [ ] Portainer で Docker の状態を可視化する
+- [ ] Pi-hole を入れてみたい
+
+## 外部アクセス（将来）
+
+- [ ] Cloudflare Tunnel を導入し、`grafana.lab.kanare.dev` 等を外部公開する
+- [ ] Split-Horizon DNS を構成する（LAN内は CoreDNS→Caddy 経由、外部は Cloudflare Tunnel 経由で同一 FQDN でアクセス）
+- [ ] Tailscale は SSH 等の管理アクセス用として継続利用する
 
 ## メモリ増設後にやりたいこと
 
