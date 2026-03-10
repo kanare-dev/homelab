@@ -9,22 +9,19 @@ README に書く現行構成は `8GB` 前提の最小実用構成とし、この
 - [x] Caddy を Docker Compose 化し、Cloudflare DNS-01 チャレンジで Let's Encrypt 証明書を取得する
 - [x] `pve.lab.kanare.dev` を Caddy 経由で解決できるようにする
 - [x] Tailscale を vm-infra にサブネットルーターとして導入し、外出先からホームラボにアクセスできるようにする（二重NAT環境のためWireGuardの代替）
-- [ ] `vm-dev` を Ansible、Docker、ネットワーク設定の破壊検証用として運用する
-- [ ] Alertmanager を追加して監視通知を受け取れるようにする
-- [ ] TO-BE と AS-IS の構成図を描く
+- [ ] Cloudflare Tunnel を導入し、`grafana.lab.kanare.dev` 等を外部公開する
+- [ ] Split-Horizon DNS を構成する（LAN内は CoreDNS→Caddy 経由、外部は Cloudflare Tunnel 経由で同一 FQDN でアクセス）
+- [ ] Tailscale は SSH 等の管理アクセス用として継続利用する
 - [ ] Proxmox 上でホームラボのトップページをホスティングしたい
 - [ ] blackbox_exporter で外形監視を追加する
 - [ ] Portainer で Docker の状態を可視化する
+- [ ] `vm-dev` を Ansible、Docker、ネットワーク設定の破壊検証用として運用する
+- [ ] Alertmanager を追加して監視通知を受け取れるようにする
+- [ ] TO-BE と AS-IS の構成図を描く
 - [ ] DNS を AdGuard Home + Unbound に移行する（CoreDNS を置き換え）
   - AdGuard Home: 広告ブロック・クエリログ・`lab.kanare.dev` 内部レコード管理
   - Unbound: フルリゾルバ（1.1.1.1 等に依存せずルートから再帰解決・プライバシー向上）
   - vm-infra 上の Docker Compose に両方載せる
-
-## 外部アクセス（将来）
-
-- [ ] Cloudflare Tunnel を導入し、`grafana.lab.kanare.dev` 等を外部公開する
-- [ ] Split-Horizon DNS を構成する（LAN内は CoreDNS→Caddy 経由、外部は Cloudflare Tunnel 経由で同一 FQDN でアクセス）
-- [ ] Tailscale は SSH 等の管理アクセス用として継続利用する
 
 ## メモリ増設後にやりたいこと
 
@@ -45,7 +42,6 @@ README に書く現行構成は `8GB` 前提の最小実用構成とし、この
 ## 将来試したいこと
 
 - Home Assistant の本格運用
-- Tailscale を外部アクセスの標準入口にする（二重NAT環境のためWireGuardの代替）
 - ThinkCentre Tiny をラックに搭載する
 - メモリ増設後に k3s などのクラスタ構成を検討する
 - portainerの導入
@@ -53,7 +49,6 @@ README に書く現行構成は `8GB` 前提の最小実用構成とし、この
 - OPNSenseの導入
 - truenasの導入
 - telegraf, influxDBの導入
-
 
 - 以下の構成：
 
