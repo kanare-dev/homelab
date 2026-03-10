@@ -11,7 +11,7 @@ README に書く現行構成は `8GB` 前提の最小実用構成とし、この
 - WireGuardを使えるようにする
 - pveのドメイン名を解決できるようにする
 - DNS設計
-- Let's Encrypt
+- Let's EncryptnoDNS-01チャレンジでDNSのTXTレコードを書き換える
 - Cloudflare Tunnel
 - Split-Horizon DNS
 - ルータ側でDNS=192.168.11.11に設定する(落ちても大丈夫なようにセカンダリも設定したい)
