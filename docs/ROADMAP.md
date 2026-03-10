@@ -14,8 +14,11 @@ README に書く現行構成は `8GB` 前提の最小実用構成とし、この
 - Let's Encrypt
 - Cloudflare Tunnel
 - Split-Horizon DNS
-- ルータ側でDNS=192.168.11.11に設定する
-- blackbox_exporter 
+- ルータ側でDNS=192.168.11.11に設定する(落ちても大丈夫なようにセカンダリも設定したい)
+- Proxmox上でhomelabのトップページをホスティングしたい
+- blackbox_exporter
+- PortainerでDockerの状態を可視化
+- Piholeを入れてみたい
 
 ## メモリ増設後にやりたいこと
 
