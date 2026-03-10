@@ -12,7 +12,7 @@ README に書く現行構成は `8GB` 前提の最小実用構成とし、この
 - [ ] Cloudflare Tunnel を導入し、`grafana.lab.kanare.dev` 等を外部公開する
 - [ ] Split-Horizon DNS を構成する（LAN内は CoreDNS→Caddy 経由、外部は Cloudflare Tunnel 経由で同一 FQDN でアクセス）
 - [ ] Tailscale は SSH 等の管理アクセス用として継続利用する
-- [ ] Proxmox 上でホームラボのトップページをホスティングしたい
+- [ ] Proxmox 上でホームラボのトップページをホスティングしたい (Homepage/Dashy)
 - [ ] blackbox_exporter で外形監視を追加する
 - [ ] Portainer で Docker の状態を可視化する
 - [ ] メモリの配分を見直しする
@@ -51,11 +51,12 @@ README に書く現行構成は `8GB` 前提の最小実用構成とし、この
 - VM テンプレートの Packer 化
 - portainerの導入
 - treafikの導入
+- Lokiの導入
 - OPNSenseの導入
-- truenasの導入
+- NASの導入 ·TrueNAS
 - telegraf, influxDBの導入
 - uptime-kumaの導入
-- embyの導入
+- メディアサーバの導入 (Jellyfin/Plex/Emby)
 - IPカメラ、frigateの導入
 - テレビの統合
 
