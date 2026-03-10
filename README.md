@@ -202,7 +202,7 @@ homelab/
 ### 1. リポジトリをクローン
 
 ```bash
-git clone https://github.com/<your-user>/homelab.git
+git clone https://github.com/kanare-dev/homelab.git
 cd homelab
 ```
 
