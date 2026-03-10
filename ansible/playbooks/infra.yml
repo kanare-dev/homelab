@@ -3,4 +3,51 @@
   hosts: infra
   roles:
     - coredns
-    - caddy
+  tasks:
+    - name: Create reverse-proxy directory
+      ansible.builtin.file:
+        path: /opt/reverse-proxy
+        state: directory
+        owner: "{{ ansible_user }}"
+        mode: "0755"
+
+    - name: Copy Dockerfile
+      ansible.builtin.copy:
+        src: "{{ playbook_dir }}/../../docker/compose/reverse-proxy/Dockerfile"
+        dest: /opt/reverse-proxy/Dockerfile
+        mode: "0644"
+
+    - name: Copy docker-compose.yml
+      ansible.builtin.copy:
+        src: "{{ playbook_dir }}/../../docker/compose/reverse-proxy/docker-compose.yml"
+        dest: /opt/reverse-proxy/docker-compose.yml
+        mode: "0644"
+
+    - name: Copy Caddyfile
+      ansible.builtin.copy:
+        src: "{{ playbook_dir }}/../../docker/compose/reverse-proxy/Caddyfile"
+        dest: /opt/reverse-proxy/Caddyfile
+        mode: "0644"
+      notify: restart caddy
+
+    - name: Deploy .env with Cloudflare API token
+      ansible.builtin.template:
+        src: "{{ playbook_dir }}/../templates/reverse-proxy.env.j2"
+        dest: /opt/reverse-proxy/.env
+        owner: "{{ ansible_user }}"
+        mode: "0600"
+      notify: restart caddy
+
+    - name: Build and start reverse-proxy stack
+      community.docker.docker_compose_v2:
+        project_src: /opt/reverse-proxy
+        build: always
+        state: present
+
+  handlers:
+    - name: restart caddy
+      community.docker.docker_compose_v2:
+        project_src: /opt/reverse-proxy
+        services:
+          - caddy
+        state: restarted

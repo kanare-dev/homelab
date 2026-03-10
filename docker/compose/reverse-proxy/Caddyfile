@@ -1,17 +1,21 @@
 {
-	# LAN 内部のため内部 CA を使用
-	local_certs
 	auto_https disable_redirects
 }
 
 grafana.lab.kanare.dev {
 	reverse_proxy 192.168.11.13:3000
-	tls internal
+	tls {
+		dns cloudflare {env.CLOUDFLARE_API_TOKEN}
+		resolvers 1.1.1.1
+	}
 }
 
 prometheus.lab.kanare.dev {
 	reverse_proxy 192.168.11.13:9090
-	tls internal
+	tls {
+		dns cloudflare {env.CLOUDFLARE_API_TOKEN}
+		resolvers 1.1.1.1
+	}
 }
 
 pve.lab.kanare.dev {
@@ -20,5 +24,8 @@ pve.lab.kanare.dev {
 			tls_insecure_skip_verify
 		}
 	}
-	tls internal
+	tls {
+		dns cloudflare {env.CLOUDFLARE_API_TOKEN}
+		resolvers 1.1.1.1
+	}
 }

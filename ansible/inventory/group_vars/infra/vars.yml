@@ -1,0 +1,13 @@
+---
+cloudflare_api_token: "{{ vault_cloudflare_api_token }}"
+
+# CoreDNS
+domain: "lab.kanare.dev"
+static_ip: "192.168.11.11"
+dns_records:
+  - { name: "grafana",       ip: "192.168.11.11" }
+  - { name: "prometheus",    ip: "192.168.11.11" }
+  - { name: "pve",           ip: "192.168.11.11" }
+  - { name: "infra",         ip: "192.168.11.11" }
+  - { name: "vm-infra",      ip: "192.168.11.11" }
+  - { name: "vm-monitoring", ip: "192.168.11.13" }
