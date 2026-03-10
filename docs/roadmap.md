@@ -15,6 +15,7 @@ README に書く現行構成は `8GB` 前提の最小実用構成とし、この
 - [ ] Proxmox 上でホームラボのトップページをホスティングしたい
 - [ ] blackbox_exporter で外形監視を追加する
 - [ ] Portainer で Docker の状態を可視化する
+- [ ] メモリの配分を見直しする
 - [ ] `vm-dev` を Ansible、Docker、ネットワーク設定の破壊検証用として運用する
 - [ ] Alertmanager を追加して監視通知を受け取れるようにする
 - [ ] TO-BE と AS-IS の構成図を描く
