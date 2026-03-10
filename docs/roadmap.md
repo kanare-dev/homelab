@@ -8,7 +8,7 @@ README に書く現行構成は `8GB` 前提の最小実用構成とし、この
 - [x] CoreDNS で `lab.kanare.dev` 内部ゾーンを運用する
 - [x] Caddy を Docker Compose 化し、Cloudflare DNS-01 チャレンジで Let's Encrypt 証明書を取得する
 - [x] `pve.lab.kanare.dev` を Caddy 経由で解決できるようにする
-- [ ] Tailscale を vm-infra にサブネットルーターとして導入し、外出先からホームラボにアクセスできるようにする（二重NAT環境のためWireGuardの代替）
+- [x] Tailscale を vm-infra にサブネットルーターとして導入し、外出先からホームラボにアクセスできるようにする（二重NAT環境のためWireGuardの代替）
 - [ ] `vm-dev` を Ansible、Docker、ネットワーク設定の破壊検証用として運用する
 - [ ] Alertmanager を追加して監視通知を受け取れるようにする
 - [ ] TO-BE と AS-IS の構成図を描く
