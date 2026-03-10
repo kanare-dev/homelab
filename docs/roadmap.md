@@ -2,11 +2,13 @@
 
 README に書く現行構成は `8GB` 前提の最小実用構成とし、このファイルではその先の拡張計画を整理する。
 
+---
+
 ## 完了済み
 
 ### インフラ基盤
 
-- [x] ハードウェア調達・ラッキング
+- [x] ハードウェア調達
 - [x] Proxmox VE インストール（`192.168.11.10`）
 - [x] ネットワーク設計確定（IP 規約は `README.md` 参照）
 - [x] SSH 鍵ペア生成
@@ -28,78 +30,66 @@ README に書く現行構成は `8GB` 前提の最小実用構成とし、この
 - [x] Reverse Proxy 経由のアクセス確認（`grafana.lab.kanare.dev`, `prometheus.lab.kanare.dev`）
 - [x] Tailscale を vm-infra にサブネットルーターとして導入し、外出先からホームラボにアクセスできるようにする（二重NAT環境のためWireGuardの代替）
 
-## 近い将来
+---
+
+## ネットワーク・DNS
 
 - [ ] Cloudflare Tunnel を導入し、`grafana.lab.kanare.dev` 等を外部公開する
 - [ ] Split-Horizon DNS を構成する（LAN内は CoreDNS→Caddy 経由、外部は Cloudflare Tunnel 経由で同一 FQDN でアクセス）
 - [ ] Tailscale は SSH 等の管理アクセス用として継続利用する
-- [ ] Proxmox 上でホームラボのトップページをホスティングしたい (Homepage/Dashy)
-- [ ] blackbox_exporter で外形監視を追加する
-- [ ] Portainer で Docker の状態を可視化する
-- [ ] メモリの配分を見直しする
-- [ ] `vm-dev` を Ansible、Docker、ネットワーク設定の破壊検証用として運用する
-- [ ] Alertmanager を追加して監視通知を受け取れるようにする
-- [ ] TO-BE と AS-IS の構成図を描く
-- [ ] バックアップ自動化（Proxmox Backup Server or restic）
-- [ ] CI/CD パイプライン（GitHub Actions で lint + plan）
 - [ ] DNS を AdGuard Home + Unbound に移行する（CoreDNS を置き換え）
   - AdGuard Home: 広告ブロック・クエリログ・`lab.kanare.dev` 内部レコード管理
   - Unbound: フルリゾルバ（1.1.1.1 等に依存せずルートから再帰解決・プライバシー向上）
   - vm-infra 上の Docker Compose に両方載せる
+- [ ] Buffalo ルータから TP-Link（ルータ + Managed Switch + AP）に分離して Omada で管理する
+- [ ] VLAN を構成する（VLAN10 Management / VLAN20 Servers / VLAN30 Clients / VLAN40 IoT / VLAN50 Guests）
+- [ ] OPNSense の導入
 
-## メモリ増設後にやりたいこと
+## 監視・可観測性
 
-- `vm-apps` を常時起動し、Home Assistant などのアプリを載せる
-- Loki + Promtail などのログ基盤を検討する
-- より重いワークロードや複数アプリを分離運用する
+- [ ] blackbox_exporter で外形監視を追加する
+- [ ] Alertmanager を追加して監視通知を受け取れるようにする
+- [ ] uptime-kuma の導入
+- [ ] Loki + Promtail でログ収集基盤を構築する
+- [ ] telegraf + InfluxDB の導入
 
-## ネットワーク構成の改良
+## インフラ・IaC・運用
 
-- 現状の Buffalo ルータから、TP-Link 製のルータ、Managed Switch、AP に分離して Omada で管理する
-- VLAN を構成する
-- VLAN10 Management
-- VLAN20 Servers
-- VLAN30 Clients
-- VLAN40 IoT
-- VLAN50 Guests
+- [ ] TO-BE と AS-IS の構成図を描く
+- [ ] メモリの配分を見直しする
+- [ ] `vm-dev` を Ansible、Docker、ネットワーク設定の破壊検証用として運用する
+- [ ] バックアップ自動化（Proxmox Backup Server or restic）
+- [ ] CI/CD パイプライン（GitHub Actions で lint + plan）
+- [ ] VM テンプレートの Packer 化
 
-## 将来試したいこと
+## 可視化・管理 UI
 
-- Home Assistant の本格運用, SwitchBotの統合
-- ThinkCentre Tiny をラックに搭載する
-- メモリ増設後に k3s などのクラスタ構成を検討する
-- UPS 導入と自動シャットダウン
-- VM テンプレートの Packer 化
-- portainerの導入
-- treafikの導入
-- Lokiの導入
-- OPNSenseの導入
-- NASの導入 ·TrueNAS
-- telegraf, influxDBの導入
-- uptime-kumaの導入
-- メディアサーバの導入 (Jellyfin/Plex/Emby)
-- IPカメラ、frigateの導入
-- テレビの統合
+- [ ] Proxmox 上でホームラボのトップページをホスティングしたい (Homepage/Dashy)
+- [ ] Portainer で Docker の状態を可視化する
+- [ ] Traefik の導入
 
-- 以下の構成：
+## ハードウェア・拡張
 
-```plaintext
-Traefik
-↓
-HomeAssistant
-Emby
-Frigate
-Grafana
-```
+- [ ] メモリ増設
+- [ ] ThinkCentre Tiny をラックに搭載する
+- [ ] NAS の導入（TrueNAS）
+- [ ] UPS 導入と自動シャットダウン
 
-```plaintext
-ESP32
-↓
-MQTT (Mosquitto)
-↓
-HomeAssistant
-↓
-Prometheus
-↓
-Grafana
-```
+## メモリ増設後
+
+- [ ] `vm-apps` を常時起動し、各種アプリを載せる
+- [ ] k3s などのクラスタ構成を検討する
+- [ ] より重いワークロードや複数アプリを分離運用する
+
+## ホームオートメーション
+
+- [ ] Home Assistant の本格運用、SwitchBot の統合
+- [ ] MQTT (Mosquitto) + ESP32 連携
+
+  ```plaintext
+  ESP32 → MQTT → HomeAssistant → Prometheus → Grafana
+  ```
+
+- [ ] IPカメラ + Frigate の導入
+- [ ] メディアサーバの導入（Jellyfin / Plex / Emby）
+- [ ] テレビの統合
