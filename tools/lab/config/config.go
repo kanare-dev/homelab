@@ -18,10 +18,11 @@ type Host struct {
 }
 
 type Service struct {
-	Name  string `yaml:"name"`
-	Check string `yaml:"check"` // tcp, udp, http
-	Port  int    `yaml:"port"`
-	URL   string `yaml:"url"`
+	Name    string `yaml:"name"`
+	Check   string `yaml:"check"` // tcp, udp, http, ssh
+	Port    int    `yaml:"port"`
+	URL     string `yaml:"url"`
+	Command string `yaml:"command"` // ssh check で実行するコマンド
 }
 
 func Load(path string) (*Config, error) {

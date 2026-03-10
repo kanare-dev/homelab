@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"net"
 	"net/http"
+	"os"
+	"os/exec"
 	"time"
 
 	"lab/config"
@@ -41,6 +43,8 @@ func checkService(ctx context.Context, ip string, svc *config.Service) string {
 		return checkUDP(ctx, ip, svc.Port)
 	case "http":
 		return checkHTTP(ctx, svc.URL)
+	case "ssh":
+		return checkSSH(ctx, ip, svc.Command)
 	default:
 		return "UNKNOWN"
 	}
@@ -65,6 +69,22 @@ func checkUDP(ctx context.Context, ip string, port int) string {
 		return "DOWN"
 	}
 	conn.Close()
+	return "UP"
+}
+
+func checkSSH(ctx context.Context, ip string, command string) string {
+	home, _ := os.UserHomeDir()
+	cmd := exec.CommandContext(ctx, "ssh",
+		"-o", "ConnectTimeout=3",
+		"-o", "StrictHostKeyChecking=no",
+		"-o", "BatchMode=yes",
+		"-i", home+"/.ssh/id_ed25519_homelab",
+		"ubuntu@"+ip,
+		command,
+	)
+	if err := cmd.Run(); err != nil {
+		return "DOWN"
+	}
 	return "UP"
 }
 

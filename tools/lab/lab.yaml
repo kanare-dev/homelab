@@ -9,11 +9,11 @@ hosts:
         check: tcp
         port: 53
       - name: caddy
-        check: http
-        url: http://192.168.11.11:80/
-      - name: wireguard
-        check: udp
-        port: 51820
+        check: tcp
+        port: 443
+      - name: tailscale
+        check: ssh
+        command: tailscale status
   vm-monitoring:
     ip: 192.168.11.13
     services:
