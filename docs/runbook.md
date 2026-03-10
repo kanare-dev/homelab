@@ -207,60 +207,63 @@ ansible-playbook playbooks/site.yml --vault-password-file ~/.vault_password
 
 ### 現在の構成
 
-Caddy の `tls internal`（ローカル CA）で証明書を自動発行している。
-ブラウザはこの CA を信頼していないため、アクセスには以下のいずれかが必要。
+`vm-infra` 上の Caddy（Docker Compose）が Cloudflare DNS-01 チャレンジで Let's Encrypt 証明書を取得し、各サービスへのリバースプロキシを担う。
 
-### 選択肢
-
-#### A. 各サービスに IP で直接アクセス（一番手軽）
+- 証明書はドメインごとに個別取得（`*.lab.kanare.dev` ワイルドカードではなく各 FQDN）
+- クライアント側の設定不要。全デバイスからブラウザ警告なしにアクセス可能
+- `CLOUDFLARE_API_TOKEN` 環境変数（`.env`）で Cloudflare API を認証
 
 | サービス | URL |
 | --- | --- |
-| Proxmox | <https://192.168.11.10:8006> |
-| Grafana | <http://192.168.11.13:3000> |
-| Prometheus | <http://192.168.11.13:9090> |
+| Proxmox | <https://pve.lab.kanare.dev> |
+| Grafana | <https://grafana.lab.kanare.dev> |
+| Prometheus | <https://prometheus.lab.kanare.dev> |
 
-Proxmox は自己署名証明書のため初回ブラウザ警告が出るが、「続ける」で許可すれば使える。
-リバースプロキシを使わないため、追加設定不要。
+設定ファイル: `docker/compose/reverse-proxy/Caddyfile`
 
-#### B. ローカル CA を Mac に信頼させる（`tls internal` のまま使う）
-
-Caddy は起動時に独自のローカル CA（認証局）を自動生成し、それで `*.lab.kanare.dev` の証明書を発行する。
-ブラウザはこの CA を知らないため「証明書エラー」になる。
-解決策は Caddy の CA ルート証明書を Mac のキーチェーンに登録して信頼させること。
-
-`/tmp/caddy-root.crt` は vm-infra 上の Caddy が生成したルート証明書を Mac にコピーしたもの。
-Mac のキーチェーンへの登録が完了すれば `/tmp/` のファイルは不要（削除してよい）。
+### 証明書の状態確認
 
 ```bash
-# Caddy のルート証明書を vm-infra から取得して /tmp に保存
-ssh vm-infra "sudo cat /var/lib/caddy/.local/share/caddy/pki/authorities/local/root.crt" > /tmp/caddy-root.crt
+# Caddy のログで証明書取得状況を確認
+ssh ubuntu@192.168.11.11 "cd /opt/reverse-proxy && docker compose logs caddy | grep -i tls"
 
-# macOS のキーチェーンに登録（これ以降ブラウザが証明書を信頼する）
-sudo security add-trusted-cert -d -r trustRoot \
-  -k /Library/Keychains/System.keychain /tmp/caddy-root.crt
-
-# 登録後は不要なので削除
-rm /tmp/caddy-root.crt
+# 証明書の有効期限を確認（例: grafana）
+echo | openssl s_client -connect grafana.lab.kanare.dev:443 2>/dev/null \
+  | openssl x509 -noout -dates
 ```
 
-登録されたか確認する場合:
+### 証明書の更新
+
+Caddy は自動で更新するため通常は手動操作不要。
+更新に失敗している場合は以下を確認する。
 
 ```bash
-security find-certificate -c "Caddy" /Library/Keychains/System.keychain
+# Caddy コンテナの再起動（更新を強制トリガー）
+ssh ubuntu@192.168.11.11 "cd /opt/reverse-proxy && docker compose restart caddy"
+
+# Cloudflare API トークンが有効か確認（.env が正しいか）
+ssh ubuntu@192.168.11.11 "cat /opt/reverse-proxy/.env"
 ```
 
-> **注意**: Caddy を再インストールしたり vm-infra を作り直したりすると CA が再生成されるため、
-> この手順を再度実行する必要がある。
+### 新しいサービスを追加する
 
-加えて、Proxmox（HTTPS）へのリバースプロキシは Caddy がバックエンドの自己署名証明書を検証できないため、
-`infra.yml` の Caddy 設定で upstream を `https://192.168.11.10:8006` に変更し、
-Caddyfile テンプレートに TLS 検証スキップの設定が必要。
+`docker/compose/reverse-proxy/Caddyfile` に以下のブロックを追記し、Caddy を再起動する。
 
-#### C. Let's Encrypt DNS-01 チャレンジ（正規証明書・推奨）
+```
+newservice.lab.kanare.dev {
+	reverse_proxy 192.168.11.XX:PORT
+	tls {
+		dns cloudflare {env.CLOUDFLARE_API_TOKEN}
+		resolvers 1.1.1.1
+	}
+}
+```
 
-`kanare.dev` を Cloudflare で管理しているため、Caddy に Cloudflare API トークンを渡すことで
-`*.lab.kanare.dev` のワイルドカード証明書をブラウザが信頼する正規の証明書として発行できる。
-クライアント側の設定不要で、全デバイスから証明書警告なしにアクセス可能になる。
+```bash
+ssh ubuntu@192.168.11.11 "cd /opt/reverse-proxy && docker compose up -d --force-recreate caddy"
+```
 
-→ `docs/roadmap.md` の改善ロードマップに記載済み。
+### Proxmox へのリバースプロキシについて
+
+Proxmox のバックエンドは自己署名証明書のため、Caddyfile で `tls_insecure_skip_verify` を設定している。
+これは LAN 内のみでのアクセスかつ Proxmox 自体の証明書管理が難しいための措置。
