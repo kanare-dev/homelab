@@ -122,7 +122,7 @@ Day 2 は継続的な運用と改善のフェーズ。
 
 ### 改善ロードマップ
 
-- [ ] Tailscale を vm-infra にサブネットルーターとして導入（外出先からホームラボへのリモートアクセス）
+- [x] Tailscale を vm-infra にサブネットルーターとして導入（外出先からホームラボへのリモートアクセス）
 - [ ] DNS を AdGuard Home + Unbound に移行（CoreDNS を置き換え、広告ブロック・クエリログ・プライバシー向上）
 - [ ] Cloudflare Tunnel + Split-Horizon DNS で外部からも同一 FQDN でアクセスできるようにする
 - [ ] Alertmanager 導入（Slack / Discord 通知）
