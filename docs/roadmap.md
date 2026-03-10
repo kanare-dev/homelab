@@ -45,7 +45,7 @@ README に書く現行構成は `8GB` 前提の最小実用構成とし、この
 ## 将来試したいこと
 
 - Home Assistant の本格運用
-- WireGuard を外部アクセスの標準入口にする
+- Tailscale を外部アクセスの標準入口にする（二重NAT環境のためWireGuardの代替）
 - ThinkCentre Tiny をラックに搭載する
 - メモリ増設後に k3s などのクラスタ構成を検討する
 - portainerの導入

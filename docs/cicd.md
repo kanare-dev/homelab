@@ -33,7 +33,7 @@ flowchart LR
 ### 前提条件
 
 - GitHub Actions の self-hosted runner を LAN 内 VM（vm-infra 等）に配置する
-- または WireGuard VPN 経由で GitHub hosted runner から LAN に接続する
+- または Tailscale VPN 経由で GitHub hosted runner から LAN に接続する
 - Proxmox API トークン・SSH 秘密鍵を GitHub Secrets に登録する
 
 ### フロー
@@ -62,7 +62,7 @@ flowchart TD
     ansible["ansible-playbook"]
     proxmox["🖥️ Proxmox VE\n192.168.11.10"]
     vms["📦 VMs\nvm-infra / vm-monitoring"]
-    runner["🏃 self-hosted runner\n(vm-infra or WireGuard VPN)"]
+    runner["🏃 self-hosted runner\n(vm-infra or Tailscale VPN)"]
 
     dev -->|git push| pr
     dev -->|approve & merge| main
@@ -81,15 +81,15 @@ flowchart TD
 
 | 課題 | 詳細 | 解決策 |
 | --- | --- | --- |
-| プライベート LAN へのアクセス | GitHub hosted runner は `192.168.11.x` に届かない | self-hosted runner または WireGuard VPN |
+| プライベート LAN へのアクセス | GitHub hosted runner は `192.168.11.x` に届かない | self-hosted runner または Tailscale VPN |
 | Terraform の自動 apply リスク | 意図しない VM 削除の可能性 | PR 時は `plan` のみ、`apply` はレビュー後 |
 | 秘密情報の管理 | Proxmox API トークン・SSH 鍵が必要 | GitHub Secrets に登録 |
 
 ## ロードマップ上の位置づけ
 
-WireGuard を導入したあとが自動化の現実的な入口。
+Tailscale を導入したあとが自動化の現実的な入口。
 
-1. WireGuard で外部から LAN に入れるようにする
+1. Tailscale で外部から LAN に入れるようにする
 2. GitHub Actions self-hosted runner を vm-infra に配置
 3. PR 時に `terraform plan` を自動実行
 4. main merge 時に `ansible-playbook` を自動実行

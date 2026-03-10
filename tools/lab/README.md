@@ -24,7 +24,7 @@ NAME                 SERVICE              STATUS
 ----                 -------              ------
 vm-infra             coredns              UP
 vm-infra             caddy                UP
-vm-infra             wireguard            UP
+vm-infra             tailscale            UP
 vm-monitoring        grafana              UP
 vm-monitoring        prometheus           UP
 vm-monitoring        node_exporter        UP
