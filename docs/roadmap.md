@@ -19,6 +19,8 @@ README に書く現行構成は `8GB` 前提の最小実用構成とし、この
 - [ ] `vm-dev` を Ansible、Docker、ネットワーク設定の破壊検証用として運用する
 - [ ] Alertmanager を追加して監視通知を受け取れるようにする
 - [ ] TO-BE と AS-IS の構成図を描く
+- [ ] バックアップ自動化（Proxmox Backup Server or restic）
+- [ ] CI/CD パイプライン（GitHub Actions で lint + plan）
 - [ ] DNS を AdGuard Home + Unbound に移行する（CoreDNS を置き換え）
   - AdGuard Home: 広告ブロック・クエリログ・`lab.kanare.dev` 内部レコード管理
   - Unbound: フルリゾルバ（1.1.1.1 等に依存せずルートから再帰解決・プライバシー向上）
@@ -45,6 +47,8 @@ README に書く現行構成は `8GB` 前提の最小実用構成とし、この
 - Home Assistant の本格運用, SwitchBotの統合
 - ThinkCentre Tiny をラックに搭載する
 - メモリ増設後に k3s などのクラスタ構成を検討する
+- UPS 導入と自動シャットダウン
+- VM テンプレートの Packer 化
 - portainerの導入
 - treafikの導入
 - OPNSenseの導入
