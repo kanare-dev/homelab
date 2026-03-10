@@ -48,7 +48,7 @@ README に書く現行構成は `8GB` 前提の最小実用構成とし、この
 ## 監視・可観測性
 
 - [ ] blackbox_exporter で外形監視を追加する
-- [ ] Alertmanager を追加して監視通知を受け取れるようにする
+- [ ] Alertmanager を追加して個人Slackで監視通知を受け取れるようにする
 - [ ] uptime-kuma の導入
 - [ ] Loki + Promtail でログ収集基盤を構築する
 - [ ] telegraf + InfluxDB の導入
