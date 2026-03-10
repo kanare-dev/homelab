@@ -2,13 +2,34 @@
 
 README に書く現行構成は `8GB` 前提の最小実用構成とし、このファイルではその先の拡張計画を整理する。
 
-## 近い将来
+## 完了済み
+
+### インフラ基盤
+
+- [x] ハードウェア調達・ラッキング
+- [x] Proxmox VE インストール（`192.168.11.10`）
+- [x] ネットワーク設計確定（IP 規約は `README.md` 参照）
+- [x] SSH 鍵ペア生成
+- [x] Cloud-init テンプレート VM を作成（`terraform/proxmox/README.md` 参照）
+- [x] Proxmox API トークン発行
+- [x] 初期構成は `vm-infra` + `vm-monitoring` + `vm-dev` に絞る
+- [x] 秘密情報管理方針を決定（Ansible Vault を採用）
+- [x] DNS ドメイン（`lab.kanare.dev`）を決定
+
+### サービス構築
 
 - [x] `vm-infra` と `vm-monitoring` の構成を Terraform + Ansible で完全再現できるようにする
 - [x] CoreDNS で `lab.kanare.dev` 内部ゾーンを運用する
 - [x] Caddy を Docker Compose 化し、Cloudflare DNS-01 チャレンジで Let's Encrypt 証明書を取得する
 - [x] `pve.lab.kanare.dev` を Caddy 経由で解決できるようにする
+- [x] `vm-monitoring`: Prometheus + Grafana デプロイ
+- [x] 常時起動する VM に `node_exporter` デプロイ
+- [x] Grafana ダッシュボード設定（Node Exporter Full, Prometheus Overview）
+- [x] Reverse Proxy 経由のアクセス確認（`grafana.lab.kanare.dev`, `prometheus.lab.kanare.dev`）
 - [x] Tailscale を vm-infra にサブネットルーターとして導入し、外出先からホームラボにアクセスできるようにする（二重NAT環境のためWireGuardの代替）
+
+## 近い将来
+
 - [ ] Cloudflare Tunnel を導入し、`grafana.lab.kanare.dev` 等を外部公開する
 - [ ] Split-Horizon DNS を構成する（LAN内は CoreDNS→Caddy 経由、外部は Cloudflare Tunnel 経由で同一 FQDN でアクセス）
 - [ ] Tailscale は SSH 等の管理アクセス用として継続利用する
