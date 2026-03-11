@@ -257,7 +257,6 @@
 | plausible/analytics | プライバシー重視の Web 分析 |
 | AltServer | AltStore 用 AltServer（iOS サイドロード） |
 | AirMessage | iMessage を Android で利用 |
-| stanley | （要確認） |
 
 ---
 
