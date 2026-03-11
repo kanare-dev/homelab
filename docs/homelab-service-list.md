@@ -37,6 +37,7 @@
 | Ubuntu | Debian 系 Linux ディストリビューション | @homelab-service-list.md (37) |
 | Debian | 汎用 Linux ディストリビューション | @homelab-service-list.md (38) |
 | Arch | ロールリリース型 Linux ディストリビューション | @homelab-service-list.md (39) |
+| openSUSE | SUSE 系 Linux ディストリビューション | @homelab-service-list.md (40) |
 
 ---
 
@@ -44,8 +45,8 @@
 
 | ツール | 説明 | 参照 |
 |--------|------|------|
-| Terraform | 宣言型インフラ管理 | @homelab-service-list.md (47) |
-| Ansible | 構成管理・自動化 | @homelab-service-list.md (48) |
+| Terraform | 宣言型インフラ管理 | @homelab-service-list.md (48) |
+| Ansible | 構成管理・自動化 | @homelab-service-list.md (49) |
 
 ---
 
