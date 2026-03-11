@@ -3,3 +3,4 @@
   hosts: proxmox
   roles:
     - node_exporter
+    - proxmox

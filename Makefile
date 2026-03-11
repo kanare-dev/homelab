@@ -32,6 +32,9 @@ setup-monitoring: ## Run Ansible for monitoring VM only
 setup-apps: ## Run Ansible for apps VM only
 	cd ansible && ansible-playbook playbooks/apps.yml
 
+setup-proxmox: ## Run Ansible for Proxmox host only
+	cd ansible && ansible-playbook playbooks/proxmox.yml
+
 lint: ## Lint Ansible playbooks
 	cd ansible && ansible-lint playbooks/
 
