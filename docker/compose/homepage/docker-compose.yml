@@ -7,6 +7,8 @@ services:
       - "3001:3000"
     environment:
       - HOMEPAGE_ALLOWED_HOSTS=home.lab.kanare.dev
+    dns:
+      - 192.168.11.11
     volumes:
       - ./config:/app/config
       - /var/run/docker.sock:/var/run/docker.sock:ro
