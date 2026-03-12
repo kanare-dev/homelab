@@ -175,6 +175,7 @@
 | influxdata/telegraf | メトリクス・ログ収集エージェント |
 | louislam/uptime-kuma | サービス稼働監視・ステータスページ |
 | linuxserver/tautulli | Plex 利用状況監視 |
+| nicolargo/glances | システムリソース監視（CPU・メモリ・ディスク・ネットワーク） |
 
 ---
 
