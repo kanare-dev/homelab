@@ -1,0 +1,18 @@
+- Infrastructure:
+    - Proxmox VE:
+        href: https://pve.lab.kanare.dev
+        description: Hypervisor
+        icon: proxmox.png
+        siteMonitor: https://pve.lab.kanare.dev
+
+- Monitoring:
+    - Grafana:
+        href: https://grafana.lab.kanare.dev
+        description: Metrics Dashboards
+        icon: grafana.png
+        siteMonitor: https://grafana.lab.kanare.dev
+    - Prometheus:
+        href: https://prometheus.lab.kanare.dev
+        description: Metrics Scraper
+        icon: prometheus.png
+        siteMonitor: https://prometheus.lab.kanare.dev
