@@ -26,6 +26,12 @@
         dest: /opt/homepage/docker-compose.yml
         mode: "0644"
 
+    - name: Copy .env
+      ansible.builtin.copy:
+        src: "{{ playbook_dir }}/../../docker/compose/homepage/.env"
+        dest: /opt/homepage/.env
+        mode: "0600"
+
     - name: Copy homepage config files
       ansible.builtin.copy:
         src: "{{ playbook_dir }}/../../docker/compose/homepage/config/{{ item }}"

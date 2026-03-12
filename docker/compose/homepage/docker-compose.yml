@@ -5,6 +5,8 @@ services:
     restart: unless-stopped
     ports:
       - "3001:3000"
+    env_file:
+      - .env
     environment:
       - HOMEPAGE_ALLOWED_HOSTS=home.lab.kanare.dev
     dns:
