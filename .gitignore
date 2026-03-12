@@ -6,6 +6,7 @@ terraform/**/.terraform/
 *.tfplan
 terraform.tfvars
 .terraform.lock.hcl
+*.tfstate.lock.info
 
 # Ansible
 ansible/*.retry
