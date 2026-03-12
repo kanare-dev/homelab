@@ -1,6 +1,10 @@
 ---
 - name: Setup monitoring VM (Prometheus + Grafana)
   hosts: monitoring
+  roles:
+    - common
+    - docker
+    - node_exporter
   tasks:
     - name: Create monitoring directory
       ansible.builtin.file:
