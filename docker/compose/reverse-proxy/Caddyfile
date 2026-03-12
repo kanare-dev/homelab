@@ -29,3 +29,11 @@ pve.lab.kanare.dev {
 		resolvers 1.1.1.1
 	}
 }
+
+home.lab.kanare.dev {
+	reverse_proxy 192.168.11.20:3001
+	tls {
+		dns cloudflare {env.CLOUDFLARE_API_TOKEN}
+		resolvers 1.1.1.1
+	}
+}
