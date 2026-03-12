@@ -26,12 +26,15 @@ hosts:
       - name: node_exporter
         check: tcp
         port: 9100
+  vm-apps:
+    ip: 192.168.11.20
+    services:
+      - name: homepage
+        check: http
+        url: http://192.168.11.20:3001/
   vm-dev:
     ip: 192.168.11.21
     services:
       - name: node_exporter
         check: tcp
         port: 9100
-  vm-apps:
-    ip: 192.168.11.20
-    services: []
