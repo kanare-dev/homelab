@@ -57,6 +57,12 @@ proxy-up: ## Start reverse proxy
 proxy-down: ## Stop reverse proxy
 	cd docker/compose/reverse-proxy && docker compose down
 
+homepage-up: ## Start homepage dashboard
+	cd docker/compose/homepage && docker compose up -d
+
+homepage-down: ## Stop homepage dashboard
+	cd docker/compose/homepage && docker compose down
+
 # --- Secrets ---
 encrypt: ## Encrypt secrets with SOPS
 	@echo "Usage: sops -e secrets.yml > secrets.enc.yml"

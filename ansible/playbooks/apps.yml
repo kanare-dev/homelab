@@ -1,14 +1,51 @@
 ---
 - name: Setup apps VM
   hosts: apps
+  roles:
+    - common
+    - docker
+    - node_exporter
   tasks:
-    - name: Create apps directory
+    - name: Create homepage directory
       ansible.builtin.file:
-        path: /opt/apps
+        path: /opt/homepage
         state: directory
         owner: "{{ ansible_user }}"
         mode: "0755"
 
-    - name: Placeholder — add app-specific tasks here
-      ansible.builtin.debug:
-        msg: "Apps VM is ready. Add services as needed."
+    - name: Create homepage config directory
+      ansible.builtin.file:
+        path: /opt/homepage/config
+        state: directory
+        owner: "{{ ansible_user }}"
+        mode: "0755"
+
+    - name: Copy docker-compose.yml
+      ansible.builtin.copy:
+        src: "{{ playbook_dir }}/../../docker/compose/homepage/docker-compose.yml"
+        dest: /opt/homepage/docker-compose.yml
+        mode: "0644"
+
+    - name: Copy homepage config files
+      ansible.builtin.copy:
+        src: "{{ playbook_dir }}/../../docker/compose/homepage/config/{{ item }}"
+        dest: /opt/homepage/config/{{ item }}
+        mode: "0644"
+      loop:
+        - settings.yaml
+        - services.yaml
+        - widgets.yaml
+        - bookmarks.yaml
+        - docker.yaml
+
+    - name: Start homepage stack
+      community.docker.docker_compose_v2:
+        project_src: /opt/homepage
+        state: present
+
+    - name: Restart homepage to load config changes
+      community.docker.docker_compose_v2:
+        project_src: /opt/homepage
+        services:
+          - homepage
+        state: restarted

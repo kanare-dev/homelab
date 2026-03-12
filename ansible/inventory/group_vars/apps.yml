@@ -1,0 +1,7 @@
+---
+# apps グループ変数
+
+ufw_allowed_ports:
+  - { port: 22,   proto: tcp }
+  - { port: 3001, proto: tcp }   # Homepage (Caddy from vm-infra)
+  - { port: 9100, proto: tcp }   # node_exporter
