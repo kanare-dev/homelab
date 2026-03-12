@@ -5,6 +5,8 @@ services:
     restart: unless-stopped
     ports:
       - "3001:3000"
+    environment:
+      - HOMEPAGE_ALLOWED_HOSTS=home.lab.kanare.dev
     volumes:
       - ./config:/app/config
       - /var/run/docker.sock:/var/run/docker.sock:ro
