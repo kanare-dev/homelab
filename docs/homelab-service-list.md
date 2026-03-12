@@ -199,6 +199,7 @@
 | jellyfin/jellyfin | オープンソースメディアサーバー |
 | plexinc/pms-docker | メディアサーバー |
 | emby/embyserver | メディアサーバー |
+| gotson/komga | コミック・漫画サーバー |
 
 ### 9.2 メディア取得・管理
 
