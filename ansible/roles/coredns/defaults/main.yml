@@ -1,5 +1,7 @@
 ---
 coredns_version: "1.14.2"
+coredns_listen_port: 5353
+coredns_listen_addr: "127.0.0.1"
 coredns_upstream_dns:
   - "1.1.1.1"
   - "8.8.8.8"

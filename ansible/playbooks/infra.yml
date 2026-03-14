@@ -44,6 +44,84 @@
         build: always
         state: present
 
+    # --- DNS (AdGuard Home + Unbound) ---
+    - name: Create dns directory
+      ansible.builtin.file:
+        path: /opt/dns
+        state: directory
+        owner: "{{ ansible_user }}"
+        mode: "0755"
+
+    - name: Copy dns docker-compose.yml
+      ansible.builtin.copy:
+        src: "{{ playbook_dir }}/../../docker/compose/dns/docker-compose.yml"
+        dest: /opt/dns/docker-compose.yml
+        mode: "0644"
+
+    - name: Create unbound config directory
+      ansible.builtin.file:
+        path: /opt/dns/unbound
+        state: directory
+        owner: "{{ ansible_user }}"
+        mode: "0755"
+
+    - name: Copy unbound config
+      ansible.builtin.copy:
+        src: "{{ playbook_dir }}/../../docker/compose/dns/unbound/unbound.conf"
+        dest: /opt/dns/unbound/unbound.conf
+        mode: "0644"
+      notify: restart dns stack
+
+    - name: Copy root hints
+      ansible.builtin.copy:
+        src: "{{ playbook_dir }}/../../docker/compose/dns/unbound/root.hints"
+        dest: /opt/dns/unbound/root.hints
+        mode: "0644"
+
+    - name: Create adguard directories
+      ansible.builtin.file:
+        path: "/opt/dns/adguard/{{ item }}"
+        state: directory
+        owner: "{{ ansible_user }}"
+        mode: "0755"
+      loop:
+        - work
+        - conf
+
+    - name: Deploy dns stack
+      community.docker.docker_compose_v2:
+        project_src: /opt/dns
+        state: present
+
+    - name: Configure AdGuard upstream DNS
+      ansible.builtin.shell:
+        cmd: |
+          python3 - << 'PYEOF'
+          import yaml, sys, os
+
+          config_path = '/opt/dns/adguard/conf/AdGuardHome.yaml'
+          if not os.path.exists(config_path):
+              sys.exit(0)
+
+          with open(config_path, 'r') as f:
+              config = yaml.safe_load(f)
+
+          desired = [
+              '[/lab.kanare.dev/]127.0.0.1:5353',
+              '127.0.0.1:5335',
+          ]
+          if config.get('dns', {}).get('upstream_dns') == desired:
+              sys.exit(0)
+
+          config.setdefault('dns', {})['upstream_dns'] = desired
+          with open(config_path, 'w') as f:
+              yaml.dump(config, f, default_flow_style=False, allow_unicode=True)
+          print('changed')
+          PYEOF
+      register: adguard_upstream
+      changed_when: "'changed' in adguard_upstream.stdout"
+      notify: restart dns stack
+
     # --- Tailscale ---
     - name: Install Tailscale
       ansible.builtin.shell: curl -fsSL https://tailscale.com/install.sh | sh
@@ -77,4 +155,9 @@
         project_src: /opt/reverse-proxy
         services:
           - caddy
+        state: restarted
+
+    - name: restart dns stack
+      community.docker.docker_compose_v2:
+        project_src: /opt/dns
         state: restarted

@@ -5,9 +5,12 @@ hosts:
   vm-infra:
     ip: 192.168.11.11
     services:
-      - name: coredns
+      - name: adguardhome
         check: tcp
         port: 53
+      - name: adguardhome-ui
+        check: http
+        url: http://192.168.11.11:3000/
       - name: caddy
         check: tcp
         port: 443

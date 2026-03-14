@@ -37,10 +37,11 @@ README に書く現行構成は `8GB` 前提の最小実用構成とし、この
 - [ ] Cloudflare Tunnel を導入し、`grafana.lab.kanare.dev` 等を外部公開する
 - [ ] Split-Horizon DNS を構成する（LAN内は CoreDNS→Caddy 経由、外部は Cloudflare Tunnel 経由で同一 FQDN でアクセス）
 - [ ] Tailscale は SSH 等の管理アクセス用として継続利用する
-- [ ] DNS を AdGuard Home + Unbound に移行する（CoreDNS を置き換え）
-  - AdGuard Home: 広告ブロック・クエリログ・`lab.kanare.dev` 内部レコード管理
-  - Unbound: フルリゾルバ（1.1.1.1 等に依存せずルートから再帰解決・プライバシー向上）
-  - vm-infra 上の Docker Compose に両方載せる
+- [x] DNS を AdGuard Home + Unbound に移行する（CoreDNS は権威 DNS として継続）
+  - AdGuard Home: 広告ブロック・クエリログ・WebUI（port 53 / 3000）
+  - Unbound: フルリゾルバ（1.1.1.1 等に依存せずルートから再帰解決・プライバシー向上、port 5335）
+  - CoreDNS: `lab.kanare.dev` 権威 DNS として継続（port 5353、127.0.0.1 バインドに変更）
+  - vm-infra 上の Docker Compose に AdGuard + Unbound を追加
 - [ ] Buffalo ルータから TP-Link（ルータ + Managed Switch + AP）に分離して Omada で管理する
 - [ ] VLAN を構成する（VLAN10 Management / VLAN20 Servers / VLAN30 Clients / VLAN40 IoT / VLAN50 Guests）
 - [ ] OPNSense の導入

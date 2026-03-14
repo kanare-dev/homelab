@@ -28,12 +28,6 @@
     remote_src: true
   notify: restart coredns
 
-- name: Allow coredns to bind to privileged ports
-  community.general.capabilities:
-    path: /usr/local/bin/coredns
-    capability: cap_net_bind_service=+ep
-    state: present
-
 - name: Create CoreDNS config directory
   ansible.builtin.file:
     path: /etc/coredns
