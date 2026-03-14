@@ -11,6 +11,18 @@
           password: "{{HOMEPAGE_VAR_PROXMOX_TOKEN}}"
           node: pve
 
+- Network:
+    - AdGuard Home:
+        href: https://adguard.lab.kanare.dev
+        description: DNS Filtering
+        icon: adguard-home.png
+        siteMonitor: https://adguard.lab.kanare.dev
+        widget:
+          type: adguard
+          url: http://192.168.11.11:3000
+          username: kanare
+          password: "{{HOMEPAGE_VAR_ADGUARD_PASSWORD}}"
+
 - Monitoring:
     - Grafana:
         href: https://grafana.lab.kanare.dev
