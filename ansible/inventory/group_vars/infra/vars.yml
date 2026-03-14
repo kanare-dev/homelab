@@ -5,6 +5,9 @@ tailscale_authkey: "{{ vault_tailscale_authkey }}"
 # CoreDNS
 domain: "lab.kanare.dev"
 static_ip: "192.168.11.11"
+coredns_version: "1.11.1"
+coredns_listen_port: 5353
+coredns_listen_addr: "127.0.0.1"
 dns_records:
   - { name: "grafana",       ip: "192.168.11.11" }
   - { name: "prometheus",    ip: "192.168.11.11" }
@@ -14,3 +17,17 @@ dns_records:
   - { name: "vm-monitoring", ip: "192.168.11.13" }
   - { name: "home",         ip: "192.168.11.11" }   # Caddy 経由
   - { name: "vm-apps",      ip: "192.168.11.20" }
+  - { name: "adguard",     ip: "192.168.11.11" }   # Caddy 経由
+
+# UFW
+ufw_allowed_ports:
+  - { port: 22,   proto: tcp }
+  - { port: 53,   proto: tcp }
+  - { port: 53,   proto: udp }
+  - { port: 80,   proto: tcp }
+  - { port: 443,  proto: tcp }
+  - { port: 51820, proto: udp }                              # WireGuard
+  - { port: 9100, proto: tcp }                              # node_exporter
+  - { port: 3000, proto: tcp, from: "192.168.11.0/24" }    # AdGuard Web UI (LAN)
+  - { port: 3000, proto: tcp, from: "172.16.0.0/12" }      # AdGuard Web UI (Docker bridge → Caddy)
+
