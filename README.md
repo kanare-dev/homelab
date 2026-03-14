@@ -276,7 +276,7 @@ Terraform でプロビジョニングした vm-infra (111) と vm-monitoring (11
 
 ### Grafana — Node Exporter ダッシュボード
 
-`https://grafana.lab.kanare.dev`（CoreDNS + Caddy 経由）で Grafana にアクセスし、
+`https://grafana.lab.kanare.dev`（AdGuard Home + CoreDNS + Caddy 経由）で Grafana にアクセスし、
 node_exporter で収集した VM のメトリクスを可視化している。
 
 ![Grafana Node Exporter Dashboard](docs/screenshots/grafana-node-exporter-dashboard.png)
