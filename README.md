@@ -154,6 +154,8 @@ client
 - **Unbound**: `127.0.0.1:5335` でルートから再帰解決（1.1.1.1 等への依存なし）
 - `grafana.lab.kanare.dev` と `prometheus.lab.kanare.dev` を reverse proxy の入口にする
 
+詳細は [`docs/dns.md`](docs/dns.md) を参照。
+
 ### Reverse Proxy
 
 - `vm-infra` 上で Caddy を Docker Compose で動かす
