@@ -1,0 +1,6 @@
+---
+# dev グループ変数
+
+ufw_allowed_ports:
+  - { port: 22,   proto: tcp }
+  - { port: 9100, proto: tcp }   # node_exporter
