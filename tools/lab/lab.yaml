@@ -47,3 +47,9 @@ hosts:
       - name: node_exporter
         check: tcp
         port: 9100
+  vm-windows:
+    ip: 192.168.11.30
+    services:
+      - name: rdp
+        check: tcp
+        port: 3389
