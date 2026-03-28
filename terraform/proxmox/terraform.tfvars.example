@@ -12,36 +12,56 @@ gateway    = "192.168.11.1"
 nameserver = "192.168.11.11"
 
 vms = {
+  # DNS・リバースプロキシ: 最初に起動、最後にシャットダウン
   "vm-infra" = {
-    vmid   = 111
-    ip     = "192.168.11.11/24"
-    cores  = 2
-    memory = 2048
-    disk   = "20G"
-    tags   = ["infra", "dns", "proxy"]
+    vmid               = 111
+    ip                 = "192.168.11.11/24"
+    cores              = 2
+    memory             = 2048
+    disk               = "20G"
+    tags               = ["infra", "dns", "proxy"]
+    start_at_node_boot = true
+    startup_order      = 1
+    startup_delay      = 30
+    shutdown_timeout   = 60
   }
+  # モニタリング: DNS 起動後に起動
   "vm-monitoring" = {
-    vmid   = 113
-    ip     = "192.168.11.13/24"
-    cores  = 2
-    memory = 4096
-    disk   = "40G"
-    tags   = ["monitoring", "prometheus", "grafana"]
+    vmid               = 113
+    ip                 = "192.168.11.13/24"
+    cores              = 2
+    memory             = 4096
+    disk               = "40G"
+    tags               = ["monitoring", "prometheus", "grafana"]
+    start_at_node_boot = true
+    startup_order      = 2
+    startup_delay      = 20
+    shutdown_timeout   = 60
   }
+  # アプリ: モニタリング起動後に起動
   "vm-apps" = {
-    vmid   = 120
-    ip     = "192.168.11.20/24"
-    cores  = 2
-    memory = 4096
-    disk   = "40G"
-    tags   = ["apps"]
+    vmid               = 120
+    ip                 = "192.168.11.20/24"
+    cores              = 2
+    memory             = 4096
+    disk               = "40G"
+    tags               = ["apps"]
+    start_at_node_boot = true
+    startup_order      = 3
+    startup_delay      = 20
+    shutdown_timeout   = 60
   }
+  # 開発用: 手動起動のみ（start_at_node_boot = false）
   "vm-dev" = {
-    vmid   = 121
-    ip     = "192.168.11.21/24"
-    cores  = 2
-    memory = 2048
-    disk   = "30G"
-    tags   = ["dev", "playground"]
+    vmid               = 121
+    ip                 = "192.168.11.21/24"
+    cores              = 2
+    memory             = 2048
+    disk               = "30G"
+    tags               = ["dev", "playground"]
+    start_at_node_boot = false
+    startup_order      = 4
+    startup_delay      = 10
+    shutdown_timeout   = 30
   }
 }

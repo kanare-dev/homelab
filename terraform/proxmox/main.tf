@@ -16,4 +16,8 @@ module "vm" {
   nameserver       = var.nameserver
   ssh_public_key   = coalesce(var.ssh_public_key, trimspace(file(pathexpand("~/.ssh/id_ed25519_homelab.pub"))))
   tags             = each.value.tags
+  start_at_node_boot = each.value.start_at_node_boot
+  startup_order      = each.value.startup_order
+  startup_delay      = each.value.startup_delay
+  shutdown_timeout   = each.value.shutdown_timeout
 }

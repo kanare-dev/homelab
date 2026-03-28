@@ -73,3 +73,27 @@ variable "tags" {
   type        = list(string)
   default     = []
 }
+
+variable "start_at_node_boot" {
+  description = "Start the VM automatically when Proxmox boots"
+  type        = bool
+  default     = true
+}
+
+variable "startup_order" {
+  description = "Boot order (-1 = disabled)"
+  type        = number
+  default     = -1
+}
+
+variable "startup_delay" {
+  description = "Seconds to wait after start before booting next VM"
+  type        = number
+  default     = 0
+}
+
+variable "shutdown_timeout" {
+  description = "Seconds to wait for graceful shutdown"
+  type        = number
+  default     = 60
+}

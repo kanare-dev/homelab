@@ -54,5 +54,9 @@ variable "vms" {
     memory  = number
     disk    = string
     tags    = list(string)
+    start_at_node_boot = optional(bool, true)
+    startup_order      = optional(number, -1)
+    startup_delay      = optional(number, 0)
+    shutdown_timeout   = optional(number, 60)
   }))
 }

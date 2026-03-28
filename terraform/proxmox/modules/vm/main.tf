@@ -13,6 +13,13 @@ resource "proxmox_vm_qemu" "vm" {
   clone       = var.clone
   agent       = 0
   os_type     = "cloud-init"
+  start_at_node_boot = var.start_at_node_boot
+
+  startup_shutdown {
+    order            = var.startup_order
+    startup_delay    = var.startup_delay
+    shutdown_timeout = var.shutdown_timeout
+  }
 
   cpu {
     cores   = var.cores
@@ -55,7 +62,6 @@ resource "proxmox_vm_qemu" "vm" {
   lifecycle {
     ignore_changes = [
       network,
-      startup_shutdown,
     ]
   }
 }
