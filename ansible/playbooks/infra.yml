@@ -41,7 +41,7 @@
     - name: Build and start reverse-proxy stack
       community.docker.docker_compose_v2:
         project_src: /opt/reverse-proxy
-        build: always
+        build: policy
         state: present
 
     # --- DNS (AdGuard Home + Unbound) ---
