@@ -72,6 +72,12 @@
     name: figlet
     state: present
 
+- name: Download ansi-shadow figlet font
+  ansible.builtin.get_url:
+    url: https://raw.githubusercontent.com/xero/figlet-fonts/master/ANSI%20Shadow.flf
+    dest: /usr/share/figlet/ansi-shadow.flf
+    mode: "0644"
+
 - name: Deploy custom MOTD script
   ansible.builtin.template:
     src: motd.sh.j2

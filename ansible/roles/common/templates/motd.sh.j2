@@ -131,7 +131,7 @@ LAST_LOGIN=$(last -n 5 2>/dev/null | awk '
 echo ""
 
 if command -v figlet >/dev/null 2>&1; then
-  figlet -f slant "$HOSTNAME" | while IFS= read -r line; do
+  figlet -f ansi-shadow "$HOSTNAME" | while IFS= read -r line; do
     printf "${CYAN}%s${RESET}\n" "$line"
   done
 else
