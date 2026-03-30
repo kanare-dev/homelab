@@ -80,3 +80,16 @@
     owner: root
     group: root
 
+- name: Find default MOTD scripts
+  ansible.builtin.find:
+    paths: /etc/update-motd.d
+    file_type: file
+    excludes: "99-custom"
+  register: default_motd_scripts
+
+- name: Disable default MOTD scripts
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    mode: "0644"
+  loop: "{{ default_motd_scripts.files }}"
+
