@@ -39,6 +39,13 @@
     line: "PermitRootLogin {{ ssh_permit_root_login }}"
   notify: restart sshd
 
+- name: Disable SSH last login banner (shown by custom MOTD instead)
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: "^#?PrintLastLog"
+    line: "PrintLastLog no"
+  notify: restart sshd
+
 - name: Enable and configure UFW defaults
   community.general.ufw:
     state: enabled
@@ -89,7 +96,6 @@
 - name: Find default MOTD scripts
   ansible.builtin.find:
     paths: /etc/update-motd.d
-    file_type: file
     excludes: "99-custom"
   register: default_motd_scripts
 
@@ -99,11 +105,14 @@
     mode: "0644"
   loop: "{{ default_motd_scripts.files }}"
 
-- name: Disable motd-news service
+- name: Disable motd-news service and timer
   ansible.builtin.systemd:
-    name: motd-news
+    name: "{{ item }}"
     state: stopped
     enabled: false
     masked: true
+  loop:
+    - motd-news.service
+    - motd-news.timer
   ignore_errors: true
 
