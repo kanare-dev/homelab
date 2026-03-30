@@ -104,6 +104,7 @@
   ansible.builtin.file:
     path: "{{ item.path }}"
     mode: "0644"
+    follow: true
   loop: "{{ default_motd_scripts.files }}"
 
 - name: Disable motd-news service and timer
