@@ -93,17 +93,31 @@
     owner: root
     group: root
 
-- name: Find default MOTD scripts
+- name: Find default MOTD scripts (regular files)
   ansible.builtin.find:
     paths: /etc/update-motd.d
+    file_type: file
     excludes: "99-custom"
-  register: default_motd_scripts
+  register: default_motd_files
 
 - name: Disable default MOTD scripts
   ansible.builtin.file:
     path: "{{ item.path }}"
     mode: "0644"
-  loop: "{{ default_motd_scripts.files }}"
+  loop: "{{ default_motd_files.files }}"
+
+- name: Find default MOTD symlinks
+  ansible.builtin.find:
+    paths: /etc/update-motd.d
+    file_type: link
+    excludes: "99-custom"
+  register: default_motd_links
+
+- name: Remove MOTD symlinks (実体は残しリンクのみ削除)
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    state: absent
+  loop: "{{ default_motd_links.files }}"
 
 - name: Disable motd-news service and timer
   ansible.builtin.systemd:
