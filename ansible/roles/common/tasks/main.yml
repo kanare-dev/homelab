@@ -93,3 +93,11 @@
     mode: "0644"
   loop: "{{ default_motd_scripts.files }}"
 
+- name: Disable motd-news service
+  ansible.builtin.systemd:
+    name: motd-news
+    state: stopped
+    enabled: false
+    masked: true
+  ignore_errors: true
+

@@ -120,17 +120,18 @@ fi
 REBOOT_REQUIRED=0
 [ -f /var/run/reboot-required ] && REBOOT_REQUIRED=1
 
-# last login
-LAST_LOGIN=$(last -n 2 "$USER" 2>/dev/null | awk 'NR==2 && $0 !~ /wtmp begins/ {
-  printf "%s %s %s %s from %s", $4, $5, $6, $7, $3
-}')
+# last login (MOTDはrootで実行されるため$USERでフィルタしない)
+LAST_LOGIN=$(last -n 5 2>/dev/null | awk '
+  /^reboot|^wtmp/ { next }
+  ++n == 2 { printf "%s %s %s %s from %s", $4, $5, $6, $7, $3; exit }
+')
 [ -z "$LAST_LOGIN" ] && LAST_LOGIN="no previous login"
 
 # ── 出力 ────────────────────────────────────────────────
 echo ""
 
-if command -v figlet >/dev/null 2>&1 && figlet -f ansi-shadow x >/dev/null 2>&1; then
-  figlet -f ansi-shadow "$HOSTNAME" | while IFS= read -r line; do
+if command -v figlet >/dev/null 2>&1; then
+  figlet -f slant "$HOSTNAME" | while IFS= read -r line; do
     printf "${CYAN}%s${RESET}\n" "$line"
   done
 else
