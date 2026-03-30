@@ -13,12 +13,6 @@
     name: "{{ common_packages }}"
     state: present
 
-- name: Remove landscape-common (replaced by custom MOTD)
-  ansible.builtin.apt:
-    name: landscape-common
-    state: absent
-    purge: true
-
 - name: Set timezone to Asia/Tokyo
   community.general.timezone:
     name: Asia/Tokyo
