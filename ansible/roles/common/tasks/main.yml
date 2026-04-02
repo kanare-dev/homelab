@@ -79,11 +79,17 @@
     name: figlet
     state: present
 
+- name: Check if ansi-shadow font exists
+  ansible.builtin.stat:
+    path: /usr/share/figlet/ansi-shadow.flf
+  register: ansi_shadow_font
+
 - name: Download ansi-shadow figlet font
   ansible.builtin.get_url:
     url: https://raw.githubusercontent.com/xero/figlet-fonts/master/ANSI%20Shadow.flf
     dest: /usr/share/figlet/ansi-shadow.flf
     mode: "0644"
+  when: not ansi_shadow_font.stat.exists
 
 - name: Deploy custom MOTD script
   ansible.builtin.template:
@@ -106,6 +112,8 @@
     mode: "0644"
     follow: true
   loop: "{{ default_motd_scripts.files }}"
+  loop_control:
+    label: "{{ item.path }}"
 
 - name: Disable motd-news service and timer
   ansible.builtin.systemd:
