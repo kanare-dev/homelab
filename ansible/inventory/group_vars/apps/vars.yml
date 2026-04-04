@@ -1,6 +1,7 @@
 ---
 # apps グループ変数
-# NOTE: group_vars/apps/ ディレクトリが優先されるため、変数は apps/vars.yml で管理
+
+scanopy_public_url: "https://scanopy.lab.kanare.dev"
 
 ufw_allowed_ports:
   - { port: 22,    proto: tcp }

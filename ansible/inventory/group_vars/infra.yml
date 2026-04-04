@@ -30,17 +30,6 @@ dns_records:
   - name: adguard
     ip: "192.168.11.11"
 
-# Caddy reverse proxy 設定
-caddy_sites:
-  - domain: "grafana.lab.kanare.dev"
-    upstream: "192.168.11.13:3000"
-  - domain: "prometheus.lab.kanare.dev"
-    upstream: "192.168.11.13:9090"
-  - domain: "pve.lab.kanare.dev"
-    upstream: "192.168.11.10:8006"
-  - domain: "adguard.lab.kanare.dev"
-    upstream: "127.0.0.1:3000"
-
 # UFW
 ufw_allowed_ports:
   - { port: 22, proto: tcp }

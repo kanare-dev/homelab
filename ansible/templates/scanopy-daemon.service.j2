@@ -1,0 +1,21 @@
+[Unit]
+Description=Scanopy Network Discovery Daemon
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/scanopy-daemon \
+  --server-url http://127.0.0.1:60072 \
+  --network-id {{ vault_scanopy_network_id }} \
+  --daemon-api-key {{ vault_scanopy_daemon_api_key }} \
+  --user-id {{ vault_scanopy_user_id }} \
+  --name scanopy-daemon-kanare-home-network \
+  --mode daemon_poll
+Restart=on-failure
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+User=root
+
+[Install]
+WantedBy=multi-user.target
