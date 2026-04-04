@@ -55,3 +55,42 @@
         services:
           - homepage
         state: restarted
+
+    - name: Create scanopy directory
+      ansible.builtin.file:
+        path: /opt/scanopy
+        state: directory
+        owner: "{{ ansible_user }}"
+        mode: "0755"
+
+    - name: Create scanopy data directory
+      ansible.builtin.file:
+        path: /opt/scanopy/data
+        state: directory
+        owner: "{{ ansible_user }}"
+        mode: "0755"
+
+    - name: Copy scanopy docker-compose.yml
+      ansible.builtin.copy:
+        src: "{{ playbook_dir }}/../../docker/compose/scanopy/docker-compose.yml"
+        dest: /opt/scanopy/docker-compose.yml
+        mode: "0644"
+
+    - name: Copy scanopy .env
+      ansible.builtin.template:
+        src: "{{ playbook_dir }}/../../docker/compose/scanopy/.env.j2"
+        dest: /opt/scanopy/.env
+        mode: "0600"
+
+    - name: Start scanopy stack
+      community.docker.docker_compose_v2:
+        project_src: /opt/scanopy
+        state: present
+
+    - name: Stop and disable scanopy-daemon systemd service if present
+      ansible.builtin.systemd:
+        name: scanopy-daemon
+        enabled: false
+        state: stopped
+        daemon_reload: true
+      failed_when: false

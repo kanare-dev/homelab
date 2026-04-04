@@ -18,6 +18,7 @@ dns_records:
   - { name: "home",         ip: "192.168.11.11" }   # Caddy 経由
   - { name: "vm-apps",      ip: "192.168.11.20" }
   - { name: "adguard",     ip: "192.168.11.11" }   # Caddy 経由
+  - { name: "scanopy",    ip: "192.168.11.11" }   # Caddy 経由
 
 # UFW
 ufw_allowed_ports:

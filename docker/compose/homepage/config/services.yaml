@@ -12,6 +12,11 @@
           node: pve
 
 - Network:
+    - Scanopy:
+        href: https://scanopy.lab.kanare.dev
+        description: Network Topology
+        icon: https://scanopy.net/favicons/favicon-32x32.png
+        siteMonitor: https://scanopy.lab.kanare.dev
     - AdGuard Home:
         href: https://adguard.lab.kanare.dev
         description: DNS Filtering
