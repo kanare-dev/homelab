@@ -1,9 +1,7 @@
 ---
 # apps グループ変数
-# NOTE: group_vars/apps/ ディレクトリが優先されるため、変数は apps/vars.yml で管理
 
 ufw_allowed_ports:
-  - { port: 22,    proto: tcp }
-  - { port: 3001,  proto: tcp }                              # Homepage (Caddy from vm-infra)
-  - { port: 9100,  proto: tcp }                              # node_exporter
-  - { port: 60072, proto: tcp, from: "192.168.11.0/24" }    # Scanopy UI (LAN only)
+  - { port: 22,   proto: tcp }
+  - { port: 3001, proto: tcp }   # Homepage (Caddy from vm-infra)
+  - { port: 9100, proto: tcp }   # node_exporter
