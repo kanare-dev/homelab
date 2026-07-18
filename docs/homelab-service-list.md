@@ -184,6 +184,7 @@
 | ツール | 説明 |
 |--------|------|
 | authelia/authelia | SSO・2FA 認証プロキシ |
+| goauthentik/authentik | オープンソース SSO・アイデンティティプロバイダー（IdP） |
 | vaultwarden/server | Bitwarden 互換パスワードマネージャ |
 | crowdsecurity/crowdsec | 侵入検知・ファイアウォール |
 | gravitational/teleport | セキュアなインフラアクセス |
@@ -278,6 +279,7 @@
 | coder/code-server | ブラウザ版 VS Code |
 | oznu/guacamole | ブラウザベースのリモートデスクトップ |
 | ich777/krusader | ファイルマネージャ |
+| siteboon/claudecodeui | Claude Code をリモート管理する Web UI（CloudCLI UI） |
 
 ---
 
