@@ -183,7 +183,7 @@
 
 | ツール | 説明 |
 |--------|------|
-| authelia/authelia | SSO・2FA 認証プロキシ |
+| authelia/authelia | SSO・2FA 認証プロキシ（Caddy forward_auth 経由で Grafana/PVE/AdGuardHome 等のログインを一元化予定） |
 | goauthentik/authentik | オープンソース SSO・アイデンティティプロバイダー（IdP） |
 | vaultwarden/server | Bitwarden 互換パスワードマネージャ |
 | crowdsecurity/crowdsec | 侵入検知・ファイアウォール |
