@@ -39,7 +39,6 @@
       - containerd.io
       - docker-compose-plugin
     state: present
-    update_cache: true
   notify: restart docker
 
 - name: Add user to docker group

@@ -11,6 +11,7 @@ terraform.tfvars
 # Ansible
 ansible/*.retry
 ansible/**/*.retry
+ansible/.facts_cache/
 
 # Secrets
 .env
