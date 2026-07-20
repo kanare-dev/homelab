@@ -1,0 +1,8 @@
+---
+- name: Setup code VM (Claude Code / code-server / CloudCLI)
+  hosts: code
+  roles:
+    - common
+    - docker
+    - node_exporter
+    - code_tools

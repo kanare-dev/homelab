@@ -1,0 +1,15 @@
+---
+# code グループ変数
+
+code_server_port: 8080
+code_server_password: "{{ vault_code_server_password }}"
+
+cloudcli_port: 3001
+
+# UFW: code-server / cloudcli / mosh は LAN（Tailscale サブネットルート経由含む）からのみ許可
+ufw_allowed_ports:
+  - { port: 22,          proto: tcp }
+  - { port: 8080,        proto: tcp, from: "192.168.11.0/24" }   # code-server
+  - { port: 3001,        proto: tcp, from: "192.168.11.0/24" }   # CloudCLI (Claude Code UI)
+  - { port: "60000:61000", proto: udp, from: "192.168.11.0/24" }  # mosh
+  - { port: 9100,        proto: tcp }   # node_exporter

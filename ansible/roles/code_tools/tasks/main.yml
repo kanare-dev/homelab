@@ -1,0 +1,161 @@
+---
+- name: Install git and mosh
+  ansible.builtin.apt:
+    name:
+      - git
+      - mosh
+    state: present
+
+# --- GitHub CLI (gh) ---
+- name: Check if GitHub CLI apt keyring already exists
+  ansible.builtin.stat:
+    path: /etc/apt/keyrings/githubcli-archive-keyring.gpg
+  register: gh_keyring
+
+- name: Create apt keyrings directory
+  ansible.builtin.file:
+    path: /etc/apt/keyrings
+    state: directory
+    mode: "0755"
+  when: not gh_keyring.stat.exists
+
+- name: Download GitHub CLI GPG key
+  ansible.builtin.get_url:
+    url: https://cli.github.com/packages/githubcli-archive-keyring.gpg
+    dest: /etc/apt/keyrings/githubcli-archive-keyring.gpg
+    mode: "0644"
+  when: not gh_keyring.stat.exists
+
+- name: Add GitHub CLI repository
+  ansible.builtin.apt_repository:
+    repo: "deb [arch=amd64 signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main"
+    state: present
+  when: not gh_keyring.stat.exists
+
+- name: Install GitHub CLI
+  ansible.builtin.apt:
+    name: gh
+    state: present
+    update_cache: true
+
+# --- Node.js (required by Claude Code CLI / CloudCLI) ---
+- name: Check if Node.js is already installed
+  ansible.builtin.stat:
+    path: /usr/bin/node
+  register: node_binary
+
+- name: Download NodeSource setup script
+  ansible.builtin.get_url:
+    url: "https://deb.nodesource.com/setup_{{ code_tools_nodejs_major }}.x"
+    dest: /tmp/nodesource_setup.sh
+    mode: "0755"
+  when: not node_binary.stat.exists
+
+- name: Run NodeSource setup script
+  ansible.builtin.command: bash /tmp/nodesource_setup.sh
+  when: not node_binary.stat.exists
+
+- name: Install Node.js
+  ansible.builtin.apt:
+    name: nodejs
+    state: present
+    update_cache: true
+  when: not node_binary.stat.exists
+
+- name: Clean up NodeSource setup script
+  ansible.builtin.file:
+    path: /tmp/nodesource_setup.sh
+    state: absent
+
+# --- Claude Code CLI ---
+- name: Install Claude Code CLI
+  community.general.npm:
+    name: "@anthropic-ai/claude-code"
+    global: true
+    state: present
+
+# --- CloudCLI (Claude Code UI, aka claudecodeui) ---
+- name: Install CloudCLI
+  community.general.npm:
+    name: "@cloudcli-ai/cloudcli"
+    global: true
+    state: present
+
+- name: Locate cloudcli binary
+  ansible.builtin.shell: command -v cloudcli
+  register: cloudcli_bin
+  changed_when: false
+
+- name: Create cloudcli systemd service
+  ansible.builtin.copy:
+    dest: /etc/systemd/system/cloudcli.service
+    mode: "0644"
+    content: |
+      [Unit]
+      Description=CloudCLI (Claude Code UI)
+      After=network-online.target
+      Wants=network-online.target
+
+      [Service]
+      User={{ ansible_user }}
+      WorkingDirectory=/home/{{ ansible_user }}
+      Environment=HOME=/home/{{ ansible_user }}
+      Environment=HOST=0.0.0.0
+      Environment=SERVER_PORT={{ cloudcli_port }}
+      ExecStart={{ cloudcli_bin.stdout }}
+      Restart=on-failure
+
+      [Install]
+      WantedBy=multi-user.target
+  notify: restart cloudcli
+
+- name: Enable and start cloudcli
+  ansible.builtin.systemd:
+    name: cloudcli
+    state: started
+    enabled: true
+    daemon_reload: true
+
+# --- code-server ---
+- name: Check if code-server is already installed
+  ansible.builtin.stat:
+    path: /usr/bin/code-server
+  register: code_server_binary
+
+- name: Download code-server install script
+  ansible.builtin.get_url:
+    url: https://code-server.dev/install.sh
+    dest: /tmp/code-server-install.sh
+    mode: "0755"
+  when: not code_server_binary.stat.exists
+
+- name: Run code-server install script
+  ansible.builtin.command: bash /tmp/code-server-install.sh
+  when: not code_server_binary.stat.exists
+
+- name: Clean up code-server install script
+  ansible.builtin.file:
+    path: /tmp/code-server-install.sh
+    state: absent
+
+- name: Create code-server config directory
+  ansible.builtin.file:
+    path: "/home/{{ ansible_user }}/.config/code-server"
+    state: directory
+    owner: "{{ ansible_user }}"
+    mode: "0755"
+
+- name: Deploy code-server config
+  ansible.builtin.template:
+    src: code-server-config.yaml.j2
+    dest: "/home/{{ ansible_user }}/.config/code-server/config.yaml"
+    owner: "{{ ansible_user }}"
+    mode: "0600"
+  notify: restart code-server
+
+- name: Enable and start code-server
+  ansible.builtin.systemd:
+    name: "code-server@{{ ansible_user }}"
+    state: started
+    enabled: true
+    daemon_reload: true

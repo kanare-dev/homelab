@@ -64,4 +64,17 @@ vms = {
     startup_delay      = 10
     shutdown_timeout   = 30
   }
+  # 常用リモート開発環境: Claude Code / code-server。常時起動、Tailscale経由のみアクセス
+  "vm-code" = {
+    vmid               = 122
+    ip                 = "192.168.11.22/24"
+    cores              = 2
+    memory             = 2048
+    disk               = "30G"
+    tags               = ["code", "dev"]
+    start_at_node_boot = true
+    startup_order      = 5
+    startup_delay      = 10
+    shutdown_timeout   = 30
+  }
 }
