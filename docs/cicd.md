@@ -20,7 +20,7 @@ flowchart LR
     dev["💻 開発者 (Mac)"]
     github["🐙 GitHub\nkanare-dev/homelab"]
     proxmox["🖥️ Proxmox VE\n192.168.11.10"]
-    vms["📦 VMs\nvm-infra / vm-monitoring"]
+    vms["📦 VMs\nvm-infra / vm-monitoring / vm-apps / vm-dev / vm-code"]
 
     dev -->|git push| github
     dev -->|terraform apply| proxmox
@@ -61,7 +61,7 @@ flowchart TD
     apply["terraform apply"]
     ansible["ansible-playbook"]
     proxmox["🖥️ Proxmox VE\n192.168.11.10"]
-    vms["📦 VMs\nvm-infra / vm-monitoring"]
+    vms["📦 VMs\nvm-infra / vm-monitoring / vm-apps / vm-dev / vm-code"]
     runner["🏃 self-hosted runner\n(vm-infra or Tailscale VPN)"]
 
     dev -->|git push| pr

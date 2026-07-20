@@ -58,6 +58,8 @@ client
 | `home` | 192.168.11.11 | Caddy 経由 |
 | `vm-apps` | 192.168.11.20 | vm-apps |
 | `adguard` | 192.168.11.11 | Caddy 経由 |
+| `code` | 192.168.11.11 | Caddy 経由（code-server） |
+| `cloudcli` | 192.168.11.11 | Caddy 経由（CloudCLI） |
 
 レコードの追加・変更は `ansible/inventory/group_vars/infra/vars.yml` の `dns_records` を編集し、`ansible-playbook playbooks/infra.yml` を実行する。
 

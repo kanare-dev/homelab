@@ -15,9 +15,14 @@ docker/compose/
 │       └── provisioning/
 │           └── datasources/
 │               └── prometheus.yml
-└── reverse-proxy/           # vm-infra 上で実行（または Ansible の caddy role を使用）
+├── reverse-proxy/           # vm-infra 上で実行（Ansible の infra.yml がデプロイ）
+│   ├── docker-compose.yml
+│   └── Caddyfile
+├── dns/                     # vm-infra 上で実行: AdGuard Home + Unbound（Ansible の infra.yml がデプロイ）
+│   └── docker-compose.yml
+└── homepage/                # vm-apps 上で実行（Ansible の apps.yml がデプロイ）
     ├── docker-compose.yml
-    └── Caddyfile
+    └── config/
 ```
 
 ## 起動方法
@@ -37,10 +42,10 @@ docker compose down
 
 起動後のアクセス先:
 
-| サービス | URL | デフォルト認証 |
+| サービス | URL | 認証 |
 |---|---|---|
 | Prometheus | `http://192.168.11.13:9090` | なし |
-| Grafana | `http://192.168.11.13:3000` | admin / changeme |
+| Grafana | `http://192.168.11.13:3000` | admin / Ansible Vault 管理（`group_vars/monitoring/vault.yml`） |
 
 ### Reverse Proxy（vm-infra 上で実行）
 
@@ -65,12 +70,9 @@ cp .env.example .env
 # .env を編集
 ```
 
-## 注意: Reverse Proxy の二重管理について
+## Reverse Proxy のデプロイ方式について
 
-Caddy は以下の 2 通りの方法でデプロイできる:
-
-1. **Ansible の `caddy` role**（推奨） — VM にネイティブインストール
-2. **Docker Compose** — コンテナとして実行
-
-本リポジトリでは Ansible role を推奨する。Docker Compose 版は参考実装として配置している。
-両方を同時に使用しないこと。
+Caddy は Docker Compose（本ディレクトリの `reverse-proxy/`）としてのみ運用する。
+`ansible/playbooks/infra.yml` がこのディレクトリの `docker-compose.yml` / `Caddyfile` を
+`vm-infra` の `/opt/reverse-proxy` にコピーし、コンテナを起動する。
+Ansible role としての Caddy ネイティブインストールはかつて存在したが未使用のため削除済み。

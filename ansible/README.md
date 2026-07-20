@@ -17,22 +17,30 @@ ansible/
 │   ├── hosts.yml        # ホスト一覧
 │   ├── group_vars/      # グループ変数
 │   │   ├── all.yml
-│   │   ├── infra.yml
-│   │   └── monitoring.yml
+│   │   ├── apps.yml
+│   │   ├── dev.yml
+│   │   ├── code/        # vars.yml + vault.yml（暗号化）
+│   │   ├── infra/       # vars.yml + vault.yml（暗号化）
+│   │   └── monitoring/  # vars.yml + vault.yml（暗号化）
 │   └── host_vars/       # ホスト固有変数
+│       ├── pve.yml
+│       ├── vm-code.yml
 │       ├── vm-infra.yml
 │       └── vm-monitoring.yml
 ├── roles/
 │   ├── common/          # 共通セットアップ（パッケージ, SSH, UFW, NTP）
 │   ├── docker/          # Docker CE インストール
 │   ├── node_exporter/   # Prometheus node_exporter
-│   ├── caddy/           # Caddy reverse proxy
-│   └── coredns/         # CoreDNS
+│   ├── coredns/         # CoreDNS
+│   ├── code_tools/      # git, mosh, gh, Node.js, Claude Code CLI, CloudCLI, code-server
+│   └── proxmox/         # Proxmox ホスト自体の設定
 └── playbooks/
     ├── site.yml         # 全体実行
+    ├── proxmox.yml      # Proxmox ホスト用
     ├── infra.yml        # infra VM 用
     ├── monitoring.yml   # monitoring VM 用
-    └── apps.yml         # apps VM 用
+    ├── apps.yml         # apps VM 用
+    └── code.yml         # code VM 用
 ```
 
 ## 使い方
@@ -61,9 +69,12 @@ ansible all -m ping
 |---|---|---|
 | `common` | パッケージ, SSH 硬化, UFW, NTP, hostname | 全 VM |
 | `docker` | Docker CE + Compose Plugin | 全 VM |
-| `node_exporter` | Prometheus node_exporter | 全 VM |
-| `caddy` | Caddy reverse proxy | infra |
+| `node_exporter` | Prometheus node_exporter | 全 VM + Proxmox ホスト |
 | `coredns` | CoreDNS | infra |
+| `code_tools` | git, mosh, gh, Node.js, Claude Code CLI, CloudCLI, code-server | code |
+| `proxmox` | Proxmox ホスト自体の設定 | proxmox |
+
+Caddy（リバースプロキシ）は Ansible role ではなく、`infra.yml` が Docker Compose（`docker/compose/reverse-proxy/`）としてデプロイする。
 
 ## 秘密情報の管理
 

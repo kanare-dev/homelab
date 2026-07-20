@@ -19,12 +19,13 @@ Proxmox の `onboot` および `startup` 設定で、ホスト起動・停止時
 | 2 | vm-monitoring | true | `order=2,up=20,down=60` | Prometheus・Grafana |
 | 3 | vm-apps | true | `order=3,up=20,down=60` | Homepage ダッシュボード |
 | 4 | vm-dev | false | `order=4,up=10,down=30` | 開発用（手動起動のみ） |
+| 5 | vm-code | true | `order=5,up=10,down=30` | Claude Code・CloudCLI・code-server |
 
 `up` は次の VM を起動するまでの待機秒数。`down` はシャットダウン信号送信後の最大待機秒数。
 
 ### シャットダウン順序
 
-ホストのシャットダウン時は `order` の**逆順**で ACPI シャットダウン信号が送られる（vm-apps → vm-monitoring → vm-infra）。
+ホストのシャットダウン時は `order` の**逆順**で ACPI シャットダウン信号が送られる（vm-code → vm-apps → vm-monitoring → vm-infra）。
 
 ### 設定の反映
 
@@ -44,8 +45,8 @@ ssh root@192.168.11.10 "qm start <vmid>"
 # 個別停止（ACPI シャットダウン）
 ssh root@192.168.11.10 "qm shutdown <vmid>"
 
-# 全 VM を起動順に一括起動
-for vmid in 111 113 120; do
+# 全 VM を起動順に一括起動（vm-dev は onboot=false のため対象外）
+for vmid in 111 113 120 122; do
   ssh root@192.168.11.10 "qm start $vmid"
   sleep 30
 done
@@ -267,6 +268,10 @@ ansible-playbook playbooks/site.yml --vault-password-file ~/.vault_password
 | Proxmox | <https://pve.lab.kanare.dev> |
 | Grafana | <https://grafana.lab.kanare.dev> |
 | Prometheus | <https://prometheus.lab.kanare.dev> |
+| Homepage | <https://home.lab.kanare.dev> |
+| AdGuard Home | <https://adguard.lab.kanare.dev> |
+| code-server | <https://code.lab.kanare.dev> |
+| CloudCLI | <https://cloudcli.lab.kanare.dev> |
 
 設定ファイル: `docker/compose/reverse-proxy/Caddyfile`
 
