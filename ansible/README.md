@@ -32,7 +32,7 @@ ansible/
 │   ├── docker/          # Docker CE インストール
 │   ├── node_exporter/   # Prometheus node_exporter
 │   ├── coredns/         # CoreDNS
-│   ├── code_tools/      # git, mosh, gh, Node.js, Claude Code CLI, CloudCLI, code-server
+│   ├── code_tools/      # git, mosh, gh, Node.js, Claude Code CLI, CloudCLI, code-server, moshi-hook
 │   └── proxmox/         # Proxmox ホスト自体の設定
 └── playbooks/
     ├── site.yml         # 全体実行
@@ -71,7 +71,7 @@ ansible all -m ping
 | `docker` | Docker CE + Compose Plugin | 全 VM |
 | `node_exporter` | Prometheus node_exporter | 全 VM + Proxmox ホスト |
 | `coredns` | CoreDNS | infra |
-| `code_tools` | git, mosh, gh, Node.js, Claude Code CLI, CloudCLI, code-server | code |
+| `code_tools` | git, mosh, gh, Node.js, Claude Code CLI, CloudCLI, code-server, moshi-hook | code |
 | `proxmox` | Proxmox ホスト自体の設定 | proxmox |
 
 Caddy（リバースプロキシ）は Ansible role ではなく、`infra.yml` が Docker Compose（`docker/compose/reverse-proxy/`）としてデプロイする。
