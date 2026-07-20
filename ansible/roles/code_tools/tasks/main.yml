@@ -6,6 +6,13 @@
       - mosh
     state: present
 
+- name: Add extra authorized SSH keys (mobile / per-device access)
+  ansible.posix.authorized_key:
+    user: "{{ ansible_user }}"
+    key: "{{ item }}"
+    state: present
+  loop: "{{ code_extra_authorized_keys | default([]) }}"
+
 # --- GitHub CLI (gh) ---
 - name: Check if GitHub CLI apt keyring already exists
   ansible.builtin.stat:
@@ -159,3 +166,46 @@
     state: started
     enabled: true
     daemon_reload: true
+
+# --- moshi-hook (daemon for the Moshi iOS app) ---
+- name: Check if moshi-hook is already installed
+  ansible.builtin.stat:
+    path: "/home/{{ ansible_user }}/.local/bin/moshi-hook"
+  register: moshi_hook_binary
+
+- name: Download moshi-hook install script
+  ansible.builtin.get_url:
+    url: https://getmoshi.app/install.sh
+    dest: /tmp/moshi-hook-install.sh
+    mode: "0755"
+  when: not moshi_hook_binary.stat.exists
+
+- name: Run moshi-hook install script (installs to ~/.local/bin for {{ ansible_user }})
+  ansible.builtin.command: bash /tmp/moshi-hook-install.sh
+  become: false
+  when: not moshi_hook_binary.stat.exists
+
+- name: Clean up moshi-hook install script
+  ansible.builtin.file:
+    path: /tmp/moshi-hook-install.sh
+    state: absent
+
+- name: Check if lingering is enabled for {{ ansible_user }}
+  ansible.builtin.stat:
+    path: "/var/lib/systemd/linger/{{ ansible_user }}"
+  register: moshi_linger
+
+- name: Enable lingering so moshi-hook's systemd --user service survives logout
+  ansible.builtin.command: "loginctl enable-linger {{ ansible_user }}"
+  when: not moshi_linger.stat.exists
+
+- name: Get numeric UID of {{ ansible_user }}
+  ansible.builtin.command: "id -u {{ ansible_user }}"
+  register: moshi_uid
+  changed_when: false
+
+- name: Install and start moshi-hook as a systemd --user service
+  ansible.builtin.command: "/home/{{ ansible_user }}/.local/bin/moshi-hook service install"
+  become: false
+  environment:
+    XDG_RUNTIME_DIR: "/run/user/{{ moshi_uid.stdout }}"

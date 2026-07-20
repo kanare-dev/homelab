@@ -6,6 +6,10 @@ code_server_password: "{{ vault_code_server_password }}"
 
 cloudcli_port: 3001
 
+# 追加で authorized_keys に登録する公開鍵（デバイス単位で管理。秘密鍵はコミットしない）
+code_extra_authorized_keys:
+  - "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILg3DREcyvs31MMZdbvyN+mvEf4SYWf85mk14kDMoVoq moshi-ios@vm-code"
+
 # UFW: code-server / cloudcli / mosh は LAN（Tailscale サブネットルート経由含む）からのみ許可
 ufw_allowed_ports:
   - { port: 22,          proto: tcp }

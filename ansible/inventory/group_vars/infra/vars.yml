@@ -20,6 +20,7 @@ dns_records:
   - { name: "adguard",     ip: "192.168.11.11" }   # Caddy 経由
   - { name: "code",        ip: "192.168.11.11" }   # Caddy 経由
   - { name: "cloudcli",    ip: "192.168.11.11" }   # Caddy 経由
+  - { name: "vm-code",     ip: "192.168.11.22" }   # SSH/mosh 直接アクセス用
 
 # UFW
 ufw_allowed_ports:
