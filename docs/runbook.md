@@ -137,8 +137,11 @@ terraform plan   # 差分を確認
 2. Proxmox Web UI で VM のステータス確認
    → https://192.168.11.10:8006
 
-3. Proxmox コンソールからログイン
+3. Proxmox コンソールで起動状況を確認
    → Web UI > VM > Console
+   ※ ログインはできない。VM の `ubuntu` / `root` はパスワードがロックされており、
+     SSH も鍵認証のみ（`PasswordAuthentication no`）。表示されるのは起動ログとログインプロンプトまで。
+     入る必要があるときは SSH を使う。緊急用のパスワードは設定していない（2026-10-22 に見送り）
 
 4. VM を再起動
    $ ssh root@192.168.11.10 "qm reboot <vmid>"
