@@ -1,0 +1,44 @@
+---
+# AdGuard の fallback DNS で隠れる Unbound の障害を検知する（docs/monitoring.md）
+- name: Install Unbound probe
+  ansible.builtin.copy:
+    src: unbound-metrics.sh
+    dest: /usr/local/bin/unbound-metrics.sh
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Create Unbound probe systemd service
+  ansible.builtin.copy:
+    dest: /etc/systemd/system/unbound-metrics.service
+    mode: "0644"
+    content: |
+      [Unit]
+      Description=Probe Unbound and export metrics for node_exporter
+
+      [Service]
+      Type=oneshot
+      ExecStart=/usr/local/bin/unbound-metrics.sh {{ node_exporter_textfile_dir }}
+
+- name: Create Unbound probe systemd timer
+  ansible.builtin.copy:
+    dest: /etc/systemd/system/unbound-metrics.timer
+    mode: "0644"
+    content: |
+      [Unit]
+      Description=Run unbound-metrics every minute
+
+      [Timer]
+      OnBootSec=30s
+      OnUnitActiveSec=60s
+      AccuracySec=5s
+
+      [Install]
+      WantedBy=timers.target
+
+- name: Enable Unbound probe timer
+  ansible.builtin.systemd:
+    name: unbound-metrics.timer
+    state: started
+    enabled: true
+    daemon_reload: true

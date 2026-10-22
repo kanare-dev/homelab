@@ -123,6 +123,34 @@ groups:
           summary: "Alertmanager から {{ $labels.integration }} への通知が失敗している"
           description: "Webhook URL の失効や Slack 側の障害の可能性。`docker logs alertmanager` を確認する。"
 
+      # AdGuard は fallback DNS を持つため、Unbound が止まっても利用者は気づかない。
+      # 未キャッシュの名前を Unbound に直接引いて、再帰解決できているかを見る（vm-infra の unbound-metrics.timer）
+      - alert: UnboundProbeFailing
+        expr: unbound_probe_success == 0
+        for: 3m
+        labels:
+          severity: warning
+        annotations:
+          summary: "{{ $labels.instance }} の Unbound が再帰解決に失敗している"
+          description: "AdGuard の fallback DNS で名前解決は続いているが、フル再帰の方針から外れている。`docker logs unbound` を確認する。"
+
+      - alert: UnboundProbeStale
+        expr: time() - unbound_probe_last_run_timestamp_seconds > 300
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Unbound のプローブが 5 分以上更新されていない"
+          description: "unbound-metrics.timer が停止している可能性。この間 Unbound の障害を検知できない。"
+
+      - alert: UnboundProbeMissing
+        expr: absent(unbound_probe_success)
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Unbound のプローブのメトリクスが存在しない"
+
       # 常に firing する。通知経路の死活確認（外部 Heartbeat 監視の入力にも使う）
       - alert: Watchdog
         expr: vector(1)

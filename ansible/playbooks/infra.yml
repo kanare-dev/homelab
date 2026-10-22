@@ -2,7 +2,9 @@
 - name: Setup infra VM (DNS + Reverse Proxy + Tailscale)
   hosts: infra
   roles:
+    - node_exporter
     - coredns
+    - dns_metrics
   tasks:
     - name: Create reverse-proxy directory
       ansible.builtin.file:
