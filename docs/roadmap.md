@@ -59,6 +59,10 @@ README に書く現行構成は `24GB` に増設済みのホストを前提と�
 
 - [ ] TO-BE と AS-IS の構成図を描く
 - [ ] メモリの配分を見直しする
+- [ ] homepage のデプロイを効率化する（`make setup-apps` は `common` / `docker` / `node_exporter` ロールも毎回流れる）
+  - `playbooks/apps.yml` の homepage 関連タスクに `tags: [homepage]` を付け、`--tags homepage` で設定だけ反映できるようにする
+  - Makefile に `deploy-homepage` ターゲットを追加する
+  - 末尾の無条件 `restarted` を、設定ファイル変更時のみ動く handler（`notify`）にする。homepage は設定を自動で再読み込みするため、再起動自体が不要な可能性もある
 - [ ] `vm-dev` を Ansible、Docker、ネットワーク設定の破壊検証用として運用する
 - [x] 常用リモート開発環境を `vm-dev` から分離し、新VM `vm-code`（`192.168.11.22`, vmid 122, vm-dev 同等スペック）として切り出す
   - 背景: `vm-dev` は「破壊検証用」と「Claude Code + モバイル remote control による外出先からの常用開発」を兼ねてしまっており、破壊検証中に常用環境を壊すリスクがあるため分離する
