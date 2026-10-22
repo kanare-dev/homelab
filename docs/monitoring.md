@@ -55,6 +55,18 @@ homelab の監視とアラート通知の仕組み。2026-10-22 の障害（[INC
 - 未解消なら critical は 1 時間毎、それ以外は 4 時間毎に再通知する。
 - 解消時は `[RESOLVED]` を送る。
 
+## 容量の上限設定
+
+ログや時系列データが増え続けないよう、次の上限を設けている（INC-2026-10-22）。
+
+| 対象 | 上限 | 設定場所 |
+|---|---|---|
+| Prometheus TSDB | 30 日 または 5GB | `docker/compose/monitoring/docker-compose.yml`（5GB は暫定値。実測で調整） |
+| Docker コンテナログ（monitoring / dns / reverse-proxy / homepage） | 10MB × 3 ファイル | 各 `docker-compose.yml` の `x-logging` |
+| journald（全 VM） | 200M、1 か月 | `ansible/roles/common`（`journald_system_max_use`、`journald_max_retention`） |
+| AdGuard Home クエリログ | 7 日（168h） | `ansible/playbooks/infra.yml`、`group_vars/infra/vars.yml` |
+| thin pool の未使用ブロック返却 | 毎週 `fstrim.timer` | `ansible/roles/common` |
+
 ## 意図的に監視していないもの
 
 | 対象 | 理由 |

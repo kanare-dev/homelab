@@ -128,6 +128,20 @@ thin pool `pve/data` の Data% が 100% に到達し、VM の書き込みが失�
 - **Prometheus**: 9/9 夜以降のメトリクスは存在しない。再開時に `Loading on-disk chunks failed ... out of sequence m-mapped chunk` が出て、head の mmap チャンクが破棄された。9/9 の停止直前の数時間分は欠落している可能性がある。永続化済みのブロック（〜9/9 19:00）は健全。
 - 結論: **discard を有効化し `fstrim` を実行すれば、pool の使用量は理論上 50 GiB 前後まで下がる見込み**（vm-windows を除く）。
 
+## 3.6 容量増加の有力候補: AdGuard Home のクエリログ
+
+ログ上限の設定前に vm-infra を調べたところ、次の状態だった（確定した事実）。
+
+| ファイル | サイズ | 更新日時（ゲスト時計） |
+|---|---:|---|
+| `/opt/dns/adguard/work/data/querylog.json.1` | **1,226,913,188 B（約 1.2 GB）** | 2026-09-09 19:15 |
+| `querylog.json` | 約 0.5 MB | 10-22（復旧後） |
+
+- 設定は `querylog.interval: 2160h`（**90 日保持**）、`file_enabled: true`。
+- `querylog.json.1` の最終更新は pool 枯渇（9/9 18:49）の直後。ローテーションで巨大なファイルを書き換えていた可能性がある（**推定**）。
+- ローテーションのたびに GB 単位のブロックを新規に書き込み、旧ブロックは discard されずに pool に残る。これは「書いて消すを繰り返す」典型的な割当増加の仕組みで、約 76 GiB の差の一因として有力。ただし、この 1 件だけで 76 GiB を説明できるわけではなく、他の要因も残る。
+- 10-22 に保持を 168h（7 日）へ短縮し AdGuard を再起動すると、`querylog.json.1` は 1.2 GB → 約 0.77 MB に縮小した。
+
 ## 4. 暫定対応
 
 実施済み内容を §1 に時系列で記載。VM 内データの削除は行っていない。
@@ -205,7 +219,7 @@ thin pool `pve/data` の Data% が 100% に到達し、VM の書き込みが失�
 - [x] 各 VM 内での実使用量と割当の差 → §3.5（実データ約 28 GiB に対し割当約 97 GiB）
 - [x] vm-monitoring の容量 → 実使用 5.5 GiB。TSDB 肥大化ではなかった
 - [x] vm-windows → ゲスト使用 34 GiB / 割当 35 GiB。回収余地は小さい
-- [ ] **何の書き込み・削除の繰り返しで割当が約 76 GiB 増えたか**（個別の要因は特定できていない。discard 有効後の増加速度を Grafana で観察する）
+- [ ] **何の書き込み・削除の繰り返しで割当が約 76 GiB 増えたか**。有力候補は §3.6 の AdGuard クエリログ（確定ではない）。他の要因は特定できていない。discard 有効後の増加速度を Grafana で観察する
 - [ ] Windows ゲストで discard（TRIM）が実際に有効か（`Optimize-Volume -ReTrim` は Not Supported）
 - [ ] `ubuntu-cloud`(9000) が停止している理由（テンプレート VM のため通常は停止で正常）
 
@@ -287,8 +301,8 @@ blameless（個人ではなく仕組みを対象とする）形式。事実は �
 | 5 | Prometheus に `retention.size`、monitoring の Docker ログ上限 | **完了**（10-22） | - |
 | 6 | `docs/monitoring.md` と Runbook の整備 | **完了**（10-22） | - |
 | 7 | Terraform: `terraform plan` で discard の差分を確認し、状態を実機に合わせる | **完了**（10-22）。ディスクの差分なし。vm-windows の `startup_shutdown`（-1 → null）の既存ドリフトのみ残る（今回と無関係、未 apply） | - |
-| 8 | Ansible: `common` ロール（fstrim.timer）を全 VM に適用して IaC で固定 | 未完 | 10-29 |
-| 9 | 他の compose（dns / homepage / reverse-proxy）の Docker ログ上限、journald の `SystemMaxUse`、AdGuard のクエリログ保持期間 | 未完 | 11-05 |
+| 8 | Ansible: `common` ロール（fstrim.timer、journald 上限）を全 VM に適用して IaC で固定 | **完了**（10-22） | - |
+| 9 | 他の compose（dns / homepage / reverse-proxy）の Docker ログ上限、journald の `SystemMaxUse`、AdGuard のクエリログ保持期間 | **完了**（10-22）。Docker は 10MB×3、journald は 200M/1か月、AdGuard は 90日→7日 | - |
 | 10 | vzdump のスケジュール設定（保存先と保持世代を決める） | 未完 | 11-12 |
 | 11 | Grafana に thin pool Data% / 割当比率 / 増加速度のパネルを追加し、割当の増加要因を観察する | 未完 | 11-12 |
 | 12 | オーバープロビジョニング方針（割当合計 / pool の上限）を決め、アラートにする | 未完 | 11-12 |
