@@ -36,6 +36,14 @@
   when: not node_exporter_binary.stat.exists
   notify: restart node_exporter
 
+- name: Create textfile collector directory
+  ansible.builtin.file:
+    path: "{{ node_exporter_textfile_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
 - name: Create node_exporter systemd service
   ansible.builtin.copy:
     dest: /etc/systemd/system/node_exporter.service
@@ -50,7 +58,7 @@
       User=node_exporter
       Group=node_exporter
       Type=simple
-      ExecStart=/usr/local/bin/node_exporter --web.listen-address=:{{ node_exporter_port }}
+      ExecStart=/usr/local/bin/node_exporter --web.listen-address=:{{ node_exporter_port }} --collector.textfile.directory={{ node_exporter_textfile_dir }}
 
       [Install]
       WantedBy=multi-user.target
