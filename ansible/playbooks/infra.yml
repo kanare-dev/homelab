@@ -22,6 +22,7 @@
         src: "{{ playbook_dir }}/../../docker/compose/reverse-proxy/docker-compose.yml"
         dest: /opt/reverse-proxy/docker-compose.yml
         mode: "0644"
+      tags: [logging]
 
     - name: Copy Caddyfile
       ansible.builtin.copy:
@@ -43,6 +44,7 @@
         project_src: /opt/reverse-proxy
         build: policy
         state: present
+      tags: [logging]
 
     # --- DNS (AdGuard Home + Unbound) ---
     - name: Create dns directory
@@ -57,6 +59,7 @@
         src: "{{ playbook_dir }}/../../docker/compose/dns/docker-compose.yml"
         dest: /opt/dns/docker-compose.yml
         mode: "0644"
+      tags: [logging]
 
     - name: Create unbound config directory
       ansible.builtin.file:
@@ -92,6 +95,7 @@
       community.docker.docker_compose_v2:
         project_src: /opt/dns
         state: present
+      tags: [logging]
 
     - name: Configure AdGuard upstream DNS
       ansible.builtin.shell:
@@ -121,6 +125,34 @@
       register: adguard_upstream
       changed_when: "'changed' in adguard_upstream.stdout"
       notify: restart dns stack
+
+    # INC-2026-10-22: クエリログが 90 日保持で 1.2GB まで増えていた。7 日に短縮する
+    - name: Limit AdGuard query log retention
+      ansible.builtin.shell:
+        cmd: |
+          python3 - << 'PYEOF'
+          import yaml, sys, os
+
+          config_path = '/opt/dns/adguard/conf/AdGuardHome.yaml'
+          if not os.path.exists(config_path):
+              sys.exit(0)
+
+          with open(config_path, 'r') as f:
+              config = yaml.safe_load(f)
+
+          desired = '{{ adguard_querylog_interval }}'
+          if config.get('querylog', {}).get('interval') == desired:
+              sys.exit(0)
+
+          config.setdefault('querylog', {})['interval'] = desired
+          with open(config_path, 'w') as f:
+              yaml.dump(config, f, default_flow_style=False, allow_unicode=True)
+          print('changed')
+          PYEOF
+      register: adguard_querylog
+      changed_when: "'changed' in adguard_querylog.stdout"
+      notify: restart dns stack
+      tags: [logging]
 
     # --- Tailscale ---
     - name: Install Tailscale

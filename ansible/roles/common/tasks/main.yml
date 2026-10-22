@@ -13,6 +13,23 @@
     name: "{{ common_packages }}"
     state: present
 
+# INC-2026-10-22: journal の無制限な増加を防ぐ（vm-infra は 1.1G まで増えていた）
+- name: Create journald drop-in directory
+  ansible.builtin.file:
+    path: /etc/systemd/journald.conf.d
+    state: directory
+    mode: "0755"
+
+- name: Limit journald disk usage
+  ansible.builtin.copy:
+    dest: /etc/systemd/journald.conf.d/10-size-limit.conf
+    mode: "0644"
+    content: |
+      [Journal]
+      SystemMaxUse={{ journald_system_max_use }}
+      MaxRetentionSec={{ journald_max_retention }}
+  notify: restart systemd-journald
+
 # INC-2026-10-22: discard 有効な仮想ディスクの未使用ブロックを thin pool に返す
 - name: Enable weekly fstrim
   ansible.builtin.systemd:

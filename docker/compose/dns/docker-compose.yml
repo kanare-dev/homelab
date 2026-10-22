@@ -1,7 +1,15 @@
+# INC-2026-10-22: コンテナログがディスクを圧迫しないよう上限を設ける
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
 services:
   unbound:
     image: mvance/unbound:latest
     container_name: unbound
+    logging: *default-logging
     restart: unless-stopped
     network_mode: host
     volumes:
@@ -10,6 +18,7 @@ services:
   adguardhome:
     image: adguard/adguardhome:latest
     container_name: adguardhome
+    logging: *default-logging
     restart: unless-stopped
     network_mode: host
     volumes:

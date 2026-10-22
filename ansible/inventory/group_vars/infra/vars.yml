@@ -34,3 +34,6 @@ ufw_allowed_ports:
   - { port: 3000, proto: tcp, from: "192.168.11.0/24" }    # AdGuard Web UI (LAN)
   - { port: 3000, proto: tcp, from: "172.16.0.0/12" }      # AdGuard Web UI (Docker bridge → Caddy)
 
+
+# AdGuard Home のクエリログ保持期間（INC-2026-10-22）
+adguard_querylog_interval: 168h

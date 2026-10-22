@@ -24,6 +24,10 @@ node_exporter_version: "1.7.0"
 node_exporter_port: 9100
 node_exporter_textfile_dir: /var/lib/node_exporter/textfile
 
+# journald
+journald_system_max_use: 200M
+journald_max_retention: 1month
+
 # パッケージ
 common_packages:
   - curl
