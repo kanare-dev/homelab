@@ -34,3 +34,15 @@
         description: Metrics Scraper
         icon: prometheus.png
         siteMonitor: https://prometheus.lab.kanare.dev
+
+- Development:
+    - code-server:
+        href: https://code.lab.kanare.dev
+        description: VS Code in Browser
+        icon: code-server.png
+        siteMonitor: https://code.lab.kanare.dev
+    - CloudCLI:
+        href: https://cloudcli.lab.kanare.dev
+        description: Claude Code UI
+        icon: claude-ai.png
+        siteMonitor: https://cloudcli.lab.kanare.dev
