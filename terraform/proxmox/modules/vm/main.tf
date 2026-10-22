@@ -34,8 +34,10 @@ resource "proxmox_vm_qemu" "vm" {
     scsi {
       scsi0 {
         disk {
-          size    = var.disk
-          storage = var.storage
+          size       = var.disk
+          storage    = var.storage
+          discard    = true # ゲストの TRIM を thin pool に伝える（INC-2026-10-22）
+          emulatessd = true # ゲストが fstrim を使えるよう SSD として見せる
         }
       }
     }

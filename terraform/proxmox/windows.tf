@@ -32,8 +32,10 @@ resource "proxmox_vm_qemu" "windows" {
     scsi {
       scsi0 {
         disk {
-          size    = "60G"
-          storage = "local-lvm"
+          size       = "60G"
+          storage    = "local-lvm"
+          discard    = true # INC-2026-10-22: thin pool 回収用
+          emulatessd = true
         }
       }
     }
