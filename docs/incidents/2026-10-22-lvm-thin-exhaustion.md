@@ -303,7 +303,8 @@ blameless（個人ではなく仕組みを対象とする）形式。事実は �
 | 7 | Terraform: `terraform plan` で discard の差分を確認し、状態を実機に合わせる | **完了**（10-22）。ディスクの差分なし。vm-windows の `startup_shutdown`（-1 → null）の既存ドリフトのみ残る（今回と無関係、未 apply） | - |
 | 8 | Ansible: `common` ロール（fstrim.timer、journald 上限）を全 VM に適用して IaC で固定 | **完了**（10-22） | - |
 | 9 | 他の compose（dns / homepage / reverse-proxy）の Docker ログ上限、journald の `SystemMaxUse`、AdGuard のクエリログ保持期間 | **完了**（10-22）。Docker は 10MB×3、journald は 200M/1か月、AdGuard は 90日→7日 | - |
-| 10 | vzdump のスケジュール設定（保存先と保持世代を決める） | 未完 | 11-12 |
+| 10 | vzdump のスケジュール設定 | **見送り**（10-22 判断）。VM は IaC で再現でき、保存先が同一ディスクのため。NAS 追加時に再検討。方針は `docs/runbook.md` |  - |
+| 16 | Mac にしかない再現不能データ（Vault パスワード、API トークン等）を iCloud Keychain に退避し、非公開の台帳で管理する。シークレット作成時に登録を促すルールを `CLAUDE.md` に追加 | 台帳とルールは**完了**。Keychain 登録はユーザー作業で**未完** | 10-29 |
 | 11 | Grafana に thin pool Data% / 割当比率 / 増加速度のパネルを追加し、割当の増加要因を観察する | 未完 | 11-12 |
 | 12 | オーバープロビジョニング方針（割当合計 / pool の上限）を決め、アラートにする | 未完 | 11-12 |
 | 13 | `PveVmStopped` の実機テスト、Alertmanager 送信失敗の検知ルール | 未完 | 11-12 |
@@ -316,4 +317,5 @@ blameless（個人ではなく仕組みを対象とする）形式。事実は �
 |---|---|
 | thin pool 再枯渇 | **低〜中**。discard 有効化と fstrim で pool 使用率は 44% まで下がり、75% / 90% で Slack に通知される。ただし過剰割当（仮想ディスク合計 223.5 GiB / pool 155.6 GiB）は残っている |
 | 監視 VM・PVE ホスト停止の未検知 | **残存**。外部監視を見送ったため、気づくのは症状から。受容したリスク |
-| バックアップ不在 | **残存**（アクション #10） |
+| バックアップ不在 | **受容**（VM は IaC で再現可能。再現不能データは VM ではなく Mac にあるため、アクション #16 で対応）。NAS 追加時に再検討 |
+| Mac の故障・紛失（vault_password、tfstate 等の喪失） | **高**（今回の検討で判明）。アクション #16 の Keychain 登録で軽減する予定 |
