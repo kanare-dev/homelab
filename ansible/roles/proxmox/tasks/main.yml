@@ -6,3 +6,47 @@
     replace: "void\\({//\\1"
     backup: true
   notify: restart pveproxy
+
+# INC-2026-10-22: thin pool 使用率と VM の io-error を Prometheus から見えるようにする
+- name: Install storage metrics collector
+  ansible.builtin.copy:
+    src: pve-storage-metrics.sh
+    dest: /usr/local/bin/pve-storage-metrics.sh
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Create storage metrics systemd service
+  ansible.builtin.copy:
+    dest: /etc/systemd/system/pve-storage-metrics.service
+    mode: "0644"
+    content: |
+      [Unit]
+      Description=Export LVM thin pool and VM io-error metrics for node_exporter
+
+      [Service]
+      Type=oneshot
+      ExecStart=/usr/local/bin/pve-storage-metrics.sh {{ node_exporter_textfile_dir }}
+
+- name: Create storage metrics systemd timer
+  ansible.builtin.copy:
+    dest: /etc/systemd/system/pve-storage-metrics.timer
+    mode: "0644"
+    content: |
+      [Unit]
+      Description=Run pve-storage-metrics every minute
+
+      [Timer]
+      OnBootSec=30s
+      OnUnitActiveSec=60s
+      AccuracySec=5s
+
+      [Install]
+      WantedBy=timers.target
+
+- name: Enable storage metrics timer
+  ansible.builtin.systemd:
+    name: pve-storage-metrics.timer
+    state: started
+    enabled: true
+    daemon_reload: true

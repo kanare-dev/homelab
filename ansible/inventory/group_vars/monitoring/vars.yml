@@ -5,6 +5,7 @@ grafana_admin_user: admin
 grafana_admin_password: "{{ vault_grafana_admin_password }}"
 
 prometheus_port: 9090
+alertmanager_port: 9093
 grafana_port: 3000
 
 prometheus_scrape_targets:
@@ -25,4 +26,5 @@ ufw_allowed_ports:
   - { port: 22, proto: tcp }
   - { port: 3000, proto: tcp }    # Grafana
   - { port: 9090, proto: tcp }    # Prometheus
+  - { port: 9093, proto: tcp }    # Alertmanager
   - { port: 9100, proto: tcp }    # node_exporter

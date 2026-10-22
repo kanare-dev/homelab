@@ -1,3 +1,10 @@
+# INC-2026-10-22: コンテナログがディスクを圧迫しないよう上限を設ける
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
 services:
   prometheus:
     image: prom/prometheus:latest
@@ -7,12 +14,32 @@ services:
       - "9090:9090"
     volumes:
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./prometheus/alerts.yml:/etc/prometheus/alerts.yml:ro
       - prometheus_data:/prometheus
     command:
       - "--config.file=/etc/prometheus/prometheus.yml"
       - "--storage.tsdb.path=/prometheus"
       - "--storage.tsdb.retention.time=30d"
+      - "--storage.tsdb.retention.size=5GB"   # 暫定値。実測に基づいて調整
       - "--web.enable-lifecycle"
+    logging: *default-logging
+    networks:
+      - monitoring
+
+  alertmanager:
+    image: prom/alertmanager:latest
+    container_name: alertmanager
+    restart: unless-stopped
+    ports:
+      - "9093:9093"
+    volumes:
+      - ./alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+      - ./alertmanager/slack_webhook_url:/etc/alertmanager/slack_webhook_url:ro
+      - alertmanager_data:/alertmanager
+    command:
+      - "--config.file=/etc/alertmanager/alertmanager.yml"
+      - "--storage.path=/alertmanager"
+    logging: *default-logging
     networks:
       - monitoring
 
@@ -32,12 +59,14 @@ services:
       - ./grafana/provisioning:/etc/grafana/provisioning:ro
     depends_on:
       - prometheus
+    logging: *default-logging
     networks:
       - monitoring
 
 volumes:
   prometheus_data:
   grafana_data:
+  alertmanager_data:
 
 networks:
   monitoring:

@@ -2,10 +2,22 @@ global:
   scrape_interval: 15s
   evaluation_interval: 15s
 
+rule_files:
+  - /etc/prometheus/alerts.yml
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: ["alertmanager:9093"]
+
 scrape_configs:
   - job_name: "prometheus"
     static_configs:
       - targets: ["localhost:9090"]
+
+  - job_name: "alertmanager"
+    static_configs:
+      - targets: ["alertmanager:9093"]
 
   - job_name: "node"
     static_configs:
@@ -34,19 +46,26 @@ scrape_configs:
           env: "homelab"
           host: "vm-dev"
           role: "dev"
+      - targets: ["192.168.11.22:9100"]   # vm-code
+        labels:
+          env: "homelab"
+          host: "vm-code"
+          role: "code"
     relabel_configs:
       - source_labels: ["host"]
         target_label: instance
 
-  - job_name: "esp32"
-    scrape_interval: 30s
-    static_configs:
-      - targets: ["192.168.11.100:80"]    # 01-esp32
-        labels:
-          env: "homelab"
-          host: "esp32-01"
-          role: "iot"
-          device: "esp32-01"
-    relabel_configs:
-      - source_labels: ["device"]
-        target_label: instance
+  # ESP32 (01-esp32) は現在意図的に停止中。再開するときはコメントを外す。
+  # 有効なまま止まっていると TargetDown が発報するため外している。
+  # - job_name: "esp32"
+  #   scrape_interval: 30s
+  #   static_configs:
+  #     - targets: ["192.168.11.100:80"]    # 01-esp32
+  #       labels:
+  #         env: "homelab"
+  #         host: "esp32-01"
+  #         role: "iot"
+  #         device: "esp32-01"
+  #   relabel_configs:
+  #     - source_labels: ["device"]
+  #       target_label: instance

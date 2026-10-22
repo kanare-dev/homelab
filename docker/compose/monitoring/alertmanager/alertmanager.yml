@@ -1,0 +1,33 @@
+global:
+  resolve_timeout: 5m
+
+route:
+  receiver: slack
+  group_by: ["alertname", "instance"]
+  group_wait: 30s
+  group_interval: 5m
+  repeat_interval: 4h
+  routes:
+    # Watchdog は通知しない
+    - matchers:
+        - alertname = "Watchdog"
+      receiver: "null"
+    - matchers:
+        - severity = "critical"
+      receiver: slack
+      repeat_interval: 1h
+
+receivers:
+  - name: "null"
+
+  - name: slack
+    slack_configs:
+      # Webhook URL は Ansible が vault から /etc/alertmanager/slack_webhook_url に配置する
+      - api_url_file: /etc/alertmanager/slack_webhook_url
+        send_resolved: true
+        color: '{{ if eq .Status "resolved" }}good{{ else if eq .CommonLabels.severity "critical" }}danger{{ else }}warning{{ end }}'
+        title: '{{ if eq .Status "resolved" }}[RESOLVED]{{ else }}[{{ .CommonLabels.severity | toUpper }}]{{ end }} {{ .CommonLabels.alertname }}'
+        text: |-
+          {{ range .Alerts }}• {{ .Annotations.summary }}
+          {{ if .Annotations.description }}  {{ .Annotations.description }}
+          {{ end }}{{ end }}

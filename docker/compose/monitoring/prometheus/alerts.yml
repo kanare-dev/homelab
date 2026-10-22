@@ -1,0 +1,110 @@
+groups:
+  - name: storage
+    rules:
+      # INC-2026-10-22: LVM thin pool 枯渇で全 VM が io-error になった
+      - alert: LvmThinPoolDataHigh
+        expr: lvm_thin_pool_data_percent > 75
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "thin pool {{ $labels.vg }}/{{ $labels.pool }} の使用率が {{ $value | printf \"%.1f\" }}%"
+          description: "75% 超。90% を超えると critical。VM 内で fstrim を実行し、容量の増加要因を確認する。"
+
+      - alert: LvmThinPoolDataCritical
+        expr: lvm_thin_pool_data_percent > 90
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "thin pool {{ $labels.vg }}/{{ $labels.pool }} の使用率が {{ $value | printf \"%.1f\" }}%（枯渇間近）"
+          description: "100% で全 VM が io-error になる。至急 pool 拡張または容量回収を行う。docs/incidents/2026-10-22-lvm-thin-exhaustion.md 参照。"
+
+      - alert: LvmThinPoolMetadataHigh
+        expr: lvm_thin_pool_metadata_percent > 75
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "thin pool {{ $labels.vg }}/{{ $labels.pool }} のメタデータ使用率が {{ $value | printf \"%.1f\" }}%"
+
+      - alert: LvmThinPoolMetadataCritical
+        expr: lvm_thin_pool_metadata_percent > 90
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "thin pool {{ $labels.vg }}/{{ $labels.pool }} のメタデータが枯渇間近（{{ $value | printf \"%.1f\" }}%）"
+
+      - alert: PveVmIoError
+        expr: pve_vm_io_error == 1
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "VM {{ $labels.name }} ({{ $labels.vmid }}) が io-error で停止中"
+          description: "ストレージ容量枯渇の可能性が高い。pool を拡張してから qm resume する。"
+
+      # onboot=1 の VM が停止している（シャットダウン・クラッシュ・手動停止）
+      - alert: PveVmStopped
+        expr: pve_vm_running{onboot="1"} == 0
+        for: 3m
+        labels:
+          severity: critical
+        annotations:
+          summary: "VM {{ $labels.name }} ({{ $labels.vmid }}) が停止している"
+          description: "onboot=1 の VM が running でない。PVE の UI または qm start で確認する。"
+
+      - alert: PveStorageMetricsStale
+        expr: time() - pve_storage_metrics_last_run_timestamp_seconds > 300
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "PVE の thin pool メトリクスが 5 分以上更新されていない"
+          description: "pve-storage-metrics.timer が停止している可能性。この間 thin pool を監視できない。"
+
+      - alert: PveStorageMetricsMissing
+        expr: absent(lvm_thin_pool_data_percent)
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "thin pool のメトリクスが存在しない"
+
+      - alert: HostDiskUsageHigh
+        expr: |
+          100 * (1 - node_filesystem_avail_bytes{fstype=~"ext4|xfs"} / node_filesystem_size_bytes{fstype=~"ext4|xfs"}) > 80
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "{{ $labels.instance }} の {{ $labels.mountpoint }} が {{ $value | printf \"%.1f\" }}%"
+
+      - alert: HostDiskUsageCritical
+        expr: |
+          100 * (1 - node_filesystem_avail_bytes{fstype=~"ext4|xfs"} / node_filesystem_size_bytes{fstype=~"ext4|xfs"}) > 90
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "{{ $labels.instance }} の {{ $labels.mountpoint }} が {{ $value | printf \"%.1f\" }}%"
+
+  - name: availability
+    rules:
+      # vm-dev は onboot=false で手動起動のため除外（停止検知は PveVmStopped が onboot=1 のみ対象）
+      - alert: TargetDown
+        expr: up{instance!="vm-dev"} == 0
+        for: 3m
+        labels:
+          severity: critical
+        annotations:
+          summary: "{{ $labels.job }} / {{ $labels.instance }} に接続できない"
+
+      # 常に firing する。通知経路の死活確認（外部 Heartbeat 監視の入力にも使う）
+      - alert: Watchdog
+        expr: vector(1)
+        labels:
+          severity: none
+        annotations:
+          summary: "Alertmanager パイプラインの動作確認用（常時 firing）"
