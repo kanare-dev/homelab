@@ -46,7 +46,12 @@ client
 - ループバック (`127.0.0.1`) のみリッスンし、外部から直接アクセス不可
 - 設定ファイル: `/opt/dns/unbound/unbound.conf`
 - `serve-expired: yes`（TTL 1 時間）: 上流が応答しないとき、期限切れのキャッシュを返す
-- `verbosity: 1` / `log-servfail: yes`: 失敗を `docker logs unbound` に残す（ログは docker のログ上限で回る）
+- `use-syslog: no` / `verbosity: 1` / `log-servfail: yes`: 失敗を `docker logs unbound` に残す（ログは docker のログ上限で回る）。`use-syslog: no` が無いと、コンテナ内に syslog が無いためログが出ない
+- `do-ip6: no`: vm-infra には IPv6 の経路がない。有効だと、権威サーバーの IPv6 アドレスへの到達不能な送信が `max-sends` の上限を使い切り、`SERVFAIL`（`exceeded the maximum number of sends`）や 20 秒のタイムアウトになる
+
+### fallback DNS の限界
+
+AdGuard の fallback DNS が使われるのは、upstream に**接続できない**とき（タイムアウトなど）だけ。Unbound が `SERVFAIL` を返した場合は、その応答がそのまま利用者に返り、fallback は働かない。Unbound の失敗は `UnboundProbeFailing`（[monitoring.md](monitoring.md)）で検知する。
 
 ## DNS レコード (lab.kanare.dev)
 
