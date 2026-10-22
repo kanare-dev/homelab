@@ -134,10 +134,22 @@ ansible-playbook playbooks/infra.yml
 
 ## Tailscale との連携
 
-Tailscale 経由でリモートアクセスする場合、`lab.kanare.dev` の名前解決を vm-infra に向ける必要がある。
+外出先から `lab.kanare.dev` と LAN のサービスを使うため、vm-infra を subnet router にし、split DNS を設定している（2026-10-22 に動作確認済み）。
 
-Tailscale Admin Console → DNS → **Add nameserver** で以下を設定:
-- Nameserver: vm-infra の Tailscale IP
-- Restrict to domain: `lab.kanare.dev`
+| 項目 | 設定 |
+|---|---|
+| vm-infra の Tailscale IP | `100.118.14.37` |
+| 起動オプション | `tailscale up --advertise-routes=192.168.11.0/24 --accept-dns=false` |
+| Subnet route | Admin Console で `192.168.11.0/24` を承認済み |
+| Key expiry | vm-infra は無効化（期限切れで外出先から繋がらなくなるのを防ぐ） |
+| Split DNS | Admin Console → DNS → Nameserver `100.118.14.37`、Restrict to domain `lab.kanare.dev` |
 
-これにより VPN 接続中も `grafana.lab.kanare.dev` などの内部ドメインが解決される。
+- `--accept-dns=false`: vm-infra 自身が AdGuard を DNS として使うため、Tailscale に resolv.conf を書き換えさせない。
+- IP 転送 (`net.ipv4.ip_forward = 1`) は有効化済み。
+- スマホは Tailscale をオンにしたまま、自宅 Wi-Fi でもモバイル回線でも `https://home.lab.kanare.dev` に接続できる。
+
+### 注意
+
+- Tailscale がオンの間、iOS は Wi-Fi の DNS ではなく Tailscale の DNS 設定を使う。Split DNS が無いと `lab.kanare.dev` は NXDOMAIN になる。
+- スマホの DNS に `1.1.1.1` を併記しない。`lab.kanare.dev` を知らないため、NXDOMAIN を返して名前解決が失敗することがある。
+- Caddy は 443 番ポートのみで待ち受ける。`http://` では接続できないので `https://` を使う。
