@@ -50,6 +50,11 @@ resource "proxmox_vm_qemu" "vm" {
     }
   }
 
+  # テンプレートは vga=serial0 だが、クローンには serial0 デバイスが付かず、noVNC コンソールが接続と切断を繰り返す
+  vga {
+    type = "std"
+  }
+
   network {
     id     = 0
     model  = "virtio"

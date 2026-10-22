@@ -66,6 +66,17 @@ resource "proxmox_vm_qemu" "windows" {
 
   start_at_node_boot = false
 
+  # 普段は停止しておく（8GB の RAM を使うため）。使うときは UI か qm start で起動する
+  # 起動したまま terraform apply すると停止されるので注意
+  vm_state = "stopped"
+
+  # 起動順序・遅延は指定なし（-1）。実機の設定と一致させ、差分を出さない
+  startup_shutdown {
+    order            = -1
+    startup_delay    = -1
+    shutdown_timeout = -1
+  }
+
   tags = "windows,desktop"
 
   lifecycle {

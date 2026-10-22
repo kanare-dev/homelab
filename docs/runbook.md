@@ -376,6 +376,22 @@ curl -XPOST http://192.168.11.13:9093/api/v2/alerts -H 'Content-Type: applicatio
 監視 VM (vm-monitoring) は同じ Proxmox ストレージ上にある。ストレージ障害時は Alertmanager も停止し通知が届かない。
 外部監視で補う案は検討のうえ**見送り**とした（理由と選択肢は [monitoring.md](monitoring.md#外部監視を導入しない判断2026-10-22) を参照）。
 
+### VM のコンソールが「接続しました／切断しました」を繰り返すとき
+
+PVE の noVNC コンソールが接続と切断を高速で繰り返し、画面が出ない場合。
+
+- **原因:** テンプレート（9000）は `vga: serial0` だが、Terraform でクローンした VM には `serial0` デバイスが付かない。表示デバイスが無いので noVNC が切断される。
+- **対処:** `terraform/proxmox/modules/vm/main.tf` で `vga { type = "std" }` を指定している。VM を新しく作るときも同じ。
+- **確認:** `qm config <vmid> | grep vga` が `vga: type=std` であること。
+
+### terraform apply が VM を再起動するとき
+
+`vga` など一部の設定の変更は、`terraform apply` が**対象の VM を自動で再起動する**。対象が複数だと、ほぼ同時に再起動する（2026-10-22 は 5 台が約 26 秒の間に再起動し、DNS と監視が 1 分弱止まった）。
+
+- apply の前に `terraform plan` で、変更が VM の再起動を伴うか確認する。
+- 再起動を伴う場合は、`-target='module.vm["<名前>"]'` で 1 台ずつ apply する。DNS の `vm-infra` は最後にする。
+- `vm-windows` は `vm_state = "stopped"` を指定している。起動したまま apply すると停止される。
+
 ### thin pool が 90% を超えたとき
 
 1. `lvs -o lv_name,data_percent,metadata_percent pve/data` で現状確認。
