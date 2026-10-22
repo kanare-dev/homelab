@@ -47,3 +47,5 @@ diagrams/**/reference/**
 
 # lab CLI
 tools/lab/lab
+# 非公開データへのシンボリックリンク（実体は iCloud Drive。公開リポジトリには入れない）
+/private/

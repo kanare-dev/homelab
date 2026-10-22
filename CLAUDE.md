@@ -2,12 +2,12 @@
 
 ## シークレットの扱い（INC-2026-10-22 の再発防止）
 
-Mac が単一障害点になっているため、シークレットを作るたびに退避を促す。台帳は非公開（リポジトリ外。iCloud Drive の `homelab/secrets-inventory.md`）。
+Mac が単一障害点になっているため、シークレットを作るたびに退避を促す。台帳は非公開（実体は iCloud Drive の `homelab/secrets-inventory.md`。リポジトリ内の `private/secrets-inventory.md` はそこへのシンボリックリンクで、Git 管理外）。
 
 次のいずれかが起きたら、**作業を終える前に**ユーザーへ次の 2 点を促すこと。
 
 1. **iCloud Keychain（パスワードアプリ）に登録する**。命名は `homelab / <用途>`（台帳 §4 の規則）。
-2. **非公開の台帳（iCloud Drive の `homelab/secrets-inventory.md`）に追記する**（名前・場所・用途・復旧方法。**値は書かない**）。台帳の更新は Claude が行い、Keychain 登録はユーザーが行う。
+2. **非公開の台帳（`private/secrets-inventory.md`）に追記する**（名前・場所・用途・復旧方法。**値は書かない**）。台帳の更新は Claude が行い、Keychain 登録はユーザーが行う。
 
 対象:
 
