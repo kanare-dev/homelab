@@ -94,6 +94,12 @@
         dest: /opt/monitoring/grafana/provisioning/dashboards/dashboards.yml
         mode: "0644"
 
+    - name: Copy storage (thin pool) dashboard
+      ansible.builtin.copy:
+        src: "{{ playbook_dir }}/../../docker/compose/monitoring/grafana/dashboards/storage.json"
+        dest: /opt/monitoring/grafana/provisioning/dashboards/json/storage.json
+        mode: "0644"
+
     - name: Download Node Exporter Full dashboard
       ansible.builtin.get_url:
         url: https://grafana.com/api/dashboards/1860/revisions/latest/download

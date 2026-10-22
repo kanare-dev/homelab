@@ -32,6 +32,7 @@ homelab の監視とアラート通知の仕組み。2026-10-22 の障害（[INC
 | アラートルール | 発報条件 | `docker/compose/monitoring/prometheus/alerts.yml` |
 | Alertmanager | 通知のグルーピング・送信 | `docker/compose/monitoring/alertmanager/alertmanager.yml` |
 | Slack Webhook URL | 秘密情報 | `ansible/inventory/group_vars/monitoring/vault.yml`（`vault_slack_webhook_url`、Ansible Vault 暗号化） |
+| Grafana ダッシュボード「Storage / Thin Pool」 | pool とVM ディスク別の割当、増加ペース、VM 稼働状態 | `docker/compose/monitoring/grafana/dashboards/storage.json`（`/d/homelab-storage`） |
 | デプロイ | | `ansible/playbooks/monitoring.yml`（vm-monitoring）、`ansible/playbooks/proxmox.yml`（pve） |
 
 ## 監視している項目
@@ -110,6 +111,17 @@ homelab の監視とアラート通知の仕組み。2026-10-22 の障害（[INC
 
 ## 運用
 
+### 収集スクリプトを変更するときの注意
+
+`pve-storage-metrics.sh` の出力に不正な行（値が空など）があると、node_exporter は **ファイル全体を読み込まず**、`node_textfile_scrape_error 1` になって pve のメトリクスが全て消える。変更したら必ず PVE 上で一時ディレクトリに出力して確認する。
+
+```bash
+ssh pve 'd=$(mktemp -d); cat > $d/s.sh; bash $d/s.sh $d && grep -cE " $" $d/pve_storage.prom; rm -rf $d' < ansible/roles/proxmox/files/pve-storage-metrics.sh
+curl -s http://192.168.11.10:9100/metrics | grep node_textfile_scrape_error   # 0 であること
+```
+
+2026-10-22 にボリューム別メトリクスを追加した際、非アクティブなテンプレートボリュームの空値で約 6 分間メトリクスが途絶えた（アラートの待ち時間内で発報はなし）。収集が止まった場合は `PveStorageMetricsStale` / `PveStorageMetricsMissing` が検知する。
+
 ### デプロイ
 
 ```bash
@@ -139,6 +151,7 @@ curl -XPOST http://192.168.11.13:9093/api/v2/alerts -H 'Content-Type: applicatio
 
 | 見たいもの | 場所 |
 |---|---|
+| thin pool の推移・VM ディスク別の割当 | Grafana `http://192.168.11.13:3000/d/homelab-storage/storage-thin-pool` |
 | 発報中のアラート | `http://192.168.11.13:9093` / `http://192.168.11.13:9090/alerts` |
 | ルールの状態 | `http://192.168.11.13:9090/rules` |
 | scrape 先の状態 | `http://192.168.11.13:9090/targets` |

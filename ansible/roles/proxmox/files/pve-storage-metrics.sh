@@ -17,6 +17,10 @@ trap 'rm -f "$TMP"' EXIT
   echo "# TYPE lvm_thin_pool_size_bytes gauge"
   echo "# HELP lvm_thin_pool_provisioned_bytes Sum of virtual sizes of thin volumes in the pool."
   echo "# TYPE lvm_thin_pool_provisioned_bytes gauge"
+  echo "# HELP lvm_thin_volume_data_percent Allocated percentage of a thin volume (VM disk)."
+  echo "# TYPE lvm_thin_volume_data_percent gauge"
+  echo "# HELP lvm_thin_volume_size_bytes Virtual size of a thin volume (VM disk)."
+  echo "# TYPE lvm_thin_volume_size_bytes gauge"
 
   # lv_attr 先頭が 't' が thin pool、'V' が thin volume
   lvs --noheadings --nosuffix --units b --separator '|' \
@@ -29,7 +33,13 @@ trap 'rm -f "$TMP"' EXIT
         printf "lvm_thin_pool_metadata_percent{vg=\"%s\",pool=\"%s\"} %s\n", $1, $2, $5
         printf "lvm_thin_pool_size_bytes{vg=\"%s\",pool=\"%s\"} %s\n", $1, $2, $3
       }
-      substr($7,1,1) == "V" && $6 != "" { prov[$1 "/" $6] += $3 }
+      substr($7,1,1) == "V" && $6 != "" {
+        prov[$1 "/" $6] += $3
+        # 非アクティブなボリューム（テンプレート等）は使用率が空欄。空の値は textfile のパースエラーになるため出力しない
+        if ($4 == "") next
+        printf "lvm_thin_volume_data_percent{vg=\"%s\",pool=\"%s\",lv=\"%s\"} %s\n", $1, $6, $2, $4
+        printf "lvm_thin_volume_size_bytes{vg=\"%s\",pool=\"%s\",lv=\"%s\"} %s\n", $1, $6, $2, $3
+      }
       END {
         for (k in prov) {
           split(k, a, "/")

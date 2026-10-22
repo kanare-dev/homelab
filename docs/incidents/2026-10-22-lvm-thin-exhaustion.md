@@ -305,7 +305,7 @@ blameless（個人ではなく仕組みを対象とする）形式。事実は �
 | 9 | 他の compose（dns / homepage / reverse-proxy）の Docker ログ上限、journald の `SystemMaxUse`、AdGuard のクエリログ保持期間 | **完了**（10-22）。Docker は 10MB×3、journald は 200M/1か月、AdGuard は 90日→7日 | - |
 | 10 | vzdump のスケジュール設定 | **見送り**（10-22 判断）。VM は IaC で再現でき、保存先が同一ディスクのため。NAS 追加時に再検討。方針は `docs/runbook.md` |  - |
 | 16 | Mac にしかない再現不能データ（Vault パスワード、API トークン等）を iCloud Keychain に退避し、非公開の台帳で管理する。シークレット作成時に登録を促すルールを `CLAUDE.md` に追加 | **完了**（10-22）。台帳・ルール・Keychain 登録とも済み | 10-29 |
-| 11 | Grafana に thin pool Data% / 割当比率 / 増加速度のパネルを追加し、割当の増加要因を観察する | 未完 | 11-12 |
+| 11 | Grafana に thin pool Data% / 割当比率 / 増加速度のパネルを追加し、割当の増加要因を観察する | **完了**（10-22）。ダッシュボード「Storage / Thin Pool」（14 パネル）。VM ディスク別の割当と増加ペースも表示。観察は継続 | - |
 | 12 | オーバープロビジョニング方針（割当合計 / pool の上限）を決め、アラートにする | 未完 | 11-12 |
 | 13 | `PveVmStopped` の実機テスト、Alertmanager 送信失敗の検知ルール | 未完 | 11-12 |
 | 14 | Windows ゲストで discard が実際に効くか確認 | 未完 | 11-12 |
