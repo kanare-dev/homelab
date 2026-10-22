@@ -112,6 +112,17 @@ groups:
         annotations:
           summary: "{{ $labels.job }} / {{ $labels.instance }} に接続できない"
 
+      # Slack への送信が失敗している。Slack 自体に届かないため、この通知は Alertmanager の UI
+      # (http://192.168.11.13:9093) と Grafana / Prometheus の Alerts 画面でのみ確認できる
+      - alert: AlertmanagerNotificationsFailing
+        expr: sum by (integration) (increase(alertmanager_notifications_failed_total[10m])) > 0
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Alertmanager から {{ $labels.integration }} への通知が失敗している"
+          description: "Webhook URL の失効や Slack 側の障害の可能性。`docker logs alertmanager` を確認する。"
+
       # 常に firing する。通知経路の死活確認（外部 Heartbeat 監視の入力にも使う）
       - alert: Watchdog
         expr: vector(1)

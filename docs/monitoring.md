@@ -43,6 +43,7 @@ homelab の監視とアラート通知の仕組み。2026-10-22 の障害（[INC
 | LvmThinPoolDataCritical | thin pool Data% > 90% | 2m | critical | 枯渇間近（今回の障害の原因） |
 | LvmThinPoolMetadataHigh / Critical | thin pool Meta% > 75% / 90% | 5m / 2m | warning / critical | メタデータ枯渇 |
 | LvmThinPoolOverprovisioned | 仮想ディスク合計 ÷ pool サイズ > 1.5 | 1h | warning | 過剰割当（障害時は約 1.6、現在 1.44）。全 VM が使い切れば枯渇する |
+| AlertmanagerNotificationsFailing | Alertmanager → Slack の送信失敗が 10 分間に増加 | 5m | warning | Webhook 失効や Slack 障害。**Slack には届かない**ため、Alertmanager / Prometheus の画面でのみ確認できる |
 | PveVmIoError | VM が `io-error` | 1m | critical | ストレージ枯渇による VM 一時停止 |
 | PveVmStopped | `onboot=1` の VM が running でない | 3m | critical | VM のシャットダウン・クラッシュ・手動停止（vm-infra / vm-apps / vm-monitoring / vm-code が対象） |
 | TargetDown | scrape 先が応答しない（vm-dev 除く） | 3m | critical | VM 内 OS の停止・node_exporter 停止・ネットワーク断 |
@@ -69,6 +70,15 @@ homelab の監視とアラート通知の仕組み。2026-10-22 の障害（[INC
 | AdGuard Home クエリログ | 7 日（168h） | `ansible/playbooks/infra.yml`、`group_vars/infra/vars.yml` |
 | thin pool の未使用ブロック返却 | 毎週 `fstrim.timer` | `ansible/roles/common` |
 
+## 動作確認の記録
+
+| 日付 | 内容 | 結果 |
+|---|---|---|
+| 2026-10-22 | `TestAlert` を Alertmanager に直接送信 | Slack に `[WARNING] TestAlert` が届いた |
+| 2026-10-22 | vm-code を `qm shutdown` で停止（実機テスト） | 停止から約 3.5 分で `TargetDown`、約 4 分で `PveVmStopped` が発報。Slack に両方届いた（ユーザー確認）。起動後 1 分以内にアラートは解消 |
+
+VM 停止の検知は、`TargetDown`（VM 内 OS の応答なし）が 3 分、`PveVmStopped`（PVE が見ている状態）が 3 分の待ち時間に、スクレイプ間隔と評価間隔が加わって、約 4 分で通知される。
+
 ## 意図的に監視していないもの
 
 | 対象 | 理由 |
@@ -83,7 +93,7 @@ homelab の監視とアラート通知の仕組み。2026-10-22 の障害（[INC
 1. **監視 VM 自身が止まると通知されない**。vm-monitoring は PVE と同じストレージ・ホスト上にある。PVE ホストの停止、vm-monitoring の停止、ストレージ全体の障害では Slack に何も届かない。今回の障害と同じ構造で、完全には防げていない。
 2. **PVE ホスト自体が落ちた場合も通知されない**（上と同じ理由）。
 3. 外部監視による補完は**現時点では行わない**（判断は下記「外部監視を導入しない判断」を参照）。
-4. Slack に届いたかは Alertmanager のメトリクス（`alertmanager_notifications_failed_total`）で確認できるが、現在はこれ自体のアラートはない。
+4. Slack への送信失敗は `AlertmanagerNotificationsFailing` で検知するが、Slack に届かないので **UI（`http://192.168.11.13:9093`）を見ないと気づけない**。
 
 ### 外部監視を導入しない判断（2026-10-22）
 
