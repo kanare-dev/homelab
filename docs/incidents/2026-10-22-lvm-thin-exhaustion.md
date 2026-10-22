@@ -286,7 +286,7 @@ blameless（個人ではなく仕組みを対象とする）形式。事実は �
 | 4 | Prometheus ルールと Alertmanager、Slack 通知（テスト通知で動作確認済み） | **完了**（10-22） | - |
 | 5 | Prometheus に `retention.size`、monitoring の Docker ログ上限 | **完了**（10-22） | - |
 | 6 | `docs/monitoring.md` と Runbook の整備 | **完了**（10-22） | - |
-| 7 | Terraform: `terraform plan` で discard の差分を確認し、状態を実機に合わせる | 未完 | 10-29 |
+| 7 | Terraform: `terraform plan` で discard の差分を確認し、状態を実機に合わせる | **完了**（10-22）。ディスクの差分なし。vm-windows の `startup_shutdown`（-1 → null）の既存ドリフトのみ残る（今回と無関係、未 apply） | - |
 | 8 | Ansible: `common` ロール（fstrim.timer）を全 VM に適用して IaC で固定 | 未完 | 10-29 |
 | 9 | 他の compose（dns / homepage / reverse-proxy）の Docker ログ上限、journald の `SystemMaxUse`、AdGuard のクエリログ保持期間 | 未完 | 11-05 |
 | 10 | vzdump のスケジュール設定（保存先と保持世代を決める） | 未完 | 11-12 |
