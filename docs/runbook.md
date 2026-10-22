@@ -321,3 +321,64 @@ ssh ubuntu@192.168.11.11 "cd /opt/reverse-proxy && docker compose up -d --force-
 
 Proxmox のバックエンドは自己署名証明書のため、Caddyfile で `tls_insecure_skip_verify` を設定している。
 これは LAN 内のみでのアクセスかつ Proxmox 自体の証明書管理が難しいための措置。
+
+## Slack アラート通知
+
+Prometheus のアラートは Alertmanager 経由で Slack に通知する（INC-2026-10-22 の再発防止）。
+
+### 構成
+
+```text
+pve (pve-storage-metrics.timer, 1分毎)
+  -> node_exporter textfile collector (:9100)
+  -> Prometheus (alerts.yml)  -> Alertmanager (:9093) -> Slack Incoming Webhook
+```
+
+### Webhook URL の登録
+
+1. Slack で App を作成し、Incoming Webhooks を有効化して通知先チャンネルの Webhook URL を発行する。
+2. Ansible Vault に登録する（URL は Git に平文で置かない）。
+
+   ```bash
+   cd ansible
+   ansible-vault edit inventory/group_vars/monitoring/vault.yml
+   # 追記: vault_slack_webhook_url: "https://hooks.slack.com/services/..."
+   ```
+
+3. デプロイする。
+
+   ```bash
+   ansible-playbook -i inventory/hosts.yml playbooks/monitoring.yml
+   ```
+
+### 通知テスト（デプロイ後に必ず実施）
+
+```bash
+# 疑似アラートを Alertmanager に直接送る
+curl -XPOST http://192.168.11.13:9093/api/v2/alerts -H 'Content-Type: application/json' \
+  -d '[{"labels":{"alertname":"TestAlert","severity":"warning","instance":"manual"},"annotations":{"summary":"通知テスト"}}]'
+```
+
+### 主なルール
+
+| アラート | 条件 | 重大度 |
+|---|---|---|
+| LvmThinPoolDataHigh / Critical | thin pool Data% > 75% / 90% | warning / critical |
+| LvmThinPoolMetadataHigh / Critical | thin pool Meta% > 75% / 90% | warning / critical |
+| PveVmIoError | VM が io-error | critical |
+| HostDiskUsageHigh / Critical | ファイルシステム > 80% / 90% | warning / critical |
+| TargetDown | scrape 先が 3 分以上 down | critical |
+| PveStorageMetricsStale | thin pool メトリクスが 5 分以上更新されない | warning |
+
+### 既知の限界
+
+監視 VM (vm-monitoring) は同じ Proxmox ストレージ上にある。ストレージ障害時は Alertmanager も停止し通知が届かない。
+外部監視で補う案は検討のうえ**見送り**とした（理由と選択肢は [monitoring.md](monitoring.md#外部監視を導入しない判断2026-10-22) を参照）。
+
+### thin pool が 90% を超えたとき
+
+1. `lvs -o lv_name,data_percent,metadata_percent pve/data` で現状確認。
+2. 各 VM で `sudo fstrim -av`（discard 有効が前提。`qm config <id>` で `discard=on` を確認）。
+3. 足りなければ `vgs` で空きを確認し `lvextend -L +<size> pve/data`。VG に空きが無ければディスク追加または VM ディスクの縮小を検討。
+
+詳細は `docs/incidents/2026-10-22-lvm-thin-exhaustion.md` を参照。

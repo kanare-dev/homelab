@@ -50,7 +50,7 @@ README に書く現行構成は `24GB` に増設済みのホストを前提と�
 ## 監視・可観測性
 
 - [ ] blackbox_exporter で外形監視を追加する
-- [ ] Alertmanager を追加して個人Slackで監視通知を受け取れるようにする
+- [x] Alertmanager を追加して個人Slackで監視通知を受け取れるようにする（[docs/monitoring.md](monitoring.md)）
 - [ ] uptime-kuma の導入
 - [ ] Loki + Promtail でログ収集基盤を構築する
 - [ ] telegraf + InfluxDB の導入

@@ -179,7 +179,10 @@ client
 
 - `vm-monitoring` 上で Prometheus と Grafana を動かす
 - まずは各 VM の `node_exporter` を監視する
-- 将来的に ESP32 や Alertmanager を追加する
+- Alertmanager 経由で Slack に通知する（thin pool 容量、VM 停止・io-error、ディスク逼迫など）
+- ESP32 は現在停止中のため scrape 対象から外している
+
+詳細は [`docs/monitoring.md`](docs/monitoring.md) を参照。
 
 ## 将来拡張
 
