@@ -126,6 +126,34 @@
       changed_when: "'changed' in adguard_upstream.stdout"
       notify: restart dns stack
 
+    # Unbound が数分応答しないと、インターネット全体が引けなくなる（2026-10-22 に実際に発生）。
+    # upstream が全て失敗したときだけ使う
+    - name: Configure AdGuard fallback DNS
+      ansible.builtin.shell:
+        cmd: |
+          python3 - << 'PYEOF'
+          import yaml, sys, os
+
+          config_path = '/opt/dns/adguard/conf/AdGuardHome.yaml'
+          if not os.path.exists(config_path):
+              sys.exit(0)
+
+          with open(config_path, 'r') as f:
+              config = yaml.safe_load(f)
+
+          desired = ['1.1.1.1', '9.9.9.9']
+          if config.get('dns', {}).get('fallback_dns') == desired:
+              sys.exit(0)
+
+          config.setdefault('dns', {})['fallback_dns'] = desired
+          with open(config_path, 'w') as f:
+              yaml.dump(config, f, default_flow_style=False, allow_unicode=True)
+          print('changed')
+          PYEOF
+      register: adguard_fallback
+      changed_when: "'changed' in adguard_fallback.stdout"
+      notify: restart dns stack
+
     # INC-2026-10-22: クエリログが 90 日保持で 1.2GB まで増えていた。7 日に短縮する
     - name: Limit AdGuard query log retention
       ansible.builtin.shell:
