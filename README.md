@@ -73,10 +73,10 @@ Proxmox 上に複数 VM を構築し、Terraform + Ansible + Docker Compose で�
 | Proxmox host | ハイパーバイザ本体 | ~2GB | ホスト側の余裕を削りすぎない |
 | `vm-infra` | CoreDNS / Caddy / Tailscale | 1.5GB | 実使用 ~500MB |
 | `vm-monitoring` | Prometheus / Grafana | 2GB | 実使用 ~660MB |
-| `vm-apps` | Homepage 等 | 1GB | 実使用 ~256MB |
+| `vm-apps` | Homepage 等 | 4GB | 実使用 ~256MB |
 | `vm-dev` | 検証用 Ubuntu | 1GB | 常時起動しない前提 |
-| `vm-code` | Claude Code / CloudCLI / code-server | 2GB | 常時起動、Tailscale 経由のみアクセス |
-| 余白 | キャッシュ / 追加 VM 用 | ~14GB | k3s 等の重めの構成を検討可能 |
+| `vm-code` | Claude Code / CloudCLI / code-server | 4GB | 常時起動、Tailscale 経由のみアクセス |
+| 余白 | キャッシュ / 追加 VM 用 | ~11GB | k3s 等の重めの構成を検討可能 |
 
 ## 技術スタック
 
@@ -98,9 +98,9 @@ Proxmox 上に複数 VM を構築し、Terraform + Ansible + Docker Compose で�
 | Proxmox | — | `192.168.11.10` | — | 常時起動 | ハイパーバイザ | Proxmox VE |
 | `vm-infra` | `111` | `192.168.11.11` | 1.5GB | 常時起動 | インフラ基盤 | AdGuard Home, Unbound, CoreDNS, Caddy, Tailscale |
 | `vm-monitoring` | `113` | `192.168.11.13` | 2GB | 常時起動 | 監視 | Prometheus, Grafana, node_exporter |
-| `vm-apps` | `120` | `192.168.11.20` | 1GB | 常時起動 | アプリ | Homepage |
+| `vm-apps` | `120` | `192.168.11.20` | 4GB | 常時起動 | アプリ | Homepage |
 | `vm-dev` | `121` | `192.168.11.21` | 1GB | 任意起動 | 開発・実験 | playground |
-| `vm-code` | `122` | `192.168.11.22` | 2GB | 常時起動 | 常用リモート開発 | Claude Code, CloudCLI, code-server, gh, git, mosh, moshi-hook |
+| `vm-code` | `122` | `192.168.11.22` | 4GB | 常時起動 | 常用リモート開発 | Claude Code, CloudCLI, code-server, gh, git, mosh, moshi-hook |
 
 ## 管理画面リンク
 

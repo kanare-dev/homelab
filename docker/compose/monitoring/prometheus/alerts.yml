@@ -101,6 +101,36 @@ groups:
         annotations:
           summary: "{{ $labels.instance }} の {{ $labels.mountpoint }} が {{ $value | printf \"%.1f\" }}%"
 
+  - name: memory
+    rules:
+      # vm-code が開発中に OOM でハングした（応答不能になり、TargetDown まで気づけなかった）。
+      # スワップなしの VM では MemAvailable が尽きる前に検知する。vm-dev は手動起動のため、起動中のみ評価される
+      - alert: HostMemoryLow
+        expr: 100 * node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes < 10
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "{{ $labels.instance }} の利用可能メモリが {{ $value | printf \"%.1f\" }}%"
+          description: "10% 未満。OOM でハングする前にプロセスを確認するか、VM のメモリ割当を増やす。"
+
+      - alert: HostMemoryCritical
+        expr: 100 * node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes < 5
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "{{ $labels.instance }} の利用可能メモリが {{ $value | printf \"%.1f\" }}%（OOM 間近）"
+          description: "5% 未満。応答不能になる前に、重いプロセスを止めるか VM のメモリを増やす。"
+
+      - alert: HostOomKilled
+        expr: increase(node_vmstat_oom_kill[10m]) > 0
+        labels:
+          severity: critical
+        annotations:
+          summary: "{{ $labels.instance }} で OOM killer がプロセスを終了させた"
+          description: "`dmesg | grep -i oom` で対象を確認する。再発するならメモリ割当を増やす。"
+
   - name: availability
     rules:
       # vm-dev は onboot=false で手動起動のため除外（停止検知は PveVmStopped が onboot=1 のみ対象）
