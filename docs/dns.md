@@ -29,6 +29,7 @@ client
   - それ以外 → Unbound (127.0.0.1:5335)
 - Web UI: http://192.168.11.11:3000 / https://adguard.lab.kanare.dev
 - 設定ファイル: `/opt/dns/adguard/conf/AdGuardHome.yaml`
+- fallback DNS: `1.1.1.1` / `9.9.9.9`。upstream（CoreDNS・Unbound）が全て失敗したときだけ使う。2026-10-22 に Unbound が約 3 分間応答せず、インターネット全体の名前解決が止まったため追加（`playbooks/infra.yml` で設定）
 
 ### CoreDNS
 
@@ -44,6 +45,8 @@ client
 - DNSSEC 検証・プライバシー強化設定を有効化
 - ループバック (`127.0.0.1`) のみリッスンし、外部から直接アクセス不可
 - 設定ファイル: `/opt/dns/unbound/unbound.conf`
+- `serve-expired: yes`（TTL 1 時間）: 上流が応答しないとき、期限切れのキャッシュを返す
+- `verbosity: 1` / `log-servfail: yes`: 失敗を `docker logs unbound` に残す（ログは docker のログ上限で回る）
 
 ## DNS レコード (lab.kanare.dev)
 
