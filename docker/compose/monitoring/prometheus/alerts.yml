@@ -20,6 +20,17 @@ groups:
           summary: "thin pool {{ $labels.vg }}/{{ $labels.pool }} の使用率が {{ $value | printf \"%.1f\" }}%（枯渇間近）"
           description: "100% で全 VM が io-error になる。至急 pool 拡張または容量回収を行う。docs/incidents/2026-10-22-lvm-thin-exhaustion.md 参照。"
 
+      # 仮想ディスク合計 ÷ pool サイズ。1 を超えると、全 VM が使い切る前に pool が尽きる。
+      # INC-2026-10-22 の障害時は約 1.6（現在は 1.44）。discard が効いていても、増やしすぎない歯止めにする
+      - alert: LvmThinPoolOverprovisioned
+        expr: lvm_thin_pool_provisioned_bytes / lvm_thin_pool_size_bytes > 1.5
+        for: 1h
+        labels:
+          severity: warning
+        annotations:
+          summary: "thin pool {{ $labels.vg }}/{{ $labels.pool }} の割当比率が {{ $value | printf \"%.2f\" }}（仮想サイズ合計が pool の 1.5 倍超）"
+          description: "VM ディスクを増やしすぎている。pool の拡張、ディスクの縮小、不要な VM の削除を検討する。使用率が低くても、全 VM が使い切れば枯渇する。"
+
       - alert: LvmThinPoolMetadataHigh
         expr: lvm_thin_pool_metadata_percent > 75
         for: 5m
