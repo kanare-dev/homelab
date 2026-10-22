@@ -79,6 +79,15 @@ homelab の監視とアラート通知の仕組み。2026-10-22 の障害（[INC
 
 VM 停止の検知は、`TargetDown`（VM 内 OS の応答なし）が 3 分、`PveVmStopped`（PVE が見ている状態）が 3 分の待ち時間に、スクレイプ間隔と評価間隔が加わって、約 4 分で通知される。
 
+### Slack の通知画面（スマホアプリ）
+
+2026-10-22 の動作確認時に、iPhone の Slack アプリで受信した画面。左は発報時（`TestAlert` と、vm-code 停止による `TargetDown` / `PveVmStopped`）、右は復旧後に `[RESOLVED]` が届いた状態。
+
+<p>
+  <img src="screenshots/slack-alert-firing-ios.png" alt="Slack アプリに届いた発報通知（TestAlert、TargetDown、PveVmStopped）" width="320">
+  <img src="screenshots/slack-alert-resolved-ios.png" alt="Slack アプリに届いた解消通知（RESOLVED）" width="320">
+</p>
+
 ## 意図的に監視していないもの
 
 | 対象 | 理由 |
