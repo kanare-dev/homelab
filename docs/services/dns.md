@@ -103,7 +103,7 @@ IP が変わる場合、直す場所は次のとおり。`dns_records` の `rout
 | `docker/compose/reverse-proxy/Caddyfile` | `router.lab.kanare.dev` の `reverse_proxy` の転送先 |
 | `ansible/inventory/group_vars/all.yml` | `gateway`（DNS 障害時に経路が壊れないよう、名前ではなく IP のまま） |
 | `terraform/proxmox/variables.tf` / `terraform.tfvars` | `gateway` |
-| `README.md` | ルーターの IP（構成表・管理画面リンク） |
+| `README.md` | ルーターの IP（構成表） |
 | `docker/compose/homepage/config/services.yaml` | Router の `description`（機種名） |
 
 Caddyfile を直したら `ansible-playbook playbooks/infra.yml` で反映する。ルーター側が HTTPS 専用になった場合は、転送先を `https://...` にして `tls_insecure_skip_verify` を付ける（`pve` と同じ形）。

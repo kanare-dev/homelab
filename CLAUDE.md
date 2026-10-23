@@ -19,7 +19,7 @@
 - 設計判断: 重要な判断（方式の選択、リスクの受け入れ、方針の変更）は `docs/adr/` に ADR として残す。書き方は `docs/adr/README.md`。判断を変えるときは新しい ADR を追加し、古い方を「置き換え済み」にする。
 - Runbook: 手順は `docs/operations/runbooks/`。
 - 構成図: 最新版の ASCII 図を `docs/architecture/01-overview.md` の冒頭に置く。VM・サービス・IP を変えたら、この図と同じ文書の表を更新する。SVG（`docs/diagrams/`）は手動で更新するため古くなりうる。更新が必要なことはユーザーに伝える。
-- `README.md`: ディレクトリやファイルを追加・削除・改名したら、「リポジトリ構成」を更新する。管理画面リンク、設計書の一覧も同様。細かい設計内容は README に書かず、設計書に書く。
+- `README.md`: ディレクトリやファイルを追加・削除・改名したら、「リポジトリ構成」を更新する。設計書の一覧も同様。細かい設計内容は README に書かず、設計書に書く。
 - 監視・アラート: `docs/services/monitoring.md`
 - 障害記録: `docs/operations/incidents/`
 - 新しい設計書・手順を追加したら、`docs/README.md` と該当ディレクトリの README の一覧も更新する。

@@ -62,18 +62,6 @@ Proxmox 上に複数 VM を構築し、Terraform + Ansible + Docker Compose で�
 - **公開リポジトリでの機密管理**: SOPS + age で暗号化して Git に置く。CI で gitleaks と暗号化漏れを検査する（[セキュリティ](docs/architecture/05-security.md)）
 - **監視と通知**: Prometheus + Alertmanager で、容量枯渇・VM 停止・OOM などを検知して Slack に通知する（[監視・アラート](docs/services/monitoring.md)）
 
-## 管理画面リンク
-
-| サービス | IP | ドメイン | 備考 |
-| --- | --- | --- | --- |
-| ルーター | [http://192.168.11.1](http://192.168.11.1) | [https://router.lab.kanare.dev](https://router.lab.kanare.dev) | ルーター設定画面（ドメインは Caddy 経由。[DNS 構成](docs/services/dns.md#ルーター管理画面)） |
-| Proxmox | [https://192.168.11.10:8006](https://192.168.11.10:8006) | [https://pve.lab.kanare.dev](https://pve.lab.kanare.dev) | Proxmox VE 管理画面 |
-| Homepage | [http://192.168.11.20:3001](http://192.168.11.20:3001) | [https://home.lab.kanare.dev](https://home.lab.kanare.dev) | ランディングダッシュボード |
-| Grafana | [http://192.168.11.13:3000](http://192.168.11.13:3000) | [https://grafana.lab.kanare.dev](https://grafana.lab.kanare.dev) | 監視ダッシュボード |
-| Prometheus | [http://192.168.11.13:9090](http://192.168.11.13:9090) | [https://prometheus.lab.kanare.dev](https://prometheus.lab.kanare.dev) | メトリクス確認 |
-| AdGuard Home | [http://192.168.11.11:3000](http://192.168.11.11:3000) | [https://adguard.lab.kanare.dev](https://adguard.lab.kanare.dev) | DNS フィルタリング・クエリログ |
-| ESP32 | [http://192.168.11.100](http://192.168.11.100) | - | ESP32 簡易表示（現在停止中） |
-
 ## セキュリティ
 
 - 秘密情報は SOPS + age で暗号化して Git 管理する。平文のシークレットはコミットしない
