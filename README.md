@@ -1,5 +1,7 @@
 # homelab
 
+[![lint](https://github.com/kanare-dev/homelab/actions/workflows/lint.yml/badge.svg)](https://github.com/kanare-dev/homelab/actions/workflows/lint.yml)
+
 Proxmox 上に複数 VM を構築し、Terraform + Ansible + Docker Compose で再現可能に運用する homelab リポジトリ。
 
 現在は `24GB RAM` の ThinkCentre Tiny を前提に、無理なく常時運用できる構成を維持している。`vm-infra`・`vm-monitoring`・`vm-apps` が常時稼働し、`vm-dev` は必要なときに自由に壊して試せる検証用 VM とする。
