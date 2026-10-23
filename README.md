@@ -4,81 +4,33 @@
 
 Proxmox 上に複数 VM を構築し、Terraform + Ansible + Docker Compose で再現可能に運用する homelab リポジトリ。
 
-現在は `24GB RAM` の ThinkCentre Tiny を前提に、無理なく常時運用できる構成を維持している。`vm-infra`・`vm-monitoring`・`vm-apps` が常時稼働し、`vm-dev` は必要なときに自由に壊して試せる検証用 VM とする。
-
-## 現在の運用方針
-
-- 常時起動は `vm-infra`・`vm-monitoring`・`vm-apps`
-- `vm-dev` は Ansible や Docker の検証用に必要時だけ起動
-- まずは DNS、reverse proxy、monitoring、ダッシュボードの再現性を固める
+24GB RAM の ThinkCentre Tiny 1 台で、DNS・リバースプロキシ・監視・リモート開発環境を常時運用している。構成はすべてコードで管理し、機密値は SOPS + age で暗号化して公開リポジトリに置いている。
 
 ## 思想
 
 - **再現可能性**: すべての構成をコードで管理し、いつでも同じ環境を再構築できる
 - **最小構成から育てる**: まずは軽量な構成で動かし、必要に応じて段階的に拡張する
 - **ドキュメント駆動**: このリポジトリを読めば全体像、命名規約、セットアップ手順が分かる
-- **観測可能性**: Prometheus と Grafana で VM やサービスの状態を継続的に可視化する
+- **観測可能性**: Prometheus と Grafana で VM やサービスの状態を継続的に可視化し、異常は Slack に通知する
 
 ## 構成図
 
 ![構成図](diagrams/drawio/architecture.drawio.svg)
 
-## 現行アーキテクチャ
+最新の構成図（テキスト版）と、VM ごとの割当（CPU・メモリ・ディスク）は [システム構成・環境](docs/basic-design/01_system-environment/system-overview.md) を参照。
 
-```text
-┌─────────────────────────────────────────────────────────────────────────────────────┐
-│  LAN: 192.168.11.0/24                  GW: 192.168.11.1          Tailscale (外出先)  │
-│                                                                                     │
-│  ┌──────────────┐  ┌───────────────┐  ┌──────────────┐  ┌──────────────┐            │
-│  │  vm-infra    │  │ vm-monitoring │  │ vm-apps      │  │ vm-code      │            │
-│  │  .11  1.5GB  │  │  .13  2GB     │  │  .20  1GB    │  │  .22  2GB    │            │
-│  │  AdGuard Home│  │  Prometheus   │  │  Homepage    │  │  Claude Code │            │
-│  │  Caddy       │  │  Grafana      │  │              │  │  CloudCLI    │            │
-│  │  Tailscale   │  │               │  │              │  │  code-server │            │
-│  └──────┬───────┘  └──────┬────────┘  └──────┬───────┘  └──────┬───────┘            │
-│         │                 │                  │                 │                    │
-│  ┌──────┴─────────────────┴──────────────────┴─────────────────┴───────────────┐    │
-│  │                      Proxmox VE (.10)                                       │    │
-│  └─────────────────────────────────────────────────────────────────────────────┘    │
-│                                                                                     │
-│  ┌──────────────┐  ┌──────────────┐                                                 │
-│  │  IoT devices │  │  vm-dev      │                                                 │
-│  │  .100~       │  │  .21 任意起動 │                                                 │
-│  │  ESP32 etc.  │  │  playground  │                                                 │
-│  └──────────────┘  └──────────────┘                                                 │
-└─────────────────────────────────────────────────────────────────────────────────────┘
-```
+## 構成の概要
 
-※ `node_exporter` は上記の全 VM（`vm-infra` / `vm-monitoring` / `vm-apps` / `vm-dev` / `vm-code`）と Proxmox ホスト自体に常駐し、`vm-monitoring` の Prometheus がまとめてスクレイプする。
+| 名前 | VMID | IP | 状態 | 役割 | 主なサービス |
+| --- | --- | --- | --- | --- | --- |
+| Proxmox | — | `192.168.11.10` | 常時起動 | ハイパーバイザ | Proxmox VE |
+| `vm-infra` | `111` | `192.168.11.11` | 常時起動 | インフラ基盤 | AdGuard Home, Unbound, CoreDNS, Caddy, Tailscale |
+| `vm-monitoring` | `113` | `192.168.11.13` | 常時起動 | 監視 | Prometheus, Alertmanager, Grafana |
+| `vm-apps` | `120` | `192.168.11.20` | 常時起動 | アプリ | Homepage |
+| `vm-code` | `122` | `192.168.11.22` | 常時起動 | 常用リモート開発 | Claude Code, CloudCLI, code-server |
+| `vm-dev` | `121` | `192.168.11.21` | 任意起動 | 開発・実験 | playground |
 
-## なぜこの構成から始めるか
-
-| 観点 | 判断 |
-| --- | --- |
-| メモリ余裕 | 24GB に増設済み。重めのワークロードや追加 VM を検討できる |
-| 優先順位 | まずは DNS、reverse proxy、monitoring をコード化して再現性を固めたい |
-| 学習効率 | `vm-dev` があると、設定や playbook を安全に壊して試せる |
-| 拡張性 | 将来 `vm-apps` や Home Assistant を追加しやすい |
-
-## ハードウェア
-
-| 機器 | モデル | スペック | IP | 備考 |
-| --- | --- | --- | --- | --- |
-| ルーター | Buffalo WSR-1800AX4P | — | `192.168.11.1` | 現在利用中 |
-| サーバー | Lenovo ThinkCentre M70q Tiny | i5-10400T / 24GB RAM (8GB+16GB) / 256GB NVMe | `192.168.11.10` | Proxmox VE ホスト |
-| IoT | ESP32 | — | `192.168.11.100` | Prometheus metrics を公開予定 |
-
-## メモリ配分（24GB）
-
-| 対象 | 用途 | 割当メモリ | 備考 |
-| --- | --- | ---: | --- |
-| Proxmox host | ハイパーバイザ本体 | ~2GB | ホスト側の余裕を削りすぎない |
-| `vm-infra` | CoreDNS / Caddy / Tailscale | 1.5GB | 実使用 ~500MB |
-| `vm-monitoring` | Prometheus / Grafana | 2GB | 実使用 ~660MB |
-| `vm-apps` | Homepage 等 | 4GB | 実使用 ~256MB |
-| `vm-dev` | 検証用 Ubuntu | 1GB | 常時起動しない前提 |
-| `vm-code` | Claude Code / CloudCLI / code-server | 4GB | 常時起動、Tailscale 経由のみアクセス |
-| 余白 | キャッシュ / 追加 VM 用 | ~11GB | k3s 等の重めの構成を検討可能 |
+ハードウェアは Lenovo ThinkCentre M70q Tiny（i5-10400T / 24GB RAM / 256GB NVMe）。メモリの配分は [性能・拡張性](docs/basic-design/04_performance-scalability/capacity-and-scaling.md) を参照。
 
 ## 技術スタック
 
@@ -88,137 +40,84 @@ Proxmox 上に複数 VM を構築し、Terraform + Ansible + Docker Compose で�
 | IaC | Terraform | Proxmox 上の VM プロビジョニング |
 | 構成管理 | Ansible | OS 初期設定、Docker、node_exporter、監視基盤のデプロイ |
 | コンテナ実行 | Docker Compose | Prometheus、Grafana、reverse proxy、Homepage の起動 |
-| 監視 | Prometheus, Grafana, node_exporter | VM / ホスト / IoT のメトリクス収集と可視化 |
+| 監視 | Prometheus, Alertmanager, Grafana, node_exporter | VM / ホストのメトリクス収集と可視化 |
 | ネットワーク | AdGuard Home, Unbound, CoreDNS, Caddy, Tailscale | DNS フィルタリング・フル再帰解決・内部権威 DNS、reverse proxy、VPN（サブネットルーター） |
 | TLS 証明書 | Let's Encrypt + Cloudflare DNS-01 | LAN 内サービスへの正規証明書発行 |
-| 秘密情報管理 | SOPS + age | 機密情報を暗号化して Git で管理（GitOps への布石） |
+| 秘密情報管理 | SOPS + age | 機密情報を暗号化して Git で管理 |
 
-## 現在の VM 一覧
+## 設計書
 
-| 名前 | VMID | IP | RAM | 状態 | 役割 | 主なサービス |
-| --- | --- | --- | --- | --- | --- | --- |
-| Proxmox | — | `192.168.11.10` | — | 常時起動 | ハイパーバイザ | Proxmox VE |
-| `vm-infra` | `111` | `192.168.11.11` | 1.5GB | 常時起動 | インフラ基盤 | AdGuard Home, Unbound, CoreDNS, Caddy, Tailscale |
-| `vm-monitoring` | `113` | `192.168.11.13` | 2GB | 常時起動 | 監視 | Prometheus, Grafana, node_exporter |
-| `vm-apps` | `120` | `192.168.11.20` | 4GB | 常時起動 | アプリ | Homepage |
-| `vm-dev` | `121` | `192.168.11.21` | 1GB | 任意起動 | 開発・実験 | playground |
-| `vm-code` | `122` | `192.168.11.22` | 4GB | 常時起動 | 常用リモート開発 | Claude Code, CloudCLI, code-server, gh, git, mosh, moshi-hook |
+方式設計（基本設計）を 10 の観点で整理している。目次は [docs/basic-design/README.md](docs/basic-design/README.md)。
+
+| # | 観点 | 内容 |
+| --- | --- | --- |
+| 01 | [システム構成・環境](docs/basic-design/01_system-environment/system-overview.md) | 構成図、物理・論理構成、前提と制約 |
+| 02 | [可用性](docs/basic-design/02_availability/availability.md) | 単一障害点、起動順序、受け入れたリスク |
+| 03 | [信頼性](docs/basic-design/03_reliability/reliability.md) | 変更の確かさ、容量の上限、障害の検知 |
+| 04 | [性能・拡張性](docs/basic-design/04_performance-scalability/capacity-and-scaling.md) | 資源の配分、拡張の方針 |
+| 05 | 運用・保守性 | [監視・アラート](docs/basic-design/05_operations-maintainability/monitoring.md)、[CI/CD](docs/basic-design/05_operations-maintainability/cicd.md) |
+| 06 | [セキュリティ](docs/basic-design/06_security/security.md) | 秘密情報、アクセス制御、未対応の項目 |
+| 07 | ネットワーク | [アドレス・命名規約](docs/basic-design/07_network/addressing.md)、[DNS](docs/basic-design/07_network/dns.md)、[リバースプロキシと TLS](docs/basic-design/07_network/reverse-proxy-tls.md)、[VLAN 設計](docs/basic-design/07_network/vlan-design.md) |
+| 08 | [外部接続](docs/basic-design/08_external-connectivity/external-connectivity.md) | Tailscale、外部サービスへの依存 |
+| 09 | [移行性](docs/basic-design/09_migration/migration.md) | 環境の移行シナリオ |
+| 10 | [災害対策](docs/basic-design/10_disaster-recovery/disaster-recovery.md) | バックアップ方針、再構築手順 |
+
+日常の手順は [運用 Runbook](docs/runbook.md)、今後の計画は [ロードマップ](docs/roadmap.md)。
+
+## 主な設計の特徴
+
+- **3 層 DNS**: AdGuard Home（フィルタリング）→ CoreDNS（`lab.kanare.dev` の権威）/ Unbound（ルートからの再帰解決）。1.1.1.1 などの外部リゾルバに依存しない（[DNS 構成](docs/basic-design/07_network/dns.md)）
+- **正規の TLS 証明書**: Caddy が Cloudflare DNS-01 で Let's Encrypt の証明書を取得し、LAN 内でも警告なしで HTTPS（[リバースプロキシと TLS](docs/basic-design/07_network/reverse-proxy-tls.md)）
+- **二重 NAT でも外出先から接続**: Tailscale を subnet router として動かし、split DNS で `lab.kanare.dev` を引く（[外部接続](docs/basic-design/08_external-connectivity/external-connectivity.md)）
+- **公開リポジトリでの機密管理**: SOPS + age で暗号化して Git に置く。CI で gitleaks と暗号化漏れを検査する（[セキュリティ](docs/basic-design/06_security/security.md)）
+- **監視と通知**: Prometheus + Alertmanager で、容量枯渇・VM 停止・OOM などを検知して Slack に通知する（[監視・アラート](docs/basic-design/05_operations-maintainability/monitoring.md)）
 
 ## 管理画面リンク
 
 | サービス | IP | ドメイン | 備考 |
 | --- | --- | --- | --- |
-| ルーター | [http://192.168.11.1](http://192.168.11.1) | [https://router.lab.kanare.dev](https://router.lab.kanare.dev) | ルーター設定画面（ドメインは Caddy 経由。[docs/basic-design/07_network/dns.md](docs/basic-design/07_network/dns.md#ルーター管理画面)） |
+| ルーター | [http://192.168.11.1](http://192.168.11.1) | [https://router.lab.kanare.dev](https://router.lab.kanare.dev) | ルーター設定画面（ドメインは Caddy 経由。[DNS 構成](docs/basic-design/07_network/dns.md#ルーター管理画面)） |
 | Proxmox | [https://192.168.11.10:8006](https://192.168.11.10:8006) | [https://pve.lab.kanare.dev](https://pve.lab.kanare.dev) | Proxmox VE 管理画面 |
 | Homepage | [http://192.168.11.20:3001](http://192.168.11.20:3001) | [https://home.lab.kanare.dev](https://home.lab.kanare.dev) | ランディングダッシュボード |
 | Grafana | [http://192.168.11.13:3000](http://192.168.11.13:3000) | [https://grafana.lab.kanare.dev](https://grafana.lab.kanare.dev) | 監視ダッシュボード |
 | Prometheus | [http://192.168.11.13:9090](http://192.168.11.13:9090) | [https://prometheus.lab.kanare.dev](https://prometheus.lab.kanare.dev) | メトリクス確認 |
 | AdGuard Home | [http://192.168.11.11:3000](http://192.168.11.11:3000) | [https://adguard.lab.kanare.dev](https://adguard.lab.kanare.dev) | DNS フィルタリング・クエリログ |
-| ESP32 | [http://192.168.11.100](http://192.168.11.100) | - | ESP32簡易表示 |
+| ESP32 | [http://192.168.11.100](http://192.168.11.100) | - | ESP32 簡易表示（現在停止中） |
 
-## IP アドレス規約
+## セキュリティ
 
-| 範囲 | 用途 | 例 |
-| --- | --- | --- |
-| `192.168.11.1` | ルーター / ゲートウェイ | — |
-| `192.168.11.10–19` | インフラ（Proxmox, VM） | `.10` Proxmox, `.11` `vm-infra`, `.13` `vm-monitoring` |
-| `192.168.11.20–59` | サーバー / 検証用 VM | `.20` `vm-apps` 予約, `.21` `vm-dev`, `.22` `vm-code` |
-| `192.168.11.60–99` | DHCP プール | 動的割当 |
-| `192.168.11.100–149` | IoT デバイス | `.100` ESP32 |
-| `192.168.11.150–254` | 予約 / 実験用 | — |
+- 秘密情報は SOPS + age で暗号化して Git 管理する。平文のシークレットはコミットしない
+- SSH は鍵認証のみ。ファイアウォール（`ufw`）で必要なポートだけ開放する
+- LAN 内も Caddy で HTTPS 化する
 
-## ドメイン命名規約
-
-内部 DNS では `lab.kanare.dev` ゾーンを使い、サービスや VM を名前で引けるようにする。
-
-| FQDN | DNS 解決先 | 実際の宛先 | 用途 | 状態 |
-| --- | --- | --- | --- | --- |
-| `pve.lab.kanare.dev` | `192.168.11.11` (Caddy) | `192.168.11.10:8006` | Proxmox Web UI | 利用中 |
-| `home.lab.kanare.dev` | `192.168.11.11` (Caddy) | `192.168.11.20:3001` | Homepage ダッシュボード | 利用中 |
-| `infra.lab.kanare.dev` | `192.168.11.11` | `192.168.11.11` | `vm-infra` 管理用 | 利用中 |
-| `grafana.lab.kanare.dev` | `192.168.11.11` (Caddy) | `192.168.11.13:3000` | Grafana | 利用中 |
-| `prometheus.lab.kanare.dev` | `192.168.11.11` (Caddy) | `192.168.11.13:9090` | Prometheus | 利用中 |
-| `vm-apps.lab.kanare.dev` | `192.168.11.20` | `192.168.11.20` | `vm-apps` 直接 | 利用中 |
-| `dev.lab.kanare.dev` | `192.168.11.21` | `192.168.11.21` | `vm-dev` | 任意起動 |
-| `adguard.lab.kanare.dev` | `192.168.11.11` (Caddy) | `192.168.11.11:3000` | AdGuard Home Web UI | 利用中 |
-| `code.lab.kanare.dev` | `192.168.11.11` (Caddy) | `192.168.11.22:8080` | code-server（ブラウザ版 VS Code） | 利用中 |
-| `cloudcli.lab.kanare.dev` | `192.168.11.11` (Caddy) | `192.168.11.22:3001` | CloudCLI（Claude Code のモバイル/Web UI） | 利用中 |
-
-## DNS / Reverse Proxy / Monitoring
-
-### DNS
-
-3層構成で内部 DNS とフルリゾルバを分離する:
-
-```text
-client
-  └─► AdGuard Home  port 53  (0.0.0.0)        ← フィルタリング・クエリログ・WebUI
-         ├─► CoreDNS         port 5353 (127.0.0.1)  ← lab.kanare.dev 権威
-         └─► Unbound         port 5335 (127.0.0.1)  ← 外部フル再帰解決
-```
-
-- **AdGuard Home**: port 53 でリッスン。広告ブロック・クエリログ・Web UI (`:3000`)
-- **CoreDNS**: `127.0.0.1:5353` で `lab.kanare.dev` の権威 DNS として動作
-- **Unbound**: `127.0.0.1:5335` でルートから再帰解決（1.1.1.1 等への依存なし）
-- `grafana.lab.kanare.dev` と `prometheus.lab.kanare.dev` を reverse proxy の入口にする
-
-詳細は [`docs/basic-design/07_network/dns.md`](docs/basic-design/07_network/dns.md) を参照。
-
-### Reverse Proxy
-
-- `vm-infra` 上で Caddy を Docker Compose で動かす
-- Cloudflare DNS-01 チャレンジで Let's Encrypt 証明書を自動取得（LAN 内サービスでも有効）
-- `CLOUDFLARE_API_TOKEN` は SOPS で暗号化して管理し、デプロイ時に Ansible が `.env` として配置
-- 将来アプリを追加しても同じ入口に集約できる
-
-### VPN（Tailscale）
-
-- `vm-infra` 上で Tailscale をサブネットルーターとして動かす（二重 NAT 環境のため WireGuard の代替）
-- `--advertise-routes=192.168.11.0/24` で LAN 全体を外出先から透過的にアクセス可能にする
-- **Split DNS**: Tailscale Admin Console → DNS → Add nameserver で `lab.kanare.dev` のクエリを CoreDNS（vm-infra の Tailscale IP）に向けることで、VPN 接続中も内部ドメイン名が使える
-
-### Monitoring
-
-- `vm-monitoring` 上で Prometheus と Grafana を動かす
-- まずは各 VM の `node_exporter` を監視する
-- Alertmanager 経由で Slack に通知する（thin pool 容量、VM 停止・io-error、ディスク逼迫など）
-- ESP32 は現在停止中のため scrape 対象から外している
-
-詳細は [`docs/basic-design/05_operations-maintainability/monitoring.md`](docs/basic-design/05_operations-maintainability/monitoring.md) を参照。
-
-## 将来拡張
-
-以下は現在の最小構成とは分けて扱う。
-
-- Cloudflare Tunnel + Split-Horizon DNS で `grafana.lab.kanare.dev` 等を外部公開する
-- `vm-apps` に Home Assistant などの追加アプリを載せる
-- VLAN を導入して Management / Servers / Clients / IoT / Guests を分離する
-- Alertmanager を追加して Slack / Discord 通知を行う
-- Loki + Promtail でログ収集を追加する
-- k3s などの重めの構成を検討する（メモリ増設済み）
+詳細と未対応の項目は [セキュリティ](docs/basic-design/06_security/security.md) を参照。
 
 ## リポジトリ構成
 
 ```text
 homelab/
 ├── README.md
-├── tools/
-│   └── lab/                # 監視 CLI (Go)
-│       ├── lab.yaml        # VM・サービス定義
-│       └── README.md
+├── Makefile                # lint-all、terraform / ansible の実行ショートカット
+├── .sops.yaml              # SOPS の暗号化ルール
+├── .github/workflows/      # CI（lint）
+├── .githooks/              # pre-push フック（make hooks で有効化）
 ├── terraform/
-│   └── proxmox/
+│   └── proxmox/            # VM のプロビジョニング
 ├── ansible/
 │   ├── inventory/
 │   ├── roles/
 │   └── playbooks/
 ├── docker/
-│   └── compose/
-│       ├── homepage/
-│       ├── monitoring/
-│       └── reverse-proxy/
+│   └── compose/            # dns / homepage / monitoring / reverse-proxy
+├── tools/
+│   └── lab/                # 監視 CLI (Go)
 ├── diagrams/
+│   └── drawio/             # 構成図（SVG）
 └── docs/
+    ├── basic-design/       # 方式設計書（10 の観点）
+    ├── incidents/          # 障害記録
+    ├── runbook.md          # 運用手順
+    └── roadmap.md          # 今後の計画
 ```
 
 ## Quick Start
@@ -277,7 +176,7 @@ open http://192.168.11.13:9090
 cd tools/lab && go mod tidy && go build -o lab . && ./lab status
 ```
 
-詳細な手順は `docs/next.md` を参照。
+各ディレクトリの README（`terraform/proxmox/`、`ansible/`、`docker/compose/`）に、詳細な手順がある。
 
 ## Screenshots
 
@@ -305,11 +204,3 @@ node_exporter で収集した VM のメトリクスを可視化している。
 `ansible-playbook` で vm-infra・vm-monitoring の両 VM に設定を適用。`failed=0` で正常完了。
 
 ![Ansible Playbook Recap](docs/screenshots/ansible-playbook-recap.png)
-
-## セキュリティ
-
-- **秘密情報は SOPS + age で暗号化して Git 管理**: 平文の秘密情報はコミットしない。復号できる鍵（age 秘密鍵）だけが Git の外にある
-- **平文のローカルファイルは使わない**: `.env` は Ansible が暗号化済みの値から生成してデプロイする
-- **LAN 内 TLS**: Caddy + Cloudflare DNS-01 チャレンジで Let's Encrypt 証明書を自動取得・更新
-- **SSH 鍵認証のみ**: パスワード認証は無効化する
-- **ファイアウォール**: `ufw` で必要なポートのみ開放する
