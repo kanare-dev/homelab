@@ -1,1 +1,5 @@
-[]
+- Links:
+    - GitHub homelab:
+        - icon: github.png
+          href: https://github.com/kanare-dev/homelab
+          description: This repository
