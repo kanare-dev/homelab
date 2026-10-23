@@ -13,7 +13,8 @@
 
 - name: Download node_exporter
   ansible.builtin.get_url:
-    url: "https://github.com/prometheus/node_exporter/releases/download/v{{ node_exporter_version }}/node_exporter-{{ node_exporter_version }}.linux-amd64.tar.gz"
+    url: "https://github.com/prometheus/node_exporter/releases/download/\
+    v{{ node_exporter_version }}/node_exporter-{{ node_exporter_version }}.linux-amd64.tar.gz"
     dest: /tmp/node_exporter.tar.gz
     mode: "0644"
   when: not node_exporter_binary.stat.exists
@@ -34,7 +35,7 @@
     mode: "0755"
     remote_src: true
   when: not node_exporter_binary.stat.exists
-  notify: restart node_exporter
+  notify: Restart node_exporter
 
 - name: Create textfile collector directory
   ansible.builtin.file:
@@ -62,7 +63,7 @@
 
       [Install]
       WantedBy=multi-user.target
-  notify: restart node_exporter
+  notify: Restart node_exporter
 
 - name: Enable and start node_exporter
   ansible.builtin.systemd:

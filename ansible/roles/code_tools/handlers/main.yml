@@ -1,10 +1,10 @@
 ---
-- name: restart code-server
+- name: Restart code-server
   ansible.builtin.systemd:
     name: "code-server@{{ ansible_user }}"
     state: restarted
 
-- name: restart cloudcli
+- name: Restart cloudcli
   ansible.builtin.systemd:
     name: cloudcli
     state: restarted

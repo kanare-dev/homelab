@@ -28,7 +28,7 @@
 
     - name: Deploy .env with Proxmox token and AdGuard credentials
       ansible.builtin.template:
-        src: "{{ playbook_dir }}/../templates/homepage.env.j2"
+        src: homepage.env.j2
         dest: /opt/homepage/.env
         mode: "0600"
 

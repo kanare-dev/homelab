@@ -64,6 +64,15 @@ ansible-playbook playbooks/site.yml --tags docker
 ansible all -m ping
 ```
 
+### Lint
+
+```bash
+# 初回のみ: ansible-lint が見つけられる場所にコレクションを入れる
+ansible-galaxy collection install -r requirements.yml -p ~/.ansible/collections --force
+
+make lint   # リポジトリ直下で実行
+```
+
 ## Roles 一覧
 
 | Role | 内容 | 適用先 |

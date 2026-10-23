@@ -1,15 +1,15 @@
 ---
-- name: restart sshd
+- name: Restart sshd
   ansible.builtin.service:
     name: ssh
     state: restarted
 
-- name: restart systemd-timesyncd
+- name: Restart systemd-timesyncd
   ansible.builtin.service:
     name: systemd-timesyncd
     state: restarted
 
-- name: restart systemd-journald
+- name: Restart systemd-journald
   ansible.builtin.service:
     name: systemd-journald
     state: restarted

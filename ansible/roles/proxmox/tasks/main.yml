@@ -7,7 +7,7 @@
     path: /usr/share/javascript/proxmox-widget-toolkit/proxmoxlib.js
     regexp: "res\\.data\\.status\\.toLowerCase\\(\\) !== 'active'"
     replace: "false"
-  notify: restart pveproxy
+  notify: Restart pveproxy
 
 # INC-2026-10-22: thin pool 使用率と VM の io-error を Prometheus から見えるようにする
 - name: Install storage metrics collector

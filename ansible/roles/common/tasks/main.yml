@@ -28,7 +28,7 @@
       [Journal]
       SystemMaxUse={{ journald_system_max_use }}
       MaxRetentionSec={{ journald_max_retention }}
-  notify: restart systemd-journald
+  notify: Restart systemd-journald
 
 # INC-2026-10-22: discard 有効な仮想ディスクの未使用ブロックを thin pool に返す
 - name: Enable weekly fstrim
@@ -46,7 +46,7 @@
     src: timesyncd.conf.j2
     dest: /etc/systemd/timesyncd.conf
     mode: "0644"
-  notify: restart systemd-timesyncd
+  notify: Restart systemd-timesyncd
   when: ntp_servers is defined
 
 - name: Disable SSH password authentication
@@ -54,21 +54,21 @@
     path: /etc/ssh/sshd_config
     regexp: "^#?PasswordAuthentication"
     line: "PasswordAuthentication {{ ssh_password_authentication }}"
-  notify: restart sshd
+  notify: Restart sshd
 
 - name: Disable SSH root login
   ansible.builtin.lineinfile:
     path: /etc/ssh/sshd_config
     regexp: "^#?PermitRootLogin"
     line: "PermitRootLogin {{ ssh_permit_root_login }}"
-  notify: restart sshd
+  notify: Restart sshd
 
 - name: Disable SSH last login banner (shown by custom MOTD instead)
   ansible.builtin.lineinfile:
     path: /etc/ssh/sshd_config
     regexp: "^#?PrintLastLog"
     line: "PrintLastLog no"
-  notify: restart sshd
+  notify: Restart sshd
 
 - name: Enable and configure UFW defaults
   community.general.ufw:
@@ -106,14 +106,14 @@
 - name: Check if ansi-shadow font exists
   ansible.builtin.stat:
     path: /usr/share/figlet/ansi-shadow.flf
-  register: ansi_shadow_font
+  register: common_ansi_shadow_font
 
 - name: Download ansi-shadow figlet font
   ansible.builtin.get_url:
     url: https://raw.githubusercontent.com/xero/figlet-fonts/master/ANSI%20Shadow.flf
     dest: /usr/share/figlet/ansi-shadow.flf
     mode: "0644"
-  when: not ansi_shadow_font.stat.exists
+  when: not common_ansi_shadow_font.stat.exists
 
 - name: Deploy custom MOTD script
   ansible.builtin.template:
@@ -128,14 +128,14 @@
     paths: /etc/update-motd.d
     file_type: any
     excludes: "99-custom"
-  register: default_motd_scripts
+  register: common_default_motd_scripts
 
 - name: Disable default MOTD scripts
   ansible.builtin.file:
     path: "{{ item.path }}"
     mode: "0644"
     follow: true
-  loop: "{{ default_motd_scripts.files }}"
+  loop: "{{ common_default_motd_scripts.files }}"
   loop_control:
     label: "{{ item.path }}"
 
@@ -148,5 +148,6 @@
   loop:
     - motd-news.service
     - motd-news.timer
-  ignore_errors: true
-
+  register: common_motd_news
+  # ユニットが存在しない環境では「見つからない」だけを許容する
+  failed_when: common_motd_news is failed and 'Could not find' not in (common_motd_news.msg | default(''))

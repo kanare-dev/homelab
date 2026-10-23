@@ -225,7 +225,7 @@ terraform plan   # 差分を確認
 
 仕組み:
 
-- **Ansible**: `community.sops` の vars プラグイン（`ansible.cfg` で有効化）が `group_vars/*/secrets.sops.yml` を実行時に復号し、通常の変数として使う。VM 上の `.env` はテンプレート（`ansible/templates/*.env.j2`）から生成する。
+- **Ansible**: `community.sops` の vars プラグイン（`ansible.cfg` で有効化）が `group_vars/*/secrets.sops.yml` を実行時に復号し、通常の変数として使う。VM 上の `.env` はテンプレート（`ansible/playbooks/templates/*.env.j2`）から生成する。
 - **Terraform**: `versions.tf` の `data "sops_file"`（`carlpett/sops` プロバイダー）が `secrets.sops.yml` を読む。
 - 暗号化の対象と宛先の公開鍵は、リポジトリ直下の `.sops.yaml` で決まる（`*.sops.yml` / `*.sops.yaml`）。
 

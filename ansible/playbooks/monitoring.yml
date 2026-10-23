@@ -21,7 +21,7 @@
 
     - name: Deploy .env with Grafana admin credentials
       ansible.builtin.template:
-        src: "{{ playbook_dir }}/../templates/grafana.env.j2"
+        src: grafana.env.j2
         dest: /opt/monitoring/.env
         owner: "{{ ansible_user }}"
         mode: "0600"

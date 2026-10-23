@@ -17,27 +17,27 @@
 - name: Check if GitHub CLI apt keyring already exists
   ansible.builtin.stat:
     path: /etc/apt/keyrings/githubcli-archive-keyring.gpg
-  register: gh_keyring
+  register: code_tools_gh_keyring
 
 - name: Create apt keyrings directory
   ansible.builtin.file:
     path: /etc/apt/keyrings
     state: directory
     mode: "0755"
-  when: not gh_keyring.stat.exists
+  when: not code_tools_gh_keyring.stat.exists
 
 - name: Download GitHub CLI GPG key
   ansible.builtin.get_url:
     url: https://cli.github.com/packages/githubcli-archive-keyring.gpg
     dest: /etc/apt/keyrings/githubcli-archive-keyring.gpg
     mode: "0644"
-  when: not gh_keyring.stat.exists
+  when: not code_tools_gh_keyring.stat.exists
 
 - name: Add GitHub CLI repository
   ansible.builtin.apt_repository:
     repo: "deb [arch=amd64 signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main"
     state: present
-  when: not gh_keyring.stat.exists
+  when: not code_tools_gh_keyring.stat.exists
 
 - name: Install GitHub CLI
   ansible.builtin.apt:
@@ -49,25 +49,26 @@
 - name: Check if Node.js is already installed
   ansible.builtin.stat:
     path: /usr/bin/node
-  register: node_binary
+  register: code_tools_node_binary
 
 - name: Download NodeSource setup script
   ansible.builtin.get_url:
     url: "https://deb.nodesource.com/setup_{{ code_tools_nodejs_major }}.x"
     dest: /tmp/nodesource_setup.sh
     mode: "0755"
-  when: not node_binary.stat.exists
+  when: not code_tools_node_binary.stat.exists
 
 - name: Run NodeSource setup script
   ansible.builtin.command: bash /tmp/nodesource_setup.sh
-  when: not node_binary.stat.exists
+  changed_when: true
+  when: not code_tools_node_binary.stat.exists
 
 - name: Install Node.js
   ansible.builtin.apt:
     name: nodejs
     state: present
     update_cache: true
-  when: not node_binary.stat.exists
+  when: not code_tools_node_binary.stat.exists
 
 - name: Clean up NodeSource setup script
   ansible.builtin.file:
@@ -89,8 +90,8 @@
     state: present
 
 - name: Locate cloudcli binary
-  ansible.builtin.shell: command -v cloudcli
-  register: cloudcli_bin
+  ansible.builtin.command: which cloudcli
+  register: code_tools_cloudcli_bin
   changed_when: false
 
 - name: Create cloudcli systemd service
@@ -109,12 +110,12 @@
       Environment=HOME=/home/{{ ansible_user }}
       Environment=HOST=0.0.0.0
       Environment=SERVER_PORT={{ cloudcli_port }}
-      ExecStart={{ cloudcli_bin.stdout }}
+      ExecStart={{ code_tools_cloudcli_bin.stdout }}
       Restart=on-failure
 
       [Install]
       WantedBy=multi-user.target
-  notify: restart cloudcli
+  notify: Restart cloudcli
 
 - name: Enable and start cloudcli
   ansible.builtin.systemd:
@@ -127,18 +128,19 @@
 - name: Check if code-server is already installed
   ansible.builtin.stat:
     path: /usr/bin/code-server
-  register: code_server_binary
+  register: code_tools_code_server_binary
 
 - name: Download code-server install script
   ansible.builtin.get_url:
     url: https://code-server.dev/install.sh
     dest: /tmp/code-server-install.sh
     mode: "0755"
-  when: not code_server_binary.stat.exists
+  when: not code_tools_code_server_binary.stat.exists
 
 - name: Run code-server install script
   ansible.builtin.command: bash /tmp/code-server-install.sh
-  when: not code_server_binary.stat.exists
+  changed_when: true
+  when: not code_tools_code_server_binary.stat.exists
 
 - name: Clean up code-server install script
   ansible.builtin.file:
@@ -158,7 +160,7 @@
     dest: "/home/{{ ansible_user }}/.config/code-server/config.yaml"
     owner: "{{ ansible_user }}"
     mode: "0600"
-  notify: restart code-server
+  notify: Restart code-server
 
 - name: Enable and start code-server
   ansible.builtin.systemd:
@@ -171,19 +173,20 @@
 - name: Check if moshi-hook is already installed
   ansible.builtin.stat:
     path: "/home/{{ ansible_user }}/.local/bin/moshi-hook"
-  register: moshi_hook_binary
+  register: code_tools_moshi_hook_binary
 
 - name: Download moshi-hook install script
   ansible.builtin.get_url:
     url: https://getmoshi.app/install.sh
     dest: /tmp/moshi-hook-install.sh
     mode: "0755"
-  when: not moshi_hook_binary.stat.exists
+  when: not code_tools_moshi_hook_binary.stat.exists
 
 - name: Run moshi-hook install script (installs to ~/.local/bin for {{ ansible_user }})
   ansible.builtin.command: bash /tmp/moshi-hook-install.sh
   become: false
-  when: not moshi_hook_binary.stat.exists
+  changed_when: true
+  when: not code_tools_moshi_hook_binary.stat.exists
 
 - name: Clean up moshi-hook install script
   ansible.builtin.file:
@@ -193,19 +196,21 @@
 - name: Check if lingering is enabled for {{ ansible_user }}
   ansible.builtin.stat:
     path: "/var/lib/systemd/linger/{{ ansible_user }}"
-  register: moshi_linger
+  register: code_tools_moshi_linger
 
 - name: Enable lingering so moshi-hook's systemd --user service survives logout
   ansible.builtin.command: "loginctl enable-linger {{ ansible_user }}"
-  when: not moshi_linger.stat.exists
+  changed_when: true
+  when: not code_tools_moshi_linger.stat.exists
 
 - name: Get numeric UID of {{ ansible_user }}
   ansible.builtin.command: "id -u {{ ansible_user }}"
-  register: moshi_uid
+  register: code_tools_moshi_uid
   changed_when: false
 
 - name: Install and start moshi-hook as a systemd --user service
   ansible.builtin.command: "/home/{{ ansible_user }}/.local/bin/moshi-hook service install"
   become: false
+  changed_when: true  # install は毎回実行され、冪等かどうか判定できないため常に changed とする
   environment:
-    XDG_RUNTIME_DIR: "/run/user/{{ moshi_uid.stdout }}"
+    XDG_RUNTIME_DIR: "/run/user/{{ code_tools_moshi_uid.stdout }}"

@@ -31,15 +31,15 @@
         src: "{{ playbook_dir }}/../../docker/compose/reverse-proxy/Caddyfile"
         dest: /opt/reverse-proxy/Caddyfile
         mode: "0644"
-      notify: restart caddy
+      notify: Restart caddy
 
     - name: Deploy .env with Cloudflare API token
       ansible.builtin.template:
-        src: "{{ playbook_dir }}/../templates/reverse-proxy.env.j2"
+        src: reverse-proxy.env.j2
         dest: /opt/reverse-proxy/.env
         owner: "{{ ansible_user }}"
         mode: "0600"
-      notify: restart caddy
+      notify: Restart caddy
 
     - name: Build and start reverse-proxy stack
       community.docker.docker_compose_v2:
@@ -75,7 +75,7 @@
         src: "{{ playbook_dir }}/../../docker/compose/dns/unbound/unbound.conf"
         dest: /opt/dns/unbound/unbound.conf
         mode: "0644"
-      notify: restart dns stack
+      notify: Restart dns stack
 
     - name: Copy root hints
       ansible.builtin.copy:
@@ -126,7 +126,7 @@
           PYEOF
       register: adguard_upstream
       changed_when: "'changed' in adguard_upstream.stdout"
-      notify: restart dns stack
+      notify: Restart dns stack
 
     # Unbound が数分応答しないと、インターネット全体が引けなくなる（2026-10-22 に実際に発生）。
     # upstream が全て失敗したときだけ使う
@@ -154,7 +154,7 @@
           PYEOF
       register: adguard_fallback
       changed_when: "'changed' in adguard_fallback.stdout"
-      notify: restart dns stack
+      notify: Restart dns stack
 
     # INC-2026-10-22: クエリログが 90 日保持で 1.2GB まで増えていた。7 日に短縮する
     - name: Limit AdGuard query log retention
@@ -181,12 +181,24 @@
           PYEOF
       register: adguard_querylog
       changed_when: "'changed' in adguard_querylog.stdout"
-      notify: restart dns stack
+      notify: Restart dns stack
       tags: [logging]
 
     # --- Tailscale ---
+    - name: Check if Tailscale is already installed
+      ansible.builtin.stat:
+        path: /usr/bin/tailscale
+      register: tailscale_binary
+
+    - name: Download Tailscale install script
+      ansible.builtin.get_url:
+        url: https://tailscale.com/install.sh
+        dest: /tmp/tailscale-install.sh
+        mode: "0755"
+      when: tailscale_binary is not defined or not tailscale_binary.stat.exists
+
     - name: Install Tailscale
-      ansible.builtin.shell: curl -fsSL https://tailscale.com/install.sh | sh
+      ansible.builtin.command: sh /tmp/tailscale-install.sh
       args:
         creates: /usr/bin/tailscale
 
@@ -210,16 +222,18 @@
         --authkey={{ tailscale_authkey }}
         --advertise-routes=192.168.11.0/24
         --accept-dns=false
+      changed_when: true  # up は毎回実行され、変更の有無を判定できないため常に changed とする
+      no_log: true  # authkey をコマンドラインごとログに出さない
 
   handlers:
-    - name: restart caddy
+    - name: Restart caddy
       community.docker.docker_compose_v2:
         project_src: /opt/reverse-proxy
         services:
           - caddy
         state: restarted
 
-    - name: restart dns stack
+    - name: Restart dns stack
       community.docker.docker_compose_v2:
         project_src: /opt/dns
         state: restarted

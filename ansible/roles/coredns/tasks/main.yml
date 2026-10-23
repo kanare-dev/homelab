@@ -34,7 +34,7 @@
     mode: "0755"
     remote_src: true
   when: not coredns_binary.stat.exists
-  notify: restart coredns
+  notify: Restart coredns
 
 - name: Create CoreDNS config directory
   ansible.builtin.file:
@@ -51,7 +51,7 @@
     owner: coredns
     group: coredns
     mode: "0644"
-  notify: restart coredns
+  notify: Restart coredns
 
 - name: Deploy zone file
   ansible.builtin.template:
@@ -60,14 +60,16 @@
     owner: coredns
     group: coredns
     mode: "0644"
-  notify: restart coredns
+  notify: Restart coredns
 
 - name: Disable systemd-resolved (conflicts with port 53)
   ansible.builtin.service:
     name: systemd-resolved
     state: stopped
     enabled: false
-  ignore_errors: true
+  register: coredns_resolved
+  # ユニットが存在しない環境では「見つからない」だけを許容する
+  failed_when: coredns_resolved is failed and 'Could not find' not in (coredns_resolved.msg | default(''))
 
 - name: Set resolv.conf to use local DNS
   ansible.builtin.copy:
@@ -96,7 +98,7 @@
 
       [Install]
       WantedBy=multi-user.target
-  notify: restart coredns
+  notify: Restart coredns
 
 - name: Enable and start CoreDNS
   ansible.builtin.systemd:
