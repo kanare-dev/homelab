@@ -22,4 +22,4 @@ TP-Link への移行と VLAN 化で、全ホストのアドレスを付け替え
 - `10.x` でも `10.10.x.x` のような範囲は、職場や他の VPN で使われていることがある。確定前に、よく行く外出先のアドレス帯と被らないか確認する。
 - 上流（引っ越し先）が `10.x` 系を配っていると、WAN 側と被りうる。
 
-詳細: [VLAN 設計](../architecture/vlan-design.md#設計判断と根拠)、[アドレス・命名規約](../architecture/network.md)
+詳細: [VLAN 設計](../architecture/08-vlan-design.md#設計判断と根拠)、[アドレス・命名規約](../architecture/03-network.md)

@@ -27,7 +27,7 @@ VM 全体のバックアップは当面取らない。守る対象は **VM の�
 
 ## 影響と再検討の条件
 
-- ホストやディスクを失うと、VM は再構築になる（[災害対策](../architecture/disaster-recovery.md)）。
+- ホストやディスクを失うと、VM は再構築になる（[災害対策](../architecture/07-disaster-recovery.md)）。
 - 次のいずれかになったら再検討する: NAS や外部ストレージを追加した、VM に再現できないデータを置くようになった、`vm-windows` を実用に使い始めた。
 
 詳細: [バックアップ・復旧](../operations/backup-restore.md)

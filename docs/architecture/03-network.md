@@ -1,6 +1,6 @@
 # ネットワーク設計
 
-アドレス・命名規約と、外部との接続をまとめる。個別のサービスは [DNS 構成](../services/dns.md)、[リバースプロキシと TLS](../services/reverse-proxy-tls.md)。次期構成は [VLAN 設計](vlan-design.md)（未適用）。
+アドレス・命名規約と、外部との接続をまとめる。個別のサービスは [DNS 構成](../services/dns.md)、[リバースプロキシと TLS](../services/reverse-proxy-tls.md)。次期構成は [VLAN 設計](08-vlan-design.md)（未適用）。
 
 ## IP アドレス規約（`192.168.11.0/24`）
 
@@ -51,7 +51,7 @@ VM の IP は Terraform（`terraform.tfvars`）で固定する。VMID は IP の
 | 構成 | 建物の共用ルーター → Buffalo ルーター → 自宅 LAN（二重 NAT） |
 | ポート開放 | できない（上流を制御できない） |
 | グローバル IP | 利用しない（固定でも、自分で使える形でもない） |
-| 引っ越し | 数年のうちに予定あり。新居の上流は未定のため、WAN 側の設計は VLAN 設計と切り離している（[VLAN 設計](vlan-design.md#wan-側は設計から切り離す)） |
+| 引っ越し | 数年のうちに予定あり。新居の上流は未定のため、WAN 側の設計は VLAN 設計と切り離している（[VLAN 設計](08-vlan-design.md#wan-側は設計から切り離す)） |
 
 ## 外出先からのアクセス（Tailscale）
 
@@ -70,7 +70,7 @@ VM の IP は Terraform（`terraform.tfvars`）で固定する。VMID は IP の
 | 利用例 | スマホ・Mac から `https://home.lab.kanare.dev`、`vm-code` への SSH / mosh / CloudCLI / code-server |
 
 - 設定の詳細と注意点（iOS の DNS、`1.1.1.1` を併記しない理由など）は [DNS 構成](../services/dns.md#tailscale-との連携)。
-- VLAN 移行後は、広告するのを Servers（`10.20.0.0/24`）のみにする（[VLAN 設計](vlan-design.md#外出先からのアクセスtailscale)）。
+- VLAN 移行後は、広告するのを Servers（`10.20.0.0/24`）のみにする（[VLAN 設計](08-vlan-design.md#外出先からのアクセスtailscale)）。
 
 ## 外部サービスへの依存
 
@@ -96,7 +96,7 @@ VM の IP は Terraform（`terraform.tfvars`）で固定する。VMID は IP の
 | NTP | 全 VM | `systemd-timesyncd` |
 | apt / Docker pull | 各 VM | 更新時 |
 
-外向きの通信の制限（egress フィルタ）は、現在はしていない。VLAN 化の際に、Management からの外向きは更新用に限る計画（[VLAN 設計](vlan-design.md#通信ポリシー)）。
+外向きの通信の制限（egress フィルタ）は、現在はしていない。VLAN 化の際に、Management からの外向きは更新用に限る計画（[VLAN 設計](08-vlan-design.md#通信ポリシー)）。
 
 ## 検討中・保留の項目
 
@@ -105,4 +105,4 @@ VM の IP は Terraform（`terraform.tfvars`）で固定する。VMID は IP の
 | Cloudflare Tunnel + Split-Horizon DNS で外部公開 | 保留（共有したい具体的なニーズが出てから） |
 | 外部監視（Heartbeat など） | 見送り（[監視・アラート](../services/monitoring.md#外部監視を導入しない判断2026-10-22)） |
 | Tailscale の ACL で管理画面を除外 | 未実施 |
-| 引っ越し後の上流ネットワーク対応 | 未定（[移行性](migration.md)） |
+| 引っ越し後の上流ネットワーク対応 | 未定（[移行性](06-migration.md)） |

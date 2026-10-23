@@ -17,7 +17,7 @@ Proxmox 上に複数 VM を構築し、Terraform + Ansible + Docker Compose で�
 
 ![構成図](diagrams/drawio/architecture.drawio.svg)
 
-最新の構成図（テキスト版）と、VM ごとの割当（CPU・メモリ・ディスク）は [システム構成・環境](docs/architecture/overview.md) を参照。
+最新の構成図（テキスト版）と、VM ごとの割当（CPU・メモリ・ディスク）は [システム構成・環境](docs/architecture/01-overview.md) を参照。
 
 ## 構成の概要
 
@@ -30,7 +30,7 @@ Proxmox 上に複数 VM を構築し、Terraform + Ansible + Docker Compose で�
 | `vm-code` | `122` | `192.168.11.22` | 常時起動 | 常用リモート開発 | Claude Code, CloudCLI, code-server |
 | `vm-dev` | `121` | `192.168.11.21` | 任意起動 | 開発・実験 | playground |
 
-ハードウェアは Lenovo ThinkCentre M70q Tiny（i5-10400T / 24GB RAM / 256GB NVMe）。メモリの配分は [性能・拡張性](docs/architecture/infrastructure.md) を参照。
+ハードウェアは Lenovo ThinkCentre M70q Tiny（i5-10400T / 24GB RAM / 256GB NVMe）。メモリの配分は [性能・拡張性](docs/architecture/02-infrastructure.md) を参照。
 
 ## 技術スタック
 
@@ -49,7 +49,7 @@ Proxmox 上に複数 VM を構築し、Terraform + Ansible + Docker Compose で�
 
 | ディレクトリ | 内容 |
 | --- | --- |
-| [docs/architecture/](docs/architecture/README.md) | 方式設計。[システム概要](docs/architecture/overview.md)、[インフラ構成](docs/architecture/infrastructure.md)、[ネットワーク設計](docs/architecture/network.md)、[可用性・信頼性](docs/architecture/reliability.md)、[セキュリティ](docs/architecture/security.md)、[移行性](docs/architecture/migration.md)、[災害対策](docs/architecture/disaster-recovery.md)、[VLAN 設計](docs/architecture/vlan-design.md) |
+| [docs/architecture/](docs/architecture/README.md) | 方式設計。[システム概要](docs/architecture/01-overview.md)、[インフラ構成](docs/architecture/02-infrastructure.md)、[ネットワーク設計](docs/architecture/03-network.md)、[可用性・信頼性](docs/architecture/04-reliability.md)、[セキュリティ](docs/architecture/05-security.md)、[移行性](docs/architecture/06-migration.md)、[災害対策](docs/architecture/07-disaster-recovery.md)、[VLAN 設計](docs/architecture/08-vlan-design.md) |
 | [docs/services/](docs/services/dns.md) | サービスごとの詳細設計。[DNS](docs/services/dns.md)、[リバースプロキシと TLS](docs/services/reverse-proxy-tls.md)、[監視・アラート](docs/services/monitoring.md)、[CI/CD](docs/services/cicd.md) |
 | [docs/operations/](docs/operations/runbooks/README.md) | 運用。[Runbook](docs/operations/runbooks/README.md)、[バックアップ・復旧](docs/operations/backup-restore.md)、障害記録、[ロードマップ](docs/operations/roadmap.md) |
 | [docs/adr/](docs/adr/README.md) | 設計判断の記録（ADR） |
@@ -58,8 +58,8 @@ Proxmox 上に複数 VM を構築し、Terraform + Ansible + Docker Compose で�
 
 - **3 層 DNS**: AdGuard Home（フィルタリング）→ CoreDNS（`lab.kanare.dev` の権威）/ Unbound（ルートからの再帰解決）。1.1.1.1 などの外部リゾルバに依存しない（[DNS 構成](docs/services/dns.md)）
 - **正規の TLS 証明書**: Caddy が Cloudflare DNS-01 で Let's Encrypt の証明書を取得し、LAN 内でも警告なしで HTTPS（[リバースプロキシと TLS](docs/services/reverse-proxy-tls.md)）
-- **二重 NAT でも外出先から接続**: Tailscale を subnet router として動かし、split DNS で `lab.kanare.dev` を引く（[ネットワーク設計](docs/architecture/network.md)）
-- **公開リポジトリでの機密管理**: SOPS + age で暗号化して Git に置く。CI で gitleaks と暗号化漏れを検査する（[セキュリティ](docs/architecture/security.md)）
+- **二重 NAT でも外出先から接続**: Tailscale を subnet router として動かし、split DNS で `lab.kanare.dev` を引く（[ネットワーク設計](docs/architecture/03-network.md)）
+- **公開リポジトリでの機密管理**: SOPS + age で暗号化して Git に置く。CI で gitleaks と暗号化漏れを検査する（[セキュリティ](docs/architecture/05-security.md)）
 - **監視と通知**: Prometheus + Alertmanager で、容量枯渇・VM 停止・OOM などを検知して Slack に通知する（[監視・アラート](docs/services/monitoring.md)）
 
 ## 管理画面リンク
@@ -80,7 +80,7 @@ Proxmox 上に複数 VM を構築し、Terraform + Ansible + Docker Compose で�
 - SSH は鍵認証のみ。ファイアウォール（`ufw`）で必要なポートだけ開放する
 - LAN 内も Caddy で HTTPS 化する
 
-詳細と未対応の項目は [セキュリティ](docs/architecture/security.md) を参照。
+詳細と未対応の項目は [セキュリティ](docs/architecture/05-security.md) を参照。
 
 ## リポジトリ構成
 

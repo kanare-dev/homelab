@@ -26,8 +26,8 @@
 
 ## 影響と再検討の条件
 
-- Tailscale のコントロールプレーンに依存する（[外部接続](../architecture/network.md#外部サービスへの依存)）。
+- Tailscale のコントロールプレーンに依存する（[外部接続](../architecture/03-network.md#外部サービスへの依存)）。
 - Tailscale の ACL は既定のまま（管理画面の除外は未実施）。
 - 他人と共有したいサービスが出たら、そのサービスだけ Cloudflare Tunnel を検討する。
 
-詳細: [ネットワーク設計](../architecture/network.md)、[DNS 構成](../services/dns.md#tailscale-との連携)
+詳細: [ネットワーク設計](../architecture/03-network.md)、[DNS 構成](../services/dns.md#tailscale-との連携)

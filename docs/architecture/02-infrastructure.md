@@ -1,6 +1,6 @@
 # インフラ構成
 
-物理・仮想構成、ソフトウェア構成、資源の配分と拡張の方針をまとめる。全体像と構成図は [システム概要](overview.md)。
+物理・仮想構成、ソフトウェア構成、資源の配分と拡張の方針をまとめる。全体像と構成図は [システム概要](01-overview.md)。
 
 ## 物理構成
 
@@ -10,8 +10,8 @@
 | ルーター | Buffalo WSR-1800AX4P | — | `192.168.11.1` | 集合住宅の共用ルーターの下に置く（二重 NAT） |
 | IoT | ESP32 | — | `192.168.11.100` | 現在停止中 |
 
-- 電源は UPS なし。ホスト 1 台に全 VM が載る単一障害点の構成（[可用性](reliability.md)）。
-- 次期構成（TP-Link + Managed Switch + AP、VLAN 分割）は [VLAN 設計](vlan-design.md)。未適用。
+- 電源は UPS なし。ホスト 1 台に全 VM が載る単一障害点の構成（[可用性](04-reliability.md)）。
+- 次期構成（TP-Link + Managed Switch + AP、VLAN 分割）は [VLAN 設計](08-vlan-design.md)。未適用。
 
 ## 論理構成
 
@@ -40,7 +40,7 @@ Proxmox VE 上に Terraform で VM を作り、Ansible で設定し、各 VM で
 | 監視 | Prometheus, Alertmanager, Grafana, node_exporter | [監視・アラート](../services/monitoring.md) |
 | 名前解決 | AdGuard Home → CoreDNS / Unbound | [DNS 構成](../services/dns.md) |
 | リバースプロキシ・TLS | Caddy + Let's Encrypt（Cloudflare DNS-01） | [運用 Runbook](../operations/runbooks/tls-certificates.md#lan-内-tls) |
-| 秘密情報 | SOPS + age | [セキュリティ](security.md) |
+| 秘密情報 | SOPS + age | [セキュリティ](05-security.md) |
 | CI | GitHub Actions（lint のみ） | [CI/CD](../services/cicd.md) |
 
 ## ホストの資源
@@ -50,7 +50,7 @@ Proxmox VE 上に Terraform で VM を作り、Ansible で設定し、各 VM で
 | CPU | i5-10400T（6 コア 12 スレッド） | 省電力版 |
 | メモリ | 24GB（8GB + 16GB） | 2026-10 に 8GB から増設 |
 | ストレージ | 256GB NVMe。`local-lvm`（thin pool `pve/data`）は約 155GiB | 全 VM のディスクがこの pool を共有する |
-| NIC | 1 つ | VLAN 化の際は trunk にする（[VLAN 設計](vlan-design.md)） |
+| NIC | 1 つ | VLAN 化の際は trunk にする（[VLAN 設計](08-vlan-design.md)） |
 
 ## 配分
 
@@ -106,7 +106,7 @@ Grafana の「Storage / Thin Pool」ダッシュボードで、pool と VM デ�
 2. `ansible/inventory/hosts.yml` にホストを追加し、`group_vars` / playbook を用意して Ansible で設定する。
 3. 必要なら `dns_records`（`group_vars/infra/vars.yml`）と Caddyfile を追記し、`playbooks/infra.yml` を実行する。
 4. Prometheus の scrape 対象とアラートの対象に加える（`prometheus.yml`）。
-5. 配分の表（この文書と [システム構成・環境](overview.md)）と構成図を更新する。
+5. 配分の表（この文書と [システム構成・環境](01-overview.md)）と構成図を更新する。
 
 ## 既知の限界
 

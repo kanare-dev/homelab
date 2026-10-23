@@ -87,13 +87,13 @@ Proxmox ホストの UFW / Proxmox ファイアウォールの設定は、この
 
 ### 経路と暗号化
 
-- 外部には何も公開しない（二重 NAT でポート開放もしていない）。外出先からは Tailscale（WireGuard）で入る（[外部接続](network.md)）。
+- 外部には何も公開しない（二重 NAT でポート開放もしていない）。外出先からは Tailscale（WireGuard）で入る（[外部接続](03-network.md)）。
 - LAN 内の Web は、Caddy が Let's Encrypt の正規証明書で HTTPS 化する。バックエンドへの通信は HTTP の場合がある（ルーター、Homepage など）。
 - Proxmox は自己署名証明書のため、Caddy が `tls_insecure_skip_verify` で接続する。
 
 ### セグメンテーション
 
-現在は `192.168.11.0/24` の 1 セグメントに全機器が載る。IoT・ゲスト・管理機器の分離は [VLAN 設計](vlan-design.md)（設計段階、未適用）。
+現在は `192.168.11.0/24` の 1 セグメントに全機器が載る。IoT・ゲスト・管理機器の分離は [VLAN 設計](08-vlan-design.md)（設計段階、未適用）。
 
 ## 監査・検知
 
@@ -120,5 +120,5 @@ Proxmox ホストの UFW / Proxmox ファイアウォールの設定は、この
 ## 関連
 
 - [運用 Runbook: 秘密情報管理](../operations/runbooks/secrets.md#秘密情報管理)
-- [VLAN 設計](vlan-design.md)
-- [外部接続](network.md)
+- [VLAN 設計](08-vlan-design.md)
+- [外部接続](03-network.md)

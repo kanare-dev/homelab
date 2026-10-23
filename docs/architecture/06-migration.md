@@ -1,6 +1,6 @@
 # 移行性
 
-環境を別のハードウェア・ネットワーク・バージョンへ移すときの、前提・影響範囲・手順を整理する。構成をコードで持つため、**移行の基本は「新しい環境でコードを流し直す」**こと。ネットワークの移行（VLAN・ルーター交換）の詳細は [VLAN 設計](vlan-design.md) が正。
+環境を別のハードウェア・ネットワーク・バージョンへ移すときの、前提・影響範囲・手順を整理する。構成をコードで持つため、**移行の基本は「新しい環境でコードを流し直す」**こと。ネットワークの移行（VLAN・ルーター交換）の詳細は [VLAN 設計](08-vlan-design.md) が正。
 
 ## 方針
 
@@ -24,7 +24,7 @@
 | --- | --- | --- |
 | age 秘密鍵 | 運用者の Mac（iCloud Keychain に退避） | 必須。新しい Mac には [運用 Runbook](../operations/runbooks/secrets.md#別の-mac-で復元する) の手順で復元 |
 | SSH 鍵 | 運用者の Mac（`~/.ssh/id_ed25519_homelab` など） | 必須。Terraform が VM に公開鍵を配る |
-| Terraform の state | Mac のローカル（`terraform.tfstate`） | 新しい環境を作り直すなら不要。既存の VM を引き継ぐなら必要（[災害対策](disaster-recovery.md#リポジトリの外にあるもの)） |
+| Terraform の state | Mac のローカル（`terraform.tfstate`） | 新しい環境を作り直すなら不要。既存の VM を引き継ぐなら必要（[災害対策](07-disaster-recovery.md#リポジトリの外にあるもの)） |
 | Proxmox のテンプレート VM（9000） | Proxmox ホスト | 手順書から再作成（`terraform/proxmox/README.md`） |
 | Tailscale の登録 | Tailscale 側と `vm-infra` | 再登録（`tailscale_authkey`）。subnet route の承認と split DNS は管理画面で設定 |
 | Prometheus の履歴 | `vm-monitoring` のボリューム | 引き継がなくてもよい（保持 30 日） |
@@ -45,21 +45,21 @@
 6. 動作確認（DNS、Grafana、アラート、外出先からの接続）。
 7. 旧ホストを止める。
 
-手順の詳細は [災害対策](disaster-recovery.md) の再構築手順と共通。
+手順の詳細は [災害対策](07-disaster-recovery.md) の再構築手順と共通。
 
 ### B. ルーターの交換・VLAN 化
 
-[VLAN 設計](vlan-design.md) の段階に従う（設計段階、未適用）。
+[VLAN 設計](08-vlan-design.md) の段階に従う（設計段階、未適用）。
 
 - 全ホストのアドレスを `10.<VLAN>.0.0/24` に変える。一斉切り替えとし、事前準備と切り戻し手順を用意する。
-- 影響を受ける箇所の一覧は [VLAN 設計: 影響を受けるリポジトリ内の箇所](vlan-design.md#影響を受けるリポジトリ内の箇所)。
+- 影響を受ける箇所の一覧は [VLAN 設計: 影響を受けるリポジトリ内の箇所](08-vlan-design.md#影響を受けるリポジトリ内の箇所)。
 - ルーター単体の付け替え（IP が変わる場合）は [DNS 構成](../services/dns.md#ルーターを付け替えるとき)。
 
 ### C. 引っ越し（上流ネットワークが変わる）
 
 - LAN の内側（`192.168.11.0/24` または VLAN 後のアドレス）は変えずに持ち込める。変わるのは WAN 側だけ。
 - 新居の上流が `192.168.11.0/24` と被ると、Tailscale 経由の接続が不安定になる。被る場合は VLAN 化後の `10.x` 系に移行してから引っ越す。
-- 二重 NAT でなくなっても、外部公開はしない方針（[外部接続](network.md)）。
+- 二重 NAT でなくなっても、外部公開はしない方針（[外部接続](03-network.md)）。
 
 ### D. Proxmox VE のバージョンアップ
 
@@ -77,7 +77,7 @@
 | 対象 | 現状 | 備考 |
 | --- | --- | --- |
 | Ubuntu（ゲスト） | テンプレート 9000 から作成。更新は `apt` で手動 | LTS の入れ替えは、新しいテンプレートから VM を作り直す形が基本 |
-| Docker イメージ | `latest`。更新は `docker compose pull` で手動 | バージョン固定は未実施（[信頼性](reliability.md#既知の弱点と対応状況)） |
+| Docker イメージ | `latest`。更新は `docker compose pull` で手動 | バージョン固定は未実施（[信頼性](04-reliability.md#既知の弱点と対応状況)） |
 | Terraform Provider | `3.0.2-rc07`（RC を固定） | 更新は `terraform init -upgrade` と `plan` で確認 |
 | Ansible・コレクション | `ansible/requirements.yml` | CI の ansible-lint で検査 |
 

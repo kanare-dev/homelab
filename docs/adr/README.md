@@ -1,6 +1,6 @@
 # ADR（設計判断の記録）
 
-重要な設計判断を、**なぜそう決めたか**とともに残す。構成の説明は [architecture/](../architecture/overview.md)、サービスの詳細は [services/](../services/dns.md) に書き、判断の経緯だけをここに切り出す。
+重要な設計判断を、**なぜそう決めたか**とともに残す。構成の説明は [architecture/](../architecture/01-overview.md)、サービスの詳細は [services/](../services/dns.md) に書き、判断の経緯だけをここに切り出す。
 
 ## 一覧
 

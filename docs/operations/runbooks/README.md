@@ -1,6 +1,6 @@
 # 運用 Runbook
 
-日常の運用・障害対応の手順書。設計の背景は [architecture/](../../architecture/overview.md)、サービスごとの詳細は [services/](../../services/dns.md) を参照。
+日常の運用・障害対応の手順書。設計の背景は [architecture/](../../architecture/01-overview.md)、サービスごとの詳細は [services/](../../services/dns.md) を参照。
 
 ## 日常の運用
 

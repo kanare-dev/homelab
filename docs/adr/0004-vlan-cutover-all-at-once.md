@@ -30,4 +30,4 @@
 - 停止してよい時間帯を確保できること、戻し手順が用意されていることが条件。
 - 家族など他に使う人がいて長時間止められない場合は、並行構築に切り替える（その場合はこの ADR を置き換える）。
 
-詳細: [VLAN 設計](../architecture/vlan-design.md#切り替え方式-一斉切り替え)、[移行性](../architecture/migration.md)
+詳細: [VLAN 設計](../architecture/08-vlan-design.md#切り替え方式-一斉切り替え)、[移行性](../architecture/06-migration.md)

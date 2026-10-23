@@ -1,6 +1,6 @@
 # システム概要
 
-homelab の全体像。最新の構成図、目的、構成の理由、前提と制約をまとめる。構成要素の詳細は [インフラ構成](infrastructure.md)、[ネットワーク設計](network.md)、[可用性・信頼性](reliability.md) を参照。
+homelab の全体像。最新の構成図、目的、構成の理由、前提と制約をまとめる。構成要素の詳細は [インフラ構成](02-infrastructure.md)、[ネットワーク設計](03-network.md)、[可用性・信頼性](04-reliability.md) を参照。
 
 ## 構成図
 
@@ -38,7 +38,7 @@ homelab の全体像。最新の構成図、目的、構成の理由、前提と
 
 ## 目的と位置づけ
 
-- 個人の検証・常用環境。商用サービスではなく、SLA は持たない（[可用性](reliability.md)）。
+- 個人の検証・常用環境。商用サービスではなく、SLA は持たない（[可用性](04-reliability.md)）。
 - 全構成を Terraform / Ansible / Docker Compose でコード化し、いつでも同じ環境を再構築できる状態を保つ。
 - 環境は 1 つだけ（本番 = 開発）。破壊を伴う検証は `vm-dev` で行い、他の VM は壊さない。
 
@@ -48,7 +48,7 @@ homelab の全体像。最新の構成図、目的、構成の理由、前提と
 
 | 観点 | 判断 |
 | --- | --- |
-| メモリ余裕 | 24GB に増設済み。重めのワークロードや追加 VM を検討できる（[性能・拡張性](infrastructure.md)） |
+| メモリ余裕 | 24GB に増設済み。重めのワークロードや追加 VM を検討できる（[性能・拡張性](02-infrastructure.md)） |
 | 優先順位 | まず DNS、リバースプロキシ、監視をコード化して再現性を固める |
 | 学習効率 | `vm-dev` があると、設定や playbook を安全に壊して試せる |
 | 拡張性 | `vm-apps` に Home Assistant などを追加しやすい |
@@ -58,8 +58,8 @@ homelab の全体像。最新の構成図、目的、構成の理由、前提と
 | 項目 | 内容 |
 | --- | --- |
 | 単一ホスト | 全 VM が 1 台の Proxmox ホストと 1 つの NVMe に載る。冗長化はしない |
-| 二重 NAT | 外からポート開放ができない。外部からの到達は Tailscale に限る（[外部接続](network.md)） |
-| ストレージ | `local-lvm`（LVM-thin、約 155GiB）に全 VM のディスクを置く。過剰割当（約 1.4 倍）で運用している（[性能・拡張性](infrastructure.md)） |
+| 二重 NAT | 外からポート開放ができない。外部からの到達は Tailscale に限る（[外部接続](03-network.md)） |
+| ストレージ | `local-lvm`（LVM-thin、約 155GiB）に全 VM のディスクを置く。過剰割当（約 1.4 倍）で運用している（[性能・拡張性](02-infrastructure.md)） |
 | ドメイン | `lab.kanare.dev`（内部ゾーンは CoreDNS、証明書は Let's Encrypt） |
 | タイムゾーン・NTP | `Asia/Tokyo`、`ntp.nict.jp` / `time.google.com` |
 | 管理操作 | Mac から SSH / Terraform / Ansible で行う。自動デプロイはしない |
