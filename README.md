@@ -62,6 +62,17 @@ Proxmox 上に複数 VM を構築し、Terraform + Ansible + Docker Compose で�
 - **公開リポジトリでの機密管理**: SOPS + age で暗号化して Git に置く。CI で gitleaks と暗号化漏れを検査する（[セキュリティ](docs/architecture/05-security.md)）
 - **監視と通知**: Prometheus + Alertmanager で、容量枯渇・VM 停止・OOM などを検知して Slack に通知する（[監視・アラート](docs/services/monitoring.md)）
 
+## 管理画面リンク
+
+| サービス | ドメイン | 備考 |
+| --- | --- | --- |
+| ルーター | [https://router.lab.kanare.dev](https://router.lab.kanare.dev) | ルーター設定画面（ドメインは Caddy 経由。[DNS 構成](docs/services/dns.md#ルーター管理画面)） |
+| Proxmox | [https://pve.lab.kanare.dev](https://pve.lab.kanare.dev) | Proxmox VE 管理画面 |
+| Homepage | [https://home.lab.kanare.dev](https://home.lab.kanare.dev) | ランディングダッシュボード |
+| Grafana | [https://grafana.lab.kanare.dev](https://grafana.lab.kanare.dev) | 監視ダッシュボード |
+| Prometheus | [https://prometheus.lab.kanare.dev](https://prometheus.lab.kanare.dev) | メトリクス確認 |
+| AdGuard Home | [https://adguard.lab.kanare.dev](https://adguard.lab.kanare.dev) | DNS フィルタリング・クエリログ |
+
 ## セキュリティ
 
 - 秘密情報は SOPS + age で暗号化して Git 管理する。平文のシークレットはコミットしない
