@@ -43,7 +43,7 @@ docker compose down
 起動後のアクセス先:
 
 | サービス | URL | 認証 |
-|---|---|---|
+| --- | --- | --- |
 | Prometheus | `http://192.168.11.13:9090` | なし |
 | Grafana | `http://192.168.11.13:3000` | admin / SOPS 管理（`group_vars/monitoring/secrets.sops.yml`） |
 

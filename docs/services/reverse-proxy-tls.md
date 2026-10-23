@@ -10,7 +10,7 @@ client ─► https://<name>.lab.kanare.dev (192.168.11.11:443, Caddy)
 ```
 
 | 項目 | 内容 |
-|---|---|
+| --- | --- |
 | 実装 | Caddy（Docker Compose。`docker/compose/reverse-proxy/`）。`xcaddy` で Cloudflare DNS プラグインを組み込んだイメージをビルドする |
 | 待ち受け | 80、443（tcp/udp）。サービスは HTTPS のみ（`auto_https disable_redirects`。`http://` では接続できない） |
 | 証明書 | Let's Encrypt。Cloudflare の DNS-01 チャレンジで取得し、**FQDN ごとに個別取得**（ワイルドカードではない） |
@@ -21,7 +21,7 @@ client ─► https://<name>.lab.kanare.dev (192.168.11.11:443, Caddy)
 ## 設計判断
 
 | 判断 | 理由 |
-|---|---|
+| --- | --- |
 | DNS-01 を使う | LAN 内のサービスで、外から 80/443 に届かない（二重 NAT）。DNS 経由の検証なら公開不要で正規の証明書が取れる |
 | FQDN ごとに取得する | ワイルドカード（`*.lab.kanare.dev`）は使わず、サービスごとに個別取得している（サブドメインが少ない） |
 | 入口を `vm-infra` に集約する | 新しいサービスも同じ入口に追加できる。一方で、`vm-infra` の障害が全 Web 入口に影響する（[可用性](../architecture/reliability.md)） |

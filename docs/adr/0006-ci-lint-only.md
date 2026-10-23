@@ -14,7 +14,7 @@ CI は GitHub hosted runner での lint・静的チェックだけにする（an
 ## 理由
 
 | 対象 | 自動化しない理由 |
-|---|---|
+| --- | --- |
 | `terraform plan` | state と Proxmox API に届く runner が必要。VM 数が少なく、手元で足りる |
 | `terraform apply` | 意図しない VM 削除のリスクがある |
 | `ansible-playbook` | LAN 内 runner に SSH 鍵を置くことになり、公開リポジトリでは fork PR 経由の実行リスクを抱える |

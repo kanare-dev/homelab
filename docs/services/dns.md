@@ -12,7 +12,7 @@ client
 ```
 
 | サービス | 役割 | バインドアドレス | 実装 |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | AdGuard Home | フロントエンド・フィルタリング | 0.0.0.0:53, :3000 | Docker (host network) |
 | CoreDNS | lab.kanare.dev 権威 DNS | 127.0.0.1:5353 | systemd |
 | Unbound | 外部フル再帰解決 | 127.0.0.1:5335 | Docker (host network) |
@@ -56,7 +56,7 @@ AdGuard の fallback DNS が使われるのは、upstream に**接続できな�
 ## DNS レコード (lab.kanare.dev)
 
 | ホスト名 | IP | 備考 |
-|---|---|---|
+| --- | --- | --- |
 | `grafana` | 192.168.11.11 | Caddy 経由 |
 | `prometheus` | 192.168.11.11 | Caddy 経由 |
 | `pve` | 192.168.11.11 | Caddy 経由 |
@@ -92,7 +92,7 @@ AdGuard の fallback DNS が使われるのは、upstream に**接続できな�
 IP が変わる場合、直す場所は次のとおり。`dns_records` の `router`（Caddy を指す）と Homepage のリンクは変えない。
 
 | 場所 | 内容 |
-|---|---|
+| --- | --- |
 | `docker/compose/reverse-proxy/Caddyfile` | `router.lab.kanare.dev` の `reverse_proxy` の転送先 |
 | `ansible/inventory/group_vars/all.yml` | `gateway`（DNS 障害時に経路が壊れないよう、名前ではなく IP のまま） |
 | `terraform/proxmox/variables.tf` / `terraform.tfvars` | `gateway` |
@@ -175,7 +175,7 @@ ansible-playbook playbooks/infra.yml
 外出先から `lab.kanare.dev` と LAN のサービスを使うため、vm-infra を subnet router にし、split DNS を設定している（2026-10-22 に動作確認済み）。
 
 | 項目 | 設定 |
-|---|---|
+| --- | --- |
 | vm-infra の Tailscale IP | `100.118.14.37` |
 | 起動オプション | `tailscale up --advertise-routes=192.168.11.0/24 --accept-dns=false` |
 | Subnet route | Admin Console で `192.168.11.0/24` を承認済み |

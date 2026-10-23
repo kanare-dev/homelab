@@ -25,7 +25,7 @@ homelab の監視とアラート通知の仕組み。2026-10-22 の障害（[INC
 ## 構成要素と置き場所
 
 | 要素 | 役割 | ファイル |
-|---|---|---|
+| --- | --- | --- |
 | node_exporter | ホストのメトリクス公開（全ホスト）。textfile collector 有効 | `ansible/roles/node_exporter/` |
 | pve-storage-metrics | PVE 専用。thin pool と VM 状態を textfile に出力 | `ansible/roles/proxmox/files/pve-storage-metrics.sh`、`ansible/roles/proxmox/tasks/main.yml` |
 | unbound-metrics | vm-infra 専用。未キャッシュの名前を Unbound に直接引いて、再帰解決できているかを textfile に出力（1 分毎） | `ansible/roles/dns_metrics/` |
@@ -39,7 +39,7 @@ homelab の監視とアラート通知の仕組み。2026-10-22 の障害（[INC
 ## 監視している項目
 
 | アラート | 条件 | 待ち時間 | 重大度 | 検知できる障害 |
-|---|---|---|---|---|
+| --- | --- | --- | --- | --- |
 | LvmThinPoolDataHigh | thin pool Data% > 75% | 5m | warning | ストレージ枯渇の予兆 |
 | LvmThinPoolDataCritical | thin pool Data% > 90% | 2m | critical | 枯渇間近（今回の障害の原因） |
 | LvmThinPoolMetadataHigh / Critical | thin pool Meta% > 75% / 90% | 5m / 2m | warning / critical | メタデータ枯渇 |
@@ -69,7 +69,7 @@ homelab の監視とアラート通知の仕組み。2026-10-22 の障害（[INC
 ログや時系列データが増え続けないよう、次の上限を設けている（INC-2026-10-22）。
 
 | 対象 | 上限 | 設定場所 |
-|---|---|---|
+| --- | --- | --- |
 | Prometheus TSDB | 30 日 または 5GB | `docker/compose/monitoring/docker-compose.yml`（5GB は暫定値。実測で調整） |
 | Docker コンテナログ（monitoring / dns / reverse-proxy / homepage） | 10MB × 3 ファイル | 各 `docker-compose.yml` の `x-logging` |
 | journald（全 VM） | 200M、1 か月 | `ansible/roles/common`（`journald_system_max_use`、`journald_max_retention`） |
@@ -79,7 +79,7 @@ homelab の監視とアラート通知の仕組み。2026-10-22 の障害（[INC
 ## 動作確認の記録
 
 | 日付 | 内容 | 結果 |
-|---|---|---|
+| --- | --- | --- |
 | 2026-10-22 | `TestAlert` を Alertmanager に直接送信 | Slack に `[WARNING] TestAlert` が届いた |
 | 2026-10-22 | vm-code を `qm shutdown` で停止（実機テスト） | 停止から約 3.5 分で `TargetDown`、約 4 分で `PveVmStopped` が発報。Slack に両方届いた（ユーザー確認）。起動後 1 分以内にアラートは解消 |
 | 2026-10-22 | Unbound の実障害（`do-ip6` が有効で `max-sends` 超過 → 未キャッシュの名前が `SERVFAIL`） | `UnboundProbeFailing` が pending になり、検知できた。`do-ip6: no` で解消（[dns.md](dns.md)）。待ち時間（3 分）内に復旧したため、Slack 通知は未確認 |
@@ -98,7 +98,7 @@ VM 停止の検知は、`TargetDown`（VM 内 OS の応答なし）が 3 分、`
 ## 意図的に監視していないもの
 
 | 対象 | 理由 |
-|---|---|
+| --- | --- |
 | vm-dev の TargetDown | `onboot=false` で手動起動のため。停止しても通知しない |
 | ESP32 (`192.168.11.100`) | 現在意図的に停止中。`prometheus.yml` の `esp32` ジョブをコメントアウト済み。再開時はコメントを外す |
 | vm-windows の停止・OS 内部 | `onboot=0` のため停止しても通知しない。node_exporter も未導入。io-error は PVE 側のメトリクスで検知できる |
@@ -130,7 +130,7 @@ VM 停止の検知は、`TargetDown`（VM 内 OS の応答なし）が 3 分、`
 **将来の選択肢**:
 
 | 案 | 内容 | 長所 | 短所 |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | A. 外部 Heartbeat（Dead Man's Switch） | `Watchdog` を Healthchecks.io、Better Stack などへ定期送信し、途絶えたら外部から通知 | 監視 VM・ホスト・ネットワークの停止をすべて検知。無料枠で足りる | 外部サービス依存。ping URL の管理が必要 |
 | B. 別ホストでの死活監視 | 別マシン（Raspberry Pi、ESP32 など）が PVE と vm-monitoring に ping/HTTP し、Slack に通知 | 外部サービス不要。LAN 内で完結 | 別ハードの用意と保守が必要。停電・回線断では同時に止まる |
 | C. VPS 等でのリモート監視 | 外部の VPS で Uptime Kuma などを動かし、Tailscale 経由で死活確認 | 回線断・停電も検知できる | 常時稼働の VPS の費用と運用負担 |
@@ -181,7 +181,7 @@ curl -XPOST http://192.168.11.13:9093/api/v2/alerts -H 'Content-Type: applicatio
 ### 状態確認
 
 | 見たいもの | 場所 |
-|---|---|
+| --- | --- |
 | thin pool の推移・VM ディスク別の割当 | Grafana `http://192.168.11.13:3000/d/homelab-storage/storage-thin-pool` |
 | 発報中のアラート | `http://192.168.11.13:9093` / `http://192.168.11.13:9090/alerts` |
 | ルールの状態 | `http://192.168.11.13:9090/rules` |
@@ -196,7 +196,7 @@ Slack App の「Incoming Webhooks」で再発行し、`sops ansible/inventory/gr
 ## アラート発報時の対応
 
 | アラート | 最初にやること |
-|---|---|
+| --- | --- |
 | LvmThinPoolData* | `ssh pve lvs -o lv_name,data_percent,metadata_percent pve/data`。各 VM で `sudo fstrim -av`。足りなければ `lvextend`。詳細は [runbook](../operations/runbooks/slack-alerts.md#slack-アラート通知) |
 | LvmThinPoolOverprovisioned | VM ディスクを増やしすぎている。`lvs` で割当を確認し、pool の拡張、ディスクの縮小、不要な VM の削除を検討する。VG に空きが無ければディスクの追加が必要 |
 | PveVmIoError | 先にプールを拡張してから `qm resume <vmid>`。強制リセットしない |

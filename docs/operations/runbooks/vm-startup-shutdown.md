@@ -10,7 +10,7 @@ Proxmox の `onboot` および `startup` 設定で、ホスト起動・停止時
 ホスト (Proxmox) 起動時、以下の順で VM が自動起動する。依存関係（DNS → モニタリング → アプリ）に従った順序。
 
 | 順序 | VM | onboot | startup | 役割 |
-|------|----|----|---------|------|
+| ------ | ---- | ---- | --------- | ------ |
 | 1 | vm-infra | true | `order=1,up=30,down=60` | DNS・リバースプロキシ（他 VM が依存） |
 | 2 | vm-monitoring | true | `order=2,up=20,down=60` | Prometheus・Grafana |
 | 3 | vm-apps | true | `order=3,up=20,down=60` | Homepage ダッシュボード |

@@ -5,7 +5,7 @@
 ## IP アドレス規約（`192.168.11.0/24`）
 
 | 範囲 | 用途 | 例 |
-|---|---|---|
+| --- | --- | --- |
 | `192.168.11.1` | ルーター / ゲートウェイ | — |
 | `192.168.11.10–19` | インフラ（Proxmox、基盤 VM） | `.10` Proxmox、`.11` `vm-infra`、`.13` `vm-monitoring` |
 | `192.168.11.20–59` | サーバー / 検証用 VM | `.20` `vm-apps`、`.21` `vm-dev`、`.22` `vm-code` |
@@ -20,7 +20,7 @@ VM の IP は Terraform（`terraform.tfvars`）で固定する。VMID は IP の
 内部 DNS は `lab.kanare.dev` ゾーン（CoreDNS が権威。[DNS 構成](../services/dns.md)）。サービスは `<サービス名>.lab.kanare.dev`、VM は `<VM 名>.lab.kanare.dev` で引く。
 
 | FQDN | DNS の解決先 | 実際の宛先 | 用途 |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | `pve.lab.kanare.dev` | `192.168.11.11`（Caddy） | `192.168.11.10:8006` | Proxmox Web UI |
 | `home.lab.kanare.dev` | `192.168.11.11`（Caddy） | `192.168.11.20:3001` | Homepage |
 | `grafana.lab.kanare.dev` | `192.168.11.11`（Caddy） | `192.168.11.13:3000` | Grafana |

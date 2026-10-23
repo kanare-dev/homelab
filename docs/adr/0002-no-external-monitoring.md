@@ -20,7 +20,7 @@
 ## 代替案
 
 | 案 | 内容 |
-|---|---|
+| --- | --- |
 | A. 外部 Heartbeat（Dead Man's Switch） | `Watchdog` を Healthchecks.io などへ定期送信し、途絶えたら外部から通知。**導入するなら第一候補** |
 | B. 別ホストでの死活監視 | Raspberry Pi などが ping / HTTP で確認 |
 | C. VPS でのリモート監視 | Tailscale 経由で死活確認 |

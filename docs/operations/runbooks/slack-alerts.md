@@ -37,7 +37,7 @@ curl -XPOST http://192.168.11.13:9093/api/v2/alerts -H 'Content-Type: applicatio
 ## 主なルール
 
 | アラート | 条件 | 重大度 |
-|---|---|---|
+| --- | --- | --- |
 | LvmThinPoolDataHigh / Critical | thin pool Data% > 75% / 90% | warning / critical |
 | LvmThinPoolMetadataHigh / Critical | thin pool Meta% > 75% / 90% | warning / critical |
 | PveVmIoError | VM が io-error | critical |

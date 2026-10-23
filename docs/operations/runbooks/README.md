@@ -5,7 +5,7 @@
 ## 日常の運用
 
 | 手順 | 内容 |
-|---|---|
+| --- | --- |
 | [VM の自動起動・停止](vm-startup-shutdown.md) | 起動順序、手動での起動・停止 |
 | [更新](updates.md) | OS、Docker イメージ、Terraform Provider の更新 |
 | [秘密情報の管理](secrets.md) | SOPS + age。編集、別の Mac での復元、鍵のローテーション |
@@ -16,7 +16,7 @@
 ## 障害対応
 
 | 症状 | 手順 |
-|---|---|
+| --- | --- |
 | VM・サービス・DNS・Prometheus・Grafana の不調 | [障害時の切り分け](troubleshooting.md) |
 | thin pool が 90% を超えた | [ストレージの復旧](storage-recovery.md) |
 | PVE の管理画面が開かない | [PVE 管理画面の復旧](pve-webui-recovery.md) |

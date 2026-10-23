@@ -20,7 +20,7 @@
 ## 代替案
 
 | 案 | 状況 |
-|---|---|
+| --- | --- |
 | Cloudflare Tunnel + Split-Horizon DNS | 保留（共有ニーズが出てから） |
 | WireGuard を自前で運用 | 二重 NAT でポート開放できないため、代替として Tailscale を採用 |
 

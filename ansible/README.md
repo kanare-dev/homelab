@@ -76,7 +76,7 @@ make lint   # リポジトリ直下で実行
 ## Roles 一覧
 
 | Role | 内容 | 適用先 |
-|---|---|---|
+| --- | --- | --- |
 | `common` | パッケージ, SSH 硬化, UFW, NTP, hostname | 全 VM |
 | `docker` | Docker CE + Compose Plugin | 全 VM |
 | `node_exporter` | Prometheus node_exporter | 全 VM + Proxmox ホスト |

@@ -35,10 +35,10 @@ vm-monitoring        node_exporter        UP
 `lab.yaml` で VM とサービス、チェック方法を定義する。
 
 | チェック | 説明 |
-|---------|------|
-| `tcp`   | TCP ポートへの接続 |
-| `udp`   | UDP ポートへの接続 |
-| `http`  | HTTP GET で 2xx/3xx を期待 |
+| --------- | ------ |
+| `tcp` | TCP ポートへの接続 |
+| `udp` | UDP ポートへの接続 |
+| `http` | HTTP GET で 2xx/3xx を期待 |
 
 設定ファイルの検索順序:
 
