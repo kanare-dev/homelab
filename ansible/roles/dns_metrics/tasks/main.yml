@@ -1,5 +1,5 @@
 ---
-# AdGuard の fallback DNS で隠れる Unbound の障害を検知する（docs/monitoring.md）
+# AdGuard の fallback DNS で隠れる Unbound の障害を検知する（docs/services/monitoring.md）
 - name: Install Unbound probe
   ansible.builtin.copy:
     src: unbound-metrics.sh

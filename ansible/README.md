@@ -98,4 +98,4 @@ ansible-galaxy collection install -r requirements.yml
 sops inventory/group_vars/monitoring/secrets.sops.yml
 ```
 
-age 秘密鍵の場所、別の Mac での復元、ローテーションは `docs/runbook.md` の「秘密情報管理」を参照。
+age 秘密鍵の場所、別の Mac での復元、ローテーションは `docs/operations/runbooks/secrets.md` を参照。

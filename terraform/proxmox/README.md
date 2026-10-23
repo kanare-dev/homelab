@@ -86,5 +86,5 @@ terraform destroy
 | `main.tf` | VM モジュール呼び出し |
 | `outputs.tf` | 出力値 |
 | `terraform.tfvars` | 変数値（VM の定義など。機密値は含まない） |
-| `secrets.sops.yml` | 機密値（SOPS + age で暗号化。`docs/runbook.md` の「秘密情報管理」参照） |
+| `secrets.sops.yml` | 機密値（SOPS + age で暗号化。`docs/operations/runbooks/secrets.md` 参照） |
 | `modules/vm/` | VM リソース定義モジュール |

@@ -51,7 +51,7 @@
           - slack_webhook_url | length > 0
         fail_msg: >-
           slack_webhook_url が未設定。ansible/inventory/group_vars/monitoring/secrets.sops.yml に
-          sops で追加すること（docs/runbook.md の「Slack 通知」参照）。
+          sops で追加すること（docs/operations/runbooks/slack-alerts.md参照）。
 
     - name: Create alertmanager config directory
       ansible.builtin.file:
