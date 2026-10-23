@@ -103,7 +103,7 @@ homelab/
 ├── tools/
 │   └── check-md-links.py   # Markdown の内部リンク検査
 ├── diagrams/
-│   └── drawio/             # 構成図（SVG）
+│   └── drawio/             # 構成図（SVG）。assets/ はアイコン素材（Git 管理外）
 └── docs/
     ├── architecture/       # 方式設計
     ├── services/           # サービスごとの詳細設計
