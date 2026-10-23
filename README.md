@@ -101,7 +101,6 @@ homelab/
 ├── docker/
 │   └── compose/            # dns / homepage / monitoring / reverse-proxy
 ├── tools/
-│   ├── lab/                # 監視 CLI (Go)
 │   └── check-md-links.py   # Markdown の内部リンク検査
 ├── diagrams/
 │   └── drawio/             # 構成図（SVG）
@@ -163,9 +162,6 @@ open http://192.168.11.13:3000
 
 # Prometheus
 open http://192.168.11.13:9090
-
-# lab CLI で一括確認
-cd tools/lab && go mod tidy && go build -o lab . && ./lab status
 ```
 
 各ディレクトリの README（`terraform/proxmox/`、`ansible/`、`docker/compose/`）に、詳細な手順がある。
