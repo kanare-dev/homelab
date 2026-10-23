@@ -7,12 +7,12 @@ terraform {
 }
 
 resource "proxmox_vm_qemu" "vm" {
-  name        = var.name
-  vmid        = var.vmid
-  target_node = var.target_node
-  clone       = var.clone
-  agent       = 0
-  os_type     = "cloud-init"
+  name               = var.name
+  vmid               = var.vmid
+  target_node        = var.target_node
+  clone              = var.clone
+  agent              = 0
+  os_type            = "cloud-init"
   start_at_node_boot = var.start_at_node_boot
 
   startup_shutdown {
@@ -25,7 +25,7 @@ resource "proxmox_vm_qemu" "vm" {
     cores   = var.cores
     sockets = 1
   }
-  memory   = var.memory
+  memory = var.memory
 
   scsihw   = "virtio-scsi-single"
   bootdisk = "scsi0"
