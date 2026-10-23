@@ -27,7 +27,7 @@ client
 - upstream の振り分けルール:
   - `lab.kanare.dev` → CoreDNS (127.0.0.1:5353)
   - それ以外 → Unbound (127.0.0.1:5335)
-- Web UI: http://192.168.11.11:3000 / https://adguard.lab.kanare.dev
+- Web UI: <http://192.168.11.11:3000> / <https://adguard.lab.kanare.dev>
 - 設定ファイル: `/opt/dns/adguard/conf/AdGuardHome.yaml`
 - fallback DNS: `1.1.1.1` / `9.9.9.9`。upstream（CoreDNS・Unbound）が全て失敗したときだけ使う。2026-10-22 に Unbound が約 3 分間応答せず、インターネット全体の名前解決が止まったため追加（`playbooks/infra.yml` で設定）
 

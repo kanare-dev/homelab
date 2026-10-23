@@ -4,7 +4,7 @@
 
 ## ディレクトリ構成
 
-```
+```text
 docker/compose/
 ├── README.md
 ├── monitoring/              # vm-monitoring 上で実行

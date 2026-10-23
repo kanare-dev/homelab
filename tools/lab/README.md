@@ -19,7 +19,7 @@ go build -o lab .
 
 ## 出力例
 
-```
+```text
 NAME                 SERVICE              STATUS
 ----                 -------              ------
 vm-infra             coredns              UP

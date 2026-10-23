@@ -10,7 +10,7 @@ Ansible で各 VM の初期セットアップとサービスデプロイを行�
 
 ## ディレクトリ構成
 
-```
+```text
 ansible/
 ├── ansible.cfg          # Ansible 設定
 ├── requirements.yml     # 必要な Ansible コレクション

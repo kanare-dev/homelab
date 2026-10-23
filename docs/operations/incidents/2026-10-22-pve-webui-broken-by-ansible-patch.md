@@ -54,7 +54,7 @@ PVE の管理画面を開くとブラウザのコンソールに `Uncaught Synta
 
 ### 2.1 ブラウザのエラーの読み方
 
-```
+```text
 Uncaught SyntaxError: Invalid or unexpected token            ← 根本。proxmoxlib.js がパースできない
 pvemanagerlib.js: Cannot read properties of undefined (reading 'defaultText')   ← 派生
 VM76:3 Uncaught TypeError: c is not a constructor            ← 派生
@@ -212,7 +212,7 @@ apt-get install --reinstall -y proxmox-widget-toolkit
 | 5 | 本ドキュメントと `docs/operations/runbooks/pve-webui-recovery.md` に、症状と復旧手順を記載する | **完了**（10-22） | - |
 | 6 | ホストの保留中アップデート（`apt list --upgradable` で 248 パッケージ。`pve-manager` 9.1.7 → 9.2.21、`pve-qemu-kvm` 10 → 11、カーネルなど）を適用する | **見送り**（10-22）。当面は更新しない方針。再検討の条件は §4.3 | 再検討の条件に該当したとき |
 
-#4 の削除コマンド（実行済み。PVE ホストで実行。`.orig` は対象外）:
+手順 4 の削除コマンド（実行済み。PVE ホストで実行。`.orig` は対象外）:
 
 ```bash
 ls /usr/share/javascript/proxmox-widget-toolkit/proxmoxlib.js.*~   # 対象を確認

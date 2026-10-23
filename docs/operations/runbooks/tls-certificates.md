@@ -49,7 +49,7 @@ curl -s -H "Authorization: Bearer $(sops -d --extract '["cloudflare_api_token"]'
 
 `docker/compose/reverse-proxy/Caddyfile` に以下のブロックを追記し、Caddy を再起動する。
 
-```
+```text
 newservice.lab.kanare.dev {
 	reverse_proxy 192.168.11.XX:PORT
 	tls {

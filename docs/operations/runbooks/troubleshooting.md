@@ -2,7 +2,7 @@
 
 ## VM が応答しない
 
-```
+```text
 1. ping で疎通確認
    $ ping 192.168.11.XX
 
@@ -24,7 +24,7 @@
 
 ## サービスが応答しない
 
-```
+```text
 1. Docker コンテナのステータス確認
    $ docker compose ps
 
@@ -40,7 +40,7 @@
 
 ## DNS が引けない
 
-```
+```text
 1. CoreDNS のステータス確認
    $ ssh ubuntu@192.168.11.11 "systemctl status coredns"
 
@@ -56,7 +56,7 @@
 
 ## Prometheus がスクレイプに失敗
 
-```
+```text
 1. Prometheus の Targets ページを確認
    → http://192.168.11.13:9090/targets
 
@@ -72,7 +72,7 @@
 
 ## Grafana にログインできない
 
-```
+```text
 1. Grafana のステータス確認
    $ docker compose -f /opt/monitoring/docker-compose.yml ps grafana
 
