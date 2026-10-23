@@ -68,6 +68,7 @@ AdGuard の fallback DNS が使われるのは、upstream に**接続できな�
 | `adguard` | 192.168.11.11 | Caddy 経由 |
 | `code` | 192.168.11.11 | Caddy 経由（code-server） |
 | `cloudcli` | 192.168.11.11 | Caddy 経由（CloudCLI） |
+| `router` | 192.168.11.1 | ルーター管理画面。Caddy は通さず `http://` で開く。ルーター付け替え時はこの IP だけ直す（`gateway` 変数は DNS 障害時に経路が壊れないよう IP のまま） |
 
 レコードの追加・変更は `ansible/inventory/group_vars/infra/vars.yml` の `dns_records` を編集し、`ansible-playbook playbooks/infra.yml` を実行する。
 

@@ -12,6 +12,11 @@
           node: pve
 
 - Network:
+    - Router:
+        href: http://router.lab.kanare.dev
+        description: Buffalo WSR-1800AX4P
+        icon: router.png
+        siteMonitor: http://router.lab.kanare.dev
     - AdGuard Home:
         href: https://adguard.lab.kanare.dev
         description: DNS Filtering
