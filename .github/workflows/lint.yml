@@ -63,4 +63,6 @@ jobs:
       - uses: hashicorp/setup-terraform@v3
       - run: terraform fmt -check -recursive
       - run: terraform init -backend=false
+      # main.tf が ~/.ssh の公開鍵を file() で読むため、validate 用に使い捨ての鍵を作る
+      - run: mkdir -p ~/.ssh && ssh-keygen -q -t ed25519 -N '' -f ~/.ssh/id_ed25519_homelab
       - run: terraform validate
