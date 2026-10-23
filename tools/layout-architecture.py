@@ -78,6 +78,14 @@ class Model:
         if m:
             self.xml = self.xml[:m.start()] + self.xml[m.end():]
 
+    def clone(self, src, new_id):
+        """既存セルを複製して新しい ID で追加する（すでにあれば何もしない）。"""
+        if f'<mxCell id="{new_id}"' in self.xml:
+            return
+        cell = re.search(r'<mxCell id="%s"(?:(?!</mxCell>).)*?</mxCell>' % re.escape(src), self.xml, re.S).group(0)
+        cell = cell.replace(f'id="{src}"', f'id="{new_id}"', 1)
+        self.xml = self.xml.replace("</root>", cell + "</root>")
+
     def normalize_styles(self):
         def fix(m):
             s = m.group(0)
@@ -162,7 +170,10 @@ def layout(m):
     m.value("58", ORANGE % "192.168.11.100" + "<br>ESP32 + BME280")
 
     # 配置 ---------------------------------------------------------------
-    m.geo("77", 0, 0, 1380, 980)                      # 背景（キャンバス）。外周の余白は 40
+    m.clone("94", "vmdev-nodeexp-icon")
+    m.clone("95", "vmdev-nodeexp-text")
+    m.value("vmdev-nodeexp-text", svc("node_exporter", ":9100"))
+    m.geo("77", 0, 0, 1380, 1070)                      # 背景（キャンバス）。外周の余白は 40
     m.geo("28", 40, 40, 140, 40)
     m.geo("24", 40, 40, 140, 40)
 
@@ -180,7 +191,7 @@ def layout(m):
     m.geo("12", 530 - 25.05, 340 - 52)                # 90 度回転した画像。見た目の中心は (530, 340)
     m.geo("15", 380, 225, 300, 80)
 
-    m.geo("14", 40, 340, 980, 600)                    # PVE 枠
+    m.geo("14", 40, 340, 980, 690)                    # PVE 枠
     m.head("26", "27", 60, 360, 300)
     m.geo("27", 110, 360, 260, 60)
 
@@ -190,29 +201,31 @@ def layout(m):
     m.row("81", "82", c1 + 40, top + 110, 220)
     m.dbox("78", [("79", "80"), ("99", "102"), ("100", "101"), ("73", "74")], c1, top + 150)
     m.row("83", "84", c1 + 40, top + 330, 220)
-    m.vm("89", "90", "91", c1, top + 400, 80)         # vm-dev
+    m.vm("89", "90", "91", c1, top + 400, 120)        # vm-dev
+    m.row("vmdev-nodeexp-icon", "vmdev-nodeexp-text", c1 + 40, top + 470, 220)
 
     m.vm("35", "36", "37", c2, top, 260)              # vm-monitoring
     m.dbox("67", [("61", "62"), ("63", "65"), ("64", "66")], c2, top + 70)
     m.row("85", "86", c2 + 40, top + 210, 220)
-    m.row("87", "88", c2, top + 280, 300)             # Proxmox ホスト自身の node_exporter
-
-    m.vm(K + "104", K + "105", K + "106", c3, top, 240)   # vm-code
+    m.vm(K + "104", K + "105", K + "106", c2, top + 280, 240)   # vm-code
     for k, n in enumerate(("claude", "cloudcli", "codeserver", "nodeexp")):
-        m.row(f"vmcode-{n}-icon", f"vmcode-{n}-text", c3 + 40, top + 70 + 40 * k, 220)
-    m.vm("45", "46", "47", c3, top + 260, 220)        # vm-apps
-    m.dbox("96", [("97", "98"), ("92", "93")], c3, top + 330)
-    m.row("94", "95", c3 + 40, top + 430, 220)
+        m.row(f"vmcode-{n}-icon", f"vmcode-{n}-text", c2 + 40, top + 350 + 40 * k, 220)
+
+    m.vm("45", "46", "47", c3, top, 220)              # vm-apps
+    m.dbox("96", [("97", "98"), ("92", "93")], c3, top + 70)
+    m.row("94", "95", c3 + 40, top + 170, 220)
+
+    m.row("87", "88", 80, 980, 220)                   # Proxmox ホスト自身の node_exporter（PVE 枠の左下）
 
     rx, rw = 1060, 280                                # LAN / IoT の枠。上端・下端は PVE 枠に合わせる
     m.head("30", "43", rx + 20, 290, rw - 20)
     m.geo("44", rx, 340, rw, 180)
     m.device("52", "59", rx, 360, 40, 30, rw)
     m.device("51", "60", rx, 440, 30, 40, rw)
-    m.head("70", "53", rx + 20, 710, rw - 20)
-    m.geo("54", rx, 760, rw, 180)
-    m.device("55", "57", rx, 780, 40, 40, rw)
-    m.device("56", "58", rx, 860, 40, 40, rw)
+    m.head("70", "53", rx + 20, 800, rw - 20)
+    m.geo("54", rx, 850, rw, 180)
+    m.device("55", "57", rx, 870, 40, 40, rw)
+    m.device("56", "58", rx, 950, 40, 40, rw)
 
 
 def main():
