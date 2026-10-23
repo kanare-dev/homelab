@@ -68,9 +68,38 @@ AdGuard の fallback DNS が使われるのは、upstream に**接続できな�
 | `adguard` | 192.168.11.11 | Caddy 経由 |
 | `code` | 192.168.11.11 | Caddy 経由（code-server） |
 | `cloudcli` | 192.168.11.11 | Caddy 経由（CloudCLI） |
-| `router` | 192.168.11.1 | ルーター管理画面。Caddy は通さず `http://` で開く。ルーター付け替え時はこの IP だけ直す（`gateway` 変数は DNS 障害時に経路が壊れないよう IP のまま） |
+| `router` | 192.168.11.11 | Caddy 経由（ルーター管理画面）。ルーター本体は `192.168.11.1`（[ルーター管理画面](#ルーター管理画面)） |
 
 レコードの追加・変更は `ansible/inventory/group_vars/infra/vars.yml` の `dns_records` を編集し、`ansible-playbook playbooks/infra.yml` を実行する。
+
+## ルーター管理画面
+
+`https://router.lab.kanare.dev` でルーターの設定画面を開ける。`router` の DNS レコードはルーター本体ではなく Caddy（vm-infra）を指す。
+
+```text
+ブラウザ ─► router.lab.kanare.dev (192.168.11.11, Caddy が HTTPS で受ける)
+              └─► Caddy ─► 192.168.11.1:80 (ルーター本体、HTTP)
+```
+
+- `.dev` は TLD ごと HSTS プリロードされており、ブラウザは `http://` を `https://` に書き換える。ルーターは 443 で待ち受けないため、DNS を直接ルーターに向けるとブラウザから開けない。Caddy で HTTPS 化している。
+- Caddy からルーターまでの通信は平文の HTTP（LAN 内のみ）。
+- IP 直打ちの `http://192.168.11.1` でも開ける。
+- Homepage の Router タイルは `https://router.lab.kanare.dev` を監視している。
+- 外出先（Tailscale）からも名前を引ける。Tailscale の subnet route が `192.168.11.0/24` を通すため、ルーターの IP にも届く。遮断するには Tailscale の ACL で `192.168.11.1` を除外する（未実施）。
+
+### ルーターを付け替えるとき
+
+IP が変わる場合、直す場所は次のとおり。`dns_records` の `router`（Caddy を指す）と Homepage のリンクは変えない。
+
+| 場所 | 内容 |
+|---|---|
+| `docker/compose/reverse-proxy/Caddyfile` | `router.lab.kanare.dev` の `reverse_proxy` の転送先 |
+| `ansible/inventory/group_vars/all.yml` | `gateway`（DNS 障害時に経路が壊れないよう、名前ではなく IP のまま） |
+| `terraform/proxmox/variables.tf` / `terraform.tfvars.example` | `gateway` |
+| `README.md` | ルーターの IP（構成表・管理画面リンク） |
+| `docker/compose/homepage/config/services.yaml` | Router の `description`（機種名） |
+
+Caddyfile を直したら `ansible-playbook playbooks/infra.yml` で反映する。ルーター側が HTTPS 専用になった場合は、転送先を `https://...` にして `tls_insecure_skip_verify` を付ける（`pve` と同じ形）。
 
 ## ファイル構成
 
