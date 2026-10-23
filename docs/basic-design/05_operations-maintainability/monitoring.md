@@ -1,6 +1,6 @@
 # 監視・アラート
 
-homelab の監視とアラート通知の仕組み。2026-10-22 の障害（[INC-2026-10-22](../incidents/2026-10-22-lvm-thin-exhaustion.md)）を受けて、容量枯渇と VM 停止を検知して Slack に通知する構成にした。
+homelab の監視とアラート通知の仕組み。2026-10-22 の障害（[INC-2026-10-22](../../incidents/2026-10-22-lvm-thin-exhaustion.md)）を受けて、容量枯渇と VM 停止を検知して Slack に通知する構成にした。
 
 ## 全体像
 
@@ -91,8 +91,8 @@ VM 停止の検知は、`TargetDown`（VM 内 OS の応答なし）が 3 分、`
 2026-10-22 の動作確認時に、iPhone の Slack アプリで受信した画面。左は発報時（`TestAlert` と、vm-code 停止による `TargetDown` / `PveVmStopped`）、右は復旧後に `[RESOLVED]` が届いた状態。
 
 <p>
-  <img src="../screenshots/slack-alert-firing-ios.png" alt="Slack アプリに届いた発報通知（TestAlert、TargetDown、PveVmStopped）" width="320">
-  <img src="../screenshots/slack-alert-resolved-ios.png" alt="Slack アプリに届いた解消通知（RESOLVED）" width="320">
+  <img src="../../screenshots/slack-alert-firing-ios.png" alt="Slack アプリに届いた発報通知（TestAlert、TargetDown、PveVmStopped）" width="320">
+  <img src="../../screenshots/slack-alert-resolved-ios.png" alt="Slack アプリに届いた解消通知（RESOLVED）" width="320">
 </p>
 
 ## 意図的に監視していないもの
@@ -194,7 +194,7 @@ Slack App の「Incoming Webhooks」で再発行し、`sops ansible/inventory/gr
 
 | アラート | 最初にやること |
 |---|---|
-| LvmThinPoolData* | `ssh pve lvs -o lv_name,data_percent,metadata_percent pve/data`。各 VM で `sudo fstrim -av`。足りなければ `lvextend`。詳細は [runbook](../runbook.md#slack-アラート通知) |
+| LvmThinPoolData* | `ssh pve lvs -o lv_name,data_percent,metadata_percent pve/data`。各 VM で `sudo fstrim -av`。足りなければ `lvextend`。詳細は [runbook](../../runbook.md#slack-アラート通知) |
 | LvmThinPoolOverprovisioned | VM ディスクを増やしすぎている。`lvs` で割当を確認し、pool の拡張、ディスクの縮小、不要な VM の削除を検討する。VG に空きが無ければディスクの追加が必要 |
 | PveVmIoError | 先にプールを拡張してから `qm resume <vmid>`。強制リセットしない |
 | PveVmStopped | PVE の UI で状態確認。`qm start <vmid>`。意図した停止なら `onboot` の設定を見直す |
@@ -203,5 +203,5 @@ Slack App の「Incoming Webhooks」で再発行し、`sops ansible/inventory/gr
 
 ## 関連
 
-- [INC-2026-10-22 インシデント記録](../incidents/2026-10-22-lvm-thin-exhaustion.md)
-- [運用 Runbook](../runbook.md)
+- [INC-2026-10-22 インシデント記録](../../incidents/2026-10-22-lvm-thin-exhaustion.md)
+- [運用 Runbook](../../runbook.md)

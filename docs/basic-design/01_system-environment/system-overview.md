@@ -1,6 +1,6 @@
 # システム構成・環境
 
-homelab の物理・仮想構成と、稼働環境の前提をまとめる。図と IP 規約は [README.md](../../README.md) が正で、ここでは設計上の前提と制約を整理する。
+homelab の物理・仮想構成と、稼働環境の前提をまとめる。図と IP 規約は [README.md](../../../README.md) が正で、ここでは設計上の前提と制約を整理する。
 
 ## 目的と位置づけ
 
@@ -33,7 +33,7 @@ Proxmox VE 上に Terraform で VM を作り、Ansible で設定し、各 VM で
 | `vm-windows` | 130 | — | 4 | 8GB | 60G | 手動（停止） | 検証用 | Windows 11 |
 | `ubuntu-cloud` | 9000 | — | — | — | — | — | VM テンプレート | cloud-init 付き Ubuntu |
 
-正の定義は `terraform/proxmox/terraform.tfvars`（`vm-windows` は `windows.tf`）。起動順序と待機秒数は [運用 Runbook](../runbook.md#vm-自動起動停止) を参照。
+正の定義は `terraform/proxmox/terraform.tfvars`（`vm-windows` は `windows.tf`）。起動順序と待機秒数は [運用 Runbook](../../runbook.md#vm-自動起動停止) を参照。
 
 ## ソフトウェア構成
 
@@ -45,7 +45,7 @@ Proxmox VE 上に Terraform で VM を作り、Ansible で設定し、各 VM で
 | コンテナ | Docker Compose | `docker/compose/<stack>/` → VM 上の `/opt/<stack>/` |
 | 監視 | Prometheus, Alertmanager, Grafana, node_exporter | [監視・アラート](../05_operations-maintainability/monitoring.md) |
 | 名前解決 | AdGuard Home → CoreDNS / Unbound | [DNS 構成](../07_network/dns.md) |
-| リバースプロキシ・TLS | Caddy + Let's Encrypt（Cloudflare DNS-01） | [運用 Runbook](../runbook.md#lan-内-tls) |
+| リバースプロキシ・TLS | Caddy + Let's Encrypt（Cloudflare DNS-01） | [運用 Runbook](../../runbook.md#lan-内-tls) |
 | 秘密情報 | SOPS + age | [セキュリティ](../06_security/security.md) |
 | CI | GitHub Actions（lint のみ） | [CI/CD](../05_operations-maintainability/cicd.md) |
 
@@ -62,4 +62,4 @@ Proxmox VE 上に Terraform で VM を作り、Ansible で設定し、各 VM で
 
 ## 命名・採番規約
 
-IP アドレス規約、ドメイン命名規約は [README.md](../../README.md#ip-アドレス規約) を参照。VMID は IP の末尾オクテットに 100 を足した値（`vm-infra` は `.11` → 111、`vm-apps` は `.20` → 120）。
+IP アドレス規約、ドメイン命名規約は [README.md](../../../README.md#ip-アドレス規約) を参照。VMID は IP の末尾オクテットに 100 を足した値（`vm-infra` は `.11` → 111、`vm-apps` は `.20` → 120）。

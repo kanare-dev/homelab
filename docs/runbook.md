@@ -396,7 +396,7 @@ curl -XPOST http://192.168.11.13:9093/api/v2/alerts -H 'Content-Type: applicatio
 ### 既知の限界
 
 監視 VM (vm-monitoring) は同じ Proxmox ストレージ上にある。ストレージ障害時は Alertmanager も停止し通知が届かない。
-外部監視で補う案は検討のうえ**見送り**とした（理由と選択肢は [monitoring.md](05_operations-maintainability/monitoring.md#外部監視を導入しない判断2026-10-22) を参照）。
+外部監視で補う案は検討のうえ**見送り**とした（理由と選択肢は [monitoring.md](basic-design/05_operations-maintainability/monitoring.md#外部監視を導入しない判断2026-10-22) を参照）。
 
 ### VM のコンソールが「接続しました／切断しました」を繰り返すとき
 

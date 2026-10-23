@@ -29,7 +29,7 @@
 | Grafana | 同上 | ダッシュボードは provisioning でコード化 | 手作業で作った設定だけ消える |
 | AdGuard の設定・クエリログ | `vm-infra`（`/opt/dns/adguard/`） | クエリログは 7 日保持。設定は `playbooks/infra.yml` で再現できる範囲 | 手作業で追加したフィルタ設定が消える |
 | Caddy の証明書 | `vm-infra` の Docker ボリューム | 再取得できる | 再取得まで一時的に HTTPS が使えない |
-| VM 全体 | `local-lvm` | **バックアップを取らない**（[運用 Runbook](../runbook.md#バックアップ)） | 再構築する |
+| VM 全体 | `local-lvm` | **バックアップを取らない**（[運用 Runbook](../../runbook.md#バックアップ)） | 再構築する |
 
 ## 容量の上限
 
@@ -55,7 +55,7 @@
 | 弱点 | 状況 |
 | --- | --- |
 | コンテナイメージが `latest` | 更新で意図せず挙動が変わる。バージョン固定は未実施 |
-| Docker イメージ・OS の更新が手動 | 手順は [運用 Runbook](../runbook.md#更新手順)。定期実施の仕組みはない |
+| Docker イメージ・OS の更新が手動 | 手順は [運用 Runbook](../../runbook.md#更新手順)。定期実施の仕組みはない |
 | NTP の時刻ずれの監視がない | `ntp.nict.jp` / `time.google.com` に同期するが、ずれの検知は未実施 |
 | 復旧手順の訓練 | VM 停止と Unbound 障害の検知は実機で確認済み。ホストの再構築は未実施（[災害対策](../10_disaster-recovery/disaster-recovery.md)） |
 
@@ -63,5 +63,5 @@
 
 | 障害 | 再発防止 |
 | --- | --- |
-| [thin pool 枯渇（INC-2026-10-22）](../incidents/2026-10-22-lvm-thin-exhaustion.md) | `discard` 有効化、`fstrim`、容量アラート、VM 停止アラート、Slack 通知、容量の上限設定 |
-| [PVE 管理画面の破損（INC-2026-10-22-b）](../incidents/2026-10-22-pve-webui-broken-by-ansible-patch.md) | パッチを「判定式の置換」にして冪等化。復旧手順を Runbook に記載 |
+| [thin pool 枯渇（INC-2026-10-22）](../../incidents/2026-10-22-lvm-thin-exhaustion.md) | `discard` 有効化、`fstrim`、容量アラート、VM 停止アラート、Slack 通知、容量の上限設定 |
+| [PVE 管理画面の破損（INC-2026-10-22-b）](../../incidents/2026-10-22-pve-webui-broken-by-ansible-patch.md) | パッチを「判定式の置換」にして冪等化。復旧手順を Runbook に記載 |

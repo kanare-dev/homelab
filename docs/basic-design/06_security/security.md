@@ -1,6 +1,6 @@
 # セキュリティ
 
-脅威の想定、守る対象、現在の対策と未対応の項目を整理する。**リポジトリは公開**であることが設計の前提。機密値の操作手順は [運用 Runbook](../runbook.md#秘密情報管理) を参照。
+脅威の想定、守る対象、現在の対策と未対応の項目を整理する。**リポジトリは公開**であることが設計の前提。機密値の操作手順は [運用 Runbook](../../runbook.md#秘密情報管理) を参照。
 
 ## 想定する脅威
 
@@ -27,7 +27,7 @@
 
 ## 秘密情報の管理
 
-詳細は [運用 Runbook](../runbook.md#秘密情報管理) と、リポジトリ直下の `CLAUDE.md`。
+詳細は [運用 Runbook](../../runbook.md#秘密情報管理) と、リポジトリ直下の `CLAUDE.md`。
 
 - 機密値は **SOPS + age** で暗号化して Git に置く（`*.sops.yml`）。キー名は平文、値だけが暗号化される。
 - Ansible は `community.sops` の vars プラグインで、Terraform は `carlpett/sops` プロバイダーで、実行時に復号する。VM 上の `.env` は Ansible がテンプレートから生成する。
@@ -41,7 +41,7 @@
 | --- | --- |
 | age 秘密鍵 | Mac の `~/Library/Application Support/sops/age/keys.txt`（`chmod 600`）。リポジトリに入れない |
 | 退避先 | iCloud Keychain（Mac が壊れても復元できるようにする） |
-| 別の Mac での復元・ローテーション | [運用 Runbook](../runbook.md#別の-mac-で復元する) |
+| 別の Mac での復元・ローテーション | [運用 Runbook](../../runbook.md#別の-mac-で復元する) |
 | 鍵が漏れたとき | 鍵の差し替えに加え、**各シークレット自体を再発行する**（Git 履歴に旧鍵で復号できる暗号文が残る） |
 
 ## アクセス制御
@@ -51,7 +51,7 @@
 | 項目 | 設定 | 管理場所 |
 | --- | --- | --- |
 | SSH | 鍵認証のみ（`PasswordAuthentication no`）、root ログイン禁止 | `ansible/roles/common/`、`group_vars/all.yml` |
-| VM のパスワード | `ubuntu` / `root` はロック。緊急用パスワードは設定していない（2026-10-22 に見送り） | [運用 Runbook](../runbook.md#vm-が応答しない) |
+| VM のパスワード | `ubuntu` / `root` はロック。緊急用パスワードは設定していない（2026-10-22 に見送り） | [運用 Runbook](../../runbook.md#vm-が応答しない) |
 | コンソール | Proxmox のコンソールからはログインできない。入るときは SSH | 同上 |
 
 ### Web 画面
@@ -119,6 +119,6 @@ Proxmox ホストの UFW / Proxmox ファイアウォールの設定は、この
 
 ## 関連
 
-- [運用 Runbook: 秘密情報管理](../runbook.md#秘密情報管理)
+- [運用 Runbook: 秘密情報管理](../../runbook.md#秘密情報管理)
 - [VLAN 設計](../07_network/vlan-design.md)
 - [外部接続](../08_external-connectivity/external-connectivity.md)

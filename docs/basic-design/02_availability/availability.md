@@ -34,7 +34,7 @@
 
 - 停止は逆順。DNS（`vm-infra`）が最後に止まり、最初に起動する。
 - 各 VM のコンテナは `restart: unless-stopped`。VM が起動すれば、コンテナも自動で戻る。
-- 手動操作は [運用 Runbook](../runbook.md#vm-自動起動停止)。
+- 手動操作は [運用 Runbook](../../runbook.md#vm-自動起動停止)。
 
 ## 部分障害への備え
 
@@ -42,7 +42,7 @@
 | --- | --- |
 | DNS の上流断 | AdGuard の fallback DNS（`1.1.1.1` / `9.9.9.9`）。upstream に**接続できない**ときだけ働く |
 | Unbound の一時的な応答なし | `serve-expired: yes`（TTL 1 時間）で、期限切れのキャッシュを返す |
-| `terraform apply` による VM の再起動 | 再起動を伴う変更は 1 台ずつ適用し、`vm-infra` は最後にする（[運用 Runbook](../runbook.md#terraform-apply-が-vm-を再起動するとき)） |
+| `terraform apply` による VM の再起動 | 再起動を伴う変更は 1 台ずつ適用し、`vm-infra` は最後にする（[運用 Runbook](../../runbook.md#terraform-apply-が-vm-を再起動するとき)） |
 | 外出先からの到達 | Tailscale の key expiry を `vm-infra` で無効化（期限切れで繋がらなくなるのを防ぐ） |
 
 ## 目標（暫定）

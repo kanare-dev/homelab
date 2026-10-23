@@ -22,7 +22,7 @@
 
 | データ | 場所 | 移行の扱い |
 | --- | --- | --- |
-| age 秘密鍵 | 運用者の Mac（iCloud Keychain に退避） | 必須。新しい Mac には [運用 Runbook](../runbook.md#別の-mac-で復元する) の手順で復元 |
+| age 秘密鍵 | 運用者の Mac（iCloud Keychain に退避） | 必須。新しい Mac には [運用 Runbook](../../runbook.md#別の-mac-で復元する) の手順で復元 |
 | SSH 鍵 | 運用者の Mac（`~/.ssh/id_ed25519_homelab` など） | 必須。Terraform が VM に公開鍵を配る |
 | Terraform の state | Mac のローカル（`terraform.tfstate`） | 新しい環境を作り直すなら不要。既存の VM を引き継ぐなら必要（[災害対策](../10_disaster-recovery/disaster-recovery.md#リポジトリの外にあるもの)） |
 | Proxmox のテンプレート VM（9000） | Proxmox ホスト | 手順書から再作成（`terraform/proxmox/README.md`） |

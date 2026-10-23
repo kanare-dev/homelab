@@ -33,7 +33,7 @@
 - 仮想ディスクはすべて `discard` を有効にし、毎週 `fstrim` で未使用ブロックを pool に返す。
 - 使用率は `LvmThinPoolDataHigh`（75%）と `Critical`（90%）で見る。メタデータも同様。
 - VG に未割当の余りは、pool 拡張の余地として使える（`lvextend`）。余りがなければ、ディスク追加か VM ディスクの縮小になる。
-- 詳細は [thin pool 枯渇の障害記録](../incidents/2026-10-22-lvm-thin-exhaustion.md)。
+- 詳細は [thin pool 枯渇の障害記録](../../incidents/2026-10-22-lvm-thin-exhaustion.md)。
 
 ## 資源の見張り方
 
@@ -64,7 +64,7 @@ Grafana の「Storage / Thin Pool」ダッシュボードで、pool と VM デ�
 2. `ansible/inventory/hosts.yml` にホストを追加し、`group_vars` / playbook を用意して Ansible で設定する。
 3. 必要なら `dns_records`（`group_vars/infra/vars.yml`）と Caddyfile を追記し、`playbooks/infra.yml` を実行する。
 4. Prometheus の scrape 対象とアラートの対象に加える（`prometheus.yml`）。
-5. 配分の表（この文書と [README.md](../../README.md)）を更新する。
+5. 配分の表（この文書と [README.md](../../../README.md)）を更新する。
 
 ## 既知の限界
 
