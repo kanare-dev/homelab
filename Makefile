@@ -1,4 +1,4 @@
-.PHONY: help plan apply destroy setup lint check secrets-check lint-all sops-encrypted-check hooks
+.PHONY: help plan apply destroy setup lint check secrets-check lint-all sops-encrypted-check md-lint md-links hooks
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
@@ -45,7 +45,14 @@ lint-all: lint sops-encrypted-check ## Run every check that CI runs (.github/wor
 	cd terraform/proxmox && terraform fmt -check -recursive
 	cd terraform/proxmox && terraform init -backend=false > /dev/null && terraform validate
 	yamllint -s .
+	$(MAKE) md-lint md-links
 	gitleaks detect --no-banner --log-opts=HEAD
+
+md-lint: ## Lint Markdown style (markdownlint-cli2, needs npx)
+	npx --yes markdownlint-cli2@0.17.2
+
+md-links: ## Check internal Markdown links and anchors
+	python3 tools/check-md-links.py
 
 sops-encrypted-check: ## Verify SOPS files are encrypted without decrypting them
 	@status=0; for f in $$(git ls-files '*/*.sops.yml' '*/*.sops.yaml'); do \

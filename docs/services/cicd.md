@@ -48,7 +48,7 @@ flowchart LR
 ```mermaid
 flowchart LR
     dev["💻 開発者 (Mac)"] -->|git push / PR| gha["🐙 GitHub Actions\n(GitHub hosted runner)"]
-    gha --> checks["ansible-lint\nterraform fmt / validate\nyamllint\nSOPS 暗号化チェック\ngitleaks"]
+    gha --> checks["ansible-lint\nterraform fmt / validate\nyamllint\nmarkdownlint / リンク検査\nSOPS 暗号化チェック\ngitleaks"]
 ```
 
 GitHub hosted runner だけで動かし、LAN にも Secrets にも触れない。
@@ -58,6 +58,8 @@ GitHub hosted runner だけで動かし、LAN にも Secrets にも触れない�
 | ansible-lint | `make lint` と同じ（`ansible/playbooks/`） |
 | terraform fmt / validate | `terraform fmt -check` と `terraform init -backend=false` + `terraform validate` |
 | yamllint | Ansible・Docker Compose・各種 YAML の構文 |
+| markdownlint | Markdown の書式（`.markdownlint-cli2.yaml`）。`make md-lint` |
+| Markdown リンク検査 | 内部リンクとアンカーが有効か（`tools/check-md-links.py`）。外部 URL は見ない。`make md-links` |
 | SOPS 暗号化チェック | `*.sops.yml` が暗号化済みであること（`sops:` メタデータの存在）。復号はしない（age 秘密鍵を CI に置かない） |
 | gitleaks | 平文シークレットの混入検知 |
 

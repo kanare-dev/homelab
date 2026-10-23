@@ -89,6 +89,7 @@ homelab/
 ├── README.md
 ├── Makefile                # lint-all、terraform / ansible の実行ショートカット
 ├── .sops.yaml              # SOPS の暗号化ルール
+├── .markdownlint-cli2.yaml # Markdown lint のルール
 ├── .github/workflows/      # CI（lint）
 ├── .githooks/              # pre-push フック（make hooks で有効化）
 ├── terraform/
@@ -100,7 +101,8 @@ homelab/
 ├── docker/
 │   └── compose/            # dns / homepage / monitoring / reverse-proxy
 ├── tools/
-│   └── lab/                # 監視 CLI (Go)
+│   ├── lab/                # 監視 CLI (Go)
+│   └── check-md-links.py   # Markdown の内部リンク検査
 ├── diagrams/
 │   └── drawio/             # 構成図（SVG）
 └── docs/

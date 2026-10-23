@@ -44,6 +44,13 @@ jobs:
       - run: pip install yamllint
       - run: yamllint -s .
 
+  markdown:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: DavidAnson/markdownlint-cli2-action@v19
+      - run: python3 tools/check-md-links.py
+
   ansible-lint:
     runs-on: ubuntu-latest
     steps:

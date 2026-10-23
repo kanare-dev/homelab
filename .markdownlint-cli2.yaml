@@ -1,0 +1,19 @@
+# Markdown の書式チェック（make lint-all / CI）
+globs:
+  - "**/*.md"
+ignores:
+  - "**/.terraform/**"
+  - "**/node_modules/**"
+config:
+  default: true
+  # 日本語の文書は行が長くなる。表も 1 行で書く
+  MD013: false
+  # README のスクリーンショットで <img> を使う
+  MD033: false
+  # CLAUDE.md などは見出しで始まらなくてよい
+  MD041: false
+  # コードブロック内のタブ（Caddyfile）は許す
+  # 手順書で **ラベル** を見出し代わりに使う
+  MD036: false
+  MD010:
+    code_blocks: false

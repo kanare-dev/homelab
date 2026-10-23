@@ -28,4 +28,5 @@
 ## Lint
 
 - push する前に `make lint-all` をローカルで通す（CI の `.github/workflows/lint.yml` と同じチェック）。失敗したまま push しない。
+- Markdown は `make md-lint`（markdownlint-cli2。ルールは `.markdownlint-cli2.yaml`）と `make md-links`（内部リンク・アンカーの検査）で確認できる。どちらも `make lint-all` に含まれる。
 - `make hooks` で pre-push フック（`.githooks/pre-push`）を有効にできる。
