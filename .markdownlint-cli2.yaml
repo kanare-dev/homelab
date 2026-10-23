@@ -15,5 +15,8 @@ config:
   # コードブロック内のタブ（Caddyfile）は許す
   # 手順書で **ラベル** を見出し代わりに使う
   MD036: false
+  # 表は `| --- |` のコンパクト形式にそろえる（CJK 混在で桁をそろえられないため）
+  MD060:
+    style: compact
   MD010:
     code_blocks: false

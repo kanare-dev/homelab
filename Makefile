@@ -49,7 +49,7 @@ lint-all: lint sops-encrypted-check ## Run every check that CI runs (.github/wor
 	gitleaks detect --no-banner --log-opts=HEAD
 
 md-lint: ## Lint Markdown style (markdownlint-cli2, needs npx)
-	npx --yes markdownlint-cli2@0.17.2
+	npx --yes markdownlint-cli2@0.24.0
 
 md-links: ## Check internal Markdown links and anchors
 	python3 tools/check-md-links.py
