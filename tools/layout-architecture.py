@@ -26,6 +26,7 @@ import zlib
 from pathlib import Path
 
 SVG = Path(__file__).resolve().parent.parent / "diagrams/drawio/architecture.drawio.svg"
+ICONS = SVG.parent / "assets/icons"  # Git 管理外。新しいアイコンを初めて取り込むときだけ読む
 K = "Ka6-sXaiJ_n7gUF576qm-"  # draw.io が付けた ID の接頭辞（vm-code の枠）
 ORANGE = '<font color="#ff8000">%s</font>'
 
@@ -78,12 +79,16 @@ class Model:
         if m:
             self.xml = self.xml[:m.start()] + self.xml[m.end():]
 
-    def clone(self, src, new_id):
-        """既存セルを複製して新しい ID で追加する（すでにあれば何もしない）。"""
+    def clone(self, src, new_id, icon=None):
+        """既存セルを複製して新しい ID で追加する（すでにあれば何もしない）。
+        icon に SVG のパスを渡すと、複製したセルの画像をその SVG に差し替える（初回だけ読む）。"""
         if f'<mxCell id="{new_id}"' in self.xml:
             return
         cell = re.search(r'<mxCell id="%s"(?:(?!</mxCell>).)*?</mxCell>' % re.escape(src), self.xml, re.S).group(0)
         cell = cell.replace(f'id="{src}"', f'id="{new_id}"', 1)
+        if icon:
+            data = base64.b64encode((ICONS / icon).read_bytes()).decode()
+            cell = re.sub(r"image=[^;\"]*", "image=data:image/svg+xml," + data, cell, count=1)
         self.xml = self.xml.replace("</root>", cell + "</root>")
 
     def normalize_styles(self):
@@ -173,6 +178,10 @@ def layout(m):
     m.clone("94", "vmdev-nodeexp-icon")
     m.clone("95", "vmdev-nodeexp-text")
     m.value("vmdev-nodeexp-text", svc("node_exporter", ":9100"))
+    m.clone("89", "vmwin-frame")
+    m.clone("90", "vmwin-icon", icon="platform/windows-11.svg")
+    m.clone("91", "vmwin-text")
+    m.value("vmwin-text", "<i>vm-windows</i><br>Windows 11")
     m.geo("77", 0, 0, 1380, 1070)                      # 背景（キャンバス）。外周の余白は 40
     m.geo("28", 40, 40, 140, 40)
     m.geo("24", 40, 40, 140, 40)
@@ -214,6 +223,7 @@ def layout(m):
     m.vm("45", "46", "47", c3, top, 220)              # vm-apps
     m.dbox("96", [("97", "98"), ("92", "93")], c3, top + 70)
     m.row("94", "95", c3 + 40, top + 170, 220)
+    m.vm("vmwin-frame", "vmwin-icon", "vmwin-text", c3, top + 240, 80)   # vm-windows（手動起動。node_exporter 未導入）
 
     m.row("87", "88", 80, 980, 220)                   # Proxmox ホスト自身の node_exporter（PVE 枠の左下）
 
