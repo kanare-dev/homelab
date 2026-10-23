@@ -1,0 +1,3 @@
+#!/bin/sh
+# push 前に CI と同じチェックを通す（有効化: make hooks）
+exec make lint-all
