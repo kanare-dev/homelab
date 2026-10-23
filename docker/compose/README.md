@@ -27,7 +27,8 @@ docker/compose/
 │   └── docker-compose.yml
 └── homepage/                # vm-apps 上で実行（Ansible の apps.yml がデプロイ）
     ├── docker-compose.yml
-    └── config/
+    ├── config/
+    └── icons/               # 公式アイコンを加工したもの（Prometheus の炎を白抜きにしたもの）
 ```
 
 ## 起動方法

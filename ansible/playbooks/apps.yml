@@ -45,6 +45,12 @@
         - bookmarks.yaml
         - docker.yaml
 
+    - name: Copy homepage custom icons
+      ansible.builtin.copy:
+        src: "{{ playbook_dir }}/../../docker/compose/homepage/icons/"
+        dest: /opt/homepage/icons/
+        mode: "0644"
+
     - name: Start homepage stack
       community.docker.docker_compose_v2:
         project_src: /opt/homepage

@@ -37,7 +37,7 @@
     - Prometheus:
         href: https://prometheus.lab.kanare.dev
         description: Metrics Scraper
-        icon: prometheus.png
+        icon: /icons/prometheus.svg
         siteMonitor: https://prometheus.lab.kanare.dev
 
 - Development:
