@@ -182,7 +182,7 @@ Omada コントローラー（`omada.lab.kanare.dev`）と Proxmox（`pve.lab.ka
 - 端末を紛失したら、Tailscale の Admin Console からその端末を外す。
 - VLAN 導入後に Tailscale の ACL で、端末ごと・宛先ごとにアクセスを絞る（例: 管理機器へは Mac だけ）。
 - 必要なら、Omada コントローラー（外からは不要）の Caddy ブロックだけ送信元を制限する。Tailscale 経由のとき Caddy が見る送信元アドレスは未検証なので、実施前に確認する。
-- ロードマップにある Authelia（ログインの一元化・多要素認証）も、この対策になる。
+- Authelia（ログインの一元化・多要素認証）は、この対策になるが導入しない（[ADR 0008](../adr/0008-no-authelia.md)）。
 
 ## 導入の段階
 

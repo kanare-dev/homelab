@@ -36,7 +36,7 @@ README に書く現行構成は `24GB` に増設済みのホストを前提と�
 
 - [ ] 方針: 自分専用アクセスは Tailscale のみで完結させ、Cloudflare Tunnel による外部（公開）公開は「Tailscale を入れていない他人と共有する」具体的なニーズが出たサービスのみに限定する
 - [ ] Cloudflare Tunnel の導入・Split-Horizon DNS 構成は保留（上記の方針により、共有ニーズが出るまで着手しない）
-- [ ] Authelia を導入し（[ADR 0008](../adr/0008-authelia-login-consolidation.md) を提案中。採用するかを決める）、Caddy の `forward_auth` 経由で Grafana / PVE / AdGuardHome 等のログインを一元化する（外部公開の有無に関わらず、ログイン一元化自体の価値として実施）
+- [x] Authelia によるログインの一元化は導入しない（[ADR 0008](../adr/0008-no-authelia.md)）。認証のない画面が必要になったら `basic_auth` を検討する
 - [x] Tailscale は SSH 等の管理アクセス・日常のリモートアクセス双方の主経路として継続利用する
 - [x] DNS を AdGuard Home + Unbound に移行する（CoreDNS は権威 DNS として継続）
   - AdGuard Home: 広告ブロック・クエリログ・WebUI（port 53 / 3000）
