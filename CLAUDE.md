@@ -15,7 +15,9 @@
 
 ## 運用ドキュメント
 
-- 設計書: `docs/README.md`（10 の観点で整理。構成を変えたら該当する文書も更新する）
+- 設計書: `docs/basic-design/README.md`（10 の観点で整理）。構成を変えたら、該当する設計書を同じ変更で更新する。
+- 構成図: 最新版の ASCII 図を `docs/basic-design/01_system-environment/system-overview.md` の冒頭に置く。VM・サービス・IP を変えたら、この図と同じ文書の表を更新する。SVG（`diagrams/drawio/`）は手動で更新するため古くなりうる。更新が必要なことはユーザーに伝える。
+- `README.md`: ディレクトリやファイルを追加・削除・改名したら、「リポジトリ構成」を更新する。管理画面リンク、設計書の一覧も同様。細かい設計内容は README に書かず、設計書に書く。
 - 監視・アラート: `docs/basic-design/05_operations-maintainability/monitoring.md`
 - 障害記録: `docs/incidents/`
 - 設定変更で監視や容量に影響する場合は、`docs/basic-design/05_operations-maintainability/monitoring.md` の「容量の上限設定」の表も更新する。
