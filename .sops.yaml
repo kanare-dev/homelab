@@ -1,4 +1,4 @@
 creation_rules:
-  - path_regex: \.enc\.ya?ml$
+  - path_regex: \.sops\.ya?ml$
     age: >-
-      age1xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+      age16cprxlkye84xtmda5fxssv8pcpdj74jxell2fkgy96ttaudum9ushd23q5

@@ -45,7 +45,7 @@ docker compose down
 | サービス | URL | 認証 |
 |---|---|---|
 | Prometheus | `http://192.168.11.13:9090` | なし |
-| Grafana | `http://192.168.11.13:3000` | admin / Ansible Vault 管理（`group_vars/monitoring/vault.yml`） |
+| Grafana | `http://192.168.11.13:3000` | admin / SOPS 管理（`group_vars/monitoring/secrets.sops.yml`） |
 
 ### Reverse Proxy（vm-infra 上で実行）
 
@@ -63,12 +63,8 @@ docker compose up -d
 
 ## 環境変数
 
-機密値は `.env` ファイルで管理する（Git には含めない）:
-
-```bash
-cp .env.example .env
-# .env を編集
-```
+機密値は SOPS で暗号化した `ansible/inventory/group_vars/<group>/secrets.sops.yml` で管理する。
+`.env` はリポジトリに置かず、Ansible が `ansible/templates/*.env.j2` から生成して VM 上の `/opt/<stack>/.env` に配置する（`docs/runbook.md` の「秘密情報管理」参照）。
 
 ## Reverse Proxy のデプロイ方式について
 

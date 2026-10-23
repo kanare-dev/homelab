@@ -86,12 +86,11 @@ docker run --rm -v monitoring_grafana_data:/data -v $(pwd):/backup \
 
 ### 設定ファイルバックアップ
 
-このリポジトリ自体が設定のバックアップ。ただし以下は別途保管:
+このリポジトリ自体が設定のバックアップ。機密値は SOPS で暗号化して Git に入っているため、**age 秘密鍵があれば全て復号できる**（「秘密情報管理」参照）。次は Git に入らないので別途保管する:
 
-- `terraform.tfvars`（暗号化して保管）
-- Ansible Vault のパスワード
+- age 秘密鍵（iCloud Keychain に退避）
 - SSH 秘密鍵
-- `.env` ファイル
+- `terraform.tfvars`（VM のサイズなどの設定値。機密値は含まない）
 
 ## 更新手順
 
@@ -211,51 +210,72 @@ terraform plan   # 差分を確認
 
 ## 秘密情報管理
 
-### 方針
+機密値は **SOPS + age** で暗号化して Git で管理する（このリポジトリは公開だが、暗号文のみを置く）。復号できる鍵は age 秘密鍵 1 つで、Mac にだけある。
 
-| 方法 | 用途 | 状態 |
+### 暗号化しているファイル
+
+値だけが暗号化され、キー名は平文で読める。
+
+| ファイル | キー | 使い道 |
 |---|---|---|
-| `.env` ファイル | Docker Compose 環境変数 | `.gitignore` で除外 |
-| `terraform.tfvars` | Terraform 変数 | `.gitignore` で除外 |
-| Ansible Vault | Ansible 変数の暗号化 | Git 管理可能 |
-| SOPS + age | 汎用的な暗号化 | Git 管理可能（推奨） |
+| `ansible/inventory/group_vars/code/secrets.sops.yml` | `code_server_password` | code-server のログイン |
+| `ansible/inventory/group_vars/infra/secrets.sops.yml` | `cloudflare_api_token`, `tailscale_authkey` | Caddy の DNS-01、Tailscale 登録 |
+| `ansible/inventory/group_vars/monitoring/secrets.sops.yml` | `grafana_admin_password`, `slack_webhook_url` | Grafana、Alertmanager |
+| `ansible/inventory/group_vars/apps/secrets.sops.yml` | `homepage_proxmox_token`, `homepage_adguard_password` | Homepage のウィジェット |
+| `terraform/proxmox/secrets.sops.yml` | `proxmox_api_token_secret` | Terraform の Proxmox 認証 |
 
-### SOPS + age の導入手順
+仕組み:
 
-```bash
-# age 鍵の生成
-age-keygen -o ~/.config/sops/age/keys.txt
+- **Ansible**: `community.sops` の vars プラグイン（`ansible.cfg` で有効化）が `group_vars/*/secrets.sops.yml` を実行時に復号し、通常の変数として使う。VM 上の `.env` はテンプレート（`ansible/templates/*.env.j2`）から生成する。
+- **Terraform**: `versions.tf` の `data "sops_file"`（`carlpett/sops` プロバイダー）が `secrets.sops.yml` を読む。
+- 暗号化の対象と宛先の公開鍵は、リポジトリ直下の `.sops.yaml` で決まる（`*.sops.yml` / `*.sops.yaml`）。
 
-# 公開鍵を .sops.yaml に設定（リポジトリルート）
-# age: age1xxxxxxxxx...
+### age 秘密鍵
 
-# ファイルを暗号化
-sops -e secrets.yml > secrets.enc.yml
+| 項目 | 内容 |
+|---|---|
+| 場所（macOS） | `~/Library/Application Support/sops/age/keys.txt`（SOPS が自動で探す場所。環境変数は不要） |
+| 公開鍵 | `.sops.yaml` に記載（公開してよい） |
+| 退避先 | iCloud Keychain `homelab / sops age key` |
+| 権限 | `chmod 600`。リポジトリには絶対に入れない |
 
-# ファイルを復号
-sops -d secrets.enc.yml
-
-# 直接編集（復号 → エディタ → 再暗号化）
-sops secrets.enc.yml
-```
-
-### Ansible Vault の使い方
+### 日常の操作
 
 ```bash
-# 暗号化
-ansible-vault encrypt inventory/group_vars/all.yml
+# 事前準備（初回のみ）
+brew install sops age
+ansible-galaxy collection install -r ansible/requirements.yml
 
-# 復号
-ansible-vault decrypt inventory/group_vars/all.yml
+# 編集（復号 → $EDITOR → 再暗号化。平文ファイルは残らない）
+sops ansible/inventory/group_vars/monitoring/secrets.sops.yml
 
-# 暗号化したまま playbook 実行
-ansible-playbook playbooks/site.yml --ask-vault-pass
+# 新しいシークレットを追加する: 上のコマンドで開いて `キー: 値` を追記する
+# 新しい group_vars ディレクトリに作る場合も、ファイル名を secrets.sops.yml にすれば .sops.yaml が自動で適用される
+sops ansible/inventory/group_vars/<group>/secrets.sops.yml
 
-# パスワードファイルを使う場合
-echo "your-vault-password" > ~/.vault_password
-chmod 600 ~/.vault_password
-ansible-playbook playbooks/site.yml --vault-password-file ~/.vault_password
+# 全ファイルが復号できるか確認する（値は表示しない）
+make secrets-check
 ```
+
+値を画面に出さずに使う例:
+
+```bash
+# Cloudflare API トークンが有効か確認する
+curl -s -H "Authorization: Bearer $(sops -d --extract '["cloudflare_api_token"]' ansible/inventory/group_vars/infra/secrets.sops.yml)" \
+  "https://api.cloudflare.com/client/v4/zones?name=kanare.dev" | jq '.success'
+```
+
+### 別の Mac で復元する
+
+1. `brew install sops age` と `ansible-galaxy collection install -r ansible/requirements.yml` を実行する。
+2. iCloud Keychain の `homelab / sops age key` の値を、`~/Library/Application Support/sops/age/keys.txt` に保存する（`chmod 600`）。
+3. `make secrets-check` が成功すれば復元完了。
+
+### 鍵をローテーションする
+
+1. `age-keygen -o <新しい鍵ファイル>` で新しい鍵を作り、`.sops.yaml` の公開鍵を差し替える。
+2. 全ての `*.sops.yml` で `sops updatekeys -y <ファイル>` を実行する。
+3. 旧鍵が漏れた場合は、Git 履歴に旧鍵で復号できる暗号文が残る。**各シークレット自体も再発行する。**
 
 ## LAN 内 TLS
 
@@ -265,7 +285,7 @@ ansible-playbook playbooks/site.yml --vault-password-file ~/.vault_password
 
 - 証明書はドメインごとに個別取得（`*.lab.kanare.dev` ワイルドカードではなく各 FQDN）
 - クライアント側の設定不要。全デバイスからブラウザ警告なしにアクセス可能
-- `CLOUDFLARE_API_TOKEN` 環境変数（`.env`）で Cloudflare API を認証
+- `CLOUDFLARE_API_TOKEN` 環境変数で Cloudflare API を認証（Ansible が `.env` を生成して配置）
 
 | サービス | URL |
 | --- | --- |
@@ -299,8 +319,9 @@ Caddy は自動で更新するため通常は手動操作不要。
 # Caddy コンテナの再起動（更新を強制トリガー）
 ssh ubuntu@192.168.11.11 "cd /opt/reverse-proxy && docker compose restart caddy"
 
-# Cloudflare API トークンが有効か確認（.env が正しいか）
-ssh ubuntu@192.168.11.11 "cat /opt/reverse-proxy/.env"
+# Cloudflare API トークンが有効か確認（値は表示しない）
+curl -s -H "Authorization: Bearer $(sops -d --extract '["cloudflare_api_token"]' ansible/inventory/group_vars/infra/secrets.sops.yml)" \
+  "https://api.cloudflare.com/client/v4/zones?name=kanare.dev" | jq '.success'
 ```
 
 ### 新しいサービスを追加する
@@ -341,12 +362,11 @@ pve (pve-storage-metrics.timer, 1分毎)
 ### Webhook URL の登録
 
 1. Slack で App を作成し、Incoming Webhooks を有効化して通知先チャンネルの Webhook URL を発行する。
-2. Ansible Vault に登録する（URL は Git に平文で置かない）。
+2. SOPS で登録する（URL は Git に平文で置かない）。
 
    ```bash
-   cd ansible
-   ansible-vault edit inventory/group_vars/monitoring/vault.yml
-   # 追記: vault_slack_webhook_url: "https://hooks.slack.com/services/..."
+   sops ansible/inventory/group_vars/monitoring/secrets.sops.yml
+   # 追記: slack_webhook_url: "https://hooks.slack.com/services/..."
    ```
 
 3. デプロイする。

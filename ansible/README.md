@@ -13,15 +13,16 @@ Ansible で各 VM の初期セットアップとサービスデプロイを行�
 ```
 ansible/
 ├── ansible.cfg          # Ansible 設定
+├── requirements.yml     # 必要な Ansible コレクション
 ├── inventory/
 │   ├── hosts.yml        # ホスト一覧
 │   ├── group_vars/      # グループ変数
 │   │   ├── all.yml
-│   │   ├── apps.yml
 │   │   ├── dev.yml
-│   │   ├── code/        # vars.yml + vault.yml（暗号化）
-│   │   ├── infra/       # vars.yml + vault.yml（暗号化）
-│   │   └── monitoring/  # vars.yml + vault.yml（暗号化）
+│   │   ├── apps/        # vars.yml + secrets.sops.yml（SOPS 暗号化）
+│   │   ├── code/        # 同上
+│   │   ├── infra/       # 同上
+│   │   └── monitoring/  # 同上
 │   └── host_vars/       # ホスト固有変数
 │       ├── pve.yml
 │       ├── vm-code.yml
@@ -78,12 +79,14 @@ Caddy（リバースプロキシ）は Ansible role ではなく、`infra.yml` �
 
 ## 秘密情報の管理
 
-機密変数は Ansible Vault で暗号化する:
+機密変数は SOPS + age で暗号化した `group_vars/<group>/secrets.sops.yml` に置く。`community.sops` の vars プラグイン（`ansible.cfg` で有効）が実行時に自動で復号するため、パスワードの入力やオプションは不要。
 
 ```bash
-# 暗号化
-ansible-vault encrypt inventory/group_vars/all.yml
+# 初回のみ: 必要なコレクションを入れる
+ansible-galaxy collection install -r requirements.yml
 
-# 暗号化ファイルを使って実行
-ansible-playbook playbooks/site.yml --ask-vault-pass
+# 編集（復号 → エディタ → 再暗号化）
+sops inventory/group_vars/monitoring/secrets.sops.yml
 ```
+
+age 秘密鍵の場所、別の Mac での復元、ローテーションは `docs/runbook.md` の「秘密情報管理」を参照。

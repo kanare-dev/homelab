@@ -19,7 +19,12 @@ pveum aclmod / -user terraform@pam -role PVEVMAdmin
 pveum user token add terraform@pam terraform-token --privsep=0
 ```
 
-発行された Token ID と Secret を `terraform.tfvars` に設定する。
+発行された Token ID を `terraform.tfvars` に、Secret を `secrets.sops.yml`（SOPS で暗号化）に設定する。
+
+```bash
+sops secrets.sops.yml
+# 追記: proxmox_api_token_secret: "<Secret>"
+```
 
 ### Cloud-init テンプレートの作成手順
 
@@ -59,7 +64,7 @@ qm destroy 9000
 # 初期化
 terraform init
 
-# tfvars を準備
+# tfvars を準備（機密値は含まない。Secret は secrets.sops.yml から自動で読む）
 cp terraform.tfvars.example terraform.tfvars
 # terraform.tfvars を編集
 
@@ -82,4 +87,5 @@ terraform destroy
 | `main.tf` | VM モジュール呼び出し |
 | `outputs.tf` | 出力値 |
 | `terraform.tfvars.example` | 変数値のサンプル |
+| `secrets.sops.yml` | 機密値（SOPS + age で暗号化。`docs/runbook.md` の「秘密情報管理」参照） |
 | `modules/vm/` | VM リソース定義モジュール |

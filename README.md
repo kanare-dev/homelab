@@ -89,7 +89,7 @@ Proxmox 上に複数 VM を構築し、Terraform + Ansible + Docker Compose で�
 | 監視 | Prometheus, Grafana, node_exporter | VM / ホスト / IoT のメトリクス収集と可視化 |
 | ネットワーク | AdGuard Home, Unbound, CoreDNS, Caddy, Tailscale | DNS フィルタリング・フル再帰解決・内部権威 DNS、reverse proxy、VPN（サブネットルーター） |
 | TLS 証明書 | Let's Encrypt + Cloudflare DNS-01 | LAN 内サービスへの正規証明書発行 |
-| 秘密情報管理 | SOPS + age, Ansible Vault | 機密情報の暗号化と運用 |
+| 秘密情報管理 | SOPS + age | 機密情報を暗号化して Git で管理（GitOps への布石） |
 
 ## 現在の VM 一覧
 
@@ -166,7 +166,7 @@ client
 
 - `vm-infra` 上で Caddy を Docker Compose で動かす
 - Cloudflare DNS-01 チャレンジで Let's Encrypt 証明書を自動取得（LAN 内サービスでも有効）
-- `CLOUDFLARE_API_TOKEN` は Ansible Vault で管理し、デプロイ時に `.env` として配置
+- `CLOUDFLARE_API_TOKEN` は SOPS で暗号化して管理し、デプロイ時に Ansible が `.env` として配置
 - 将来アプリを追加しても同じ入口に集約できる
 
 ### VPN（Tailscale）
@@ -244,6 +244,7 @@ cd homelab
 cd terraform/proxmox
 cp terraform.tfvars.example terraform.tfvars
 # terraform.tfvars を編集
+sops secrets.sops.yml   # proxmox_api_token_secret を設定（SOPS の準備は docs/runbook.md の「秘密情報管理」）
 terraform init
 terraform plan
 terraform apply
@@ -306,9 +307,8 @@ node_exporter で収集した VM のメトリクスを可視化している。
 
 ## セキュリティ
 
-- **秘密情報は Git に入れない**: `.env`, `terraform.tfvars`, Ansible Vault ファイルは除外する
-- **SOPS + age** を推奨: 暗号化した状態で Git 管理可能
-- **Ansible Vault**: `ansible-vault encrypt` で変数ファイルを暗号化
+- **秘密情報は SOPS + age で暗号化して Git 管理**: 平文の秘密情報はコミットしない。復号できる鍵（age 秘密鍵）だけが Git の外にある
+- **平文のローカルファイルは使わない**: `.env` は Ansible が暗号化済みの値から生成してデプロイする
 - **LAN 内 TLS**: Caddy + Cloudflare DNS-01 チャレンジで Let's Encrypt 証明書を自動取得・更新
 - **SSH 鍵認証のみ**: パスワード認証は無効化する
 - **ファイアウォール**: `ufw` で必要なポートのみ開放する
