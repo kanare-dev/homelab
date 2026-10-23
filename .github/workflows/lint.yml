@@ -1,0 +1,66 @@
+name: lint
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  gitleaks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  sops-encrypted:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # 復号はしない（age 秘密鍵を CI に置かない）。暗号化メタデータの有無だけ見る
+      - name: Check SOPS files are encrypted
+        run: |
+          status=0
+          for f in $(git ls-files '*.sops.yml' '*.sops.yaml'); do
+            if grep -q '^sops:' "$f"; then
+              echo "OK   $f"
+            else
+              echo "FAIL $f (not encrypted)"
+              status=1
+            fi
+          done
+          exit $status
+
+  yamllint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: pip install yamllint
+      - run: yamllint -s .
+
+  ansible-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: pip install ansible-lint
+      - run: ansible-galaxy collection install -r ansible/requirements.yml
+      - run: ansible-lint playbooks/
+        working-directory: ansible
+
+  terraform:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: terraform/proxmox
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+      - run: terraform fmt -check -recursive
+      - run: terraform init -backend=false
+      - run: terraform validate
