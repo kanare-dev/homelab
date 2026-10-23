@@ -201,11 +201,11 @@ VM 内のデータは削除していない。強制停止やリセットも行�
 | 定期的な回収 | 全 VM で `fstrim.timer`（`common` ロール） |
 | 容量メトリクスの収集 | PVE で `pve-storage-metrics.timer`（1 分間隔）。thin pool の Data% / Meta%、ボリューム別の割当、VM の稼働状態、io-error を node_exporter の textfile collector で出力 |
 | アラート | 14 ルール: thin pool（75% / 90%）、メタデータ、過剰割当（比率 > 1.5）、VM の io-error、VM の停止、スクレイプ先のダウン、ディスク使用率、収集の停止、Alertmanager の送信失敗、Watchdog |
-| 通知 | Alertmanager → Slack（Webhook URL は Ansible Vault で暗号化）。テスト通知と、vm-code 停止の実機テストで確認 |
+| 通知 | Alertmanager → Slack（Webhook URL は Ansible Vault で暗号化）。テスト通知と、vm-code 停止の実機テストで確認。**（2026-10-23 追記: 当時は Ansible Vault だったが、現在は SOPS + age で暗号化している。`docs/runbook.md` の「秘密情報管理」参照）** |
 | 容量の上限 | Prometheus（30 日 / 5GB）、Docker ログ（10MB × 3）、journald（200M / 1 か月）、AdGuard のクエリログ（7 日） |
 | 可視化 | Grafana「Storage / Thin Pool」（14 パネル。pool 使用率、空き、満杯までの予測、VM ディスクごとの割当と増加ペース、ゲストとの対比、VM の稼働状態） |
 | 監視対象の追加 | vm-code を scrape 対象に追加。ESP32 は現在意図的に停止中のため scrape から外した |
-| シークレットの扱い | Mac にしかない再現不能データ（Vault パスワードなど）を iCloud Keychain に退避し、非公開の台帳で管理。新しいシークレットを作ったときに登録を促すルールを `CLAUDE.md` に追加 |
+| シークレットの扱い | Mac にしかない再現不能データ（Vault パスワードなど）を iCloud Keychain に退避し、非公開の台帳で管理。新しいシークレットを作ったときに登録を促すルールを `CLAUDE.md` に追加。**（2026-10-23 追記: 当時は Vault パスワードなどを個別に退避していたが、現在は SOPS + age に移行し、退避するのは age 秘密鍵 1 つになった。ルールも `CLAUDE.md` で更新済み）** |
 | ドキュメント | `docs/monitoring.md`（監視の全体像、アラート一覧、限界、運用）、`docs/runbook.md`（Slack 通知、バックアップ方針） |
 
 ### 4.3 見送った対策（判断の記録）
