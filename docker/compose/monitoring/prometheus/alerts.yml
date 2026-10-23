@@ -131,6 +131,28 @@ groups:
           summary: "{{ $labels.instance }} で OOM killer がプロセスを終了させた"
           description: "`dmesg | grep -i oom` で対象を確認する。再発するならメモリ割当を増やす。"
 
+  - name: cpu
+    rules:
+      # 全コアの平均使用率（idle 以外）。一時的なビルドや起動直後のスパイクで鳴らないよう、待ち時間を長めに取る。
+      # vm-dev は手動起動のため、起動中のみ評価される
+      - alert: HostCpuHigh
+        expr: 100 * (1 - avg by (instance) (rate(node_cpu_seconds_total{mode="idle"}[5m]))) > 85
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: "{{ $labels.instance }} の CPU 使用率が {{ $value | printf \"%.1f\" }}%"
+          description: "85% 超が 15 分続いている。`top` で負荷の高いプロセスを確認するか、VM の vCPU 割当を見直す。"
+
+      - alert: HostCpuCritical
+        expr: 100 * (1 - avg by (instance) (rate(node_cpu_seconds_total{mode="idle"}[5m]))) > 95
+        for: 10m
+        labels:
+          severity: critical
+        annotations:
+          summary: "{{ $labels.instance }} の CPU 使用率が {{ $value | printf \"%.1f\" }}%（飽和）"
+          description: "95% 超が 10 分続いている。暴走プロセスの可能性。応答不能になる前に原因プロセスを止める。"
+
   - name: availability
     rules:
       # vm-dev は onboot=false で手動起動のため除外（停止検知は PveVmStopped が onboot=1 のみ対象）
