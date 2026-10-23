@@ -80,7 +80,7 @@ Terraform は Proxmox の API トークン（`terraform@pam!terraform-token`）�
 | `vm-infra` | 22, 53（tcp/udp）, 80, 443, 51820/udp, 9100, 3000（LAN と Docker ブリッジのみ） |
 | `vm-monitoring` | 22, 3000, 9090, 9093, 9100 |
 | `vm-apps` | 22, 3001, 9100 |
-| `vm-code` | 22, 9100。8080（code-server）、3001（CloudCLI）、60000–61000/udp（mosh）は `192.168.11.0/24` のみ |
+| `vm-code` | 22, 9100。8080（code-server）、3001（CloudCLI）、5173（開発用サーバ）、60000–61000/udp（mosh）は `192.168.11.0/24` のみ |
 | `vm-dev` | 22, 9100 |
 
 Proxmox ホストの UFW / Proxmox ファイアウォールの設定は、このリポジトリでは管理していない。
