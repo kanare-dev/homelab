@@ -12,6 +12,7 @@
 | [0004](0004-vlan-cutover-all-at-once.md) | VLAN 移行は一斉切り替えにする | 採用（未適用） | 2026-10-23 |
 | [0005](0005-tailscale-only-remote-access.md) | 外出先からのアクセスは Tailscale のみにする | 採用 | 記録なし |
 | [0006](0006-ci-lint-only.md) | CI は lint のみ。デプロイは自動化しない | 採用 | 記録なし |
+| [0007](0007-vm-host-dns-is-router.md) | VM のホスト DNS はルーターにする | 採用 | 記録なし |
 
 ## 書き方
 
