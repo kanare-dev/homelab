@@ -45,7 +45,7 @@ lint-all: lint sops-encrypted-check ## Run every check that CI runs (.github/wor
 	cd terraform/proxmox && terraform fmt -check -recursive
 	cd terraform/proxmox && terraform init -backend=false > /dev/null && terraform validate
 	yamllint -s .
-	gitleaks detect --no-banner
+	gitleaks detect --no-banner --log-opts=HEAD
 
 sops-encrypted-check: ## Verify SOPS files are encrypted without decrypting them
 	@status=0; for f in $$(git ls-files '*/*.sops.yml' '*/*.sops.yaml'); do \
