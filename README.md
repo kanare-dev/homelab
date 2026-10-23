@@ -108,7 +108,7 @@ Proxmox 上に複数 VM を構築し、Terraform + Ansible + Docker Compose で�
 
 | サービス | IP | ドメイン | 備考 |
 | --- | --- | --- | --- |
-| ルーター | [http://192.168.11.1](http://192.168.11.1) | [https://router.lab.kanare.dev](https://router.lab.kanare.dev) | ルーター設定画面（ドメインは Caddy 経由。[docs/dns.md](docs/dns.md#ルーター管理画面)） |
+| ルーター | [http://192.168.11.1](http://192.168.11.1) | [https://router.lab.kanare.dev](https://router.lab.kanare.dev) | ルーター設定画面（ドメインは Caddy 経由。[docs/07_network/dns.md](docs/07_network/dns.md#ルーター管理画面)） |
 | Proxmox | [https://192.168.11.10:8006](https://192.168.11.10:8006) | [https://pve.lab.kanare.dev](https://pve.lab.kanare.dev) | Proxmox VE 管理画面 |
 | Homepage | [http://192.168.11.20:3001](http://192.168.11.20:3001) | [https://home.lab.kanare.dev](https://home.lab.kanare.dev) | ランディングダッシュボード |
 | Grafana | [http://192.168.11.13:3000](http://192.168.11.13:3000) | [https://grafana.lab.kanare.dev](https://grafana.lab.kanare.dev) | 監視ダッシュボード |
@@ -162,7 +162,7 @@ client
 - **Unbound**: `127.0.0.1:5335` でルートから再帰解決（1.1.1.1 等への依存なし）
 - `grafana.lab.kanare.dev` と `prometheus.lab.kanare.dev` を reverse proxy の入口にする
 
-詳細は [`docs/dns.md`](docs/dns.md) を参照。
+詳細は [`docs/07_network/dns.md`](docs/07_network/dns.md) を参照。
 
 ### Reverse Proxy
 
@@ -184,7 +184,7 @@ client
 - Alertmanager 経由で Slack に通知する（thin pool 容量、VM 停止・io-error、ディスク逼迫など）
 - ESP32 は現在停止中のため scrape 対象から外している
 
-詳細は [`docs/monitoring.md`](docs/monitoring.md) を参照。
+詳細は [`docs/05_operations-maintainability/monitoring.md`](docs/05_operations-maintainability/monitoring.md) を参照。
 
 ## 将来拡張
 

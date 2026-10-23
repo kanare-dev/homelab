@@ -51,7 +51,7 @@ client
 
 ### fallback DNS の限界
 
-AdGuard の fallback DNS が使われるのは、upstream に**接続できない**とき（タイムアウトなど）だけ。Unbound が `SERVFAIL` を返した場合は、その応答がそのまま利用者に返り、fallback は働かない。Unbound の失敗は `UnboundProbeFailing`（[monitoring.md](monitoring.md)）で検知する。
+AdGuard の fallback DNS が使われるのは、upstream に**接続できない**とき（タイムアウトなど）だけ。Unbound が `SERVFAIL` を返した場合は、その応答がそのまま利用者に返り、fallback は働かない。Unbound の失敗は `UnboundProbeFailing`（[monitoring.md](../05_operations-maintainability/monitoring.md)）で検知する。
 
 ## DNS レコード (lab.kanare.dev)
 

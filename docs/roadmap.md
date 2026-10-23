@@ -50,8 +50,8 @@ README に書く現行構成は `24GB` に増設済みのホストを前提と�
 ## 監視・可観測性
 
 - [ ] blackbox_exporter で外形監視を追加する
-- [x] Unbound の応答失敗を検知するアラートを追加する（AdGuard の fallback DNS で隠れる障害を、未キャッシュの名前を Unbound に直接引くプローブで検知する。[docs/monitoring.md](monitoring.md)）
-- [x] Alertmanager を追加して個人Slackで監視通知を受け取れるようにする（[docs/monitoring.md](monitoring.md)）
+- [x] Unbound の応答失敗を検知するアラートを追加する（AdGuard の fallback DNS で隠れる障害を、未キャッシュの名前を Unbound に直接引くプローブで検知する。[monitoring.md](05_operations-maintainability/monitoring.md)）
+- [x] Alertmanager を追加して個人Slackで監視通知を受け取れるようにする（[monitoring.md](05_operations-maintainability/monitoring.md)）
 - [ ] uptime-kuma の導入
 - [ ] Loki + Promtail でログ収集基盤を構築する
 - [ ] telegraf + InfluxDB の導入

@@ -206,14 +206,14 @@ VM 内のデータは削除していない。強制停止やリセットも行�
 | 可視化 | Grafana「Storage / Thin Pool」（14 パネル。pool 使用率、空き、満杯までの予測、VM ディスクごとの割当と増加ペース、ゲストとの対比、VM の稼働状態） |
 | 監視対象の追加 | vm-code を scrape 対象に追加。ESP32 は現在意図的に停止中のため scrape から外した |
 | シークレットの扱い | Mac にしかない再現不能データ（Vault パスワードなど）を iCloud Keychain に退避し、非公開の台帳で管理。新しいシークレットを作ったときに登録を促すルールを `CLAUDE.md` に追加。**（2026-10-23 追記: 当時は Vault パスワードなどを個別に退避していたが、現在は SOPS + age に移行し、退避するのは age 秘密鍵 1 つになった。ルールも `CLAUDE.md` で更新済み）** |
-| ドキュメント | `docs/monitoring.md`（監視の全体像、アラート一覧、限界、運用）、`docs/runbook.md`（Slack 通知、バックアップ方針） |
+| ドキュメント | `docs/05_operations-maintainability/monitoring.md`（監視の全体像、アラート一覧、限界、運用）、`docs/runbook.md`（Slack 通知、バックアップ方針） |
 
 ### 4.3 見送った対策（判断の記録）
 
 | 対策 | 判断 | 理由と再検討の条件 |
 |---|---|---|
 | vzdump によるバックアップ | 見送り | VM は IaC で再現でき、vm-code / vm-dev は Git 管理のリポジトリのみ、vm-windows は検証用で重要データなし。保存先も PVE と同じ NVMe しかない。NAS などの別ストレージを追加するとき、または VM に再現不能なデータを置くときに再検討 |
-| 外部監視（Heartbeat など） | 見送り | 個人の homelab で即時検知が必須ではなく、外部サービスの管理が増える。監視 VM と PVE ホストの停止は、気づくまで通知されないリスクを受容。選択肢の比較は `docs/monitoring.md` |
+| 外部監視（Heartbeat など） | 見送り | 個人の homelab で即時検知が必須ではなく、外部サービスの管理が増える。監視 VM と PVE ホストの停止は、気づくまで通知されないリスクを受容。選択肢の比較は `docs/05_operations-maintainability/monitoring.md` |
 
 ## 5. ポストモーテム
 
@@ -262,7 +262,7 @@ Grafana の「VM ディスクごとの増加ペース」で、discard 有効後�
 - バックアップがなく、FS が壊れていた場合に戻せなかった。
 - 初回調査で、カーネルログの検索範囲を狭く取り、「記録なし」「約 104 日で蓄積」と誤って推定した。3 つの証拠を突き合わせて訂正した。
 - 暫定対応（pool の拡張）だけでは 91% にとどまった。容量の回収には、discard を反映するための VM 再起動が必要で、1 台あたり 1〜2 分の計画停止が発生した。
-- 収集スクリプトにボリューム別メトリクスを追加した際、非アクティブなテンプレートボリュームの空値が原因で、約 6 分間 PVE のメトリクスが途絶えた（node_exporter は不正な行があるとファイル全体を読まない）。アラートの待ち時間内に収まり、通知は出なかった。変更時の確認手順を `docs/monitoring.md` に追記した。
+- 収集スクリプトにボリューム別メトリクスを追加した際、非アクティブなテンプレートボリュームの空値が原因で、約 6 分間 PVE のメトリクスが途絶えた（node_exporter は不正な行があるとファイル全体を読まない）。アラートの待ち時間内に収まり、通知は出なかった。変更時の確認手順を `docs/05_operations-maintainability/monitoring.md` に追記した。
 - Windows の ACPI シャットダウンが遅く、再起動の作業が一時止まった。
 
 **幸運だったこと**
@@ -294,7 +294,7 @@ Grafana の「VM ディスクごとの増加ペース」で、discard 有効後�
 | 3 | thin pool / VM 状態のメトリクス収集（`pve-storage-metrics`） | **完了**（10-22） | - |
 | 4 | Prometheus ルールと Alertmanager、Slack 通知 | **完了**（10-22）。テスト通知で確認 | - |
 | 5 | Prometheus の `retention.size`、monitoring の Docker ログ上限 | **完了**（10-22） | - |
-| 6 | `docs/monitoring.md` と Runbook の整備 | **完了**（10-22） | - |
+| 6 | `docs/05_operations-maintainability/monitoring.md` と Runbook の整備 | **完了**（10-22） | - |
 | 7 | Terraform: `terraform plan` で discard の差分を確認 | **完了**（10-22）。ディスクの差分なし。vm-windows の `startup_shutdown`（-1 → null）の既存ドリフトのみ残る（今回と無関係、未 apply） | - |
 | 8 | `common` ロール（fstrim.timer、journald 上限）を全 VM に適用 | **完了**（10-22） | - |
 | 9 | 他の compose（dns / homepage / reverse-proxy）のログ上限、journald の上限、AdGuard のクエリログ保持 | **完了**（10-22）。Docker は 10MB×3、journald は 200M / 1 か月、AdGuard は 90 日 → 7 日 | - |
@@ -340,5 +340,5 @@ Grafana の「VM ディスクごとの増加ペース」で、discard 有効後�
 
 ## 7. 関連ドキュメント
 
-- [監視・アラート](../monitoring.md)
+- [監視・アラート](../05_operations-maintainability/monitoring.md)
 - [運用 Runbook](../runbook.md)

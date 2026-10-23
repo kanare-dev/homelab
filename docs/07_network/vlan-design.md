@@ -205,7 +205,7 @@ Omada コントローラー（`omada.lab.kanare.dev`）と Proxmox（`pve.lab.ka
 - Buffalo は AP モードにして、今の SSID のまま使う。Wi-Fi 端末の設定は変わらない。
 - ER605 の LAN ポートに Proxmox、有線のテレビ、Buffalo（AP）を直接つなぐ。ER605 V2 の標準版は GbE 5 ポート（WAN 固定 1、LAN 固定 2、WAN/LAN 切り替え 2）で、WAN を 1 つ使っても LAN を 3 つ以上確保でき、足りる。地域版は WAN 1・切り替え 3・LAN 1 の構成もあるが、同様に LAN を 3 つ以上確保できる。
 - Omada コントローラー（Proxmox 上の VM）を立て、ER605 を採用する。**採用すると、ルーター自身の管理画面（GUI）は使えなくなる**。設定はすべてコントローラーから行う。
-- **管理画面の入口をコントローラーに付け替える**: 現在の `router.lab.kanare.dev`（Caddy → Buffalo の管理画面）は、採用後は転送先がなくなる。`omada.lab.kanare.dev` を新設して Omada コントローラーの管理画面（HTTPS、自己署名証明書のため `tls_insecure_skip_verify` を付ける。`pve` と同じ形）に転送し、Homepage の Router タイルもそこに向ける（`siteMonitor` も同様）。`router` の名前を別名として残すか廃止するかは、段階 1 で決める。`docs/dns.md` の記述も合わせて直す。
+- **管理画面の入口をコントローラーに付け替える**: 現在の `router.lab.kanare.dev`（Caddy → Buffalo の管理画面）は、採用後は転送先がなくなる。`omada.lab.kanare.dev` を新設して Omada コントローラーの管理画面（HTTPS、自己署名証明書のため `tls_insecure_skip_verify` を付ける。`pve` と同じ形）に転送し、Homepage の Router タイルもそこに向ける（`siteMonitor` も同様）。`router` の名前を別名として残すか廃止するかは、段階 1 で決める。`docs/07_network/dns.md` の記述も合わせて直す。
 - **復旧の注意**: コントローラーが止まっている間は、ルーターの設定を変えられない（通信は設定を持ったまま動き続ける）。ルーターの GUI に戻すには、コントローラーでルーターを「忘れる」か、ルーターをリセットする。この手順を戻し手順に含める。
 - 戻し方: Buffalo をルーターモードに戻して繋ぎ直す。
 
@@ -249,7 +249,7 @@ Buffalo WSR-1800AX4P は VLAN に対応していない。AP モードにはで�
 | 監視 | `docker/compose/monitoring/prometheus/`（`prometheus.yml`、`alerts.yml`） | scrape 対象、アラート内の IP |
 | Homepage | `docker/compose/homepage/` | ウィジェットの URL、`dns:` |
 | 運用ツール | `tools/lab/lab.yaml` | ホスト一覧 |
-| ドキュメント | `README.md`、`docs/dns.md`、`docs/monitoring.md`、`docs/runbook.md`、`docs/cicd.md`、`diagrams/drawio/architecture.drawio.svg` | IP の記載、構成図 |
+| ドキュメント | `README.md`、`docs/07_network/dns.md`、`docs/05_operations-maintainability/monitoring.md`、`docs/runbook.md`、`docs/05_operations-maintainability/cicd.md`、`diagrams/drawio/architecture.drawio.svg` | IP の記載、構成図 |
 
 `README.md` の「IP アドレス規約」は、この設計に合わせて書き換える。
 
@@ -278,7 +278,7 @@ Buffalo WSR-1800AX4P は VLAN に対応していない。AP モードにはで�
 
 ### 切り替え後
 
-- Prometheus の scrape 対象、アラート、`docs/monitoring.md` を更新し、Omada コントローラーの死活監視を追加する。
+- Prometheus の scrape 対象、アラート、`docs/05_operations-maintainability/monitoring.md` を更新し、Omada コントローラーの死活監視を追加する。
 - ドキュメントを更新し、旧アドレスを残さない。構成図（`architecture.drawio.svg`）も直す。
 - Buffalo は段階 4（AP の導入）まで AP として使い続ける。
 

@@ -15,9 +15,10 @@
 
 ## 運用ドキュメント
 
-- 監視・アラート: `docs/monitoring.md`
+- 設計書: `docs/README.md`（10 の観点で整理。構成を変えたら該当する文書も更新する）
+- 監視・アラート: `docs/05_operations-maintainability/monitoring.md`
 - 障害記録: `docs/incidents/`
-- 設定変更で監視や容量に影響する場合は、`docs/monitoring.md` の「容量の上限設定」の表も更新する。
+- 設定変更で監視や容量に影響する場合は、`docs/05_operations-maintainability/monitoring.md` の「容量の上限設定」の表も更新する。
 
 ## Lint
 
