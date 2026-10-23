@@ -36,7 +36,7 @@ homelab の全体像。最新の構成図、目的、構成の理由、前提と
 
 `node_exporter` は全 VM（`vm-infra` / `vm-monitoring` / `vm-apps` / `vm-dev` / `vm-code`）と Proxmox ホストに常駐し、`vm-monitoring` の Prometheus がまとめてスクレイプする。
 
-![構成図](../../diagrams/drawio/architecture.drawio.svg)
+![構成図](../diagrams/architecture.drawio.svg)
 
 ## 目的と位置づけ
 

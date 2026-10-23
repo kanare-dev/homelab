@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""構成図 diagrams/drawio/architecture.drawio.svg の座標・文字・余白を規格どおりに組み直す。
+"""構成図 docs/diagrams/architecture.drawio.svg の座標・文字・余白を規格どおりに組み直す。
 
 SVG に埋め込まれた draw.io の XML を読み、全セルの位置を決め直して、draw.io CLI で SVG に書き出す。
 何度実行しても結果は同じ。VM やサービスを足したら、下の「配置」を直して実行する。
@@ -25,7 +25,7 @@ import urllib.parse
 import zlib
 from pathlib import Path
 
-SVG = Path(__file__).resolve().parent.parent / "diagrams/drawio/architecture.drawio.svg"
+SVG = Path(__file__).resolve().parent.parent / "docs/diagrams/architecture.drawio.svg"
 ICONS = SVG.parent / "assets/icons"  # Git 管理外。新しいアイコンを初めて取り込むときだけ読む
 K = "Ka6-sXaiJ_n7gUF576qm-"  # draw.io が付けた ID の接頭辞（vm-code の枠）
 ORANGE = '<font color="#ff8000">%s</font>'

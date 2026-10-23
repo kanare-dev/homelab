@@ -252,7 +252,7 @@ Buffalo WSR-1800AX4P は VLAN に対応していない。AP モードにはで�
 | リバースプロキシ | `docker/compose/reverse-proxy/Caddyfile` | 各サービスの転送先 |
 | 監視 | `docker/compose/monitoring/prometheus/`（`prometheus.yml`、`alerts.yml`） | scrape 対象、アラート内の IP |
 | Homepage | `docker/compose/homepage/` | ウィジェットの URL、`dns:` |
-| ドキュメント | `README.md`、`docs/services/dns.md`、`docs/services/monitoring.md`、`docs/operations/runbooks/README.md`、`docs/services/cicd.md`、`diagrams/drawio/architecture.drawio.svg` | IP の記載、構成図 |
+| ドキュメント | `README.md`、`docs/services/dns.md`、`docs/services/monitoring.md`、`docs/operations/runbooks/README.md`、`docs/services/cicd.md`、`docs/diagrams/architecture.drawio.svg` | IP の記載、構成図 |
 
 `README.md` の「IP アドレス規約」は、この設計に合わせて書き換える。
 

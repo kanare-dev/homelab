@@ -15,7 +15,7 @@ Proxmox 上に複数 VM を構築し、Terraform + Ansible + Docker Compose で�
 
 ## 構成図
 
-![構成図](diagrams/drawio/architecture.drawio.svg)
+![構成図](docs/diagrams/architecture.drawio.svg)
 
 最新の構成図（テキスト版）と、VM ごとの割当（CPU・メモリ・ディスク）は [システム構成・環境](docs/architecture/01-overview.md) を参照。
 
@@ -103,10 +103,9 @@ homelab/
 ├── tools/
 │   ├── check-md-links.py   # Markdown の内部リンク検査
 │   └── layout-architecture.py  # 構成図の座標・文字・余白を規格どおりに組み直す
-├── diagrams/
-│   └── drawio/             # 構成図（SVG）。assets/ はアイコン素材（Git 管理外）
 └── docs/
     ├── architecture/       # 方式設計
+    ├── diagrams/           # 構成図（SVG）。assets/ はアイコン素材（Git 管理外）
     ├── services/           # サービスごとの詳細設計
     ├── operations/         # Runbook、バックアップ、障害記録、ロードマップ
     └── adr/                # 設計判断の記録

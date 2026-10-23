@@ -61,7 +61,7 @@ README に書く現行構成は `24GB` に増設済みのホストを前提と�
 
 ## インフラ・IaC・運用
 
-- [x] AS-IS の構成図を描く（[概要](../architecture/01-overview.md) の ASCII 図と `diagrams/drawio/`）
+- [x] AS-IS の構成図を描く（[概要](../architecture/01-overview.md) の ASCII 図と `docs/diagrams/`）
 - [ ] TO-BE の構成図を描く（VLAN 適用後。段階 3 の前に用意する）
 - [ ] メモリの配分を見直しする（`vm-windows` は停止前提なので、常時起動する VM だけで見積もる）
 - [ ] homepage のデプロイを効率化する（`make setup-apps` は `common` / `docker` / `node_exporter` ロールも毎回流れる）
