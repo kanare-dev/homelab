@@ -137,7 +137,7 @@ VM 停止の検知は、`TargetDown`（VM 内 OS の応答なし）が 3 分、`
 1. **監視 VM 自身が止まると通知されない**。vm-monitoring は PVE と同じストレージ・ホスト上にある。PVE ホストの停止、vm-monitoring の停止、ストレージ全体の障害では Slack に何も届かない。今回の障害と同じ構造で、完全には防げていない。
 2. **PVE ホスト自体が落ちた場合も通知されない**（上と同じ理由）。
 3. 外部監視による補完は**現時点では行わない**（判断は下記「外部監視を導入しない判断」を参照）。
-4. Slack への送信失敗は `AlertmanagerNotificationsFailing` で検知するが、Slack に届かないので **UI（`http://192.168.11.13:9093`）を見ないと気づけない**。
+4. Slack への送信失敗は `AlertmanagerNotificationsFailing` で検知するが、Slack に届かないので **UI（`https://alertmanager.lab.kanare.dev`）を見ないと気づけない**。
 
 ### 外部監視を導入しない判断（2026-10-22）
 
@@ -200,7 +200,7 @@ docker run --rm --entrypoint promtool -v "$PWD/docker/compose/monitoring/prometh
 ### 通知テスト
 
 ```bash
-curl -XPOST http://192.168.11.13:9093/api/v2/alerts -H 'Content-Type: application/json' \
+curl -XPOST https://alertmanager.lab.kanare.dev/api/v2/alerts -H 'Content-Type: application/json' \
   -d '[{"labels":{"alertname":"TestAlert","severity":"warning","instance":"manual"},"annotations":{"summary":"通知テスト"}}]'
 ```
 
@@ -210,13 +210,13 @@ curl -XPOST http://192.168.11.13:9093/api/v2/alerts -H 'Content-Type: applicatio
 
 | 見たいもの | 場所 |
 | --- | --- |
-| thin pool の推移・VM ディスク別の割当 | Grafana `http://192.168.11.13:3000/d/homelab-storage/storage-thin-pool` |
-| 発報中のアラート | `http://192.168.11.13:9093` / `http://192.168.11.13:9090/alerts` |
-| ルールの状態 | `http://192.168.11.13:9090/rules` |
-| 外形監視の結果（HTTP / DNS） | `http://192.168.11.13:9090/targets`（`blackbox_*`）、または Prometheus で `probe_success` を検索 |
+| thin pool の推移・VM ディスク別の割当 | Grafana `https://grafana.lab.kanare.dev/d/homelab-storage/storage-thin-pool` |
+| 発報中のアラート | `https://alertmanager.lab.kanare.dev` / `https://prometheus.lab.kanare.dev/alerts` |
+| ルールの状態 | `https://prometheus.lab.kanare.dev/rules` |
+| 外形監視の結果（HTTP / DNS） | `https://prometheus.lab.kanare.dev/targets`（`blackbox_*`）、または Prometheus で `probe_success` を検索 |
 | 証明書の残り日数 | Prometheus で `(probe_ssl_earliest_cert_expiry - time()) / 86400` |
-| scrape 先の状態 | `http://192.168.11.13:9090/targets` |
-| Slack 送信の成否 | `curl -s http://192.168.11.13:9093/metrics \| grep alertmanager_notifications` |
+| scrape 先の状態 | `https://prometheus.lab.kanare.dev/targets` |
+| Slack 送信の成否 | `curl -s https://alertmanager.lab.kanare.dev/metrics \| grep alertmanager_notifications` |
 | PVE の生メトリクス | `curl -s http://192.168.11.10:9100/metrics \| grep -E '^(lvm_thin\|pve_)'` |
 
 ### Webhook URL の再発行・変更

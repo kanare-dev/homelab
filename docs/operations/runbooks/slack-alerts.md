@@ -30,7 +30,7 @@ pve (pve-storage-metrics.timer, 1分毎)
 
 ```bash
 # 疑似アラートを Alertmanager に直接送る
-curl -XPOST http://192.168.11.13:9093/api/v2/alerts -H 'Content-Type: application/json' \
+curl -XPOST https://alertmanager.lab.kanare.dev/api/v2/alerts -H 'Content-Type: application/json' \
   -d '[{"labels":{"alertname":"TestAlert","severity":"warning","instance":"manual"},"annotations":{"summary":"通知テスト"}}]'
 ```
 

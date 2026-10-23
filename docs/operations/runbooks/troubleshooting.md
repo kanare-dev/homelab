@@ -58,10 +58,10 @@
 
 ```text
 1. Prometheus の Targets ページを確認
-   → http://192.168.11.13:9090/targets
+   → https://prometheus.lab.kanare.dev/targets
 
 2. ターゲット VM の node_exporter を確認
-   $ curl http://192.168.11.XX:9100/metrics
+   $ ssh vm-monitoring curl -s http://192.168.11.XX:9100/metrics | head   # node_exporter は vm-monitoring からしか届かない
 
 3. ファイアウォール確認
    $ ssh ubuntu@192.168.11.XX "sudo ufw status"
