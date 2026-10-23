@@ -243,7 +243,7 @@ Buffalo WSR-1800AX4P は VLAN に対応していない。AP モードにはで�
 
 | 領域 | 場所 | 内容 |
 |---|---|---|
-| Terraform | `terraform/proxmox/`（`variables.tf`、`terraform.tfvars.example`、`modules/vm/variables.tf`） | VM の IP・ゲートウェイ・`vlan_id` |
+| Terraform | `terraform/proxmox/`（`variables.tf`、`terraform.tfvars`、`modules/vm/variables.tf`） | VM の IP・ゲートウェイ・`vlan_id` |
 | Ansible | `ansible/inventory/`（`hosts.yml`、`group_vars/*`、`host_vars/*`）、`playbooks/infra.yml` | ホストの IP、`gateway`、UFW の許可元（`from: 192.168.11.0/24`）、DNS レコード、Tailscale の `--advertise-routes` |
 | リバースプロキシ | `docker/compose/reverse-proxy/Caddyfile` | 各サービスの転送先 |
 | 監視 | `docker/compose/monitoring/prometheus/`（`prometheus.yml`、`alerts.yml`） | scrape 対象、アラート内の IP |

@@ -90,7 +90,6 @@ docker run --rm -v monitoring_grafana_data:/data -v $(pwd):/backup \
 
 - age 秘密鍵（iCloud Keychain に退避）
 - SSH 秘密鍵
-- `terraform.tfvars`（VM のサイズなどの設定値。機密値は含まない）
 
 ## 更新手順
 

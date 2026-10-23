@@ -242,8 +242,7 @@ cd homelab
 
 ```bash
 cd terraform/proxmox
-cp terraform.tfvars.example terraform.tfvars
-# terraform.tfvars を編集
+# VM の定義は terraform.tfvars（Git 管理）。必要なら編集
 sops secrets.sops.yml   # proxmox_api_token_secret を設定（SOPS の準備は docs/runbook.md の「秘密情報管理」）
 terraform init
 terraform plan
