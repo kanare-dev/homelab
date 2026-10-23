@@ -11,7 +11,8 @@ SVG に埋め込まれた draw.io の XML を読み、全セルの位置を決�
 規格（10px グリッド）:
   - 文字は 14px のみ。ポート・IP は橙、VM 名は斜体。
   - VM 枠は幅 300、内側の余白 20。見出しアイコン 40、サービス行は高さ 30（アイコン 30）。
-  - サービスのアイコンはどの階層でも VM 枠の左端から 40（VM 見出しのアイコンより内側）。
+  - VM 直下のサービスと Docker アイコンは VM 枠の左端から 40（VM 見出しのアイコンより内側）。
+    Docker 枠の中のサービスは、さらに 20 内側（Docker アイコンより内側）。
   - 行の送りは 40。Docker 枠の高さは「行数 × 40 + 10」。枠どうしの間隔は 20。
 """
 import base64
@@ -108,7 +109,8 @@ class Model:
         """Docker 枠。rows の先頭は「Docker containers」の見出し行。"""
         self.geo(box, x + 20, y, 260, 40 * len(rows) + 10)
         for k, (icon, text) in enumerate(rows):
-            self.row(icon, text, x + 40, y + 10 + 40 * k, 220)
+            indent = 0 if k == 0 else 20  # 中のサービスは Docker アイコンより内側
+            self.row(icon, text, x + 40 + indent, y + 10 + 40 * k, 220 - indent)
 
     def device(self, icon, text, x, y, iw, ih, w):
         """端末の行（高さ 60）。アイコンの中心とテキストの中心を同じ高さに置く。"""
