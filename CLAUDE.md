@@ -1,23 +1,17 @@
 # homelab リポジトリのルール
 
-## シークレットの扱い（INC-2026-10-22 の再発防止）
+## シークレット
 
-機密値は SOPS + age で暗号化して Git に置く（`*.sops.yml`。詳細は `docs/runbook.md` の「秘密情報管理」）。復号できるのは **age 秘密鍵だけ**で、Mac が単一障害点になるため、鍵の退避を最優先で守る。台帳は非公開（実体は iCloud Drive の `homelab/secrets-inventory.md`。リポジトリ内の `private/secrets-inventory.md` はそこへのシンボリックリンクで、Git 管理外）。
+- 機密値は SOPS + age で暗号化して Git に置く（`*.sops.yml`。詳細は `docs/runbook.md` の「秘密情報管理」）。復号できるのは age 秘密鍵だけ。
+- 新しいシークレットは、`group_vars/<group>/secrets.sops.yml`（Terraform は `terraform/proxmox/secrets.sops.yml`）に追加する。追記はユーザーが `sops <ファイル>` で行い、値をチャットに貼らせない。
+- 値は、チャット・コミット・ログ・ドキュメントに書かない。文字数・ハッシュ・一部の文字も書かない（リポジトリは公開）。確認が必要なときは、値を変数に入れて API で検証する。
+- 平文のシークレットファイル（`.env` など）を作らない。`sops -d` の出力をファイルに保存しない。age 秘密鍵（`keys.txt`）をリポジトリに入れない。
 
-SOPS 内のシークレットの一覧（キー名・ファイル・用途）は `docs/runbook.md` の「暗号化しているファイル」の表が正。台帳には書かない。台帳に書くのは、SOPS の外にあるもの（Mac にしかないファイル、アカウントと回復手段）と、その復旧方法。
+### 記録と退避
 
-次のいずれかが起きたら、**作業を終える前に**ユーザーへ促し、該当する記録を更新すること。**Keychain 登録が必要なのは (1) age 鍵と (2) 再発行できず SOPS にも入れないものだけ**。
-
-- **age 鍵を新しく生成・ローテーションしたとき**: ユーザーに iCloud Keychain（パスワードアプリ）への登録を促す（`homelab / sops age key`。命名は台帳 §4 の規則）。台帳も更新する。
-- **シークレットを `*.sops.yml` に追加・再発行したとき**: `docs/runbook.md` の表に追記する（キー名・ファイル・用途。**値は書かない**）。台帳と Keychain への登録は不要（age 鍵があれば復元できる）。追記はユーザーが `sops <ファイル>` で行う（値をチャットに貼らせない）。
-- **SOPS に入れない Git 管理外のものを新しく作ったとき**: `*.tfstate`、SSH 鍵、証明書、Proxmox の root パスワードなど。台帳に追記し、再発行できないものは Keychain 登録を促す。
-
-守ること:
-
-- シークレットの値をチャット出力、コミット、ログ、ドキュメントに書かない。確認が必要なときは、値を変数に入れて API で検証する（値は表示しない）。**文字数・ハッシュ・一部の文字も、リポジトリのファイルには書かない**（このリポジトリは公開）。
-- 平文のシークレットファイル（`.env` など）を新しく作らない。`sops -d` の出力をファイルに保存しない。
-- age 秘密鍵（`keys.txt`）をリポジトリに入れない。値を Keychain に入れる手順は、画面に値を出さない方法（`pbcopy < file` など）を案内する。
-- 新しいシークレットは、対応する `group_vars/<group>/secrets.sops.yml`（Terraform は `terraform/proxmox/secrets.sops.yml`）に追加する。Ansible では `.env.j2` などのテンプレートから参照する。
+- SOPS 内のシークレットの一覧は `docs/runbook.md` の表が正。追加・削除したら表を更新する。
+- SOPS の外にあるもの（`*.tfstate`、SSH 鍵、証明書、Proxmox の root パスワードなど）は、非公開の台帳（`private/secrets-inventory.md`。実体は iCloud Drive で、Git 管理外）に追記する。
+- iCloud Keychain への登録が必要なのは、age 鍵と、再発行できず SOPS にも入れないものだけ。作業を終える前にユーザーへ促す。値を画面に出さない方法（`pbcopy < file` など）を案内する。
 
 ## 運用ドキュメント
 
