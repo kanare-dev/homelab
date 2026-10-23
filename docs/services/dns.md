@@ -59,6 +59,7 @@ AdGuard の fallback DNS が使われるのは、upstream に**接続できな�
 | --- | --- | --- |
 | `grafana` | 192.168.11.11 | Caddy 経由 |
 | `prometheus` | 192.168.11.11 | Caddy 経由 |
+| `alertmanager` | 192.168.11.11 | Caddy 経由 |
 | `pve` | 192.168.11.11 | Caddy 経由 |
 | `infra` | 192.168.11.11 | vm-infra |
 | `vm-infra` | 192.168.11.11 | vm-infra |

@@ -67,6 +67,8 @@ scrape_configs:
         labels: { host: "vm-monitoring", service: "grafana" }
       - targets: ["https://prometheus.lab.kanare.dev"]
         labels: { host: "vm-monitoring", service: "prometheus" }
+      - targets: ["https://alertmanager.lab.kanare.dev"]
+        labels: { host: "vm-monitoring", service: "alertmanager" }
       - targets: ["https://pve.lab.kanare.dev"]
         labels: { host: "pve", service: "pve" }
       - targets: ["https://home.lab.kanare.dev"]

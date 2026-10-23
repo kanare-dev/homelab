@@ -21,6 +21,7 @@ VM の IP は Terraform（`terraform.tfvars`）で固定する。VMID は IP の
 
 | FQDN | DNS の解決先 | 実際の宛先 | 用途 |
 | --- | --- | --- | --- |
+| `alertmanager.lab.kanare.dev` | `192.168.11.11`（Caddy） | `192.168.11.13:9093` | Alertmanager |
 | `pve.lab.kanare.dev` | `192.168.11.11`（Caddy） | `192.168.11.10:8006` | Proxmox Web UI |
 | `home.lab.kanare.dev` | `192.168.11.11`（Caddy） | `192.168.11.20:3001` | Homepage |
 | `grafana.lab.kanare.dev` | `192.168.11.11`（Caddy） | `192.168.11.13:3000` | Grafana |

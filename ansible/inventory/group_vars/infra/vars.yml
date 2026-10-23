@@ -8,6 +8,7 @@ coredns_listen_addr: "127.0.0.1"
 dns_records:
   - { name: "grafana",       ip: "192.168.11.11" }
   - { name: "prometheus",    ip: "192.168.11.11" }
+  - { name: "alertmanager",  ip: "192.168.11.11" }   # Caddy 経由
   - { name: "pve",           ip: "192.168.11.11" }
   - { name: "infra",         ip: "192.168.11.11" }
   - { name: "vm-infra",      ip: "192.168.11.11" }
