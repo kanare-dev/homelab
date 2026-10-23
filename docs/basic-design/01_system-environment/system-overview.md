@@ -1,6 +1,40 @@
 # システム構成・環境
 
-homelab の物理・仮想構成と、稼働環境の前提をまとめる。図と IP 規約は [README.md](../../../README.md) が正で、ここでは設計上の前提と制約を整理する。
+homelab の物理・仮想構成と、稼働環境の前提をまとめる。
+
+## 構成図
+
+> 構成を変えたら、この図（ASCII）と下の表を同じ変更で更新する。SVG は draw.io で手動更新するため、古くなることがある。最新はこの ASCII 図が正。
+
+```text
+┌─────────────────────────────────────────────────────────────────────────────────────┐
+│  LAN: 192.168.11.0/24                  GW: 192.168.11.1          Tailscale (外出先)  │
+│                                                                                     │
+│  ┌──────────────┐  ┌───────────────┐  ┌──────────────┐  ┌──────────────┐            │
+│  │  vm-infra    │  │ vm-monitoring │  │ vm-apps      │  │ vm-code      │            │
+│  │  .11  1.5GB  │  │  .13  2GB     │  │  .20  4GB    │  │  .22  4GB    │            │
+│  │  AdGuard Home│  │  Prometheus   │  │  Homepage    │  │  Claude Code │            │
+│  │  Unbound     │  │  Alertmanager │  │              │  │  CloudCLI    │            │
+│  │  CoreDNS     │  │  Grafana      │  │              │  │  code-server │            │
+│  │  Caddy       │  │               │  │              │  │              │            │
+│  │  Tailscale   │  │               │  │              │  │              │            │
+│  └──────┬───────┘  └──────┬────────┘  └──────┬───────┘  └──────┬───────┘            │
+│         │                 │                  │                 │                    │
+│  ┌──────┴─────────────────┴──────────────────┴─────────────────┴───────────────┐    │
+│  │                      Proxmox VE (.10)                                       │    │
+│  └─────────────────────────────────────────────────────────────────────────────┘    │
+│                                                                                     │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐                               │
+│  │  IoT devices │  │  vm-dev      │  │  vm-windows  │                               │
+│  │  .100~       │  │  .21 任意起動 │  │  任意起動    │                               │
+│  │  ESP32 etc.  │  │  playground  │  │  検証用      │                               │
+│  └──────────────┘  └──────────────┘  └──────────────┘                               │
+└─────────────────────────────────────────────────────────────────────────────────────┘
+```
+
+`node_exporter` は全 VM（`vm-infra` / `vm-monitoring` / `vm-apps` / `vm-dev` / `vm-code`）と Proxmox ホストに常駐し、`vm-monitoring` の Prometheus がまとめてスクレイプする。
+
+![構成図](../../../diagrams/drawio/architecture.drawio.svg)
 
 ## 目的と位置づけ
 
@@ -29,7 +63,7 @@ Proxmox VE 上に Terraform で VM を作り、Ansible で設定し、各 VM で
 | `vm-monitoring` | 113 | `192.168.11.13` | 2 | 2GB | 40G | 自動（順序 2） | 監視 | Prometheus, Alertmanager, Grafana |
 | `vm-apps` | 120 | `192.168.11.20` | 2 | 4GB | 40G | 自動（順序 3） | アプリ | Homepage |
 | `vm-dev` | 121 | `192.168.11.21` | 2 | 1GB | 30G | 手動 | 破壊検証 | playground |
-| `vm-code` | 122 | `192.168.11.22` | 2 | 4GB | 30G | 自動（順序 5） | 常用リモート開発 | Claude Code, CloudCLI, code-server |
+| `vm-code` | 122 | `192.168.11.22` | 2 | 4GB | 30G | 自動（順序 5） | 常用リモート開発 | Claude Code, CloudCLI, code-server, gh, git, mosh, moshi-hook |
 | `vm-windows` | 130 | — | 4 | 8GB | 60G | 手動（停止） | 検証用 | Windows 11 |
 | `ubuntu-cloud` | 9000 | — | — | — | — | — | VM テンプレート | cloud-init 付き Ubuntu |
 
@@ -49,6 +83,17 @@ Proxmox VE 上に Terraform で VM を作り、Ansible で設定し、各 VM で
 | 秘密情報 | SOPS + age | [セキュリティ](../06_security/security.md) |
 | CI | GitHub Actions（lint のみ） | [CI/CD](../05_operations-maintainability/cicd.md) |
 
+## この構成にした理由
+
+最小構成から始め、必要に応じて段階的に拡張する方針。
+
+| 観点 | 判断 |
+|---|---|
+| メモリ余裕 | 24GB に増設済み。重めのワークロードや追加 VM を検討できる（[性能・拡張性](../04_performance-scalability/capacity-and-scaling.md)） |
+| 優先順位 | まず DNS、リバースプロキシ、監視をコード化して再現性を固める |
+| 学習効率 | `vm-dev` があると、設定や playbook を安全に壊して試せる |
+| 拡張性 | `vm-apps` に Home Assistant などを追加しやすい |
+
 ## 前提と制約
 
 | 項目 | 内容 |
@@ -62,4 +107,4 @@ Proxmox VE 上に Terraform で VM を作り、Ansible で設定し、各 VM で
 
 ## 命名・採番規約
 
-IP アドレス規約、ドメイン命名規約は [README.md](../../../README.md#ip-アドレス規約) を参照。VMID は IP の末尾オクテットに 100 を足した値（`vm-infra` は `.11` → 111、`vm-apps` は `.20` → 120）。
+IP アドレス規約、ドメイン命名規約は [アドレス・命名規約](../07_network/addressing.md) を参照。VMID は IP の末尾オクテットに 100 を足した値（`vm-infra` は `.11` → 111、`vm-apps` は `.20` → 120）。

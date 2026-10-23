@@ -64,7 +64,7 @@ Grafana の「Storage / Thin Pool」ダッシュボードで、pool と VM デ�
 2. `ansible/inventory/hosts.yml` にホストを追加し、`group_vars` / playbook を用意して Ansible で設定する。
 3. 必要なら `dns_records`（`group_vars/infra/vars.yml`）と Caddyfile を追記し、`playbooks/infra.yml` を実行する。
 4. Prometheus の scrape 対象とアラートの対象に加える（`prometheus.yml`）。
-5. 配分の表（この文書と [README.md](../../../README.md)）を更新する。
+5. 配分の表（この文書と [システム構成・環境](../01_system-environment/system-overview.md)）と構成図を更新する。
 
 ## 既知の限界
 
