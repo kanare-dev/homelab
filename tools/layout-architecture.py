@@ -162,6 +162,9 @@ def layout(m):
     m.value("74", svc("Caddy", ":80, :443"))
     m.value("65", svc("Grafana", ":3000"))
     m.value("66", svc("Prometheus", ":9090"))
+    m.clone("64", "vmmon-blackbox-icon")
+    m.clone("66", "vmmon-blackbox-text")
+    m.value("vmmon-blackbox-text", svc("blackbox-exporter", ":9115"))
     m.value("93", svc("Homepage", ":3001"))
     for cid in ("84", "86", "88", "95"):
         m.value(cid, svc("node_exporter", ":9100"))
@@ -187,12 +190,12 @@ def layout(m):
     m.geo("24", 40, 40, 140, 40)
 
     cx = 940                                          # Internet・ルーター・nic0 を通す縦線
-    m.geo("3", cx - 30, 40, 60, 60)
+    m.geo("Hu1WL4VJLdPnrhCaS11O-103", cx - 38.19, 46.5, 76.38, 47)  # インターネットのアイコン（差し替え済み）
     m.geo("13", cx + 40, 55, 80, 30)
     m.geo("103", cx - 60, 160, 120, 80)
     m.geo("8", cx + 70, 170, 220, 40)
     m.geo("38", cx - 20, 320, 40, 50)
-    m.edge("11", cx, 100, cx, 160)
+    m.edge("11", cx, 93.5, cx, 160)
     m.edge("21", cx, 240, cx, 320)
     for cid in ("42", "68", "69"):
         m.drop(cid)
@@ -213,12 +216,12 @@ def layout(m):
     m.vm("89", "90", "91", c1, top + 400, 120)        # vm-dev
     m.row("vmdev-nodeexp-icon", "vmdev-nodeexp-text", c1 + 40, top + 470, 220)
 
-    m.vm("35", "36", "37", c2, top, 260)              # vm-monitoring
-    m.dbox("67", [("61", "62"), ("63", "65"), ("64", "66")], c2, top + 70)
-    m.row("85", "86", c2 + 40, top + 210, 220)
-    m.vm(K + "104", K + "105", K + "106", c2, top + 280, 240)   # vm-code
+    m.vm("35", "36", "37", c2, top, 300)              # vm-monitoring
+    m.dbox("67", [("61", "62"), ("63", "65"), ("64", "66"), ("vmmon-blackbox-icon", "vmmon-blackbox-text")], c2, top + 70)
+    m.row("85", "86", c2 + 40, top + 250, 220)
+    m.vm(K + "104", K + "105", K + "106", c2, top + 320, 240)   # vm-code
     for k, n in enumerate(("claude", "cloudcli", "codeserver", "nodeexp")):
-        m.row(f"vmcode-{n}-icon", f"vmcode-{n}-text", c2 + 40, top + 350 + 40 * k, 220)
+        m.row(f"vmcode-{n}-icon", f"vmcode-{n}-text", c2 + 40, top + 390 + 40 * k, 220)
 
     m.vm("45", "46", "47", c3, top, 220)              # vm-apps
     m.dbox("96", [("97", "98"), ("92", "93")], c3, top + 70)
