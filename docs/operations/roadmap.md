@@ -48,7 +48,7 @@ README に書く現行構成は `24GB` に増設済みのホストを前提と�
 - [ ] 導入の段階 2: Managed Switch を追加する（VLAN は使わない）
 - [ ] 導入の段階 3: VLAN と `10.x` への一斉切り替え（VLAN10 Management / VLAN20 Servers / VLAN30 Clients / VLAN40 IoT / VLAN50 Guests）
 - [ ] 導入の段階 4: Omada の AP を導入し、Buffalo を退役または予備にする
-- [ ] OPNSense の導入
+- [ ] OPNSense の導入（N100 で学習用に。VLAN の段階 3 のあとに、止まっても影響が小さい役割から。[ADR 0009](../adr/0009-router-er605-first.md)）
 
 ## 監視・可観測性
 
