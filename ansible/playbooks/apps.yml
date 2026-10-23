@@ -5,6 +5,7 @@
     - common
     - docker
     - node_exporter
+    - ufw_docker
   tasks:
     - name: Create homepage directory
       ansible.builtin.file:

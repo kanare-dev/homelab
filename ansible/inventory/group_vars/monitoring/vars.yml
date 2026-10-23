@@ -23,7 +23,18 @@ prometheus_scrape_targets:
 # UFW
 ufw_allowed_ports:
   - { port: 22, proto: tcp }
-  - { port: 3000, proto: tcp }    # Grafana
-  - { port: 9090, proto: tcp }    # Prometheus
-  - { port: 9093, proto: tcp }    # Alertmanager
-  - { port: 9100, proto: tcp }    # node_exporter
+  - { port: 9100, proto: tcp, from: "192.168.11.13" }   # node_exporter (自分自身。ホストからの scrape)
+  - { port: 9100, proto: tcp, from: "172.16.0.0/12" }   # node_exporter (Prometheus コンテナ。Docker ブリッジ)
+
+# Docker の公開ポートは UFW では絞れないので、roles/ufw_docker が DOCKER-USER で絞る
+docker_published_allow:
+  - { port: 3000, from: "192.168.11.11" }   # Grafana (Caddy on vm-infra)
+  - { port: 9090, from: "192.168.11.11" }   # Prometheus (Caddy)
+  - { port: 9093, from: "192.168.11.11" }   # Alertmanager (Caddy)
+
+# 許可元を絞る前の「どこからでも許可」ルール。common ロールが削除する
+ufw_removed_ports:
+  - { port: 3000, proto: tcp }
+  - { port: 9090, proto: tcp }
+  - { port: 9093, proto: tcp }
+  - { port: 9100, proto: tcp }

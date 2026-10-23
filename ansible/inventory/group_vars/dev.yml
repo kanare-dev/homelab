@@ -3,4 +3,8 @@
 
 ufw_allowed_ports:
   - { port: 22,   proto: tcp }
-  - { port: 9100, proto: tcp }   # node_exporter
+  - { port: 9100, proto: tcp, from: "192.168.11.13" }   # node_exporter (Prometheus on vm-monitoring)
+
+# 許可元を絞る前の「どこからでも許可」ルール。common ロールが削除する
+ufw_removed_ports:
+  - { port: 9100, proto: tcp }

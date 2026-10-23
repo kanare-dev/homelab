@@ -5,6 +5,7 @@
     - common
     - docker
     - node_exporter
+    - ufw_docker
   tasks:
     - name: Create monitoring directory
       ansible.builtin.file:

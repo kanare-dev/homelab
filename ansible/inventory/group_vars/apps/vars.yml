@@ -3,5 +3,13 @@
 
 ufw_allowed_ports:
   - { port: 22,   proto: tcp }
-  - { port: 3001, proto: tcp }   # Homepage (Caddy from vm-infra)
-  - { port: 9100, proto: tcp }   # node_exporter
+  - { port: 9100, proto: tcp, from: "192.168.11.13" }   # node_exporter (Prometheus on vm-monitoring)
+
+# Docker の公開ポートは UFW では絞れないので、roles/ufw_docker が DOCKER-USER で絞る
+docker_published_allow:
+  - { port: 3001, from: "192.168.11.11" }   # Homepage (Caddy on vm-infra)
+
+# 許可元を絞る前の「どこからでも許可」ルール。common ロールが削除する
+ufw_removed_ports:
+  - { port: 3001, proto: tcp }
+  - { port: 9100, proto: tcp }

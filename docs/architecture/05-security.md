@@ -77,11 +77,26 @@ Terraform は Proxmox の API トークン（`terraform@pam!terraform-token`）�
 
 | VM | 許可するポート |
 | --- | --- |
-| `vm-infra` | 22, 53（tcp/udp）, 80, 443, 51820/udp, 9100, 3000（LAN と Docker ブリッジのみ） |
-| `vm-monitoring` | 22, 3000, 9090, 9093, 9100 |
-| `vm-apps` | 22, 3001, 9100 |
-| `vm-code` | 22, 9100。8080（code-server）、3001（CloudCLI）、5173（開発用サーバ）、60000–61000/udp（mosh）は `192.168.11.0/24` のみ |
-| `vm-dev` | 22, 9100 |
+| `vm-infra` | 22, 53（tcp/udp）, 80, 443, 51820/udp。9100 は `vm-monitoring` のみ、3000 は LAN と Docker ブリッジのみ |
+| `vm-monitoring` | 22。9100 は自分自身と Prometheus コンテナ（`172.16.0.0/12`）のみ。3000・9090・9093 は下の「Docker の公開ポート」 |
+| `vm-apps` | 22。9100 は `vm-monitoring` のみ。3001 は下の「Docker の公開ポート」 |
+| `vm-code` | 22。9100 は `vm-monitoring` のみ。8080（code-server）、3001（CloudCLI）、5173（開発用サーバ）、60000–61000/udp（mosh）は `192.168.11.0/24` のみ |
+| `vm-dev` | 22。9100 は `vm-monitoring` のみ |
+
+許可元は `from:` で指定する。ufw は定義にないルールを消さないので、旧来の「どこからでも許可」は `ufw_removed_ports` に書いて `common` ロールが削除する。
+
+#### Docker の公開ポート
+
+Docker の `ports:` で公開したポートは、NAT で UFW の受信ルールより前に通る。`ufw_allowed_ports` に `from:` を書いても効かない。そこで `ufw_docker` ロールが、`/etc/ufw/after.rules` の `DOCKER-USER` チェーンに「許可元以外の公開ポート宛て接続を破棄する」ルールを入れる。許可は `docker_published_allow`（`group_vars/<group>/vars.yml`）に書く。
+
+| VM | 公開ポート | 許可元 |
+| --- | --- | --- |
+| `vm-monitoring` | 3000（Grafana）、9090（Prometheus）、9093（Alertmanager） | `vm-infra`（Caddy）のみ |
+| `vm-apps` | 3001（Homepage） | `vm-infra`（Caddy）のみ |
+
+- IP とポートの直打ち（例: `http://192.168.11.13:9090`）は届かない。Mac からは `https://<名前>.lab.kanare.dev` で開く。
+- `vm-infra` の 80・443（Caddy）は、入口なので LAN に開けたまま。
+- 確認: `ssh <vm> sudo iptables -S DOCKER-USER`。
 
 Proxmox ホストの UFW / Proxmox ファイアウォールの設定は、このリポジトリでは管理していない。
 
@@ -108,8 +123,7 @@ Proxmox ホストの UFW / Proxmox ファイアウォールの設定は、この
 
 | 項目 | 内容 | 方針 |
 | --- | --- | --- |
-| node_exporter（9100）の許可元 | 全 VM で `from` の指定がなく、どこからでも許可 | 監視 VM（と必要な端末）に限定するか検討。VLAN 化で自然に絞れる |
-| Grafana・Prometheus 等のポートの許可元 | 同上（`vm-monitoring`、`vm-apps`） | 同上 |
+| Proxmox ホストの node_exporter（9100）・SSH・8006 | ファイアウォールが無効で、LAN からどこからでも届く | 上の「Proxmox ホストのファイアウォール」と合わせて方針を決める |
 | `vm-infra` の 51820/udp | `# WireGuard` のコメント付きで許可しているが、WireGuard 単体は構成に含まれない（VPN は Tailscale） | 用途を確認し、不要なら閉じる |
 | Tailscale の ACL | 既定のまま。`192.168.11.1`（ルーター）にも届く | ACL で管理画面を除外する（未実施。[DNS 構成](../services/dns.md#ルーター管理画面)） |
 | 認証の一元化 | Prometheus・Homepage は認証なし | 導入しない（[ADR 0008](../adr/0008-no-authelia.md)）。ポートの許可元の絞り込みは別途検討 |

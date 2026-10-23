@@ -1,0 +1,20 @@
+---
+# Docker が公開したポート（`ports:`）は、UFW の受信ルールより前に NAT で通ってしまう。
+# DOCKER-USER チェーンで、公開ポートへの新規接続を許可元だけに絞る。
+# 許可は `docker_published_allow`（port / from / proto）。それ以外の公開ポート宛ての接続は破棄する。
+- name: Restrict Docker published ports to allowed sources
+  ansible.builtin.blockinfile:
+    path: /etc/ufw/after.rules
+    marker: "# {mark} ANSIBLE MANAGED: DOCKER PUBLISHED PORTS"
+    insertafter: EOF
+    content: |
+      *filter
+      :DOCKER-USER - [0:0]
+      -A DOCKER-USER -m conntrack --ctstate RELATED,ESTABLISHED -j RETURN
+      {% for rule in docker_published_allow %}
+      -A DOCKER-USER -p {{ rule.proto | default('tcp') }} -s {{ rule.from }} -m conntrack --ctorigdstport {{ rule.port }} -j RETURN
+      {% endfor %}
+      -A DOCKER-USER -m conntrack --ctstate DNAT -j DROP
+      -A DOCKER-USER -j RETURN
+      COMMIT
+  notify: Reload ufw
