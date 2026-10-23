@@ -27,7 +27,7 @@ jobs:
       - name: Check SOPS files are encrypted
         run: |
           status=0
-          for f in $(git ls-files '*.sops.yml' '*.sops.yaml'); do
+          for f in $(git ls-files '*/*.sops.yml' '*/*.sops.yaml'); do
             if grep -q '^sops:' "$f"; then
               echo "OK   $f"
             else
