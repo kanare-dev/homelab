@@ -44,14 +44,14 @@
         dest: /opt/monitoring/prometheus/alerts.yml
         mode: "0644"
 
-    - name: Fail early if Slack webhook URL is not in vault
+    - name: Fail early if Slack webhook URL is not in secrets
       ansible.builtin.assert:
         that:
-          - vault_slack_webhook_url is defined
-          - vault_slack_webhook_url | length > 0
+          - slack_webhook_url is defined
+          - slack_webhook_url | length > 0
         fail_msg: >-
-          vault_slack_webhook_url が未設定。ansible/inventory/group_vars/monitoring/vault.yml に
-          ansible-vault edit で追加すること（docs/runbook.md の「Slack 通知」参照）。
+          slack_webhook_url が未設定。ansible/inventory/group_vars/monitoring/secrets.sops.yml に
+          sops で追加すること（docs/runbook.md の「Slack 通知」参照）。
 
     - name: Create alertmanager config directory
       ansible.builtin.file:
@@ -66,9 +66,9 @@
         mode: "0644"
 
     # alertmanager コンテナ (nobody) が読めるよう 0644。ホストは SSH 鍵のみ・UFW で保護
-    - name: Deploy Slack webhook URL from vault
+    - name: Deploy Slack webhook URL
       ansible.builtin.copy:
-        content: "{{ vault_slack_webhook_url }}"
+        content: "{{ slack_webhook_url }}"
         dest: /opt/monitoring/alertmanager/slack_webhook_url
         mode: "0644"
       no_log: true

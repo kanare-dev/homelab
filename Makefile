@@ -1,4 +1,4 @@
-.PHONY: help plan apply destroy setup lint check
+.PHONY: help plan apply destroy setup lint check secrets-check
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
@@ -67,8 +67,7 @@ homepage-down: ## Stop homepage dashboard
 	cd docker/compose/homepage && docker compose down
 
 # --- Secrets ---
-encrypt: ## Encrypt secrets with SOPS
-	@echo "Usage: sops -e secrets.yml > secrets.enc.yml"
-
-vault-encrypt: ## Encrypt Ansible vault file
-	cd ansible && ansible-vault encrypt inventory/group_vars/all.yml
+secrets-check: ## Verify every SOPS file can be decrypted (values are not printed)
+	@for f in $$(git ls-files -c -o --exclude-standard '*/*.sops.yml' '*/*.sops.yaml'); do \
+		sops -d "$$f" > /dev/null && echo "OK   $$f" || { echo "FAIL $$f"; exit 1; }; \
+	done

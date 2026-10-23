@@ -15,7 +15,7 @@ README に書く現行構成は `24GB` に増設済みのホストを前提と�
 - [x] Cloud-init テンプレート VM を作成（`terraform/proxmox/README.md` 参照）
 - [x] Proxmox API トークン発行
 - [x] 初期構成は `vm-infra` + `vm-monitoring` + `vm-dev` に絞る
-- [x] 秘密情報管理方針を決定（Ansible Vault を採用）
+- [x] 秘密情報管理方針を決定（SOPS + age を採用）
 - [x] DNS ドメイン（`lab.kanare.dev`）を決定
 
 ### サービス構築

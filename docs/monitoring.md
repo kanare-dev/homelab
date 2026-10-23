@@ -32,7 +32,7 @@ homelab の監視とアラート通知の仕組み。2026-10-22 の障害（[INC
 | Prometheus | 収集・ルール評価。`retention.time=30d`、`retention.size=5GB` | `docker/compose/monitoring/prometheus/prometheus.yml`、`docker-compose.yml` |
 | アラートルール | 発報条件 | `docker/compose/monitoring/prometheus/alerts.yml` |
 | Alertmanager | 通知のグルーピング・送信 | `docker/compose/monitoring/alertmanager/alertmanager.yml` |
-| Slack Webhook URL | 秘密情報 | `ansible/inventory/group_vars/monitoring/vault.yml`（`vault_slack_webhook_url`、Ansible Vault 暗号化） |
+| Slack Webhook URL | 秘密情報 | `ansible/inventory/group_vars/monitoring/secrets.sops.yml`（`slack_webhook_url`、SOPS 暗号化） |
 | Grafana ダッシュボード「Storage / Thin Pool」 | pool とVM ディスク別の割当、増加ペース、VM 稼働状態 | `docker/compose/monitoring/grafana/dashboards/storage.json`（`/d/homelab-storage`） |
 | デプロイ | | `ansible/playbooks/monitoring.yml`（vm-monitoring）、`ansible/playbooks/proxmox.yml`（pve） |
 
@@ -188,7 +188,7 @@ curl -XPOST http://192.168.11.13:9093/api/v2/alerts -H 'Content-Type: applicatio
 
 ### Webhook URL の再発行・変更
 
-Slack App の「Incoming Webhooks」で再発行し、`ansible-vault edit inventory/group_vars/monitoring/vault.yml` の `vault_slack_webhook_url` を更新して `monitoring.yml` を再実行する。漏えいが疑われる場合は Slack 側で旧 URL を先に削除する。
+Slack App の「Incoming Webhooks」で再発行し、`sops ansible/inventory/group_vars/monitoring/secrets.sops.yml` で `slack_webhook_url` を更新して `monitoring.yml` を再実行する。漏えいが疑われる場合は Slack 側で旧 URL を先に削除する。
 
 ## アラート発報時の対応
 

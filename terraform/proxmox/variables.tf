@@ -9,12 +9,6 @@ variable "proxmox_api_token_id" {
   sensitive   = true
 }
 
-variable "proxmox_api_token_secret" {
-  description = "Proxmox API token secret"
-  type        = string
-  sensitive   = true
-}
-
 variable "proxmox_node" {
   description = "Proxmox node name"
   type        = string
@@ -48,12 +42,12 @@ variable "nameserver" {
 variable "vms" {
   description = "Map of VMs to create"
   type = map(object({
-    vmid    = number
-    ip      = string
-    cores   = number
-    memory  = number
-    disk    = string
-    tags    = list(string)
+    vmid               = number
+    ip                 = string
+    cores              = number
+    memory             = number
+    disk               = string
+    tags               = list(string)
     start_at_node_boot = optional(bool, true)
     startup_order      = optional(number, -1)
     startup_delay      = optional(number, 0)
