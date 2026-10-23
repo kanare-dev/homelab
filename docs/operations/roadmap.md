@@ -43,8 +43,11 @@ README に書く現行構成は `24GB` に増設済みのホストを前提と�
   - Unbound: フルリゾルバ（1.1.1.1 等に依存せずルートから再帰解決・プライバシー向上、port 5335）
   - CoreDNS: `lab.kanare.dev` 権威 DNS として継続（port 5353、127.0.0.1 バインドに変更）
   - vm-infra 上の Docker Compose に AdGuard + Unbound を追加
-- [ ] Buffalo ルータから TP-Link（ルータ + Managed Switch + AP）に分離して Omada で管理する
-- [ ] VLAN を構成する（VLAN10 Management / VLAN20 Servers / VLAN30 Clients / VLAN40 IoT / VLAN50 Guests）
+- [x] VLAN とアドレス体系の設計（[VLAN 設計](../architecture/08-vlan-design.md)、[ADR 0003](../adr/0003-vlan-address-scheme.md)、[ADR 0004](../adr/0004-vlan-cutover-all-at-once.md)）。設計のみで、未適用
+- [ ] 導入の段階 1: ルーターを Buffalo から ER605 に交換し、Omada コントローラーを立てる（IP は変えない）
+- [ ] 導入の段階 2: Managed Switch を追加する（VLAN は使わない）
+- [ ] 導入の段階 3: VLAN と `10.x` への一斉切り替え（VLAN10 Management / VLAN20 Servers / VLAN30 Clients / VLAN40 IoT / VLAN50 Guests）
+- [ ] 導入の段階 4: Omada の AP を導入し、Buffalo を退役または予備にする
 - [ ] OPNSense の導入
 
 ## 監視・可観測性
@@ -58,8 +61,9 @@ README に書く現行構成は `24GB` に増設済みのホストを前提と�
 
 ## インフラ・IaC・運用
 
-- [ ] TO-BE と AS-IS の構成図を描く
-- [ ] メモリの配分を見直しする
+- [x] AS-IS の構成図を描く（[概要](../architecture/01-overview.md) の ASCII 図と `diagrams/drawio/`）
+- [ ] TO-BE の構成図を描く（VLAN 適用後。段階 3 の前に用意する）
+- [ ] メモリの配分を見直しする（`vm-windows` は停止前提なので、常時起動する VM だけで見積もる）
 - [ ] homepage のデプロイを効率化する（`make setup-apps` は `common` / `docker` / `node_exporter` ロールも毎回流れる）
   - `playbooks/apps.yml` の homepage 関連タスクに `tags: [homepage]` を付け、`--tags homepage` で設定だけ反映できるようにする
   - Makefile に `deploy-homepage` ターゲットを追加する
@@ -72,8 +76,8 @@ README に書く現行構成は `24GB` に増設済みのホストを前提と�
   - iOS の Moshi アプリからは専用鍵（`code_extra_authorized_keys`）と直接 DNS レコード（`vm-code.lab.kanare.dev`）でSSH/mosh接続し、`moshi-hook` を systemd --user サービスとして常駐させて連携する（ペアリングのみ手動）
   - アクセス経路は Tailscale のみに限定（UFW で該当ポートを LAN/Tailscale サブネットルート経由の `192.168.11.0/24` からのみ許可、Cloudflare Tunnel 等での外部公開はしない）
   - `make setup-code` で単独プロビジョニング可能
-- [ ] バックアップ自動化（Proxmox Backup Server or restic）
-- [ ] CI/CD パイプライン（GitHub Actions で lint + plan）
+- [x] バックアップ方針を決める（VM 全体は取らない。VM 外の再現不能データだけ台帳で守る。[ADR 0001](../adr/0001-no-vm-backup.md)）。PBS / restic による自動化は、別ディスクや NAS を用意するまで見送り
+- [x] CI を整える（lint のみ。`plan` / `apply` は自動化しない。[ADR 0006](../adr/0006-ci-lint-only.md)、[CI/CD](../services/cicd.md)）
 - [ ] VM テンプレートの Packer 化
 
 ## 可視化・管理 UI
