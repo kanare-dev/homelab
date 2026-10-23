@@ -18,3 +18,8 @@
 - 監視・アラート: `docs/monitoring.md`
 - 障害記録: `docs/incidents/`
 - 設定変更で監視や容量に影響する場合は、`docs/monitoring.md` の「容量の上限設定」の表も更新する。
+
+## Lint
+
+- push する前に `make lint-all` をローカルで通す（CI の `.github/workflows/lint.yml` と同じチェック）。失敗したまま push しない。
+- `make hooks` で pre-push フック（`.githooks/pre-push`）を有効にできる。
