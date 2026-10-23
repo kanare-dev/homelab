@@ -101,11 +101,10 @@ homelab/
 ├── docker/
 │   └── compose/            # dns / homepage / monitoring / reverse-proxy
 ├── tools/
-│   ├── check-md-links.py   # Markdown の内部リンク検査
-│   └── layout-architecture.py  # 構成図の座標・文字・余白を規格どおりに組み直す
+│   └── check-md-links.py   # Markdown の内部リンク検査
 └── docs/
     ├── architecture/       # 方式設計
-    ├── diagrams/           # 構成図（SVG）。assets/ はアイコン素材（Git 管理外）
+    ├── diagrams/           # 構成図（SVG）と整形スクリプト。assets/ はアイコン素材（Git 管理外）
     ├── services/           # サービスごとの詳細設計
     ├── operations/         # Runbook、バックアップ、障害記録、ロードマップ
     └── adr/                # 設計判断の記録
