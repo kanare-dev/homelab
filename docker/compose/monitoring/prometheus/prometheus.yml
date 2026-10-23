@@ -55,6 +55,57 @@ scrape_configs:
       - source_labels: ["host"]
         target_label: instance
 
+  # 外形監視: Caddy 経由の HTTPS サービス（URL・証明書の期限）。
+  # host は背後の VM。TargetDown と同じ host で抑制する（alertmanager.yml）。
+  - job_name: "blackbox_http"
+    metrics_path: /probe
+    params:
+      module: [http_service]
+    scrape_interval: 30s
+    static_configs:
+      - targets: ["https://grafana.lab.kanare.dev"]
+        labels: { host: "vm-monitoring", service: "grafana" }
+      - targets: ["https://prometheus.lab.kanare.dev"]
+        labels: { host: "vm-monitoring", service: "prometheus" }
+      - targets: ["https://pve.lab.kanare.dev"]
+        labels: { host: "pve", service: "pve" }
+      - targets: ["https://home.lab.kanare.dev"]
+        labels: { host: "vm-apps", service: "homepage" }
+      - targets: ["https://adguard.lab.kanare.dev"]
+        labels: { host: "vm-infra", service: "adguard" }
+      - targets: ["https://code.lab.kanare.dev"]
+        labels: { host: "vm-code", service: "code-server" }
+      - targets: ["https://cloudcli.lab.kanare.dev"]
+        labels: { host: "vm-code", service: "cloudcli" }
+      - targets: ["https://router.lab.kanare.dev"]
+        labels: { host: "router", service: "router" }
+    relabel_configs:
+      - source_labels: ["__address__"]
+        target_label: __param_target
+      - source_labels: ["__param_target"]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox-exporter:9115
+
+  # 外形監視: vm-infra の AdGuard Home に名前を引く
+  - job_name: "blackbox_dns"
+    metrics_path: /probe
+    scrape_interval: 30s
+    static_configs:
+      - targets: ["192.168.11.11:53"]
+        labels: { host: "vm-infra", service: "dns-lab", module: "dns_lab" }
+      - targets: ["192.168.11.11:53"]
+        labels: { host: "vm-infra", service: "dns-external", module: "dns_external" }
+    relabel_configs:
+      - source_labels: ["module"]
+        target_label: __param_module
+      - source_labels: ["__address__"]
+        target_label: __param_target
+      - source_labels: ["service"]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox-exporter:9115
+
   # ESP32 (01-esp32) は現在意図的に停止中。再開するときはコメントを外す。
   # 有効なまま止まっていると TargetDown が発報するため外している。
   # - job_name: "esp32"

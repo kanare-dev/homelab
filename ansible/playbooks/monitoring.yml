@@ -53,6 +53,18 @@
           slack_webhook_url が未設定。ansible/inventory/group_vars/monitoring/secrets.sops.yml に
           sops で追加すること（docs/operations/runbooks/slack-alerts.md参照）。
 
+    - name: Create blackbox config directory
+      ansible.builtin.file:
+        path: /opt/monitoring/blackbox
+        state: directory
+        mode: "0755"
+
+    - name: Copy blackbox.yml
+      ansible.builtin.copy:
+        src: "{{ playbook_dir }}/../../docker/compose/monitoring/blackbox/blackbox.yml"
+        dest: /opt/monitoring/blackbox/blackbox.yml
+        mode: "0644"
+
     - name: Create alertmanager config directory
       ansible.builtin.file:
         path: /opt/monitoring/alertmanager
@@ -123,5 +135,6 @@
         services:
           - prometheus
           - alertmanager
+          - blackbox-exporter
           - grafana
         state: restarted

@@ -1,0 +1,35 @@
+modules:
+  # Caddy 経由の HTTPS サービス。利用者と同じ経路（DNS -> Caddy -> バックエンド）で確認する。
+  # 認証が必要なサービス（401/403）やログインへのリダイレクトは「応答している」とみなす。
+  http_service:
+    prober: http
+    timeout: 10s
+    http:
+      method: GET
+      valid_status_codes: [200, 201, 202, 204, 301, 302, 303, 307, 308, 401, 403]
+      fail_if_not_ssl: true
+      follow_redirects: true
+      preferred_ip_protocol: ip4
+      ip_protocol_fallback: false
+
+  # AdGuard Home (vm-infra) に lab 内部ゾーンの名前を引く（CoreDNS まで通る）
+  dns_lab:
+    prober: dns
+    timeout: 5s
+    dns:
+      query_name: "grafana.lab.kanare.dev"
+      query_type: A
+      preferred_ip_protocol: ip4
+      valid_rcodes: [NOERROR]
+      validate_answer_rrs:
+        fail_if_not_matches_regexp: ["grafana\\.lab\\.kanare\\.dev\\.\\s+\\d+\\s+IN\\s+A\\s+.+"]
+
+  # AdGuard Home (vm-infra) に外部の名前を引く（Unbound 経由の再帰解決まで通る）
+  dns_external:
+    prober: dns
+    timeout: 5s
+    dns:
+      query_name: "cloudflare.com"
+      query_type: A
+      preferred_ip_protocol: ip4
+      valid_rcodes: [NOERROR]

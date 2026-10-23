@@ -10,7 +10,12 @@ docker/compose/
 ├── monitoring/              # vm-monitoring 上で実行
 │   ├── docker-compose.yml
 │   ├── prometheus/
-│   │   └── prometheus.yml
+│   │   ├── prometheus.yml
+│   │   └── alerts.yml
+│   ├── alertmanager/
+│   │   └── alertmanager.yml
+│   ├── blackbox/            # 外形監視（HTTPS / DNS のプローブ定義）
+│   │   └── blackbox.yml
 │   └── grafana/
 │       └── provisioning/
 │           └── datasources/

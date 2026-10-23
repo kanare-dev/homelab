@@ -17,6 +17,20 @@ route:
       receiver: slack
       repeat_interval: 1h
 
+# 上流の障害があるとき、下流の通知を抑える
+inhibit_rules:
+  # VM が落ちている（TargetDown）間は、その VM 上のサービスの外形監視を通知しない
+  - source_matchers:
+      - alertname = "TargetDown"
+    target_matchers:
+      - alertname = "ServiceProbeFailed"
+    equal: ["host"]
+  # DNS が応答しない間は、名前解決に依存する HTTPS の外形監視を通知しない
+  - source_matchers:
+      - alertname = "DnsProbeFailed"
+    target_matchers:
+      - alertname = "ServiceProbeFailed"
+
 receivers:
   - name: "null"
 

@@ -52,7 +52,7 @@ README に書く現行構成は `24GB` に増設済みのホストを前提と�
 
 ## 監視・可観測性
 
-- [ ] blackbox_exporter で外形監視を追加する
+- [x] blackbox_exporter で外形監視を追加する（Caddy 経由の HTTPS・証明書の期限・AdGuard の名前解決。[monitoring.md](../services/monitoring.md#外形監視blackbox)）
 - [x] Unbound の応答失敗を検知するアラートを追加する（AdGuard の fallback DNS で隠れる障害を、未キャッシュの名前を Unbound に直接引くプローブで検知する。[monitoring.md](../services/monitoring.md)）
 - [x] Alertmanager を追加して個人Slackで監視通知を受け取れるようにする（[monitoring.md](../services/monitoring.md)）
 - [ ] uptime-kuma の導入

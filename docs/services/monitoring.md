@@ -15,6 +15,11 @@ homelab の監視とアラート通知の仕組み。2026-10-22 の障害（[INC
                                       v
                        vm-monitoring (192.168.11.13)
                         Prometheus :9090  (15秒毎に scrape, alerts.yml を評価)
+                              │ /probe (30秒毎)
+                              v
+                        blackbox-exporter :9115 (コンテナ内のみ)
+                          ├─ HTTPS: *.lab.kanare.dev (Caddy 経由、証明書の期限も取得)
+                          └─ DNS: vm-infra AdGuard :53 (内部ゾーン / 外部の名前)
                               │ 発報
                               v
                         Alertmanager :9093 ──> Slack Incoming Webhook (#homelab-alerts)
@@ -29,6 +34,7 @@ homelab の監視とアラート通知の仕組み。2026-10-22 の障害（[INC
 | node_exporter | ホストのメトリクス公開（全ホスト）。textfile collector 有効 | `ansible/roles/node_exporter/` |
 | pve-storage-metrics | PVE 専用。thin pool と VM 状態を textfile に出力 | `ansible/roles/proxmox/files/pve-storage-metrics.sh`、`ansible/roles/proxmox/tasks/main.yml` |
 | unbound-metrics | vm-infra 専用。未キャッシュの名前を Unbound に直接引いて、再帰解決できているかを textfile に出力（1 分毎） | `ansible/roles/dns_metrics/` |
+| blackbox-exporter | 外形監視。HTTPS と DNS のプローブを実行する。ポートは公開しない（Prometheus からだけ使う） | `docker/compose/monitoring/blackbox/blackbox.yml`、`docker-compose.yml` |
 | Prometheus | 収集・ルール評価。`retention.time=30d`、`retention.size=5GB` | `docker/compose/monitoring/prometheus/prometheus.yml`、`docker-compose.yml` |
 | アラートルール | 発報条件 | `docker/compose/monitoring/prometheus/alerts.yml` |
 | Alertmanager | 通知のグルーピング・送信 | `docker/compose/monitoring/alertmanager/alertmanager.yml` |
@@ -56,7 +62,26 @@ homelab の監視とアラート通知の仕組み。2026-10-22 の障害（[INC
 | PveStorageMetricsMissing | thin pool メトリクスが存在しない | 10m | warning | 収集の欠落 |
 | UnboundProbeFailing | Unbound が未キャッシュの名前を再帰解決できない（SERVFAIL・タイムアウト） | 3m | warning | Unbound の停止・上流断。AdGuard の fallback DNS で名前解決は続くため、**利用者は気づけない**障害 |
 | UnboundProbeStale / Missing | プローブが 5 分以上更新されない / メトリクスが存在しない | 5m / 10m | warning | `unbound-metrics.timer` の停止（監視の盲点） |
+| ServiceProbeFailed | HTTPS 外形監視が失敗（接続・TLS・5xx。200 系・リダイレクト・401/403 は成功扱い） | 3m | warning | Caddy 経由でサービスが使えない障害。node_exporter が生きていても検知できる |
+| DnsProbeFailed | AdGuard への名前解決が失敗（`dns-lab`: 内部ゾーン、`dns-external`: 外部の名前） | 2m | critical | AdGuard / CoreDNS / Unbound の停止。発報中は `ServiceProbeFailed` を抑制する |
+| TlsCertExpiringSoon / Critical | 証明書の残り日数 < 14 / < 3 | 1h / 10m | warning / critical | Let's Encrypt の自動更新の失敗（Cloudflare トークン失効など） |
+| BlackboxProbeMissing | 外形監視のメトリクスが存在しない | 10m | warning | blackbox-exporter の停止（監視の盲点） |
 | Watchdog | 常に firing | - | none | 通知経路の死活確認（Slack には送らない） |
+
+### 外形監視（blackbox）
+
+内部のメトリクス（node_exporter）ではなく、利用者と同じ経路で「使えるか」を確認する。
+
+| ジョブ | 対象 | 確認すること |
+| --- | --- | --- |
+| `blackbox_http` | `https://{grafana,prometheus,pve,home,adguard,code,cloudcli,router}.lab.kanare.dev` | DNS -> Caddy -> バックエンドの全経路。証明書の検証と期限（`probe_ssl_earliest_cert_expiry`） |
+| `blackbox_dns` | `192.168.11.11:53`（AdGuard） | `dns-lab`: `grafana.lab.kanare.dev` の A レコード（CoreDNS まで）。`dns-external`: `cloudflare.com`（Unbound まで） |
+
+- `http_service` は 200 系・リダイレクト・401/403 を成功とみなす（認証付きサービスやログイン画面への転送を「応答している」とする）。500 系・接続失敗・TLS エラーは失敗。
+- 各ターゲットの `host` ラベルは背後の VM。VM が落ちて `TargetDown` が出ている間は、同じ `host` の `ServiceProbeFailed` を抑制する（`alertmanager.yml` の `inhibit_rules`）。
+- `DnsProbeFailed` の発報中は、名前解決に依存する `ServiceProbeFailed` も抑制する。通知が大量に出るのを防ぐ。
+- ターゲットを増やすときは、`prometheus.yml` の `blackbox_http` に URL と `host` / `service` ラベルを追加する。
+- プローブ元は vm-monitoring なので、**vm-monitoring や PVE ホストの停止は検知できない**（下記「限界」と同じ）。
 
 ### 通知の挙動
 
@@ -71,6 +96,7 @@ homelab の監視とアラート通知の仕組み。2026-10-22 の障害（[INC
 | 対象 | 上限 | 設定場所 |
 | --- | --- | --- |
 | Prometheus TSDB | 30 日 または 5GB | `docker/compose/monitoring/docker-compose.yml`（5GB は暫定値。実測で調整） |
+| blackbox-exporter | Prometheus のデータ増加は 10 系列 × 数メトリクス程度で軽微（TSDB の上限に含まれる） | `prometheus.yml`（`scrape_interval: 30s`） |
 | Docker コンテナログ（monitoring / dns / reverse-proxy / homepage） | 10MB × 3 ファイル | 各 `docker-compose.yml` の `x-logging` |
 | journald（全 VM） | 200M、1 か月 | `ansible/roles/common`（`journald_system_max_use`、`journald_max_retention`） |
 | AdGuard Home クエリログ | 7 日（168h） | `ansible/playbooks/infra.yml`、`group_vars/infra/vars.yml` |
@@ -185,6 +211,8 @@ curl -XPOST http://192.168.11.13:9093/api/v2/alerts -H 'Content-Type: applicatio
 | thin pool の推移・VM ディスク別の割当 | Grafana `http://192.168.11.13:3000/d/homelab-storage/storage-thin-pool` |
 | 発報中のアラート | `http://192.168.11.13:9093` / `http://192.168.11.13:9090/alerts` |
 | ルールの状態 | `http://192.168.11.13:9090/rules` |
+| 外形監視の結果（HTTP / DNS） | `http://192.168.11.13:9090/targets`（`blackbox_*`）、または Prometheus で `probe_success` を検索 |
+| 証明書の残り日数 | Prometheus で `(probe_ssl_earliest_cert_expiry - time()) / 86400` |
 | scrape 先の状態 | `http://192.168.11.13:9090/targets` |
 | Slack 送信の成否 | `curl -s http://192.168.11.13:9093/metrics \| grep alertmanager_notifications` |
 | PVE の生メトリクス | `curl -s http://192.168.11.10:9100/metrics \| grep -E '^(lvm_thin\|pve_)'` |
@@ -202,6 +230,10 @@ Slack App の「Incoming Webhooks」で再発行し、`sops ansible/inventory/gr
 | PveVmIoError | 先にプールを拡張してから `qm resume <vmid>`。強制リセットしない |
 | PveVmStopped | PVE の UI で状態確認。`qm start <vmid>`。意図した停止なら `onboot` の設定を見直す |
 | TargetDown | VM が起動しているか、`ssh` できるか、`systemctl status node_exporter` を確認 |
+| ServiceProbeFailed | `curl -v https://<名前>` で DNS・TLS・応答を切り分ける。DNS なら `dig @192.168.11.11 <名前>`、TLS なら Caddy のログ、5xx ならバックエンドのコンテナを確認する |
+| DnsProbeFailed | `dig @192.168.11.11 grafana.lab.kanare.dev`（内部）と `dig @192.168.11.11 cloudflare.com`（外部）で、どちらが落ちているか確認する。`docker ps` で adguard / unbound / coredns を見る。[dns.md](dns.md) 参照 |
+| TlsCertExpiring* | vm-infra で `docker logs caddy` を確認する。Cloudflare API トークンの失効が典型。[reverse-proxy-tls.md](reverse-proxy-tls.md) 参照 |
+| BlackboxProbeMissing | vm-monitoring で `docker logs blackbox-exporter`、`docker compose ps` を確認する |
 | HostDiskUsage* | `du -xh --max-depth=2 /`、`docker system df` |
 
 ## 関連

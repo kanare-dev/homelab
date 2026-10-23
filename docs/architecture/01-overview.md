@@ -16,7 +16,7 @@ homelab の全体像。最新の構成図、目的、構成の理由、前提と
 │  │  AdGuard Home│  │  Prometheus   │  │  Homepage    │  │  Claude Code │            │
 │  │  Unbound     │  │  Alertmanager │  │              │  │  CloudCLI    │            │
 │  │  CoreDNS     │  │  Grafana      │  │              │  │  code-server │            │
-│  │  Caddy       │  │               │  │              │  │              │            │
+│  │  Caddy       │  │  blackbox     │  │              │  │              │            │
 │  │  Tailscale   │  │               │  │              │  │              │            │
 │  └──────┬───────┘  └──────┬────────┘  └──────┬───────┘  └──────┬───────┘            │
 │         │                 │                  │                 │                    │
@@ -31,6 +31,8 @@ homelab の全体像。最新の構成図、目的、構成の理由、前提と
 │  └──────────────┘  └──────────────┘  └──────────────┘                               │
 └─────────────────────────────────────────────────────────────────────────────────────┘
 ```
+
+`vm-monitoring` では Prometheus に加えて blackbox-exporter が、Caddy 経由の HTTPS と AdGuard の名前解決を外形監視する（[監視・アラート](../services/monitoring.md)）。
 
 `node_exporter` は全 VM（`vm-infra` / `vm-monitoring` / `vm-apps` / `vm-dev` / `vm-code`）と Proxmox ホストに常駐し、`vm-monitoring` の Prometheus がまとめてスクレイプする。
 

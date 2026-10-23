@@ -210,3 +210,52 @@ groups:
           severity: none
         annotations:
           summary: "Alertmanager パイプラインの動作確認用（常時 firing）"
+
+  - name: blackbox
+    rules:
+      # 外形監視。node_exporter が生きていても、サービスが使えない障害（Caddy の証明書切れ、
+      # バックエンドの 5xx、DNS の応答なし）を、利用者と同じ経路で検知する
+      - alert: ServiceProbeFailed
+        expr: probe_success{job="blackbox_http"} == 0
+        for: 3m
+        labels:
+          severity: warning
+        annotations:
+          summary: "{{ $labels.instance }} が使えない（外形監視）"
+          description: "Caddy 経由の HTTPS アクセスに失敗している。`curl -v` で原因（DNS・TLS・バックエンドの応答）を切り分ける。"
+
+      - alert: DnsProbeFailed
+        expr: probe_success{job="blackbox_dns"} == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "AdGuard の名前解決に失敗している（{{ $labels.service }}）"
+          description: "dns-lab は内部ゾーン（CoreDNS）、dns-external は外部の名前（Unbound）の解決に失敗している。`dig @192.168.11.11` で確認する。この間、HTTPS の外形監視は通知を抑制する。"
+
+      - alert: TlsCertExpiringSoon
+        expr: (probe_ssl_earliest_cert_expiry{job="blackbox_http"} - time()) / 86400 < 14
+        for: 1h
+        labels:
+          severity: warning
+        annotations:
+          summary: "{{ $labels.instance }} の証明書の残りが {{ $value | printf \"%.0f\" }} 日"
+          description: "Let's Encrypt は残り 30 日で更新されるはずなので、自動更新が失敗している。`docker logs caddy` を確認する（reverse-proxy-tls.md）。"
+
+      - alert: TlsCertExpiryCritical
+        expr: (probe_ssl_earliest_cert_expiry{job="blackbox_http"} - time()) / 86400 < 3
+        for: 10m
+        labels:
+          severity: critical
+        annotations:
+          summary: "{{ $labels.instance }} の証明書の残りが {{ $value | printf \"%.1f\" }} 日"
+          description: "まもなく失効する。至急、Caddy の証明書更新を確認する。"
+
+      - alert: BlackboxProbeMissing
+        expr: absent(probe_success{job="blackbox_http"}) or absent(probe_success{job="blackbox_dns"})
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "外形監視のメトリクスが存在しない"
+          description: "blackbox-exporter の停止の可能性（監視の盲点）。`docker logs blackbox-exporter` を確認する。"

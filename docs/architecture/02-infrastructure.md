@@ -20,7 +20,7 @@ Proxmox VE 上に Terraform で VM を作り、Ansible で設定し、各 VM で
 | 名前 | VMID | IP | vCPU | RAM | ディスク | 起動 | 役割 | 主なサービス |
 | --- | --- | --- | ---: | ---: | ---: | --- | --- | --- |
 | `vm-infra` | 111 | `192.168.11.11` | 2 | 1.5GB | 20G | 自動（順序 1） | インフラ基盤 | AdGuard Home, Unbound, CoreDNS, Caddy, Tailscale |
-| `vm-monitoring` | 113 | `192.168.11.13` | 2 | 2GB | 40G | 自動（順序 2） | 監視 | Prometheus, Alertmanager, Grafana |
+| `vm-monitoring` | 113 | `192.168.11.13` | 2 | 2GB | 40G | 自動（順序 2） | 監視 | Prometheus, Alertmanager, Grafana, blackbox-exporter |
 | `vm-apps` | 120 | `192.168.11.20` | 2 | 4GB | 40G | 自動（順序 3） | アプリ | Homepage |
 | `vm-dev` | 121 | `192.168.11.21` | 2 | 1GB | 30G | 手動 | 破壊検証 | playground |
 | `vm-code` | 122 | `192.168.11.22` | 2 | 4GB | 30G | 自動（順序 5） | 常用リモート開発 | Claude Code, CloudCLI, code-server, gh, git, mosh, moshi-hook |
@@ -37,7 +37,7 @@ Proxmox VE 上に Terraform で VM を作り、Ansible で設定し、各 VM で
 | VM プロビジョニング | Terraform（`telmate/proxmox` 3.0.2-rc07） | `terraform/proxmox/` |
 | OS 設定 | Ansible（Ubuntu） | `ansible/roles/common/` ほか |
 | コンテナ | Docker Compose | `docker/compose/<stack>/` → VM 上の `/opt/<stack>/` |
-| 監視 | Prometheus, Alertmanager, Grafana, node_exporter | [監視・アラート](../services/monitoring.md) |
+| 監視 | Prometheus, Alertmanager, Grafana, blackbox-exporter, node_exporter | [監視・アラート](../services/monitoring.md) |
 | 名前解決 | AdGuard Home → CoreDNS / Unbound | [DNS 構成](../services/dns.md) |
 | リバースプロキシ・TLS | Caddy + Let's Encrypt（Cloudflare DNS-01） | [運用 Runbook](../operations/runbooks/tls-certificates.md#lan-内-tls) |
 | 秘密情報 | SOPS + age | [セキュリティ](05-security.md) |
@@ -105,7 +105,7 @@ Grafana の「Storage / Thin Pool」ダッシュボードで、pool と VM デ�
 1. `terraform/proxmox/terraform.tfvars` の `vms` に定義を追加し、`terraform plan` / `apply`。
 2. `ansible/inventory/hosts.yml` にホストを追加し、`group_vars` / playbook を用意して Ansible で設定する。
 3. 必要なら `dns_records`（`group_vars/infra/vars.yml`）と Caddyfile を追記し、`playbooks/infra.yml` を実行する。
-4. Prometheus の scrape 対象とアラートの対象に加える（`prometheus.yml`）。
+4. Prometheus の scrape 対象とアラートの対象に加える（`prometheus.yml`）。HTTPS で公開するサービスは、外形監視の `blackbox_http` にも URL を追加する。
 5. 配分の表（この文書と [システム構成・環境](01-overview.md)）と構成図を更新する。
 
 ## 既知の限界

@@ -25,7 +25,7 @@ Proxmox 上に複数 VM を構築し、Terraform + Ansible + Docker Compose で�
 | --- | --- | --- | --- | --- | --- |
 | Proxmox | — | `192.168.11.10` | 常時起動 | ハイパーバイザ | Proxmox VE |
 | `vm-infra` | `111` | `192.168.11.11` | 常時起動 | インフラ基盤 | AdGuard Home, Unbound, CoreDNS, Caddy, Tailscale |
-| `vm-monitoring` | `113` | `192.168.11.13` | 常時起動 | 監視 | Prometheus, Alertmanager, Grafana |
+| `vm-monitoring` | `113` | `192.168.11.13` | 常時起動 | 監視 | Prometheus, Alertmanager, Grafana, blackbox-exporter |
 | `vm-apps` | `120` | `192.168.11.20` | 常時起動 | アプリ | Homepage |
 | `vm-code` | `122` | `192.168.11.22` | 常時起動 | 常用リモート開発 | Claude Code, CloudCLI, code-server |
 | `vm-dev` | `121` | `192.168.11.21` | 任意起動 | 開発・実験 | playground |
