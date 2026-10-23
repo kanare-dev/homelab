@@ -112,7 +112,7 @@ Proxmox ホストの UFW / Proxmox ファイアウォールの設定は、この
 | Grafana・Prometheus 等のポートの許可元 | 同上（`vm-monitoring`、`vm-apps`） | 同上 |
 | `vm-infra` の 51820/udp | `# WireGuard` のコメント付きで許可しているが、WireGuard 単体は構成に含まれない（VPN は Tailscale） | 用途を確認し、不要なら閉じる |
 | Tailscale の ACL | 既定のまま。`192.168.11.1`（ルーター）にも届く | ACL で管理画面を除外する（未実施。[DNS 構成](../services/dns.md#ルーター管理画面)） |
-| 認証の一元化 | Prometheus・Homepage は認証なし | Authelia の導入（ロードマップ） |
+| 認証の一元化 | Prometheus・Homepage は認証なし | Authelia の導入を提案中（[ADR 0008](../adr/0008-authelia-login-consolidation.md)） |
 | OS・コンテナの更新 | 手動。コンテナイメージは `latest` | 定期更新の手順とタイミングを決める |
 | ルーターへの通信 | Caddy からの転送が平文 HTTP | LAN 内のみのため受け入れ。TP-Link への移行で再設計 |
 | Proxmox ホストのファイアウォール | リポジトリで管理していない | 現状を確認し、方針を決める |
