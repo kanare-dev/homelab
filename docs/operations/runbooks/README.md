@@ -23,4 +23,4 @@
 | VM のコンソールが接続と切断を繰り返す | [コンソールの再接続](vm-console-reconnect.md) |
 | `terraform apply` で VM が再起動する | [apply による再起動](terraform-apply-restart.md) |
 
-障害の記録は [incidents/](../incidents/2026-10-22-lvm-thin-exhaustion.md)。
+障害の記録は [incidents/](../incidents/2026-10-22-lvm-thin-exhaustion.md)、[INC-2026-10-25（NIC 送信停止）](../incidents/2026-10-25-nic-hardware-unit-hang.md)。

@@ -50,7 +50,7 @@ Proxmox VE 上に Terraform で VM を作り、Ansible で設定し、各 VM で
 | CPU | i5-10400T（6 コア 12 スレッド） | 省電力版 |
 | メモリ | 24GB（8GB + 16GB） | 2026-10 に 8GB から増設 |
 | ストレージ | 256GB NVMe。`local-lvm`（thin pool `pve/data`）は約 155GiB | 全 VM のディスクがこの pool を共有する |
-| NIC | 1 つ | VLAN 化の際は trunk にする（[VLAN 設計](08-vlan-design.md)） |
+| NIC | 1 つ | VLAN 化の際は trunk にする（[VLAN 設計](08-vlan-design.md)）。`e1000e` の送信停止（INC-2026-10-25）への対処として、`nic0` の TSO/GSO/GRO を無効にしている（`ansible/roles/proxmox`） |
 
 ## 配分
 

@@ -16,6 +16,7 @@
 | 障害点 | 影響 | 検知 | 備考 |
 | --- | --- | --- | --- |
 | Proxmox ホスト（ハード・電源・NVMe） | 全サービス停止 | **通知されない**（監視 VM も止まる） | UPS なし。DNS・Homepage が使えない症状で気づく |
+| PVE ホストの NIC（`e1000e`） | ホストと全 VM が LAN から消える。OS は動いている | **通知されない**（監視 VM も外に出られない） | INC-2026-10-25。TSO/GSO/GRO を無効化して対処。外部 Heartbeat を導入予定 |
 | thin pool 枯渇 | 全 VM が `io-error` で一時停止 | `LvmThinPoolData*`（Slack） | INC-2026-10-22。容量アラートで枯渇前に検知する |
 | `vm-infra` | 全 LAN の名前解決、`*.lab.kanare.dev` の入口（Caddy）、外出先からのアクセス（Tailscale）が止まる | `TargetDown`、`PveVmStopped`（Slack） | DNS・リバースプロキシ・VPN が 1 台に集中している |
 | `vm-monitoring` | 監視と通知が止まる。サービス自体は影響なし | **通知されない** | [監視・アラート](../services/monitoring.md#限界既知の弱点) |
@@ -104,6 +105,7 @@
 | --- | --- |
 | [thin pool 枯渇（INC-2026-10-22）](../operations/incidents/2026-10-22-lvm-thin-exhaustion.md) | `discard` 有効化、`fstrim`、容量アラート、VM 停止アラート、Slack 通知、容量の上限設定 |
 | [PVE 管理画面の破損（INC-2026-10-22-b）](../operations/incidents/2026-10-22-pve-webui-broken-by-ansible-patch.md) | パッチを「判定式の置換」にして冪等化。復旧手順を Runbook に記載 |
+| [PVE の NIC 送信停止（INC-2026-10-25）](../operations/incidents/2026-10-25-nic-hardware-unit-hang.md) | NIC のオフロード（TSO/GSO/GRO）を無効化。外部 Heartbeat の導入は対応中 |
 
 ## 目標（暫定）
 
