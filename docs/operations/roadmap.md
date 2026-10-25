@@ -55,8 +55,17 @@ README に書く現行構成は `24GB` に増設済みのホストを前提と�
 - [x] blackbox_exporter で外形監視を追加する（Caddy 経由の HTTPS・証明書の期限・AdGuard の名前解決。[monitoring.md](../services/monitoring.md#外形監視blackbox)）
 - [x] Unbound の応答失敗を検知するアラートを追加する（AdGuard の fallback DNS で隠れる障害を、未キャッシュの名前を Unbound に直接引くプローブで検知する。[monitoring.md](../services/monitoring.md)）
 - [x] Alertmanager を追加して個人Slackで監視通知を受け取れるようにする（[monitoring.md](../services/monitoring.md)）
+- [x] 外部 Heartbeat（Healthchecks.io）で、ホスト・NIC・監視 VM の停止を外から検知する（[ADR 0010](../adr/0010-external-heartbeat.md)、[INC-2026-10-25](incidents/2026-10-25-nic-hardware-unit-hang.md)）
 - [ ] uptime-kuma の導入
-- [ ] Loki + Promtail でログ収集基盤を構築する
+- [ ] Loki + Grafana Alloy でログ収集基盤を構築する（見送り中。2026-10-26 時点では導入しない）
+  - 現状: ログは各ホストの journald（200M・1 か月）と Docker のログ上限（10MB × 3）に分散している。横断検索の手段はなく、調べるときは VM ごとに `ssh` して `journalctl` / `docker logs` を使う
+  - 見送る理由: INC-2026-10-25 の原因は PVE の journald（永続化済み）で追えた。ホストの NIC が止まると転送もできず、集約していても効果はなかった。ストレージの過剰割当（約 1.44 倍）が残っており、増え続けるログを足すリスクがある。収集エージェントを全ホストに入れる運用の手間も増える
+  - 導入を検討する条件（どれか 1 つでも該当したら着手を判断する）:
+    - 複数 VM をまたぐ原因調査に、手間を感じる場面が増えた
+    - ストレージ障害でログごと消え、原因が追えなかった
+    - アラートの前後のログを Grafana でメトリクスと並べて見たくなった
+    - thin pool の過剰割当を解消した（容量に余裕ができた）
+  - 導入するときの方針（案）: `vm-monitoring` に Loki、全ホストに Grafana Alloy（Promtail は後継の Alloy に移行済み）。保持期間 14 日、容量の上限 3GB 程度から始める。ADR を追加し、`monitoring.md` の「容量の上限設定」の表も更新する
 - [ ] telegraf + InfluxDB の導入
 
 ## インフラ・IaC・運用
