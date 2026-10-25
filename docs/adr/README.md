@@ -15,7 +15,7 @@
 | [0007](0007-vm-host-dns-is-router.md) | VM のホスト DNS はルーターにする | 採用 | 記録なし |
 | [0008](0008-no-authelia.md) | Authelia を導入しない | 採用（見送り） | 2026-10-24 |
 | [0009](0009-router-er605-first.md) | ルーターは ER605 V2 を先に導入し、OPNsense は後で学習用に足す | 採用 | 2026-10-24 |
-| [0010](0010-external-heartbeat.md) | 外部 Heartbeat（Healthchecks.io）で監視 VM の停止を検知する | 採用（導入作業中） | 2026-10-25 |
+| [0010](0010-external-heartbeat.md) | 外部 Heartbeat（Healthchecks.io）で監視 VM の停止を検知する | 採用 | 2026-10-25 |
 
 ## 書き方
 

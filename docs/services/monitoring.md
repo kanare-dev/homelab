@@ -114,7 +114,7 @@ homelab の監視とアラート通知の仕組み。2026-10-22 の障害（[INC
 | 2026-10-22 | `TestAlert` を Alertmanager に直接送信 | Slack に `[WARNING] TestAlert` が届いた |
 | 2026-10-22 | vm-code を `qm shutdown` で停止（実機テスト） | 停止から約 3.5 分で `TargetDown`、約 4 分で `PveVmStopped` が発報。Slack に両方届いた（ユーザー確認）。起動後 1 分以内にアラートは解消 |
 | 2026-10-22 | Unbound の実障害（`do-ip6` が有効で `max-sends` 超過 → 未キャッシュの名前が `SERVFAIL`） | `UnboundProbeFailing` が pending になり、検知できた。`do-ip6: no` で解消（[dns.md](dns.md)）。待ち時間（3 分）内に復旧したため、Slack 通知は未確認 |
-| 2026-10-25 | 外部 Heartbeat の導入 | 未実施（導入作業中） |
+| 2026-10-25 | 外部 Heartbeat の導入。vm-monitoring の `alertmanager` コンテナを 23:39:05 に `docker stop`（実機テスト） | 23:46 に Healthchecks.io から DOWN が Slack とメールの両方に届いた。23:51:19 に起動し、23:52 に UP が両方に届いた（ユーザー確認）。停止から DOWN までは約 7 分（最後の ping が停止の最大 5 分前なので、Period + Grace の 10 分より短い） |
 | 2026-10-24 | 外形監視の導入。vm-apps の `homepage` コンテナを `docker stop`（実機テスト） | 約 3.5 分後に `ServiceProbeFailed`（`https://home.lab.kanare.dev`）が Alertmanager で firing。起動後 1 分以内に解消。初回デプロイ時は vm-monitoring の DNS（ルーター）が `lab.kanare.dev` を引けず全 HTTPS が失敗したため、コンテナの `dns:` を AdGuard に指定して解決。Slack 画面の確認は未実施 |
 
 VM 停止の検知は、`TargetDown`（VM 内 OS の応答なし）が 3 分、`PveVmStopped`（PVE が見ている状態）が 3 分の待ち時間に、スクレイプ間隔と評価間隔が加わって、約 4 分で通知される。
@@ -151,11 +151,11 @@ VM 停止の検知は、`TargetDown`（VM 内 OS の応答なし）が 3 分、`
 | 項目 | 内容 |
 | --- | --- |
 | 仕組み | Alertmanager が `Watchdog` を webhook で Healthchecks.io の ping URL に 5 分毎に POST する（`group_interval: 1m`、`repeat_interval: 5m`）。途絶えると Healthchecks.io が通知する |
-| Healthchecks.io 側の設定 | Period を 5 分、Grace を 5 分にする（約 10 分で検知）。通知先は、Slack ではなく、ホストが止まっても届くメールやスマホ通知にする |
+| Healthchecks.io 側の設定 | Period を 5 分、Grace を 5 分にする（約 10 分で検知）。通知は Healthchecks.io から直接送る。Slack（`#homelab-alerts`）とメールの 2 経路 |
 | 検知できる障害 | PVE ホストの停止、NIC の停止、vm-monitoring・Alertmanager の停止、回線断・停電 |
 | 区別できないこと | どの障害でも「ping が途絶えた」という同じ通知になる。原因は LAN から `ping`、ARP、`ssh pve` で切り分ける（[障害時の切り分け](../operations/runbooks/troubleshooting.md)） |
 | 秘密情報 | ping URL を知っていれば誰でも ping できる。`heartbeat_ping_url`（SOPS）で管理し、漏えいしたら再発行して差し替える |
-| 動作確認 | **未実施**。導入後に Alertmanager を止めて、通知が届くことを確認し、結果を下の「動作確認の記録」に残す |
+| 動作確認 | 実施済み（2026-10-25）。Alertmanager を止めると DOWN、起動すると UP が Slack とメールに届いた（下の「動作確認の記録」） |
 
 ### 外部監視を導入しない判断（2026-10-22）
 

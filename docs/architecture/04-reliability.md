@@ -15,11 +15,11 @@
 
 | 障害点 | 影響 | 検知 | 備考 |
 | --- | --- | --- | --- |
-| Proxmox ホスト（ハード・電源・NVMe） | 全サービス停止 | **Slack には届かない**（監視 VM も止まる）。外部 Heartbeat で検知する予定（導入作業中） | UPS なし |
-| PVE ホストの NIC（`e1000e`） | ホストと全 VM が LAN から消える。OS は動いている | **Slack には届かない**（監視 VM も外に出られない）。外部 Heartbeat（ADR-0010）で検知する予定（導入作業中） | INC-2026-10-25。TSO/GSO/GRO を無効化して対処 |
+| Proxmox ホスト（ハード・電源・NVMe） | 全サービス停止 | **Slack には届かない**（監視 VM も止まる）。外部 Heartbeat（Healthchecks.io）が Slack とメールで通知する | UPS なし |
+| PVE ホストの NIC（`e1000e`） | ホストと全 VM が LAN から消える。OS は動いている | **Slack には届かない**（監視 VM も外に出られない）。外部 Heartbeat（ADR-0010）が Slack とメールで通知する | INC-2026-10-25。TSO/GSO/GRO を無効化して対処 |
 | thin pool 枯渇 | 全 VM が `io-error` で一時停止 | `LvmThinPoolData*`（Slack） | INC-2026-10-22。容量アラートで枯渇前に検知する |
 | `vm-infra` | 全 LAN の名前解決、`*.lab.kanare.dev` の入口（Caddy）、外出先からのアクセス（Tailscale）が止まる | `TargetDown`、`PveVmStopped`（Slack） | DNS・リバースプロキシ・VPN が 1 台に集中している |
-| `vm-monitoring` | 監視と通知が止まる。サービス自体は影響なし | **Slack には届かない**。外部 Heartbeat で検知する予定（導入作業中） | [監視・アラート](../services/monitoring.md#限界既知の弱点) |
+| `vm-monitoring` | 監視と通知が止まる。サービス自体は影響なし | **Slack には届かない**。外部 Heartbeat が Slack とメールで通知する | [監視・アラート](../services/monitoring.md#限界既知の弱点) |
 | Unbound | 外部ドメインの名前解決が `SERVFAIL` になる（fallback は効かない） | `UnboundProbeFailing`（Slack） | [DNS 構成](../services/dns.md#fallback-dns-の限界) |
 | ルーター・回線 | インターネットと外出先からの接続が止まる。LAN 内は動く | なし | 二重 NAT のため、建物側の障害も含む |
 | Cloudflare / Let's Encrypt | 新規・更新の証明書が取れない | Caddy のログ | 証明書は期限の前に更新するため、短時間の障害では影響しない |
@@ -88,7 +88,7 @@
 | 通知経路が壊れている | `Watchdog`（常時 firing）、`AlertmanagerNotificationsFailing` |
 | fallback で隠れる障害 | `UnboundProbeFailing`（未キャッシュの名前を Unbound に直接引く） |
 | 収集スクリプトの不正な出力 | 変更時は PVE 上で一時ディレクトリに出力して確認する（[監視・アラート](../services/monitoring.md#収集スクリプトを変更するときの注意)） |
-| 監視 VM 自身・ホストの停止 | **塞ぐ作業中**（外部 Heartbeat。[ADR-0010](../adr/0010-external-heartbeat.md)） |
+| 監視 VM 自身・ホストの停止 | 外部 Heartbeat で検知（[ADR-0010](../adr/0010-external-heartbeat.md)） |
 
 ## 既知の弱点と対応状況
 
@@ -105,7 +105,7 @@
 | --- | --- |
 | [thin pool 枯渇（INC-2026-10-22）](../operations/incidents/2026-10-22-lvm-thin-exhaustion.md) | `discard` 有効化、`fstrim`、容量アラート、VM 停止アラート、Slack 通知、容量の上限設定 |
 | [PVE 管理画面の破損（INC-2026-10-22-b）](../operations/incidents/2026-10-22-pve-webui-broken-by-ansible-patch.md) | パッチを「判定式の置換」にして冪等化。復旧手順を Runbook に記載 |
-| [PVE の NIC 送信停止（INC-2026-10-25）](../operations/incidents/2026-10-25-nic-hardware-unit-hang.md) | NIC のオフロード（TSO/GSO/GRO）を無効化。外部 Heartbeat の導入は対応中 |
+| [PVE の NIC 送信停止（INC-2026-10-25）](../operations/incidents/2026-10-25-nic-hardware-unit-hang.md) | NIC のオフロード（TSO/GSO/GRO）を無効化。外部 Heartbeat（Healthchecks.io）を導入 |
 
 ## 目標（暫定）
 
@@ -121,6 +121,6 @@
 
 | リスク | 判断 | 再検討の条件 |
 | --- | --- | --- |
-| ホスト・監視 VM の停止が Slack に通知されない | 外部 Heartbeat で補完する（導入作業中。[ADR-0010](../adr/0010-external-heartbeat.md)、旧判断は [ADR-0002](../adr/0002-no-external-monitoring.md)） | Healthchecks.io の無料枠の条件が変わったとき |
+| ホスト・監視 VM の停止が Slack に通知されない | 外部 Heartbeat で補完している（[ADR-0010](../adr/0010-external-heartbeat.md)、旧判断は [ADR-0002](../adr/0002-no-external-monitoring.md)） | Healthchecks.io の無料枠の条件が変わったとき |
 | 停電でホストが止まる | 受け入れ（UPS 未導入） | ロードマップの「UPS 導入と自動シャットダウン」に着手するとき |
 | `vm-infra` への集中 | 受け入れ | DNS を別ホスト（Raspberry Pi など）に分けるとき。VLAN 化で影響範囲がさらに広がる（[VLAN 設計](08-vlan-design.md#前提と制約)） |

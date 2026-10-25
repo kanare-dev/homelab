@@ -1,6 +1,6 @@
 # 0010. 外部 Heartbeat（Healthchecks.io）で監視 VM の停止を検知する
 
-- ステータス: 採用（導入作業中）
+- ステータス: 採用
 - 日付: 2026-10-25
 
 ## 背景
@@ -30,4 +30,5 @@ ADR-0002 の案 B〜E のうち、B（別ホスト）と C（VPS）は、ハー�
 - ping URL が増える。SOPS で管理する（`heartbeat_ping_url`。[秘密情報管理](../operations/runbooks/secrets.md)）。URL を知っていれば誰でも ping できるため、漏えいしたら再発行する。
 - 回線断や停電でも通知が出る（ホストの外から見るため）。これは意図した挙動で、障害の種類（ホスト停止か回線断か）は通知だけでは区別できない。
 - 外部サービス（Healthchecks.io）に依存する。無料枠の条件の変更や、サービスの終了があれば再検討する。
-- 通知先は、Slack ではなく、回線が止まっても届く経路（メール、スマホ通知）にする。Slack は Alertmanager 経由なので、ホストが止まると届かない。
+- 通知は Healthchecks.io から直接送る。Slack（`#homelab-alerts`）とメールの 2 経路にした。Alertmanager 経由の Slack と違い、ホストが止まっても届く。Slack 側の障害に備えて、メールを併用する。
+- 動作確認（2026-10-25）で、Alertmanager を止めると約 7 分後に DOWN、起動後に UP が Slack とメールに届いた（[監視・アラート](../services/monitoring.md#外部-heartbeat)）。

@@ -106,6 +106,6 @@ VM の IP は Terraform（`terraform.tfvars`）で固定する。VMID は IP の
 | 項目 | 状況 |
 | --- | --- |
 | Cloudflare Tunnel + Split-Horizon DNS で外部公開 | 保留（共有したい具体的なニーズが出てから） |
-| 外部監視（Heartbeat） | 導入作業中（[ADR-0010](../adr/0010-external-heartbeat.md)、[監視・アラート](../services/monitoring.md#外部-heartbeat)） |
+| 外部監視（Heartbeat） | 導入済み（[ADR-0010](../adr/0010-external-heartbeat.md)、[監視・アラート](../services/monitoring.md#外部-heartbeat)） |
 | Tailscale の ACL で管理画面を除外 | 未実施 |
 | 引っ越し後の上流ネットワーク対応 | 未定（[移行性](06-migration.md)） |

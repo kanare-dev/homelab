@@ -2,7 +2,7 @@
 
 | 項目 | 内容 |
 | --- | --- |
-| 状態 | **対応中**。NIC の再発防止は適用済み。外部 Heartbeat の導入は未完（§5） |
+| 状態 | **対応中**。NIC の再発防止と外部 Heartbeat は適用・確認済み。残りは §5 の #5〜#7（再起動後の確認、DNS のセカンダリ、画面出力の手段） |
 | 発生 | 2026-10-25 22:29:17（カーネルログに `Detected Hardware Unit Hang` が初めて出た時刻） |
 | 発見 | 2026-10-25（ユーザーがスマホを Wi-Fi に繋ぐと、homelab もインターネットも使えないことに気づいた。時刻は未確認）。**アラートは 1 通も届かなかった** |
 | 復旧 | 2026-10-25 23:09〜23:10（ユーザーが PVE 機を強制再起動。23:10:15 に起動） |
@@ -94,10 +94,12 @@ e1000e 0000:00:1f.6 nic0: Detected Hardware Unit Hang:
 - ソフトウェアの負荷が増える（TSO を CPU で処理する）が、1Gbps の個人用途では無視できる範囲と見ている。
 - **未確認**: `post-up` が再起動後に実際に効くこと。次回の PVE 再起動のあとに `ethtool -k nic0` で確認する。
 
-### 4.2 外部 Heartbeat の導入（未完）
+### 4.2 外部 Heartbeat の導入（導入済み）
 
 [ADR-0002](../../adr/0002-no-external-monitoring.md) の案 A。`Watchdog` を外部サービスへ定期送信し、途絶えたら外部から通知する。ホストの停止、NIC の停止、回線断を、ホストの外から検知できる。
-コードと設計書は用意した（`alertmanager.yml` の `heartbeat` receiver、`monitoring.yml` の配置、[ADR-0010](../../adr/0010-external-heartbeat.md)）。Healthchecks.io 側のチェック作成と、ping URL の SOPS への追記（ユーザーの作業）が済むまでは、デプロイできない（`monitoring.yml` は `heartbeat_ping_url` が未設定だと失敗する）。
+導入済み（[ADR-0010](../../adr/0010-external-heartbeat.md)）。`alertmanager.yml` の `heartbeat` receiver が `Watchdog` を Healthchecks.io に 5 分毎に送る。通知は Healthchecks.io から Slack とメールに直接届く。
+
+動作確認（2026-10-25）: 23:39:05 に `alertmanager` コンテナを停止し、23:46 に DOWN、23:51:19 に起動して 23:52 に UP が、Slack とメールの両方に届いた（ユーザー確認）。
 
 ## 5. アクションアイテム
 
@@ -106,9 +108,9 @@ e1000e 0000:00:1f.6 nic0: Detected Hardware Unit Hang:
 | # | アクション | 状態 | 期限（案） |
 | --- | --- | --- | --- |
 | 1 | NIC のオフロードを無効化する（§4.1） | **完了**（10-25） | - |
-| 2 | 外部 Heartbeat（Healthchecks.io）を導入し、`Watchdog` を送信する。Healthchecks.io でチェックを作成（Period 5 分、Grace 5 分）→ ping URL を SOPS に追加 → `monitoring.yml` を実行 → Alertmanager を止めて通知が届くことを確認 | **対応中**（コード・設計書は用意済み。デプロイ待ち） | 1 週間 |
+| 2 | 外部 Heartbeat（Healthchecks.io）を導入し、`Watchdog` を送信する | **完了**（10-25）。Alertmanager を止めて、DOWN（23:46）と UP（23:52）が Slack とメールに届くことを確認した | - |
 | 3 | ADR-0002 を置き換える新しい ADR を追加する | **完了**（10-25。[ADR-0010](../../adr/0010-external-heartbeat.md)） | - |
-| 4 | `docs/services/monitoring.md` の「限界」「外部 Heartbeat」「監視している項目」を更新する | **完了**（10-25。動作確認の結果は #2 のあとに記録する） | - |
+| 4 | `docs/services/monitoring.md` の「限界」「外部 Heartbeat」「監視している項目」を更新する | **完了**（10-25。動作確認の結果も記録済み） | - |
 | 5 | 次回の PVE 再起動後に、`ethtool -k nic0` で `post-up` の効果を確認する | 未着手 | 次回の再起動時 |
 | 6 | ルーターの DHCP が配る DNS を確認し、AdGuard 以外のセカンダリ（`1.1.1.1` など）を足すか判断する。ADR-0007 と、AdGuard の fallback 設計との整合を確認する | 未着手 | 1 週間 |
 | 7 | 再発したときのために、PVE 機の画面出力を確認できる手段（常設しないモニターの置き場所、または IPMI 相当）を検討する | 未着手 | 任意 |
