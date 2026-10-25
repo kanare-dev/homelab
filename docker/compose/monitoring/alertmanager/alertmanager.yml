@@ -8,10 +8,13 @@ route:
   group_interval: 5m
   repeat_interval: 4h
   routes:
-    # Watchdog は通知しない
+    # Watchdog は Slack には送らず、外部の Heartbeat（Healthchecks.io）へ定期送信する。途絶えたら外部から通知される（ADR-0010）
     - matchers:
         - alertname = "Watchdog"
-      receiver: "null"
+      receiver: heartbeat
+      group_wait: 0s
+      group_interval: 1m
+      repeat_interval: 5m
     - matchers:
         - severity = "critical"
       receiver: slack
@@ -33,6 +36,12 @@ inhibit_rules:
 
 receivers:
   - name: "null"
+
+  - name: heartbeat
+    webhook_configs:
+      # ping URL は Ansible が SOPS から /etc/alertmanager/heartbeat_ping_url に配置する
+      - url_file: /etc/alertmanager/heartbeat_ping_url
+        send_resolved: false
 
   - name: slack
     slack_configs:

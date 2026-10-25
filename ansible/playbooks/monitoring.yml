@@ -54,6 +54,15 @@
           slack_webhook_url が未設定。ansible/inventory/group_vars/monitoring/secrets.sops.yml に
           sops で追加すること（docs/operations/runbooks/slack-alerts.md参照）。
 
+    - name: Fail early if heartbeat ping URL is not in secrets
+      ansible.builtin.assert:
+        that:
+          - heartbeat_ping_url is defined
+          - heartbeat_ping_url | length > 0
+        fail_msg: >-
+          heartbeat_ping_url が未設定。ansible/inventory/group_vars/monitoring/secrets.sops.yml に
+          sops で追加すること（docs/services/monitoring.md の「外部 Heartbeat」参照）。
+
     - name: Create blackbox config directory
       ansible.builtin.file:
         path: /opt/monitoring/blackbox
@@ -83,6 +92,14 @@
       ansible.builtin.copy:
         content: "{{ slack_webhook_url }}"
         dest: /opt/monitoring/alertmanager/slack_webhook_url
+        mode: "0644"
+      no_log: true
+
+    # slack_webhook_url と同じ理由で 0644
+    - name: Deploy heartbeat ping URL
+      ansible.builtin.copy:
+        content: "{{ heartbeat_ping_url }}"
+        dest: /opt/monitoring/alertmanager/heartbeat_ping_url
         mode: "0644"
       no_log: true
 
