@@ -9,6 +9,19 @@
     replace: "false"
   notify: Restart pveproxy
 
+# INC-2026-10-25: e1000e (Intel I219) が TSO 起因の Hardware Unit Hang で送信停止し、ホストと全 VM が LAN から消えた。
+# オフロードを無効にして再発を防ぐ。再起動後も効くよう interfaces に書き、今の実行中の NIC にも直接適用する（ifreload は通信が途切れうるので使わない）
+- name: Disable NIC offloads on nic0 (persistent)
+  ansible.builtin.blockinfile:
+    path: /etc/network/interfaces
+    insertafter: '^iface nic0 inet manual$'
+    marker: "    # {mark} ANSIBLE MANAGED: e1000e hang workaround (INC-2026-10-25)"
+    block: "    post-up ethtool -K nic0 tso off gso off gro off"
+
+- name: Disable NIC offloads on nic0 (running)
+  ansible.builtin.command: ethtool -K nic0 tso off gso off gro off
+  changed_when: false
+
 # INC-2026-10-22: thin pool 使用率と VM の io-error を Prometheus から見えるようにする
 - name: Install storage metrics collector
   ansible.builtin.copy:
