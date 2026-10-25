@@ -23,6 +23,8 @@ homelab の監視とアラート通知の仕組み。2026-10-22 の障害（[INC
                               │ 発報
                               v
                         Alertmanager :9093 ──> Slack Incoming Webhook (#homelab-alerts)
+                              │ Watchdog (5分毎)
+                              └──────────────> Healthchecks.io ──(途絶えたら)──> メール / スマホ通知
                               ^
                         Grafana :3000 (可視化。通知には関与しない)
 ```
@@ -38,6 +40,8 @@ homelab の監視とアラート通知の仕組み。2026-10-22 の障害（[INC
 | Prometheus | 収集・ルール評価。`retention.time=30d`、`retention.size=5GB` | `docker/compose/monitoring/prometheus/prometheus.yml`、`docker-compose.yml` |
 | アラートルール | 発報条件 | `docker/compose/monitoring/prometheus/alerts.yml` |
 | Alertmanager | 通知のグルーピング・送信 | `docker/compose/monitoring/alertmanager/alertmanager.yml` |
+| 外部 Heartbeat | `Watchdog` を Healthchecks.io へ 5 分毎に送る。途絶えたら外部から通知（[ADR-0010](../adr/0010-external-heartbeat.md)） | `alertmanager.yml`（`heartbeat` receiver）、`ansible/playbooks/monitoring.yml` |
+| Heartbeat ping URL | 秘密情報 | `ansible/inventory/group_vars/monitoring/secrets.sops.yml`（`heartbeat_ping_url`、SOPS 暗号化） |
 | Slack Webhook URL | 秘密情報 | `ansible/inventory/group_vars/monitoring/secrets.sops.yml`（`slack_webhook_url`、SOPS 暗号化） |
 | Grafana ダッシュボード「Storage / Thin Pool」 | pool とVM ディスク別の割当、増加ペース、VM 稼働状態 | `docker/compose/monitoring/grafana/dashboards/storage.json`（`/d/homelab-storage`） |
 | デプロイ | | `ansible/playbooks/monitoring.yml`（vm-monitoring）、`ansible/playbooks/proxmox.yml`（pve） |
@@ -66,7 +70,7 @@ homelab の監視とアラート通知の仕組み。2026-10-22 の障害（[INC
 | DnsProbeFailed | AdGuard への名前解決が失敗（`dns-lab`: 内部ゾーン、`dns-external`: 外部の名前） | 2m | critical | AdGuard / CoreDNS / Unbound の停止。発報中は `ServiceProbeFailed` を抑制する |
 | TlsCertExpiringSoon / Critical | 証明書の残り日数 < 14 / < 3 | 1h / 10m | warning / critical | Let's Encrypt の自動更新の失敗（Cloudflare トークン失効など） |
 | BlackboxProbeMissing | 外形監視のメトリクスが存在しない | 10m | warning | blackbox-exporter の停止（監視の盲点） |
-| Watchdog | 常に firing | - | none | 通知経路の死活確認（Slack には送らない） |
+| Watchdog | 常に firing | - | none | 通知経路の死活確認。Slack には送らず、Healthchecks.io へ 5 分毎に送る（途絶えたら外部から通知） |
 
 ### 外形監視（blackbox）
 
@@ -110,6 +114,7 @@ homelab の監視とアラート通知の仕組み。2026-10-22 の障害（[INC
 | 2026-10-22 | `TestAlert` を Alertmanager に直接送信 | Slack に `[WARNING] TestAlert` が届いた |
 | 2026-10-22 | vm-code を `qm shutdown` で停止（実機テスト） | 停止から約 3.5 分で `TargetDown`、約 4 分で `PveVmStopped` が発報。Slack に両方届いた（ユーザー確認）。起動後 1 分以内にアラートは解消 |
 | 2026-10-22 | Unbound の実障害（`do-ip6` が有効で `max-sends` 超過 → 未キャッシュの名前が `SERVFAIL`） | `UnboundProbeFailing` が pending になり、検知できた。`do-ip6: no` で解消（[dns.md](dns.md)）。待ち時間（3 分）内に復旧したため、Slack 通知は未確認 |
+| 2026-10-25 | 外部 Heartbeat の導入 | 未実施（導入作業中） |
 | 2026-10-24 | 外形監視の導入。vm-apps の `homepage` コンテナを `docker stop`（実機テスト） | 約 3.5 分後に `ServiceProbeFailed`（`https://home.lab.kanare.dev`）が Alertmanager で firing。起動後 1 分以内に解消。初回デプロイ時は vm-monitoring の DNS（ルーター）が `lab.kanare.dev` を引けず全 HTTPS が失敗したため、コンテナの `dns:` を AdGuard に指定して解決。Slack 画面の確認は未実施 |
 
 VM 停止の検知は、`TargetDown`（VM 内 OS の応答なし）が 3 分、`PveVmStopped`（PVE が見ている状態）が 3 分の待ち時間に、スクレイプ間隔と評価間隔が加わって、約 4 分で通知される。
@@ -134,12 +139,27 @@ VM 停止の検知は、`TargetDown`（VM 内 OS の応答なし）が 3 分、`
 
 ## 限界（既知の弱点）
 
-1. **監視 VM 自身が止まると通知されない**。vm-monitoring は PVE と同じストレージ・ホスト上にある。PVE ホストの停止、vm-monitoring の停止、ストレージ全体の障害では Slack に何も届かない。今回の障害と同じ構造で、完全には防げていない。
-2. **PVE ホスト自体が落ちた場合も通知されない**（上と同じ理由）。
-3. 外部監視による補完は**現時点では行わない**（判断は下記「外部監視を導入しない判断」を参照）。
+1. **監視 VM 自身が止まると、Slack には通知されない**。vm-monitoring は PVE と同じストレージ・ホスト上にある。PVE ホストの停止、NIC の停止（INC-2026-10-25）、vm-monitoring の停止、ストレージ全体の障害では Slack に何も届かない。
+2. **PVE ホスト自体が落ちた場合も Slack には通知されない**（上と同じ理由）。
+3. 1・2 は**外部 Heartbeat で補完する**（[外部 Heartbeat](#外部-heartbeat)）。ただし「何が止まったか」までは通知で区別できない（ホスト停止、NIC 停止、回線断のどれでも同じ通知になる）。
 4. Slack への送信失敗は `AlertmanagerNotificationsFailing` で検知するが、Slack に届かないので **UI（`https://alertmanager.lab.kanare.dev`）を見ないと気づけない**。
 
+### 外部 Heartbeat
+
+判断の記録: [ADR-0010](../adr/0010-external-heartbeat.md)
+
+| 項目 | 内容 |
+| --- | --- |
+| 仕組み | Alertmanager が `Watchdog` を webhook で Healthchecks.io の ping URL に 5 分毎に POST する（`group_interval: 1m`、`repeat_interval: 5m`）。途絶えると Healthchecks.io が通知する |
+| Healthchecks.io 側の設定 | Period を 5 分、Grace を 5 分にする（約 10 分で検知）。通知先は、Slack ではなく、ホストが止まっても届くメールやスマホ通知にする |
+| 検知できる障害 | PVE ホストの停止、NIC の停止、vm-monitoring・Alertmanager の停止、回線断・停電 |
+| 区別できないこと | どの障害でも「ping が途絶えた」という同じ通知になる。原因は LAN から `ping`、ARP、`ssh pve` で切り分ける（[障害時の切り分け](../operations/runbooks/troubleshooting.md)） |
+| 秘密情報 | ping URL を知っていれば誰でも ping できる。`heartbeat_ping_url`（SOPS）で管理し、漏えいしたら再発行して差し替える |
+| 動作確認 | **未実施**。導入後に Alertmanager を止めて、通知が届くことを確認し、結果を下の「動作確認の記録」に残す |
+
 ### 外部監視を導入しない判断（2026-10-22）
+
+> **この判断は置き換え済み。** [ADR-0010](../adr/0010-external-heartbeat.md)（2026-10-25）で置き換えた。以下は当時の判断と選択肢の記録として残す。
 
 判断の記録: [ADR-0002](../adr/0002-no-external-monitoring.md)
 
@@ -165,7 +185,7 @@ VM 停止の検知は、`TargetDown`（VM 内 OS の応答なし）が 3 分、`
 | D. 監視 VM を別ストレージへ分離 | 監視 VM の置き場所を `local`（dir）や別ディスクにする | ストレージ枯渇に巻き込まれない | 別ディスクがない場合は効果が限定的。ホスト停止は検知できない |
 | E. 何もしない（現状） | 上記のリスクを受け入れる | 追加コスト・運用負担なし | 停止は気づくまで検知されない |
 
-現在は **E**。導入するなら、手間が最も少ない **A** を第一候補とする。
+当時は **E**。導入するなら、手間が最も少ない **A** を第一候補とした。INC-2026-10-25 を受けて **A** を採用した（ADR-0010）。
 
 ## 運用
 

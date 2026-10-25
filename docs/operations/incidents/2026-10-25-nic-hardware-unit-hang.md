@@ -97,7 +97,7 @@ e1000e 0000:00:1f.6 nic0: Detected Hardware Unit Hang:
 ### 4.2 外部 Heartbeat の導入（未完）
 
 [ADR-0002](../../adr/0002-no-external-monitoring.md) の案 A。`Watchdog` を外部サービスへ定期送信し、途絶えたら外部から通知する。ホストの停止、NIC の停止、回線断を、ホストの外から検知できる。
-サービスの選定、秘密情報（ping URL）の管理、ADR-0002 を置き換える ADR の追加は、別の変更で行う（§5 の #2〜#4）。
+コードと設計書は用意した（`alertmanager.yml` の `heartbeat` receiver、`monitoring.yml` の配置、[ADR-0010](../../adr/0010-external-heartbeat.md)）。Healthchecks.io 側のチェック作成と、ping URL の SOPS への追記（ユーザーの作業）が済むまでは、デプロイできない（`monitoring.yml` は `heartbeat_ping_url` が未設定だと失敗する）。
 
 ## 5. アクションアイテム
 
@@ -106,9 +106,9 @@ e1000e 0000:00:1f.6 nic0: Detected Hardware Unit Hang:
 | # | アクション | 状態 | 期限（案） |
 | --- | --- | --- | --- |
 | 1 | NIC のオフロードを無効化する（§4.1） | **完了**（10-25） | - |
-| 2 | 外部 Heartbeat（Healthchecks.io など）を導入し、`Watchdog` を送信する | 未着手 | 1 週間 |
-| 3 | ADR-0002 を置き換える新しい ADR を追加する | 未着手 | #2 と同時 |
-| 4 | `docs/services/monitoring.md` の「限界」「外部監視を導入しない判断」「監視している項目」を更新する | 未着手 | #2 と同時 |
+| 2 | 外部 Heartbeat（Healthchecks.io）を導入し、`Watchdog` を送信する。Healthchecks.io でチェックを作成（Period 5 分、Grace 5 分）→ ping URL を SOPS に追加 → `monitoring.yml` を実行 → Alertmanager を止めて通知が届くことを確認 | **対応中**（コード・設計書は用意済み。デプロイ待ち） | 1 週間 |
+| 3 | ADR-0002 を置き換える新しい ADR を追加する | **完了**（10-25。[ADR-0010](../../adr/0010-external-heartbeat.md)） | - |
+| 4 | `docs/services/monitoring.md` の「限界」「外部 Heartbeat」「監視している項目」を更新する | **完了**（10-25。動作確認の結果は #2 のあとに記録する） | - |
 | 5 | 次回の PVE 再起動後に、`ethtool -k nic0` で `post-up` の効果を確認する | 未着手 | 次回の再起動時 |
 | 6 | ルーターの DHCP が配る DNS を確認し、AdGuard 以外のセカンダリ（`1.1.1.1` など）を足すか判断する。ADR-0007 と、AdGuard の fallback 設計との整合を確認する | 未着手 | 1 週間 |
 | 7 | 再発したときのために、PVE 機の画面出力を確認できる手段（常設しないモニターの置き場所、または IPMI 相当）を検討する | 未着手 | 任意 |

@@ -47,5 +47,5 @@ curl -XPOST https://alertmanager.lab.kanare.dev/api/v2/alerts -H 'Content-Type: 
 
 ## 既知の限界
 
-監視 VM (vm-monitoring) は同じ Proxmox ストレージ上にある。ストレージ障害時は Alertmanager も停止し通知が届かない。
-外部監視で補う案は検討のうえ**見送り**とした（理由と選択肢は [monitoring.md](../../services/monitoring.md#外部監視を導入しない判断2026-10-22) を参照）。
+監視 VM (vm-monitoring) は同じ Proxmox ストレージ上にある。ストレージや NIC の障害時は Alertmanager も停止し、Slack に通知が届かない。
+外部 Heartbeat で補う（導入作業中。[monitoring.md](../../services/monitoring.md#外部-heartbeat)、[ADR-0010](../../adr/0010-external-heartbeat.md)）。

@@ -7,7 +7,7 @@
 | # | タイトル | ステータス | 日付 |
 | --- | --- | --- | --- |
 | [0001](0001-no-vm-backup.md) | VM のバックアップを取らない | 採用 | 2026-10-22 |
-| [0002](0002-no-external-monitoring.md) | 外部監視を導入しない | 採用 | 2026-10-22 |
+| [0002](0002-no-external-monitoring.md) | 外部監視を導入しない | 置き換え済み（→ 0010） | 2026-10-22 |
 | [0003](0003-vlan-address-scheme.md) | VLAN のアドレス体系を `10.<VLAN>.0.0/24` にする | 採用（未適用） | 2026-10-23 |
 | [0004](0004-vlan-cutover-all-at-once.md) | VLAN 移行は一斉切り替えにする | 採用（未適用） | 2026-10-23 |
 | [0005](0005-tailscale-only-remote-access.md) | 外出先からのアクセスは Tailscale のみにする | 採用 | 記録なし |
@@ -15,6 +15,7 @@
 | [0007](0007-vm-host-dns-is-router.md) | VM のホスト DNS はルーターにする | 採用 | 記録なし |
 | [0008](0008-no-authelia.md) | Authelia を導入しない | 採用（見送り） | 2026-10-24 |
 | [0009](0009-router-er605-first.md) | ルーターは ER605 V2 を先に導入し、OPNsense は後で学習用に足す | 採用 | 2026-10-24 |
+| [0010](0010-external-heartbeat.md) | 外部 Heartbeat（Healthchecks.io）で監視 VM の停止を検知する | 採用（導入作業中） | 2026-10-25 |
 
 ## 書き方
 

@@ -81,6 +81,7 @@ VM の IP は Terraform（`terraform.tfvars`）で固定する。VMID は IP の
 | Cloudflare（DNS） | `kanare.dev` のゾーン。Caddy の DNS-01 チャレンジ | API トークン（SOPS） | 証明書の新規取得・更新ができない。既存の証明書は期限まで使える |
 | Let's Encrypt | `*.lab.kanare.dev` 各 FQDN の証明書 | なし | 同上 |
 | Slack | アラート通知（Incoming Webhook） | Webhook URL（SOPS） | 通知が届かない。`AlertmanagerNotificationsFailing` は Slack に出ない |
+| Healthchecks.io | 外部 Heartbeat。`Watchdog` の途絶を検知する（[ADR-0010](../adr/0010-external-heartbeat.md)） | ping URL（SOPS） | 監視 VM・ホスト・回線の停止を外から検知できなくなる。サービス自体は影響なし |
 | GitHub | リポジトリ、CI（lint のみ） | 個人アカウント | 構成の取得・push ができない。稼働中のサービスは影響なし |
 | NTP（`ntp.nict.jp`、`time.google.com`） | 時刻同期 | なし | 時刻がずれる。TLS・ログの時刻に影響 |
 | DNS ルートサーバー | Unbound の再帰解決（`root.hints`） | なし | 外部ドメインが引けない。fallback（`1.1.1.1` / `9.9.9.9`）は、接続できない場合だけ働く |
@@ -93,6 +94,7 @@ VM の IP は Terraform（`terraform.tfvars`）で固定する。VMID は IP の
 | Cloudflare API・ACME | `vm-infra`（Caddy） | 証明書の取得・更新 |
 | Tailscale | `vm-infra` ほか | NAT 越えを含む |
 | Slack Webhook | `vm-monitoring`（Alertmanager） | HTTPS |
+| Heartbeat（Healthchecks.io） | `vm-monitoring`（Alertmanager） | HTTPS。`Watchdog` を 5 分毎に送る |
 | DNS（再帰解決） | `vm-infra`（Unbound） | ルートから再帰。IPv6 は無効（`do-ip6: no`） |
 | NTP | 全 VM | `systemd-timesyncd` |
 | apt / Docker pull | 各 VM | 更新時 |
@@ -104,6 +106,6 @@ VM の IP は Terraform（`terraform.tfvars`）で固定する。VMID は IP の
 | 項目 | 状況 |
 | --- | --- |
 | Cloudflare Tunnel + Split-Horizon DNS で外部公開 | 保留（共有したい具体的なニーズが出てから） |
-| 外部監視（Heartbeat など） | 見送り（[監視・アラート](../services/monitoring.md#外部監視を導入しない判断2026-10-22)） |
+| 外部監視（Heartbeat） | 導入作業中（[ADR-0010](../adr/0010-external-heartbeat.md)、[監視・アラート](../services/monitoring.md#外部-heartbeat)） |
 | Tailscale の ACL で管理画面を除外 | 未実施 |
 | 引っ越し後の上流ネットワーク対応 | 未定（[移行性](06-migration.md)） |
