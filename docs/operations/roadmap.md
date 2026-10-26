@@ -56,7 +56,13 @@ README に書く現行構成は `24GB` に増設済みのホストを前提と�
 - [x] Unbound の応答失敗を検知するアラートを追加する（AdGuard の fallback DNS で隠れる障害を、未キャッシュの名前を Unbound に直接引くプローブで検知する。[monitoring.md](../services/monitoring.md)）
 - [x] Alertmanager を追加して個人Slackで監視通知を受け取れるようにする（[monitoring.md](../services/monitoring.md)）
 - [x] 外部 Heartbeat（Healthchecks.io）で、ホスト・NIC・監視 VM の停止を外から検知する（[ADR 0010](../adr/0010-external-heartbeat.md)、[INC-2026-10-25](incidents/2026-10-25-nic-hardware-unit-hang.md)）
-- [ ] uptime-kuma の導入
+- [ ] uptime-kuma の導入（見送り中。2026-10-27 時点では導入しない）
+  - 現状: HTTPS と DNS の外形監視は blackbox-exporter + Alertmanager で行い、停止の検知は外部 Heartbeat（Healthchecks.io）が担う（[monitoring.md](../services/monitoring.md)）
+  - 見送る理由: 死活監視と通知が blackbox-exporter と重なり、二重管理になる。Alertmanager の `inhibit_rules`（VM 停止・DNS 障害時の抑制）が使えず、障害のたびに通知が増える。vm-apps に置くと監視対象と同じホストで止まり、ホスト停止は検知できない
+  - 導入を検討する条件（どれか 1 つでも該当したら着手を判断する）:
+    - 家族など Grafana を見ない人向けに、ステータスページが必要になった
+    - 外形監視のターゲット追加（`prometheus.yml` の編集とデプロイ）が負担になった
+    - 回線断・停電を家の外から検知したくなり、外部の VPS を用意できた（[monitoring.md](../services/monitoring.md) の案 C）
 - [ ] Loki + Grafana Alloy でログ収集基盤を構築する（見送り中。2026-10-26 時点では導入しない）
   - 現状: ログは各ホストの journald（200M・1 か月）と Docker のログ上限（10MB × 3）に分散している。横断検索の手段はなく、調べるときは VM ごとに `ssh` して `journalctl` / `docker logs` を使う
   - 見送る理由: INC-2026-10-25 の原因は PVE の journald（永続化済み）で追えた。ホストの NIC が止まると転送もできず、集約していても効果はなかった。ストレージの過剰割当（約 1.44 倍）が残っており、増え続けるログを足すリスクがある。収集エージェントを全ホストに入れる運用の手間も増える
