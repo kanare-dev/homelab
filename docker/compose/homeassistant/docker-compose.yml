@@ -1,0 +1,21 @@
+# INC-2026-10-22: コンテナログがディスクを圧迫しないよう上限を設ける
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
+services:
+  homeassistant:
+    image: ghcr.io/home-assistant/home-assistant:2026.10.4
+    container_name: homeassistant
+    logging: *default-logging
+    restart: unless-stopped
+    # 機器の自動検出（mDNS / SSDP）にホストのネットワークが要る。8123 は ufw で vm-infra（Caddy）だけに絞る
+    network_mode: host
+    environment:
+      - TZ=Asia/Tokyo
+    volumes:
+      - /opt/homeassistant/config:/config
+
+networks: {}

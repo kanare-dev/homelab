@@ -62,3 +62,56 @@
         services:
           - homepage
         state: restarted
+
+    # --- Home Assistant ---
+    # コンテナは root で動くため、設定ディレクトリは root 所有にする
+    - name: Create homeassistant config directory
+      ansible.builtin.file:
+        path: /opt/homeassistant/config
+        state: directory
+        owner: root
+        group: root
+        mode: "0755"
+
+    - name: Copy homeassistant docker-compose.yml
+      ansible.builtin.copy:
+        src: "{{ playbook_dir }}/../../docker/compose/homeassistant/docker-compose.yml"
+        dest: /opt/homeassistant/docker-compose.yml
+        mode: "0644"
+      notify: Restart homeassistant
+
+    - name: Copy homeassistant configuration.yaml
+      ansible.builtin.copy:
+        src: "{{ playbook_dir }}/../../docker/compose/homeassistant/config/configuration.yaml"
+        dest: /opt/homeassistant/config/configuration.yaml
+        owner: root
+        group: root
+        mode: "0644"
+      notify: Restart homeassistant
+
+    # 画面から編集されるファイルは、無ければ作るだけ（上書きしない）。Git へは make ha-config-pull で取り込む
+    - name: Create homeassistant UI-managed YAML files if missing
+      ansible.builtin.copy:
+        src: "{{ playbook_dir }}/../../docker/compose/homeassistant/config/{{ item }}"
+        dest: /opt/homeassistant/config/{{ item }}
+        owner: root
+        group: root
+        mode: "0644"
+        force: false
+      loop:
+        - automations.yaml
+        - scripts.yaml
+        - scenes.yaml
+
+    - name: Start homeassistant stack
+      community.docker.docker_compose_v2:
+        project_src: /opt/homeassistant
+        state: present
+
+  handlers:
+    - name: Restart homeassistant
+      community.docker.docker_compose_v2:
+        project_src: /opt/homeassistant
+        services:
+          - homeassistant
+        state: restarted
