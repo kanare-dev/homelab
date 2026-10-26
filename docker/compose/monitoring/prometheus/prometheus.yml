@@ -73,6 +73,8 @@ scrape_configs:
         labels: { host: "pve", service: "pve" }
       - targets: ["https://home.lab.kanare.dev"]
         labels: { host: "vm-apps", service: "homepage" }
+      - targets: ["https://ha.lab.kanare.dev"]
+        labels: { host: "vm-apps", service: "homeassistant" }
       - targets: ["https://adguard.lab.kanare.dev"]
         labels: { host: "vm-infra", service: "adguard" }
       - targets: ["https://code.lab.kanare.dev"]

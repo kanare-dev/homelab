@@ -51,3 +51,10 @@
         description: Claude Code UI
         icon: claude-ai.png
         siteMonitor: https://cloudcli.lab.kanare.dev
+
+- Home:
+    - Home Assistant:
+        href: https://ha.lab.kanare.dev
+        description: Smart Home
+        icon: home-assistant.png
+        siteMonitor: https://ha.lab.kanare.dev
