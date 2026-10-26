@@ -166,6 +166,9 @@ def layout(m):
     m.clone("66", "vmmon-blackbox-text")
     m.value("vmmon-blackbox-text", svc("blackbox-exporter", ":9115"))
     m.value("93", svc("Homepage", ":3001"))
+    m.clone("92", "vmapps-ha-icon", icon="apps/home-assistant.svg")
+    m.clone("93", "vmapps-ha-text")
+    m.value("vmapps-ha-text", svc("Home Assistant", ":8123"))
     for cid in ("84", "86", "88", "95"):
         m.value(cid, svc("node_exporter", ":9100"))
     m.value("vmcode-claude-text", svc("Claude Code"))
@@ -223,11 +226,11 @@ def layout(m):
     for k, n in enumerate(("claude", "cloudcli", "codeserver", "nodeexp")):
         m.row(f"vmcode-{n}-icon", f"vmcode-{n}-text", c2 + 40, top + 390 + 40 * k, 220)
 
-    m.vm("45", "46", "47", c3, top, 220)              # vm-apps
-    m.dbox("96", [("97", "98"), ("92", "93")], c3, top + 70)
-    m.row("94", "95", c3 + 40, top + 170, 220)
-    m.vm("vmwin-frame", "vmwin-icon", "vmwin-text", c3, top + 240, 80)   # vm-windows（手動起動。node_exporter 未導入）
-    m.geo("vmwin-icon", c3 + 25, top + 265, 30, 30)    # 余白のないロゴなので、他の見出しアイコンと大きさが合うよう小さくする
+    m.vm("45", "46", "47", c3, top, 260)              # vm-apps
+    m.dbox("96", [("97", "98"), ("92", "93"), ("vmapps-ha-icon", "vmapps-ha-text")], c3, top + 70)
+    m.row("94", "95", c3 + 40, top + 210, 220)
+    m.vm("vmwin-frame", "vmwin-icon", "vmwin-text", c3, top + 280, 80)   # vm-windows（手動起動。node_exporter 未導入）
+    m.geo("vmwin-icon", c3 + 25, top + 305, 30, 30)    # 余白のないロゴなので、他の見出しアイコンと大きさが合うよう小さくする
 
     m.row("87", "88", 80, 980, 220)                   # Proxmox ホスト自身の node_exporter（PVE 枠の左下）
 
