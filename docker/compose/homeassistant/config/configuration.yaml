@@ -1,11 +1,8 @@
 # Loads default set of integrations. Do not remove.
 default_config:
 
-# Caddy（vm-infra）経由でアクセスする。Caddy の IP だけを信頼し、転送元の IP を使う
-http:
-  use_x_forwarded_for: true
-  trusted_proxies:
-    - 192.168.11.11
+# HTTP（リバースプロキシの信頼設定）は YAML に書かない。2026.10 以降は初回だけ YAML から取り込まれ、
+# 以後は .storage/http だけが使われる。Caddy（vm-infra）を信頼する設定は docker/compose/homeassistant/storage/http にある
 
 # Load frontend themes from the themes folder
 frontend:

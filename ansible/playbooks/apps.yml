@@ -89,6 +89,25 @@
         mode: "0644"
       notify: Restart homeassistant
 
+    # HTTP の設定（Caddy を信頼する）の初期値。HA はこのファイルを以後は自分で管理するので、無いときだけ置く
+    - name: Create homeassistant .storage directory
+      ansible.builtin.file:
+        path: /opt/homeassistant/config/.storage
+        state: directory
+        owner: root
+        group: root
+        mode: "0755"
+
+    - name: Seed homeassistant HTTP config if missing
+      ansible.builtin.copy:
+        src: "{{ playbook_dir }}/../../docker/compose/homeassistant/storage/http"
+        dest: /opt/homeassistant/config/.storage/http
+        owner: root
+        group: root
+        mode: "0600"
+        force: false
+      notify: Restart homeassistant
+
     # 画面から編集されるファイルは、無ければ作るだけ（上書きしない）。Git へは make ha-config-pull で取り込む
     - name: Create homeassistant UI-managed YAML files if missing
       ansible.builtin.copy:
