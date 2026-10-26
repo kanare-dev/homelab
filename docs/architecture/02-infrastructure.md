@@ -21,7 +21,7 @@ Proxmox VE 上に Terraform で VM を作り、Ansible で設定し、各 VM で
 | --- | --- | --- | ---: | ---: | ---: | --- | --- | --- |
 | `vm-infra` | 111 | `192.168.11.11` | 2 | 1.5GB | 20G | 自動（順序 1） | インフラ基盤 | AdGuard Home, Unbound, CoreDNS, Caddy, Tailscale |
 | `vm-monitoring` | 113 | `192.168.11.13` | 2 | 2GB | 40G | 自動（順序 2） | 監視 | Prometheus, Alertmanager, Grafana, blackbox-exporter |
-| `vm-apps` | 120 | `192.168.11.20` | 2 | 4GB | 40G | 自動（順序 3） | アプリ | Homepage |
+| `vm-apps` | 120 | `192.168.11.20` | 2 | 4GB | 40G | 自動（順序 3） | アプリ | Homepage, Home Assistant |
 | `vm-dev` | 121 | `192.168.11.21` | 2 | 1GB | 30G | 手動 | 破壊検証 | playground |
 | `vm-code` | 122 | `192.168.11.22` | 2 | 4GB | 30G | 自動（順序 5） | 常用リモート開発 | Claude Code, CloudCLI, code-server, gh, git, mosh, moshi-hook |
 | `vm-windows` | 130 | — | 4 | 8GB | 60G | 手動（停止） | 検証用 | Windows 11 |
@@ -61,13 +61,13 @@ VM ごとの vCPU・メモリ・ディスクは [論理構成](#論理構成) �
 | Proxmox ホスト | — | メモリを約 2GB 確保する（ホスト側の余裕を削りすぎない） |
 | `vm-infra` | 約 500MB | |
 | `vm-monitoring` | 約 660MB | |
-| `vm-apps` | 約 256MB | 実使用に対して割当が大きい |
+| `vm-apps` | 約 950MB | OS と Homepage（約 90MB）、Home Assistant（約 370MB）を含む（2026-10-26）。割当（4GB）には余裕がある |
 | `vm-code` / `vm-dev` | — | `vm-dev` は手動起動 |
 | `vm-windows` | — | 手動起動（通常は停止） |
 
 - 常時起動の VM の割当メモリ合計は 11.5GB。`vm-dev` を加えて 12.5GB、`vm-windows` も起動すると 20.5GB になる。ホストの確保分（約 2GB）を足すと 22.5GB で、24GB に対する余白は約 1.5GB しかない。**`vm-windows` を起動するときは、他の VM の負荷に注意する。**
 - vCPU は物理スレッドに対して過剰割当（常時起動分で 8 vCPU、全 VM で 14 vCPU）。常時高負荷の VM がないことを前提にしている。
-- メモリ配分の見直しはロードマップの未着手項目（実使用に対して `vm-apps` の割当が大きい）。
+- メモリ配分の見直しはロードマップの未着手項目（`vm-apps` は Home Assistant を載せても割当に余裕がある）。
 
 ## ストレージの設計
 

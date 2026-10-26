@@ -66,6 +66,7 @@ AdGuard の fallback DNS が使われるのは、upstream に**接続できな�
 | `vm-monitoring` | 192.168.11.13 | vm-monitoring |
 | `home` | 192.168.11.11 | Caddy 経由 |
 | `vm-apps` | 192.168.11.20 | vm-apps |
+| `ha` | 192.168.11.11 | Caddy 経由（Home Assistant） |
 | `adguard` | 192.168.11.11 | Caddy 経由 |
 | `code` | 192.168.11.11 | Caddy 経由（code-server） |
 | `cloudcli` | 192.168.11.11 | Caddy 経由（CloudCLI） |

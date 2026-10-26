@@ -109,7 +109,9 @@ README に書く現行構成は `24GB` に増設済みのホストを前提と�
 
 ## ホームオートメーション
 
-- [ ] Home Assistant の本格運用、SwitchBot の統合
+- [x] Home Assistant を `vm-apps` に導入し、SwitchBot Cloud と Spotify をつなぐ（[ADR-0011](../adr/0011-home-assistant-on-vm-apps.md)、[Home Assistant](../services/home-assistant.md)）
+- [ ] Home Assistant の機器の検出と VLAN を決める（Servers から Clients・IoT への mDNS の中継か、置き場所の変更。Cast や Matter を使う前に）
+- [ ] Home Assistant の `.storage/` と履歴を守る（別ストレージの導入後。ADR-0011 の再検討の条件）
 - [ ] MQTT (Mosquitto) + ESP32 連携
 
   ```plaintext

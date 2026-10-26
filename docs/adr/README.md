@@ -16,6 +16,7 @@
 | [0008](0008-no-authelia.md) | Authelia を導入しない | 採用（見送り） | 2026-10-24 |
 | [0009](0009-router-er605-first.md) | ルーターは ER605 V2 を先に導入し、OPNsense は後で学習用に足す | 採用 | 2026-10-24 |
 | [0010](0010-external-heartbeat.md) | 外部 Heartbeat（Healthchecks.io）で監視 VM の停止を検知する | 採用 | 2026-10-25 |
+| [0011](0011-home-assistant-on-vm-apps.md) | Home Assistant を vm-apps に Container 版で置き、設定の YAML だけ Git で守る | 採用 | 2026-10-26 |
 
 ## 書き方
 

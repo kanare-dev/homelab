@@ -25,6 +25,10 @@ docker/compose/
 │   └── Caddyfile
 ├── dns/                     # vm-infra 上で実行: AdGuard Home + Unbound（Ansible の infra.yml がデプロイ）
 │   └── docker-compose.yml
+├── homeassistant/           # vm-apps 上で実行（Ansible の apps.yml がデプロイ）
+│   ├── docker-compose.yml
+│   ├── config/              # configuration.yaml と、画面で編集される YAML（make ha-config-pull で取り込む）
+│   └── storage/http         # .storage/http の初期値（Caddy を信頼する設定）
 └── homepage/                # vm-apps 上で実行（Ansible の apps.yml がデプロイ）
     ├── docker-compose.yml
     ├── config/

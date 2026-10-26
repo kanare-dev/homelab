@@ -26,7 +26,7 @@ Proxmox 上に複数 VM を構築し、Terraform + Ansible + Docker Compose で�
 | Proxmox | — | `192.168.11.10` | 常時起動 | ハイパーバイザ | Proxmox VE |
 | `vm-infra` | `111` | `192.168.11.11` | 常時起動 | インフラ基盤 | AdGuard Home, Unbound, CoreDNS, Caddy, Tailscale |
 | `vm-monitoring` | `113` | `192.168.11.13` | 常時起動 | 監視 | Prometheus, Alertmanager, Grafana, blackbox-exporter |
-| `vm-apps` | `120` | `192.168.11.20` | 常時起動 | アプリ | Homepage |
+| `vm-apps` | `120` | `192.168.11.20` | 常時起動 | アプリ | Homepage, Home Assistant |
 | `vm-code` | `122` | `192.168.11.22` | 常時起動 | 常用リモート開発 | Claude Code, CloudCLI, code-server |
 | `vm-dev` | `121` | `192.168.11.21` | 任意起動 | 開発・実験 | playground |
 
@@ -50,7 +50,7 @@ Proxmox 上に複数 VM を構築し、Terraform + Ansible + Docker Compose で�
 | ディレクトリ | 内容 |
 | --- | --- |
 | [docs/architecture/](docs/architecture/README.md) | 方式設計。[システム概要](docs/architecture/01-overview.md)、[インフラ構成](docs/architecture/02-infrastructure.md)、[ネットワーク設計](docs/architecture/03-network.md)、[可用性・信頼性](docs/architecture/04-reliability.md)、[セキュリティ](docs/architecture/05-security.md)、[移行性](docs/architecture/06-migration.md)、[災害対策](docs/architecture/07-disaster-recovery.md)、[VLAN 設計](docs/architecture/08-vlan-design.md) |
-| [docs/services/](docs/services/dns.md) | サービスごとの詳細設計。[DNS](docs/services/dns.md)、[リバースプロキシと TLS](docs/services/reverse-proxy-tls.md)、[監視・アラート](docs/services/monitoring.md)、[CI/CD](docs/services/cicd.md) |
+| [docs/services/](docs/services/dns.md) | サービスごとの詳細設計。[DNS](docs/services/dns.md)、[リバースプロキシと TLS](docs/services/reverse-proxy-tls.md)、[監視・アラート](docs/services/monitoring.md)、[Home Assistant](docs/services/home-assistant.md)、[CI/CD](docs/services/cicd.md) |
 | [docs/operations/](docs/operations/runbooks/README.md) | 運用。[Runbook](docs/operations/runbooks/README.md)、[バックアップ・復旧](docs/operations/backup-restore.md)、障害記録、[ロードマップ](docs/operations/roadmap.md) |
 | [docs/adr/](docs/adr/README.md) | 設計判断の記録（ADR） |
 
@@ -69,6 +69,7 @@ Proxmox 上に複数 VM を構築し、Terraform + Ansible + Docker Compose で�
 | ルーター | [https://router.lab.kanare.dev](https://router.lab.kanare.dev) | ルーター設定画面（ドメインは Caddy 経由。[DNS 構成](docs/services/dns.md#ルーター管理画面)） |
 | Proxmox | [https://pve.lab.kanare.dev](https://pve.lab.kanare.dev) | Proxmox VE 管理画面 |
 | Homepage | [https://home.lab.kanare.dev](https://home.lab.kanare.dev) | ランディングダッシュボード |
+| Home Assistant | [https://ha.lab.kanare.dev](https://ha.lab.kanare.dev) | スマートホーム（[詳細](docs/services/home-assistant.md)） |
 | Grafana | [https://grafana.lab.kanare.dev](https://grafana.lab.kanare.dev) | 監視ダッシュボード |
 | Prometheus | [https://prometheus.lab.kanare.dev](https://prometheus.lab.kanare.dev) | メトリクス確認 |
 | AdGuard Home | [https://adguard.lab.kanare.dev](https://adguard.lab.kanare.dev) | DNS フィルタリング・クエリログ |
@@ -98,7 +99,7 @@ homelab/
 │   ├── roles/
 │   └── playbooks/
 ├── docker/
-│   └── compose/            # dns / homepage / monitoring / reverse-proxy
+│   └── compose/            # dns / homeassistant / homepage / monitoring / reverse-proxy
 ├── tools/
 │   └── check-md-links.py   # Markdown の内部リンク検査
 └── docs/

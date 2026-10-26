@@ -14,7 +14,7 @@ homelab の全体像。最新の構成図、目的、構成の理由、前提と
 │  │  vm-infra    │  │ vm-monitoring │  │ vm-apps      │  │ vm-code      │            │
 │  │  .11  1.5GB  │  │  .13  2GB     │  │  .20  4GB    │  │  .22  4GB    │            │
 │  │  AdGuard Home│  │  Prometheus   │  │  Homepage    │  │  Claude Code │            │
-│  │  Unbound     │  │  Alertmanager │  │              │  │  CloudCLI    │            │
+│  │  Unbound     │  │  Alertmanager │  │Home Assistant│  │  CloudCLI    │            │
 │  │  CoreDNS     │  │  Grafana      │  │              │  │  code-server │            │
 │  │  Caddy       │  │  blackbox     │  │              │  │              │            │
 │  │  Tailscale   │  │               │  │              │  │              │            │

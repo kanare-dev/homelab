@@ -14,6 +14,8 @@
 | `ansible/inventory/group_vars/apps/secrets.sops.yml` | `homepage_proxmox_token`, `homepage_adguard_password` | Homepage のウィジェット |
 | `terraform/proxmox/secrets.sops.yml` | `proxmox_api_token_secret` | Terraform の Proxmox 認証 |
 
+SOPS に入れないシークレット: Home Assistant の統合のトークン（SwitchBot Cloud、Spotify の Client ID / Secret）は、HA の画面に直接入力して `.storage/` にだけ保存する。再発行の手段は非公開の台帳に記録する。
+
 仕組み:
 
 - **Ansible**: `community.sops` の vars プラグイン（`ansible.cfg` で有効化）が `group_vars/*/secrets.sops.yml` を実行時に復号し、通常の変数として使う。VM 上の `.env` はテンプレート（`ansible/playbooks/templates/*.env.j2`）から生成する。
