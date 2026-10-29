@@ -14,6 +14,9 @@ services:
     # 公開ポートは roles/ufw_docker（DOCKER-USER）で vm-infra（Caddy）だけに絞る
     ports:
       - "5678:5678"
+    # ホストの DNS（ルーター）は lab.kanare.dev を引けない。ワークフローから https://ha.lab.kanare.dev などを呼べるよう、クライアントと同じ AdGuard を使う
+    dns:
+      - 192.168.11.11
     # N8N_ENCRYPTION_KEY（認証情報の暗号化鍵）は SOPS から生成した .env で渡す
     env_file: .env
     environment:
