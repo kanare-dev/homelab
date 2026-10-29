@@ -10,3 +10,11 @@
       dateStyle: long
       timeStyle: short
       hour12: false
+
+- openmeteo:
+    label: Tokyo
+    latitude: 35.68
+    longitude: 139.69
+    timezone: Asia/Tokyo
+    units: metric
+    cache: 5
