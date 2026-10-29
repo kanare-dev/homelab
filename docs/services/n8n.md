@@ -23,6 +23,7 @@ Mac / スマホ ─ HTTPS ─> Caddy（vm-infra :443） ─ HTTP ─> vm-apps :5
 - `vm-apps` の 5678 は Docker の公開ポートなので、UFW では絞れない。`ufw_docker` ロールの `DOCKER-USER` が、`vm-infra` 以外からの新規接続を破棄する（`group_vars/apps/vars.yml` の `docker_published_allow`）。IP とポートの直打ち（`http://192.168.11.20:5678`）は届かない。
 - Caddy の裏で動かすため、`N8N_HOST`、`N8N_PROTOCOL=https`、`WEBHOOK_URL`、`N8N_PROXY_HOPS=1` を設定している。Webhook の URL は `https://n8n.lab.kanare.dev/webhook/...` の形になる。
 - n8n のコンテナは `dns:` で AdGuard（`192.168.11.11`）を指定している。ホストの DNS（ルーター）は `*.lab.kanare.dev` を引けないので、指定しないとワークフローから `https://ha.lab.kanare.dev` などを呼べない（HTTP Request ノードの「The connection cannot be established」）。
+- 2 つ目の DNS にルーター（`192.168.11.1`）を指定している。AdGuard が応答しないときだけ使われ、Slack など外部サービスへの通知は止まらない（[ADR-0007](../adr/0007-vm-host-dns-is-router.md)）。ルーターは `*.lab.kanare.dev` を引けないので、その間は内部サービス（`ha.lab.kanare.dev` など）を呼べない。
 - 外部には公開しない。外出先からは Tailscale 経由で使う（[ADR-0005](../adr/0005-tailscale-only-remote-access.md)）。外部サービスからの Webhook は受けられない。
 - 認証は n8n のログインのみ。Authelia は使わない（[ADR-0008](../adr/0008-no-authelia.md)）。
 

@@ -15,8 +15,10 @@ services:
     ports:
       - "5678:5678"
     # ホストの DNS（ルーター）は lab.kanare.dev を引けない。ワークフローから https://ha.lab.kanare.dev などを呼べるよう、クライアントと同じ AdGuard を使う
+    # 2 つ目はルーター。AdGuard が応答しないときだけ使われ、Slack など外部への通知が止まらないようにする（ADR-0007）
     dns:
       - 192.168.11.11
+      - 192.168.11.1
     # N8N_ENCRYPTION_KEY（認証情報の暗号化鍵）は SOPS から生成した .env で渡す
     env_file: .env
     environment:
