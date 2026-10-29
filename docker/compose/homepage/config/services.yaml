@@ -11,6 +11,149 @@
           password: "{{HOMEPAGE_VAR_PROXMOX_TOKEN}}"
           node: pve
 
+# 手動起動の vm-dev は含めない（停止中は値が取れないため）
+- Hosts:
+    - pve:
+        description: Proxmox host (192.168.11.10)
+        icon: proxmox.png
+        widget:
+          type: prometheusmetric
+          url: https://prometheus.lab.kanare.dev
+          metrics:
+            - label: CPU
+              query: 100 - avg(rate(node_cpu_seconds_total{instance="pve",mode="idle"}[5m])) * 100
+              format:
+                type: number
+                options:
+                  maximumFractionDigits: 0
+                suffix: "%"
+            - label: Mem
+              query: 100 * (1 - node_memory_MemAvailable_bytes{instance="pve"} / node_memory_MemTotal_bytes{instance="pve"})
+              format:
+                type: number
+                options:
+                  maximumFractionDigits: 0
+                suffix: "%"
+            - label: Disk
+              query: 100 * (1 - node_filesystem_avail_bytes{instance="pve",mountpoint="/"} / node_filesystem_size_bytes{instance="pve",mountpoint="/"})
+              format:
+                type: number
+                options:
+                  maximumFractionDigits: 0
+                suffix: "%"
+    - vm-infra:
+        description: DNS / Proxy (192.168.11.11)
+        icon: ubuntu.png
+        widget:
+          type: prometheusmetric
+          url: https://prometheus.lab.kanare.dev
+          metrics:
+            - label: CPU
+              query: 100 - avg(rate(node_cpu_seconds_total{instance="vm-infra",mode="idle"}[5m])) * 100
+              format:
+                type: number
+                options:
+                  maximumFractionDigits: 0
+                suffix: "%"
+            - label: Mem
+              query: 100 * (1 - node_memory_MemAvailable_bytes{instance="vm-infra"} / node_memory_MemTotal_bytes{instance="vm-infra"})
+              format:
+                type: number
+                options:
+                  maximumFractionDigits: 0
+                suffix: "%"
+            - label: Disk
+              query: 100 * (1 - node_filesystem_avail_bytes{instance="vm-infra",mountpoint="/"} / node_filesystem_size_bytes{instance="vm-infra",mountpoint="/"})
+              format:
+                type: number
+                options:
+                  maximumFractionDigits: 0
+                suffix: "%"
+    - vm-monitoring:
+        description: Monitoring (192.168.11.13)
+        icon: ubuntu.png
+        widget:
+          type: prometheusmetric
+          url: https://prometheus.lab.kanare.dev
+          metrics:
+            - label: CPU
+              query: 100 - avg(rate(node_cpu_seconds_total{instance="vm-monitoring",mode="idle"}[5m])) * 100
+              format:
+                type: number
+                options:
+                  maximumFractionDigits: 0
+                suffix: "%"
+            - label: Mem
+              query: 100 * (1 - node_memory_MemAvailable_bytes{instance="vm-monitoring"} / node_memory_MemTotal_bytes{instance="vm-monitoring"})
+              format:
+                type: number
+                options:
+                  maximumFractionDigits: 0
+                suffix: "%"
+            - label: Disk
+              query: 100 * (1 - node_filesystem_avail_bytes{instance="vm-monitoring",mountpoint="/"} / node_filesystem_size_bytes{instance="vm-monitoring",mountpoint="/"})
+              format:
+                type: number
+                options:
+                  maximumFractionDigits: 0
+                suffix: "%"
+    - vm-apps:
+        description: Apps (192.168.11.20)
+        icon: ubuntu.png
+        widget:
+          type: prometheusmetric
+          url: https://prometheus.lab.kanare.dev
+          metrics:
+            - label: CPU
+              query: 100 - avg(rate(node_cpu_seconds_total{instance="vm-apps",mode="idle"}[5m])) * 100
+              format:
+                type: number
+                options:
+                  maximumFractionDigits: 0
+                suffix: "%"
+            - label: Mem
+              query: 100 * (1 - node_memory_MemAvailable_bytes{instance="vm-apps"} / node_memory_MemTotal_bytes{instance="vm-apps"})
+              format:
+                type: number
+                options:
+                  maximumFractionDigits: 0
+                suffix: "%"
+            - label: Disk
+              query: 100 * (1 - node_filesystem_avail_bytes{instance="vm-apps",mountpoint="/"} / node_filesystem_size_bytes{instance="vm-apps",mountpoint="/"})
+              format:
+                type: number
+                options:
+                  maximumFractionDigits: 0
+                suffix: "%"
+    - vm-code:
+        description: Development (192.168.11.22)
+        icon: ubuntu.png
+        widget:
+          type: prometheusmetric
+          url: https://prometheus.lab.kanare.dev
+          metrics:
+            - label: CPU
+              query: 100 - avg(rate(node_cpu_seconds_total{instance="vm-code",mode="idle"}[5m])) * 100
+              format:
+                type: number
+                options:
+                  maximumFractionDigits: 0
+                suffix: "%"
+            - label: Mem
+              query: 100 * (1 - node_memory_MemAvailable_bytes{instance="vm-code"} / node_memory_MemTotal_bytes{instance="vm-code"})
+              format:
+                type: number
+                options:
+                  maximumFractionDigits: 0
+                suffix: "%"
+            - label: Disk
+              query: 100 * (1 - node_filesystem_avail_bytes{instance="vm-code",mountpoint="/"} / node_filesystem_size_bytes{instance="vm-code",mountpoint="/"})
+              format:
+                type: number
+                options:
+                  maximumFractionDigits: 0
+                suffix: "%"
+
 - Network:
     - Router:
         href: https://router.lab.kanare.dev

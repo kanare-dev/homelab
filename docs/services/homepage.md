@@ -20,8 +20,8 @@ LAN 内サービスへのリンクと、状態のウィジェットを 1 画面�
 
 | 設定ファイル | 内容 |
 | --- | --- |
-| `config/services.yaml` | サービスのタイル（Infrastructure / Network / Monitoring / Development / Home / Automation）。各タイルは `siteMonitor` で死活を表示する |
-| `config/widgets.yaml` | 画面上部の情報バー。VM のリソース、日時、天気 |
+| `config/services.yaml` | サービスのタイル（Infrastructure / Hosts / Network / Monitoring / Development / Home / Automation）。各タイルは `siteMonitor` で死活を表示する |
+| `config/widgets.yaml` | 画面上部の情報バー。日時、天気 |
 | `config/bookmarks.yaml` | リンク集 |
 | `config/settings.yaml` | タイトル、テーマ、言語 |
 
@@ -31,6 +31,7 @@ LAN 内サービスへのリンクと、状態のウィジェットを 1 画面�
 | --- | --- | --- |
 | Proxmox VE | `https://192.168.11.10:8006`（API トークン `homepage@pve!homepage-token`） | SOPS（`homepage_proxmox_token`） |
 | AdGuard Home | `http://192.168.11.11:3000` | SOPS（`homepage_adguard_password`） |
+| Hosts（`pve`、`vm-infra`、`vm-monitoring`、`vm-apps`、`vm-code`） | Prometheus の `node_exporter` から、CPU・メモリ・ディスク（`/`）の使用率を出す。手動起動の `vm-dev` は、停止中に値が取れないため含めない。Grafana のダッシュボードと同じ元データで、こちらは現在値の一覧向き | なし |
 | Prometheus | `https://prometheus.lab.kanare.dev`。監視対象の up / down 数。手動起動の `vm-dev` は down に数えない（`TargetDown` と同じ条件） | なし |
 | Alertmanager | 同上（ウィジェットの種類は `prometheusmetric`）。Prometheus の `ALERTS` から、発報中（`Watchdog` を除く）と保留中の件数を出す。Alertmanager 専用のウィジェットはないため | なし |
 | Healthchecks.io | `https://healthchecks.io` の API。外部 Heartbeat（[監視・アラート](monitoring.md#外部-heartbeat)）の状態 | SOPS（`homepage_healthchecks_api_key`。読み取り専用キー） |

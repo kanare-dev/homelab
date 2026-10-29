@@ -1,9 +1,3 @@
-- resources:
-    cpu: true
-    memory: true
-    disk: /
-    label: vm-apps
-
 - datetime:
     text_size: xl
     format:
