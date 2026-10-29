@@ -1,0 +1,167 @@
+{
+  "updatedAt": "2026-10-29T16:54:45.615Z",
+  "createdAt": "2026-10-29T16:54:45.615Z",
+  "id": "weeklyReportHL01",
+  "name": "weekly-report",
+  "description": null,
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtDay": [
+                1
+              ],
+              "triggerAtHour": 9
+            }
+          ]
+        }
+      },
+      "name": "毎週月曜 9:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "a1b2c3d4-0001-4000-8000-000000000001"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Prometheus に投げるクエリ。1 件が 1 回の HTTP Request になる\nreturn [\n  { key: 'uptime', query: 'avg_over_time(probe_success[7d])' },\n  // 失敗していた分数（1 分刻み）。導入して 7 日に満たないサービスでも正しく数えられる\n  { key: 'down', query: 'sum_over_time((1 - probe_success)[7d:1m])' },\n  { key: 'mem', query: '1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes' },\n  { key: 'memPrev', query: '1 - node_memory_MemAvailable_bytes offset 7d / node_memory_MemTotal_bytes offset 7d' },\n  { key: 'disk', query: '1 - node_filesystem_avail_bytes{mountpoint=\"/\"} / node_filesystem_size_bytes{mountpoint=\"/\"}' },\n  { key: 'diskPrev', query: '1 - node_filesystem_avail_bytes{mountpoint=\"/\"} offset 7d / node_filesystem_size_bytes{mountpoint=\"/\"} offset 7d' },\n  { key: 'cert', query: 'bottomk(1, (probe_ssl_earliest_cert_expiry - time()) / 86400)' },\n  // Watchdog は常に発火しているので除く。サンプル数 × 15 秒（評価間隔）が発火していた時間\n  { key: 'alerts', query: 'sum by (alertname) (count_over_time(ALERTS{alertstate=\"firing\",alertname!=\"Watchdog\"}[7d]))' },\n].map(json => ({ json }));"
+      },
+      "name": "クエリ定義",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        220,
+        0
+      ],
+      "id": "a1b2c3d4-0002-4000-8000-000000000002"
+    },
+    {
+      "parameters": {
+        "url": "https://prometheus.lab.kanare.dev/api/v1/query",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "query",
+              "value": "={{ $json.query }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Prometheus に問い合わせ",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        440,
+        0
+      ],
+      "id": "a1b2c3d4-0003-4000-8000-000000000003"
+    },
+    {
+      "parameters": {
+        "jsCode": "// 8 つの結果（クエリ定義と同じ順）を、1 通の Slack 文面にまとめる\nconst keys = $('クエリ定義').all().map(i => i.json.key);\nconst r = {};\n$input.all().forEach((item, n) => { r[keys[n]] = item.json.data.result; });\n\nconst byHost = rows => Object.fromEntries(rows.map(x => [x.metric.host, Math.round(parseFloat(x.value[1]) * 100)]));\nconst fmtDate = d => d.toLocaleDateString('ja-JP', { timeZone: 'Asia/Tokyo', month: 'numeric', day: 'numeric' });\nconst end = new Date();\nconst start = new Date(end.getTime() - 7 * 24 * 3600 * 1000);\nconst lines = [`*📊 homelab 週次レポート（${fmtDate(start)}〜${fmtDate(end)}）*`];\n\n// 稼働率: 失敗が 10 分以上のものだけ並べる（導入直後は標本が少なく、割合が大きく振れるため、分数で判定する）\nconst downMin = Object.fromEntries(r.down.map(x => [x.metric.service, Math.round(parseFloat(x.value[1]))]));\nconst svc = r.uptime.map(x => ({ name: x.metric.service, u: parseFloat(x.value[1]) }));\nconst bad = svc.filter(x => (downMin[x.name] ?? 0) >= 10).sort((a, b) => downMin[b.name] - downMin[a.name]);\nlines.push('', '*稼働率（外形監視、7 日）*');\nlines.push(`  ✅ ${svc.length - bad.length} / ${svc.length} サービスは失敗 10 分未満`);\nfor (const x of bad) lines.push(`  ⚠️ ${x.name} ${(x.u * 100).toFixed(2)}%（失敗は約 ${downMin[x.name] ?? 0} 分）`);\n\n// リソース: 使用率（先週との差）。ディスクが 5 ポイント以上増えた、ディスク 80% 以上、メモリ 85% 以上に印を付ける\nconst mem = byHost(r.mem), memPrev = byHost(r.memPrev), disk = byHost(r.disk), diskPrev = byHost(r.diskPrev);\nconst show = (cur, prev) => {\n  if (cur === undefined) return '-';\n  if (prev === undefined) return `${cur}%`;\n  const d = cur - prev;\n  return `${cur}%（${d >= 0 ? '+' : ''}${d}）`;\n};\nlines.push('', '*リソース（先週との差）*');\nfor (const h of [...new Set([...Object.keys(mem), ...Object.keys(disk)])].sort()) {\n  const flag = (disk[h] - (diskPrev[h] ?? disk[h]) >= 5) || disk[h] >= 80 || mem[h] >= 85 ? ' ⚠️' : '';\n  lines.push(`  ${h}  メモリ ${show(mem[h], memPrev[h])} / ディスク ${show(disk[h], diskPrev[h])}${flag}`);\n}\n\n// 証明書: いちばん期限の近いもの。Caddy は残り 30 日で更新するので、21 日を切ったら更新の失敗を疑う\nconst c = r.cert[0];\nif (c) {\n  const days = Math.floor(parseFloat(c.value[1]));\n  lines.push('', '*証明書の期限*', `  ${days < 21 ? '⚠️' : '✅'} 最短は ${c.metric.service} の残り ${days} 日`);\n}\n\n// 先週のアラート: 発火していた時間（評価間隔 15 秒）。ターゲットごとの時間の合計（延べ）\nlines.push('', '*先週のアラート*');\nconst alerts = r.alerts.map(x => ({ name: x.metric.alertname, min: Math.round(parseFloat(x.value[1]) * 15 / 60) })).sort((a, b) => b.min - a.min);\nif (!alerts.length) lines.push('  なし');\nfor (const a of alerts) lines.push(`  ${a.name}: 延べ約 ${a.min} 分`);\n\nreturn [{ json: { text: lines.join('\\n') } }];"
+      },
+      "name": "文面を作る",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        660,
+        0
+      ],
+      "id": "a1b2c3d4-0004-4000-8000-000000000004"
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "id",
+          "value": ""
+        },
+        "text": "={{ $json.text }}",
+        "otherOptions": {}
+      },
+      "name": "Slack に送る",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        880,
+        0
+      ],
+      "disabled": true,
+      "id": "a1b2c3d4-0005-4000-8000-000000000005"
+    }
+  ],
+  "connections": {
+    "毎週月曜 9:00": {
+      "main": [
+        [
+          {
+            "node": "クエリ定義",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "クエリ定義": {
+      "main": [
+        [
+          {
+            "node": "Prometheus に問い合わせ",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prometheus に問い合わせ": {
+      "main": [
+        [
+          {
+            "node": "文面を作る",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "文面を作る": {
+      "main": [
+        [
+          {
+            "node": "Slack に送る",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": null,
+  "nodeGroups": [],
+  "pinData": null,
+  "versionId": "73bdd5ed-0a43-4a4b-8290-8f2c3918288c",
+  "activeVersionId": null,
+  "versionCounter": 1,
+  "triggerCount": 0,
+  "sourceWorkflowId": null,
+  "tags": [],
+  "versionMetadata": {
+    "name": null,
+    "description": null
+  }
+}
