@@ -98,6 +98,11 @@ README に書く現行構成は `24GB` に増設済みのホストを前提と�
 ## 可視化・管理 UI
 
 - [ ] Portainer で Docker の状態を可視化する
+- [ ] Glances で、Homepage の VM 別リソースをバー表示にする（見送り中。2026-10-30 時点では導入しない）
+  - 現状: Homepage の Hosts は、Prometheus の `node_exporter` から CPU・メモリ・ディスクの使用率を数値で出している（[Homepage](../services/homepage.md)）。バー表示は、Homepage が動く `vm-apps` 自身だけを測る `resources` ウィジェットにしかない
+  - 見送る理由: 全 VM に Glances を入れる必要がある（Ansible のロール、公開ポートと `DOCKER-USER` / UFW の許可の追加）。`node_exporter` と同じ情報を二重に集めることになる。数値の表示で足りている
+  - 導入を検討する条件: 数値では状況をつかみにくく、バーで見たい場面が増えた
+  - 導入するときの方針（案）: 全 VM に Glances を入れ、Homepage の Glances ウィジェットで表示する。`vm-apps` の `resources` ウィジェットとは併用しない
 - [ ] Traefik の導入
 
 ## ハードウェア・拡張
