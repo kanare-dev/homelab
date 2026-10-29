@@ -42,7 +42,7 @@
     - Alertmanager:
         href: https://alertmanager.lab.kanare.dev
         description: Alert Routing
-        icon: alertmanager.png
+        icon: /icons/alertmanager.svg
         siteMonitor: https://alertmanager.lab.kanare.dev
 
 - Development:
