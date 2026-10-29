@@ -53,6 +53,26 @@ git diff docker/compose/n8n/workflows   # 秘密が入っていないか確認�
 - ワークフローが 0 件のときは、n8n がエラーを返して止まる。Git の中身は変わらない。
 - 認証情報（Credentials）は書き出さない。n8n が JSON に入れる所有者の情報（`shared`。氏名とメールアドレスを含む）と `meta.instanceId` は、`jq` で取り除く。公開リポジトリに入れないため。
 
+## ワークフロー
+
+| 名前 | 内容 | 状態 |
+| --- | --- | --- |
+| `test-hello` | 手動実行で HTTP を叩く確認用 | 動作確認用。不要になったら削除してよい |
+| `weekly-report` | 毎週月曜 9:00 に Prometheus へ問い合わせ、稼働率・リソース・証明書の期限・アラートを 1 通にまとめて Slack に送る | Slack ノードは無効（認証情報と送り先の設定が要る） |
+
+### weekly-report
+
+```text
+スケジュール → クエリ定義（Code） → Prometheus に問い合わせ（HTTP Request × 8） → 文面を作る（Code） → Slack に送る
+```
+
+- `https://prometheus.lab.kanare.dev/api/v1/query` を、内部の名前で呼ぶ（コンテナの `dns:` が AdGuard を指すため。上の「アクセス経路」）。
+- 失敗の判定は、稼働率ではなく失敗した分数（`sum_over_time((1 - probe_success)[7d:1m])`）で行う。導入して 7 日に満たないサービスで、割合が大きく振れるため。
+- アラートの時間は、サンプル数 × 15 秒（Prometheus の評価間隔）で、ターゲットごとの合計（延べ）。`Watchdog` は常に発火するので除く。
+- 印（⚠️）の基準はコードの中にある: 失敗 10 分以上、ディスクが先週より 5 ポイント以上増加または 80% 以上、メモリ 85% 以上、証明書の残り 21 日未満（Caddy は 30 日前に更新する）。
+- Slack の認証情報（Credentials）とチャンネルは、Git に入れない。画面で設定してから、Slack ノードを有効にする。アラート用のチャンネルとは分ける。
+- アラートの通知は Alertmanager の直送のままにする。n8n を経由させると、通知の経路が `vm-infra`（Caddy）と `vm-apps` の障害に左右される（[ADR-0007](../adr/0007-vm-host-dns-is-router.md)、[ADR-0010](../adr/0010-external-heartbeat.md)）。n8n は、止まっても困らない追加の用途に使う。
+
 ## 監視
 
 - `blackbox_http` で `https://n8n.lab.kanare.dev` を外形監視する（`service="n8n"`、`host="vm-apps"`）。失敗は `ServiceProbeFailed` で通知される（[監視・アラート](monitoring.md)）。
