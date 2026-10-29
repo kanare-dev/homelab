@@ -18,7 +18,7 @@
 - 設計書: `docs/architecture/`（方式設計）、`docs/services/`（サービス別の詳細）。構成を変えたら、該当する設計書を同じ変更で更新する。目次は `docs/architecture/README.md`、`docs/README.md`。
 - 設計判断: 重要な判断（方式の選択、リスクの受け入れ、方針の変更）は `docs/adr/` に ADR として残す。書き方は `docs/adr/README.md`。判断を変えるときは新しい ADR を追加し、古い方を「置き換え済み」にする。
 - Runbook: 手順は `docs/operations/runbooks/`。
-- 構成図: 最新版の ASCII 図を `docs/architecture/01-overview.md` の冒頭に置く。VM・サービス・IP を変えたら、この図と同じ文書の表を更新する。SVG（`docs/diagrams/`）は手動で更新するため古くなりうる。更新が必要なことはユーザーに伝える。
+- 構成図: 最新版の ASCII 図を `docs/architecture/01-overview.md` の冒頭に置く。VM・サービス・IP を変えたら、この図と同じ文書の表を更新する。SVG（`docs/diagrams/architecture.drawio.svg`）も同じ変更で Claude Code が更新する。`docs/diagrams/layout-architecture.py` の「配置」を直して `python3 docs/diagrams/layout-architecture.py` を実行し、書き出した PNG（`drawio -x -f png`）で崩れていないか見てから、スクリプトと SVG を一緒にコミットする（アイコン素材 `docs/diagrams/assets/` は Git 管理外。無ければ取得する）。
 - `README.md`: ディレクトリやファイルを追加・削除・改名したら、「リポジトリ構成」を更新する。管理画面リンク、設計書の一覧も同様。細かい設計内容は README に書かず、設計書に書く。
 - 監視・アラート: `docs/services/monitoring.md`
 - 障害記録: `docs/operations/incidents/`
