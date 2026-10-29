@@ -61,6 +61,15 @@
               format:
                 type: number
 
+    - Healthchecks.io:
+        href: https://healthchecks.io
+        description: External Heartbeat
+        icon: healthchecks.png
+        widget:
+          type: healthchecks
+          url: https://healthchecks.io
+          key: "{{HOMEPAGE_VAR_HEALTHCHECKS_API_KEY}}"
+
 - Development:
     - code-server:
         href: https://code.lab.kanare.dev
@@ -79,6 +88,15 @@
         description: Smart Home
         icon: home-assistant.png
         siteMonitor: https://ha.lab.kanare.dev
+        widget:
+          type: homeassistant
+          url: https://ha.lab.kanare.dev
+          key: "{{HOMEPAGE_VAR_HA_TOKEN}}"
+          custom:
+            - state: sensor.switchbot_hub_2_temperature
+              label: 温度
+            - state: sensor.switchbot_hub_2_humidity
+              label: 湿度
 
 - Automation:
     - n8n:
