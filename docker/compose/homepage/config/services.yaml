@@ -43,7 +43,7 @@
                 suffix: "%"
     - vm-infra:
         description: DNS / Proxy (192.168.11.11)
-        icon: ubuntu.png
+        icon: ubuntu-linux.png
         widget:
           type: prometheusmetric
           url: https://prometheus.lab.kanare.dev
@@ -71,7 +71,7 @@
                 suffix: "%"
     - vm-monitoring:
         description: Monitoring (192.168.11.13)
-        icon: ubuntu.png
+        icon: ubuntu-linux.png
         widget:
           type: prometheusmetric
           url: https://prometheus.lab.kanare.dev
@@ -99,7 +99,7 @@
                 suffix: "%"
     - vm-apps:
         description: Apps (192.168.11.20)
-        icon: ubuntu.png
+        icon: ubuntu-linux.png
         widget:
           type: prometheusmetric
           url: https://prometheus.lab.kanare.dev
@@ -127,7 +127,7 @@
                 suffix: "%"
     - vm-code:
         description: Development (192.168.11.22)
-        icon: ubuntu.png
+        icon: ubuntu-linux.png
         widget:
           type: prometheusmetric
           url: https://prometheus.lab.kanare.dev

@@ -1,9 +1,6 @@
-- datetime:
+- greeting:
     text_size: xl
-    format:
-      dateStyle: long
-      timeStyle: short
-      hour12: false
+    text: kanare-lab
 
 - openmeteo:
     label: Tokyo
@@ -12,3 +9,10 @@
     timezone: Asia/Tokyo
     units: metric
     cache: 5
+
+- datetime:
+    text_size: xl
+    format:
+      dateStyle: long
+      timeStyle: short
+      hour12: false

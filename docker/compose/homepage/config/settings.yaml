@@ -3,3 +3,8 @@ theme: dark
 color: slate
 headerStyle: boxed
 language: ja
+
+layout:
+  Hosts:
+    style: row
+    columns: 5
