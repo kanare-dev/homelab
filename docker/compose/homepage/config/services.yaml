@@ -39,11 +39,27 @@
         description: Metrics Scraper
         icon: /icons/prometheus.svg
         siteMonitor: https://prometheus.lab.kanare.dev
+        widget:
+          type: prometheus
+          url: https://prometheus.lab.kanare.dev
     - Alertmanager:
         href: https://alertmanager.lab.kanare.dev
         description: Alert Routing
         icon: /icons/alertmanager.svg
         siteMonitor: https://alertmanager.lab.kanare.dev
+        widget:
+          # Alertmanager 専用のウィジェットはないため、Prometheus の ALERTS で発報中の件数を出す（Watchdog は常時発報なので除く）
+          type: prometheusmetrics
+          url: https://prometheus.lab.kanare.dev
+          metrics:
+            - label: Firing
+              query: count(ALERTS{alertstate="firing",alertname!="Watchdog"}) or vector(0)
+              format:
+                type: number
+            - label: Pending
+              query: count(ALERTS{alertstate="pending"}) or vector(0)
+              format:
+                type: number
 
 - Development:
     - code-server:
