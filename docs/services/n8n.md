@@ -51,7 +51,7 @@ git diff docker/compose/n8n/workflows   # 秘密が入っていないか確認�
 
 - `vm-apps` で `n8n export:workflow --backup` を実行し、1 ワークフロー 1 ファイルの JSON を `docker/compose/n8n/workflows/` に置き換える。削除したワークフローは、Git からも消える。
 - ワークフローが 0 件のときは、n8n がエラーを返して止まる。Git の中身は変わらない。
-- 認証情報（Credentials）は書き出さない。
+- 認証情報（Credentials）は書き出さない。n8n が JSON に入れる所有者の情報（`shared`。氏名とメールアドレスを含む）と `meta.instanceId` は、`jq` で取り除く。公開リポジトリに入れないため。
 
 ## 監視
 

@@ -31,7 +31,7 @@ docker/compose/
 │   └── storage/http         # .storage/http の初期値（Caddy を信頼する設定）
 ├── n8n/                     # vm-apps 上で実行（Ansible の apps.yml がデプロイ）
 │   ├── docker-compose.yml
-│   └── workflows/           # ワークフローの JSON（make n8n-workflows-pull で取り込む。初回の取り込み後に作られる）
+│   └── workflows/           # ワークフローの JSON（make n8n-workflows-pull で取り込む）
 └── homepage/                # vm-apps 上で実行（Ansible の apps.yml がデプロイ）
     ├── docker-compose.yml
     ├── config/

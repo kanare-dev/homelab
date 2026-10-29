@@ -42,10 +42,11 @@ ha-config-pull: ## Pull UI-edited Home Assistant YAML (automations/scripts/scene
 			|| { rm -f docker/compose/homeassistant/config/$$f.yaml.tmp; exit 1; }; \
 	done; git status --short docker/compose/homeassistant/config
 
-n8n-workflows-pull: ## Export n8n workflows from vm-apps into Git (workflows only; credentials are not exported)
+n8n-workflows-pull: ## Export n8n workflows from vm-apps into Git (workflows only; credentials and owner info are not exported)
 	@tmp=$$(mktemp -d) && mkdir $$tmp/workflows \
 		&& ssh -o BatchMode=yes -i ~/.ssh/id_ed25519_homelab ubuntu@192.168.11.20 "sudo docker exec n8n sh -c 'rm -rf /home/node/.n8n/export && n8n export:workflow --backup --output=/home/node/.n8n/export/' >&2 && sudo tar -C /opt/n8n/data/export -cf - ." > $$tmp/export.tar \
 		&& tar -xf $$tmp/export.tar -C $$tmp/workflows \
+		&& for f in $$tmp/workflows/*.json; do jq 'del(.shared, .meta.instanceId)' "$$f" > "$$f.tmp" && mv "$$f.tmp" "$$f" || exit 1; done \
 		&& rm -rf docker/compose/n8n/workflows && mv $$tmp/workflows docker/compose/n8n/workflows \
 		&& rm -rf $$tmp && git status --short docker/compose/n8n/workflows \
 		|| { rm -rf $$tmp; exit 1; }
