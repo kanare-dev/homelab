@@ -74,6 +74,16 @@ class Model:
                f'</mxGeometry></mxCell>')
         self.xml = self.xml[:m.start()] + new + self.xml[m.end():]
 
+    def restyle(self, cid, props):
+        """セルの style の指定（key=value;...）を上書きする。"""
+        m = self._cell(cid, r' style="[^"]*"')
+        style = re.search(r' style="([^"]*)"', m.group(0)).group(1)
+        for kv in props.split(";"):
+            k = kv.split("=")[0]
+            style = re.sub(r"(^|;)%s=[^;]*;?" % k, r"\1", style) if k else style
+        style = style.rstrip(";") + ";" + props.replace("dashPattern=", "").rstrip(";") + ";"
+        self.xml = self.xml[:m.start(0)] + m.group(0).replace(re.search(r' style="[^"]*"', m.group(0)).group(0), f' style="{style}"') + self.xml[m.end(0):]
+
     def add_edge(self, cid, x1, y1, x2, y2):
         """既存の線と同じ見た目で、新しい線を追加する（すでにあれば何もしない）。"""
         if f'<mxCell id="{cid}"' not in self.xml:
@@ -187,6 +197,7 @@ def layout(m):
     ext = (("healthchecks", "Healthchecks.io"), ("slack", "Slack"), ("cloudflare", "Cloudflare"),
            ("letsencrypt", "Let's Encrypt"), ("tailscale", "Tailscale"), ("github", "GitHub"))
     m.clone("89", "ext-frame")
+    m.restyle("ext-frame", "fillColor=#dae8fc;strokeColor=#6c8ebf;dashed=0;dashPattern=")  # LAN・VM の橙の破線と区別する
     m.clone("24", "ext-label")
     m.value("ext-label", "<b>External Services</b>")
     for n, label in ext:
