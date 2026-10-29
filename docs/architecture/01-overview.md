@@ -7,6 +7,10 @@ homelab の全体像。最新の構成図、目的、構成の理由、前提と
 > 構成を変えたら、この図（ASCII）と下の表を同じ変更で更新する。SVG は `docs/diagrams/layout-architecture.py` で生成し直して同じ変更で更新する。食い違っていたら、この ASCII 図が正。
 
 ```text
+ External: Healthchecks.io / Slack / Cloudflare / Let's Encrypt / Tailscale / GitHub
+     │
+ Internet ── Buffalo router (.1)
+     │
 ┌─────────────────────────────────────────────────────────────────────────────────────┐
 │  LAN: 192.168.11.0/24                  GW: 192.168.11.1          Tailscale (外出先)  │
 │                                                                                     │
@@ -33,6 +37,8 @@ homelab の全体像。最新の構成図、目的、構成の理由、前提と
 ```
 
 `vm-monitoring` では Prometheus に加えて blackbox-exporter が、Caddy 経由の HTTPS と AdGuard の名前解決を外形監視する（[監視・アラート](../services/monitoring.md)）。
+
+外部サービス（Healthchecks.io、Slack、Cloudflare、Let's Encrypt、Tailscale、GitHub）は、図の上部にまとめて描いている。いずれも LAN から外向きに接続するだけで、外部から入る経路は Tailscale のみ（[外部接続](03-network.md#外部サービスへの依存)）。
 
 `node_exporter` は全 VM（`vm-infra` / `vm-monitoring` / `vm-apps` / `vm-dev` / `vm-code`）と Proxmox ホストに常駐し、`vm-monitoring` の Prometheus がまとめてスクレイプする。
 

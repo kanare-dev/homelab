@@ -74,6 +74,12 @@ class Model:
                f'</mxGeometry></mxCell>')
         self.xml = self.xml[:m.start()] + new + self.xml[m.end():]
 
+    def add_edge(self, cid, x1, y1, x2, y2):
+        """既存の線と同じ見た目で、新しい線を追加する（すでにあれば何もしない）。"""
+        if f'<mxCell id="{cid}"' not in self.xml:
+            self.xml = self.xml.replace("</root>", '<mxCell id="%s" edge="1" parent="1" value=""></mxCell></root>' % cid)
+        self.edge(cid, x1, y1, x2, y2)
+
     def drop(self, cid):
         m = re.search(r'<mxCell id="%s" edge.*?</mxCell>' % cid, self.xml, re.S)
         if m:
@@ -178,6 +184,15 @@ def layout(m):
     m.value("vmcode-cloudcli-text", svc("CloudCLI", ":3001"))
     m.value("vmcode-codeserver-text", svc("code-server", ":8080"))
     m.value("vmcode-nodeexp-text", svc("node_exporter", ":9100"))
+    ext = (("healthchecks", "Healthchecks.io"), ("slack", "Slack"), ("cloudflare", "Cloudflare"),
+           ("letsencrypt", "Let's Encrypt"), ("tailscale", "Tailscale"), ("github", "GitHub"))
+    m.clone("89", "ext-frame")
+    m.clone("24", "ext-label")
+    m.value("ext-label", "<b>External Services</b>")
+    for n, label in ext:
+        m.clone("92", f"ext-{n}-icon", icon=f"external/{n}.svg")
+        m.clone("93", f"ext-{n}-text")
+        m.value(f"ext-{n}-text", label)
     m.value("59", "<i>canales-macbook-pro-m5</i><br>" + ORANGE % "DHCP" + "<br>MacBook Pro M5")
     m.value("60", "<i>canales-iphone-14</i><br>" + ORANGE % "DHCP" + "<br>iPhone 14")
     m.value("57", ORANGE % "DHCP" + "<br>SwitchBot Hub 2")
@@ -205,6 +220,12 @@ def layout(m):
     m.edge("21", cx, 240, cx, 320)
     for cid in ("42", "68", "69"):
         m.drop(cid)
+
+    m.geo("ext-frame", 220, 40, 640, 150)             # 外部サービス（Internet の左）。VM 枠と同じ見た目
+    m.geo("ext-label", 240, 50, 200, 30)
+    for k, (n, _) in enumerate(ext):
+        m.row(f"ext-{n}-icon", f"ext-{n}-text", 240 + 210 * (k % 3), 100 + 40 * (k // 3), 190)
+    m.add_edge("ext-edge", 860, 70, cx - 38.19, 70)
 
     m.geo("12", 530 - 25.05, 340 - 52)                # 90 度回転した画像。見た目の中心は (530, 340)
     m.geo("15", 380, 225, 300, 80)
