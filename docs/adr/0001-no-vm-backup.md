@@ -27,7 +27,7 @@ VM 全体のバックアップは当面取らない。守る対象は **VM の�
 
 ## 影響と再検討の条件
 
-- 例外: Home Assistant の設定の YAML は Git で守る（[ADR-0011](0011-home-assistant-on-vm-apps.md)）。VM のバックアップではない。
+- 例外: Home Assistant の設定の YAML と n8n のワークフローの JSON は Git で守る（[ADR-0011](0011-home-assistant-on-vm-apps.md)、[ADR-0012](0012-n8n-on-vm-apps.md)）。VM のバックアップではない。
 - ホストやディスクを失うと、VM は再構築になる（[災害対策](../architecture/07-disaster-recovery.md)）。
 - 次のいずれかになったら再検討する: NAS や外部ストレージを追加した、VM に再現できないデータを置くようになった、`vm-windows` を実用に使い始めた。
 

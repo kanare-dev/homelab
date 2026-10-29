@@ -118,30 +118,8 @@ README に書く現行構成は `24GB` に増設済みのホストを前提と�
 - [x] Home Assistant を `vm-apps` に導入し、SwitchBot Cloud と Spotify をつなぐ（[ADR-0011](../adr/0011-home-assistant-on-vm-apps.md)、[Home Assistant](../services/home-assistant.md)）
 - [ ] Home Assistant の機器の検出と VLAN を決める（Servers から Clients・IoT への mDNS の中継か、置き場所の変更。Cast や Matter を使う前に）
 - [ ] Home Assistant の `.storage/` と履歴を守る（別ストレージの導入後。ADR-0011 の再検討の条件）
-- [ ] n8n を試用し、本採用するか決める（2026-10-27 に `vm-apps` へ手動で起動。Ansible・Caddy・Git には入れていない）
-  - 状態: コンテナ `n8n-trial`（ポート 5678）が `vm-apps` で動いている。データは `/opt/n8n-trial/data`。メモリは約 480MB。実行履歴は 7 日で自動削除する設定
-  - 開き方: `vm-apps` は Docker の公開ポートを `vm-infra`（Caddy）以外から破棄するため、Mac から 5678 に直接は届かない。SSH トンネルで開く
-
-    ```bash
-    ssh -i ~/.ssh/id_ed25519_homelab -L 5678:localhost:5678 ubuntu@192.168.11.20
-    ```
-
-    トンネルを張ったまま、`http://localhost:5678` を開く。最初の画面でアカウントを作る（パスワードは Keychain に入れる）
-  - 使い道の候補を決めてから試す: Home Assistant と組み合わせる自動化、Slack への通知、API 連携など。つなぎたい対象が無いと、試して終わりになりやすい
-  - 試用をやめるとき:
-
-    ```bash
-    sudo docker rm -f n8n-trial
-    sudo rm -rf /opt/n8n-trial
-    sudo ufw delete allow from 192.168.11.0/24 to any port 5678 proto tcp   # 試用中に追加したルール（Docker の公開ポートには効かないが、残っている）
-    ```
-
-  - 本採用するとき（[Home Assistant](../services/home-assistant.md) と同じ作り方）:
-    - `docker/compose/n8n/` と `ansible/playbooks/apps.yml` に追加し、イメージのバージョンを固定する（試用は `latest`）
-    - `https://n8n.lab.kanare.dev` を Caddy・CoreDNS・外形監視に追加し、`vm-apps` の公開ポートは `docker_published_allow` で `vm-infra` だけに許可する
-    - `N8N_ENCRYPTION_KEY`（認証情報の暗号化鍵）は SOPS で管理する。鍵を失うと、保存した認証情報を復号できない
-    - バックアップは、ワークフローの定期エクスポートを Git に置く方法を決める（[ADR-0001](../adr/0001-no-vm-backup.md)）
-    - ADR、設計書、構成図を更新する（[ADR-0011](../adr/0011-home-assistant-on-vm-apps.md) が前例）
+- [x] n8n を `vm-apps` に導入する（[ADR-0012](../adr/0012-n8n-on-vm-apps.md)、[n8n](../services/n8n.md)）
+- [ ] n8n の最初のワークフローを作る（Prometheus / Grafana のアラートを Slack に整形して通知する、など）。作ったら `make n8n-workflows-pull` で Git に取り込む
 - [ ] MQTT (Mosquitto) + ESP32 連携
 
   ```plaintext

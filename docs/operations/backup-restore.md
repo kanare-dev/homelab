@@ -18,6 +18,11 @@
 - 守るのは設定の YAML だけ（[ADR-0011](../adr/0011-home-assistant-on-vm-apps.md)）。`configuration.yaml` は Git が正。画面で編集する `automations.yaml` / `scripts.yaml` / `scenes.yaml` は、変更したら `make ha-config-pull` で Git に取り込み、コミットする。
 - `.storage/`（ユーザー、統合の登録、ダッシュボード、トークン）と履歴は取らない。失ったときの手順は [Home Assistant の復旧](../services/home-assistant.md#復旧)。
 
+## n8n
+
+- 守るのはワークフローの JSON だけ（[ADR-0012](../adr/0012-n8n-on-vm-apps.md)）。画面で作る、または変えたら、`make n8n-workflows-pull` で Git に取り込み、コミットする。
+- ユーザー、認証情報（Credentials）、実行履歴は取らない。失ったときの手順は [n8n の復旧](../services/n8n.md#復旧)。暗号鍵（`n8n_encryption_key`）は SOPS にある。
+
 ## （参考）手動で vzdump を取る場合
 
 ```bash

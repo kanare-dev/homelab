@@ -61,6 +61,7 @@
 | Proxmox / Grafana / AdGuard / code-server | 各サービスのログイン | Grafana と code-server のパスワードは SOPS 管理 |
 | Prometheus / Alertmanager | **認証なし** | LAN 内からのみ到達できる前提 |
 | Home Assistant | Home Assistant のログイン | LAN 内からのみ到達できる（Caddy 経由）。外出先は Tailscale |
+| n8n | n8n のログイン | LAN 内からのみ到達できる（Caddy 経由）。外出先は Tailscale。認証情報の暗号鍵は SOPS 管理 |
 | Homepage | 認証なし | 同上 |
 | ルーター | ルーターのログイン | Caddy から転送先まで HTTP（LAN 内） |
 
@@ -80,7 +81,7 @@ Terraform は Proxmox の API トークン（`terraform@pam!terraform-token`）�
 | --- | --- |
 | `vm-infra` | 22, 53（tcp/udp）, 80, 443, 51820/udp。9100 は `vm-monitoring` のみ、3000 は LAN と Docker ブリッジのみ |
 | `vm-monitoring` | 22。9100 は自分自身と Prometheus コンテナ（`172.16.0.0/12`）のみ。3000・9090・9093 は下の「Docker の公開ポート」 |
-| `vm-apps` | 22。9100 は `vm-monitoring` のみ。8123（Home Assistant）は `vm-infra`（Caddy）のみ。3001 は下の「Docker の公開ポート」 |
+| `vm-apps` | 22。9100 は `vm-monitoring` のみ。8123（Home Assistant）は `vm-infra`（Caddy）のみ。3001（Homepage）と 5678（n8n）は下の「Docker の公開ポート」 |
 | `vm-code` | 22。9100 は `vm-monitoring` のみ。8080（code-server）、3001（CloudCLI）、5173（開発用サーバ）、60000–61000/udp（mosh）は `192.168.11.0/24` のみ |
 | `vm-dev` | 22。9100 は `vm-monitoring` のみ |
 
@@ -93,7 +94,7 @@ Docker の `ports:` で公開したポートは、NAT で UFW の受信ルール
 | VM | 公開ポート | 許可元 |
 | --- | --- | --- |
 | `vm-monitoring` | 3000（Grafana）、9090（Prometheus）、9093（Alertmanager） | `vm-infra`（Caddy）のみ |
-| `vm-apps` | 3001（Homepage） | `vm-infra`（Caddy）のみ |
+| `vm-apps` | 3001（Homepage）、5678（n8n） | `vm-infra`（Caddy）のみ |
 
 - Home Assistant（8123）は host ネットワークで動くので、Docker の公開ポートではない。この絞り込みは効かず、UFW の受信ルールで `vm-infra` だけに許可している。
 - IP とポートの直打ち（例: `http://192.168.11.13:9090`）は届かない。Mac からは `https://<名前>.lab.kanare.dev` で開く。

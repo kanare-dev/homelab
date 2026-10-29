@@ -31,6 +31,8 @@
 | Prometheus / Grafana / AdGuard のデータ | **なし** | — | 取得しない。履歴は失ってよい |
 | Home Assistant の設定（YAML） | Git（`make ha-config-pull`） | GitHub | 取得済み。画面で編集したら取り込む必要がある（[ADR-0011](../adr/0011-home-assistant-on-vm-apps.md)） |
 | Home Assistant の登録情報・履歴（`.storage/`、DB） | **なし** | — | 取得しない。統合を入れ直す（[復旧](../services/home-assistant.md#復旧)） |
+| n8n のワークフロー（JSON） | Git（`make n8n-workflows-pull`） | GitHub | 取得済み。画面で作ったら取り込む必要がある（[ADR-0012](../adr/0012-n8n-on-vm-apps.md)） |
+| n8n のユーザー・認証情報・実行履歴（`/opt/n8n/data`） | **なし** | — | 取得しない。認証情報を入れ直す（[復旧](../services/n8n.md#復旧)）。暗号鍵は SOPS にある |
 | PVE ホストの設定 | **なし** | — | `ansible/roles/proxmox/` で再現できる範囲のみ。ストレージ設定などは手作業 |
 
 **再検討する条件**: NAS や外部ストレージを追加したとき、VM に再現できないデータを置くようになったとき、`vm-windows` を実用に使い始めたとき（[運用 Runbook](../operations/backup-restore.md#バックアップ)）。そのときは Proxmox Backup Server か `vzdump` を別ストレージ向けに設定する。ロードマップの「バックアップ自動化」「NAS の導入」に該当する。

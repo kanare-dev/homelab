@@ -25,6 +25,7 @@ VM の IP は Terraform（`terraform.tfvars`）で固定する。VMID は IP の
 | `pve.lab.kanare.dev` | `192.168.11.11`（Caddy） | `192.168.11.10:8006` | Proxmox Web UI |
 | `home.lab.kanare.dev` | `192.168.11.11`（Caddy） | `192.168.11.20:3001` | Homepage |
 | `ha.lab.kanare.dev` | `192.168.11.11`（Caddy） | `192.168.11.20:8123` | Home Assistant（[詳細](../services/home-assistant.md)） |
+| `n8n.lab.kanare.dev` | `192.168.11.11`（Caddy） | `192.168.11.20:5678` | n8n（[詳細](../services/n8n.md)） |
 | `grafana.lab.kanare.dev` | `192.168.11.11`（Caddy） | `192.168.11.13:3000` | Grafana |
 | `prometheus.lab.kanare.dev` | `192.168.11.11`（Caddy） | `192.168.11.13:9090` | Prometheus |
 | `adguard.lab.kanare.dev` | `192.168.11.11`（Caddy） | `192.168.11.11:3000` | AdGuard Home Web UI |

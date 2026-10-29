@@ -78,7 +78,7 @@ homelab の監視とアラート通知の仕組み。2026-10-22 の障害（[INC
 
 | ジョブ | 対象 | 確認すること |
 | --- | --- | --- |
-| `blackbox_http` | `https://{grafana,prometheus,alertmanager,pve,home,ha,adguard,code,cloudcli,router}.lab.kanare.dev` | DNS -> Caddy -> バックエンドの全経路。証明書の検証と期限（`probe_ssl_earliest_cert_expiry`） |
+| `blackbox_http` | `https://{grafana,prometheus,alertmanager,pve,home,ha,n8n,adguard,code,cloudcli,router}.lab.kanare.dev` | DNS -> Caddy -> バックエンドの全経路。証明書の検証と期限（`probe_ssl_earliest_cert_expiry`） |
 | `blackbox_dns` | `192.168.11.11:53`（AdGuard） | `dns-lab`: `grafana.lab.kanare.dev` の A レコード（CoreDNS まで）。`dns-external`: `cloudflare.com`（Unbound まで） |
 
 - blackbox-exporter のコンテナは DNS に AdGuard（`192.168.11.11`）を使う。vm-monitoring 自体の DNS はルーターで `*.lab.kanare.dev` を引けないため（[ADR 0007](../adr/0007-vm-host-dns-is-router.md)）、`docker-compose.yml` の `dns:` で指定している。AdGuard が止まると HTTPS のプローブも全部失敗する（`DnsProbeFailed` で抑制）。
@@ -102,8 +102,9 @@ homelab の監視とアラート通知の仕組み。2026-10-22 の障害（[INC
 | --- | --- | --- |
 | Prometheus TSDB | 30 日 または 5GB | `docker/compose/monitoring/docker-compose.yml`（5GB は暫定値。実測で調整） |
 | blackbox-exporter | Prometheus のデータ増加は 10 系列 × 数メトリクス程度で軽微（TSDB の上限に含まれる） | `prometheus.yml`（`scrape_interval: 30s`） |
-| Docker コンテナログ（monitoring / dns / reverse-proxy / homepage / homeassistant） | 10MB × 3 ファイル | 各 `docker-compose.yml` の `x-logging` |
+| Docker コンテナログ（monitoring / dns / reverse-proxy / homepage / homeassistant / n8n） | 10MB × 3 ファイル | 各 `docker-compose.yml` の `x-logging` |
 | Home Assistant の履歴（recorder） | 10 日（既定の `purge_keep_days`）。データベースは `/opt/homeassistant/config` | Home Assistant の既定値（変更していない） |
+| n8n の実行履歴 | 7 日。データベースは `/opt/n8n/data` | `docker-compose.yml` の `EXECUTIONS_DATA_MAX_AGE=168` |
 | journald（全 VM） | 200M、1 か月 | `ansible/roles/common`（`journald_system_max_use`、`journald_max_retention`） |
 | AdGuard Home クエリログ | 7 日（168h） | `ansible/playbooks/infra.yml`、`group_vars/infra/vars.yml` |
 | thin pool の未使用ブロック返却 | 毎週 `fstrim.timer` | `ansible/roles/common` |
@@ -174,7 +175,7 @@ VM 停止の検知は、`TargetDown`（VM 内 OS の応答なし）が 3 分、`
 
 **受け入れたリスク**: PVE ホスト停止、vm-monitoring 停止、ストレージ全体障害は、気づくまで通知されない。気づく手段は、DNS・Homepage が使えない症状、または定期的な目視確認のみ。
 
-**再検討の目安**: 不在中に長時間気づけず困った、Home Assistant などの常時稼働が必要なサービスを載せた、または再び監視 VM を巻き込む障害が起きた場合。
+**再検討の目安**: 不在中に長時間気づけず困った、Home Assistant や n8n などの常時稼働が必要なサービスを載せた、または再び監視 VM を巻き込む障害が起きた場合。
 
 **将来の選択肢**:
 

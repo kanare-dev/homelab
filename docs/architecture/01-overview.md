@@ -15,7 +15,7 @@ homelab の全体像。最新の構成図、目的、構成の理由、前提と
 │  │  .11  1.5GB  │  │  .13  2GB     │  │  .20  4GB    │  │  .22  4GB    │            │
 │  │  AdGuard Home│  │  Prometheus   │  │  Homepage    │  │  Claude Code │            │
 │  │  Unbound     │  │  Alertmanager │  │Home Assistant│  │  CloudCLI    │            │
-│  │  CoreDNS     │  │  Grafana      │  │              │  │  code-server │            │
+│  │  CoreDNS     │  │  Grafana      │  │  n8n         │  │  code-server │            │
 │  │  Caddy       │  │  blackbox     │  │              │  │              │            │
 │  │  Tailscale   │  │               │  │              │  │              │            │
 │  └──────┬───────┘  └──────┬────────┘  └──────┬───────┘  └──────┬───────┘            │
@@ -53,7 +53,7 @@ homelab の全体像。最新の構成図、目的、構成の理由、前提と
 | メモリ余裕 | 24GB に増設済み。重めのワークロードや追加 VM を検討できる（[性能・拡張性](02-infrastructure.md)） |
 | 優先順位 | まず DNS、リバースプロキシ、監視をコード化して再現性を固める |
 | 学習効率 | `vm-dev` があると、設定や playbook を安全に壊して試せる |
-| 拡張性 | `vm-apps` に Home Assistant などを追加しやすい |
+| 拡張性 | `vm-apps` に Home Assistant、n8n などを追加しやすい |
 
 ## 前提と制約
 
