@@ -153,7 +153,7 @@ VM 停止の検知は、`TargetDown`（VM 内 OS の応答なし）が 3 分、`
 | 項目 | 内容 |
 | --- | --- |
 | 仕組み | Alertmanager が `Watchdog` を webhook で Healthchecks.io の ping URL に 5 分毎に POST する（`group_interval: 1m`、`repeat_interval: 5m`）。途絶えると Healthchecks.io が通知する |
-| Healthchecks.io 側の設定 | Period を 5 分、Grace を 5 分にする（約 10 分で検知）。通知は Healthchecks.io から直接送る。Slack（`#homelab-alerts`）とメールの 2 経路 |
+| Healthchecks.io 側の設定 | Period を 5 分、Grace を 5 分にする（約 10 分で検知）。通知は Healthchecks.io から直接送る。Slack（`#homelab-alerts`）とメールの 2 経路。Slack はチャンネル名で指定しているので、チャンネル名を変えたらここも直す（Alertmanager の Webhook URL はチャンネル ID に紐づくので影響を受けない） |
 | 検知できる障害 | PVE ホストの停止、NIC の停止、vm-monitoring・Alertmanager の停止、回線断・停電 |
 | 区別できないこと | どの障害でも「ping が途絶えた」という同じ通知になる。原因は LAN から `ping`、ARP、`ssh pve` で切り分ける（[障害時の切り分け](../operations/runbooks/troubleshooting.md)） |
 | 秘密情報 | ping URL を知っていれば誰でも ping できる。`heartbeat_ping_url`（SOPS）で管理し、漏えいしたら再発行して差し替える |
