@@ -73,6 +73,7 @@ Proxmox 上に複数 VM を構築し、Terraform + Ansible + Docker Compose で�
 | n8n | [https://n8n.lab.kanare.dev](https://n8n.lab.kanare.dev) | ワークフロー自動化（[詳細](docs/services/n8n.md)） |
 | Grafana | [https://grafana.lab.kanare.dev](https://grafana.lab.kanare.dev) | 監視ダッシュボード |
 | Prometheus | [https://prometheus.lab.kanare.dev](https://prometheus.lab.kanare.dev) | メトリクス確認 |
+| Alertmanager | [https://alertmanager.lab.kanare.dev](https://alertmanager.lab.kanare.dev) | 発報中アラートの確認・Silence |
 | AdGuard Home | [https://adguard.lab.kanare.dev](https://adguard.lab.kanare.dev) | DNS フィルタリング・クエリログ |
 
 ## セキュリティ

@@ -39,6 +39,11 @@
         description: Metrics Scraper
         icon: /icons/prometheus.svg
         siteMonitor: https://prometheus.lab.kanare.dev
+    - Alertmanager:
+        href: https://alertmanager.lab.kanare.dev
+        description: Alert Routing
+        icon: alertmanager.png
+        siteMonitor: https://alertmanager.lab.kanare.dev
 
 - Development:
     - code-server:
