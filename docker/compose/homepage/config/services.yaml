@@ -58,3 +58,10 @@
         description: Smart Home
         icon: home-assistant.png
         siteMonitor: https://ha.lab.kanare.dev
+
+- Automation:
+    - n8n:
+        href: https://n8n.lab.kanare.dev
+        description: Workflow Automation
+        icon: n8n.png
+        siteMonitor: https://n8n.lab.kanare.dev

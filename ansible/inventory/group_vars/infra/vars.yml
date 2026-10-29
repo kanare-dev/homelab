@@ -15,6 +15,7 @@ dns_records:
   - { name: "vm-monitoring", ip: "192.168.11.13" }
   - { name: "home",         ip: "192.168.11.11" }   # Caddy 経由
   - { name: "ha",           ip: "192.168.11.11" }   # Caddy 経由（Home Assistant）
+  - { name: "n8n",          ip: "192.168.11.11" }   # Caddy 経由（n8n）
   - { name: "vm-apps",      ip: "192.168.11.20" }
   - { name: "adguard",     ip: "192.168.11.11" }   # Caddy 経由
   - { name: "code",        ip: "192.168.11.11" }   # Caddy 経由
