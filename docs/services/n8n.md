@@ -58,7 +58,7 @@ git diff docker/compose/n8n/workflows   # 秘密が入っていないか確認�
 | 名前 | 内容 | 状態 |
 | --- | --- | --- |
 | `test-hello` | 手動実行で HTTP を叩く確認用 | 動作確認用。不要になったら削除してよい |
-| `weekly-report` | 毎週月曜 9:00 に Prometheus へ問い合わせ、稼働率・リソース・証明書の期限・アラートを 1 通にまとめて Slack に送る | Slack ノードは無効（認証情報と送り先の設定が要る） |
+| `weekly-report` | 毎週月曜 9:00 に Prometheus へ問い合わせ、稼働率・リソース・証明書の期限・アラートを 1 通にまとめて Slack に送る | 有効（Publish 済み）。`#homelab-reports` に送る |
 
 ### weekly-report
 
@@ -70,7 +70,11 @@ git diff docker/compose/n8n/workflows   # 秘密が入っていないか確認�
 - 失敗の判定は、稼働率ではなく失敗した分数（`sum_over_time((1 - probe_success)[7d:1m])`）で行う。導入して 7 日に満たないサービスで、割合が大きく振れるため。
 - アラートの時間は、サンプル数 × 15 秒（Prometheus の評価間隔）で、ターゲットごとの合計（延べ）。`Watchdog` は常に発火するので除く。
 - 印（⚠️）の基準はコードの中にある: 失敗 10 分以上、ディスクが先週より 5 ポイント以上増加または 80% 以上、メモリ 85% 以上、証明書の残り 21 日未満（Caddy は 30 日前に更新する）。
-- Slack の認証情報（Credentials）とチャンネルは、Git に入れない。画面で設定してから、Slack ノードを有効にする。アラート用のチャンネルとは分ける。
+- Slack は Bot トークン方式で送る（Incoming Webhook の URL は秘密で JSON に入る恐れがあるため使わない）。アラート用の `#homelab-alerts` とは分け、`#homelab-reports` に送る。
+  - Slack アプリ `homelab-n8n` の Bot Token Scopes は `chat:write` と `chat:write.public` だけ。パブリックチャンネルなら、Bot の招待なしで送れる。プライベートチャンネルにする場合は、`/invite @homelab-n8n` で招待する。
+  - n8n の Credentials（Slack API）の Access Token に、Bot User OAuth Token（`xoxb-`）を入れる。値は n8n の中にだけあり、Git に入らない。書き出した JSON には、認証情報の ID と名前（`slack-homelab-n8n`）だけが入る。
+  - 送り先は、チャンネル ID の直接指定（By ID）。ノードの「From list」は、一覧の取得に `channels:read` と `groups:read` が要るので使えない。権限を最小に保つため、そのままにしている。チャンネル ID は秘密ではない。
+  - トークンを失った、または漏らしたときは、Slack アプリの OAuth & Permissions で Reinstall to Workspace して再発行し、n8n の Credentials を入れ替える。
 - アラートの通知は Alertmanager の直送のままにする。n8n を経由させると、通知の経路が `vm-infra`（Caddy）と `vm-apps` の障害に左右される（[ADR-0007](../adr/0007-vm-host-dns-is-router.md)、[ADR-0010](../adr/0010-external-heartbeat.md)）。n8n は、止まっても困らない追加の用途に使う。
 
 ## 監視

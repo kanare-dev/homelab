@@ -119,7 +119,7 @@ README に書く現行構成は `24GB` に増設済みのホストを前提と�
 - [ ] Home Assistant の機器の検出と VLAN を決める（Servers から Clients・IoT への mDNS の中継か、置き場所の変更。Cast や Matter を使う前に）
 - [ ] Home Assistant の `.storage/` と履歴を守る（別ストレージの導入後。ADR-0011 の再検討の条件）
 - [x] n8n を `vm-apps` に導入する（[ADR-0012](../adr/0012-n8n-on-vm-apps.md)、[n8n](../services/n8n.md)）
-- [ ] n8n の週次レポート（`weekly-report`）を Slack に送れるようにする（ワークフローは取り込み済み。Slack の認証情報と送り先の設定が残っている。[n8n](../services/n8n.md#ワークフロー)）
+- [x] n8n の週次レポート（`weekly-report`）を `#homelab-reports` に送る（毎週月曜 9:00。[n8n](../services/n8n.md#ワークフロー)）
   - アラートの通知は Alertmanager の直送のままにする。n8n を経由させると、通知の経路が他の VM の障害に左右されるため（[ADR-0007](../adr/0007-vm-host-dns-is-router.md)、[ADR-0010](../adr/0010-external-heartbeat.md) の考え方）
 - [ ] MQTT (Mosquitto) + ESP32 連携
 
