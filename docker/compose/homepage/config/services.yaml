@@ -40,8 +40,18 @@
         icon: /icons/prometheus.svg
         siteMonitor: https://prometheus.lab.kanare.dev
         widget:
-          type: prometheus
+          # 標準の prometheus ウィジェットは手動起動の vm-dev を down に数えるため、TargetDown と同じ条件で数える
+          type: prometheusmetric
           url: https://prometheus.lab.kanare.dev
+          metrics:
+            - label: Up
+              query: count(up == 1) or vector(0)
+              format:
+                type: number
+            - label: Down
+              query: count(up{instance!="vm-dev"} == 0) or vector(0)
+              format:
+                type: number
     - Alertmanager:
         href: https://alertmanager.lab.kanare.dev
         description: Alert Routing
@@ -49,7 +59,7 @@
         siteMonitor: https://alertmanager.lab.kanare.dev
         widget:
           # Alertmanager 専用のウィジェットはないため、Prometheus の ALERTS で発報中の件数を出す（Watchdog は常時発報なので除く）
-          type: prometheusmetrics
+          type: prometheusmetric
           url: https://prometheus.lab.kanare.dev
           metrics:
             - label: Firing

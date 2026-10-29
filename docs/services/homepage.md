@@ -31,8 +31,8 @@ LAN 内サービスへのリンクと、状態のウィジェットを 1 画面�
 | --- | --- | --- |
 | Proxmox VE | `https://192.168.11.10:8006`（API トークン `homepage@pve!homepage-token`） | SOPS（`homepage_proxmox_token`） |
 | AdGuard Home | `http://192.168.11.11:3000` | SOPS（`homepage_adguard_password`） |
-| Prometheus | `https://prometheus.lab.kanare.dev`。監視対象の up / down 数 | なし |
-| Alertmanager | 同上。Prometheus の `ALERTS` から、発報中（`Watchdog` を除く）と保留中の件数を出す。Alertmanager 専用のウィジェットはないため | なし |
+| Prometheus | `https://prometheus.lab.kanare.dev`。監視対象の up / down 数。手動起動の `vm-dev` は down に数えない（`TargetDown` と同じ条件） | なし |
+| Alertmanager | 同上（ウィジェットの種類は `prometheusmetric`）。Prometheus の `ALERTS` から、発報中（`Watchdog` を除く）と保留中の件数を出す。Alertmanager 専用のウィジェットはないため | なし |
 | Healthchecks.io | `https://healthchecks.io` の API。外部 Heartbeat（[監視・アラート](monitoring.md#外部-heartbeat)）の状態 | SOPS（`homepage_healthchecks_api_key`。読み取り専用キー） |
 | Home Assistant | `https://ha.lab.kanare.dev`。SwitchBot Hub 2 の温度・湿度（`sensor.switchbot_hub_2_temperature` / `sensor.switchbot_hub_2_humidity`） | SOPS（`homepage_ha_token`。HA の長期アクセストークン `homepage`） |
 | 天気 | Open-Meteo（東京の座標。リポジトリが公開なので、市区町村レベルに留める） | なし（キー不要） |
