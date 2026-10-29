@@ -23,7 +23,7 @@ LAN 内サービスへのリンクと、状態のウィジェットを 1 画面�
 | `config/services.yaml` | サービスのタイル（Infrastructure / Hosts / Network / Monitoring / Development / Home / Automation）。各タイルは `siteMonitor` で死活を表示する |
 | `config/widgets.yaml` | 画面上部の情報バー。左から、名前（`kanare-lab`）、天気、日時 |
 | `config/bookmarks.yaml` | リンク集 |
-| `config/settings.yaml` | タイトル、テーマ、言語、グループの並べ方（Hosts は横に 5 列） |
+| `config/settings.yaml` | タイトル、テーマ、言語、グループの並べ方（Hosts は横に 5 列、Monitoring は横に 4 列） |
 
 ## ウィジェット
 

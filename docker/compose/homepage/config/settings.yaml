@@ -8,3 +8,6 @@ layout:
   Hosts:
     style: row
     columns: 5
+  Monitoring:
+    style: row
+    columns: 4
