@@ -1,10 +1,10 @@
 {
-  "updatedAt": "2026-10-29T16:54:45.615Z",
+  "updatedAt": "2026-10-29T17:14:21.455Z",
   "createdAt": "2026-10-29T16:54:45.615Z",
   "id": "weeklyReportHL01",
   "name": "weekly-report",
   "description": null,
-  "active": false,
+  "active": true,
   "isArchived": false,
   "nodes": [
     {
@@ -38,7 +38,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        220,
+        224,
         0
       ],
       "id": "a1b2c3d4-0002-4000-8000-000000000002"
@@ -61,7 +61,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        440,
+        448,
         0
       ],
       "id": "a1b2c3d4-0003-4000-8000-000000000003"
@@ -74,7 +74,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        660,
+        672,
         0
       ],
       "id": "a1b2c3d4-0004-4000-8000-000000000004"
@@ -85,7 +85,7 @@
         "channelId": {
           "__rl": true,
           "mode": "id",
-          "value": ""
+          "value": "C0CD9SDBQCA"
         },
         "text": "={{ $json.text }}",
         "otherOptions": {}
@@ -97,8 +97,14 @@
         880,
         0
       ],
-      "disabled": true,
-      "id": "a1b2c3d4-0005-4000-8000-000000000005"
+      "id": "a1b2c3d4-0005-4000-8000-000000000005",
+      "webhookId": "12d1a966-4971-4346-84e0-d95b982b33b4",
+      "credentials": {
+        "slackApi": {
+          "id": "J1obOcau9uZ1BHIh",
+          "name": "slack-homelab-n8n"
+        }
+      }
     }
   ],
   "connections": {
@@ -148,20 +154,30 @@
     }
   },
   "settings": {
-    "executionOrder": "v1"
+    "executionOrder": "v1",
+    "binaryMode": "separate"
   },
-  "staticData": null,
+  "staticData": {
+    "node:毎週月曜 9:00": {
+      "recurrenceRules": [
+        null
+      ],
+      "recurrenceRuleSignatures": [
+        null
+      ]
+    }
+  },
   "meta": null,
   "nodeGroups": [],
-  "pinData": null,
-  "versionId": "73bdd5ed-0a43-4a4b-8290-8f2c3918288c",
-  "activeVersionId": null,
-  "versionCounter": 1,
-  "triggerCount": 0,
+  "pinData": {},
+  "versionId": "33fd46ba-3756-45c8-a0b3-5198e17d6778",
+  "activeVersionId": "33fd46ba-3756-45c8-a0b3-5198e17d6778",
+  "versionCounter": 16,
+  "triggerCount": 1,
   "sourceWorkflowId": null,
   "tags": [],
   "versionMetadata": {
-    "name": null,
-    "description": null
+    "name": "Version 33fd46ba",
+    "description": ""
   }
 }
