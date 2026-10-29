@@ -1,0 +1,36 @@
+# INC-2026-10-22: コンテナログがディスクを圧迫しないよう上限を設ける
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
+services:
+  n8n:
+    image: docker.n8n.io/n8nio/n8n:2.44.7
+    container_name: n8n
+    logging: *default-logging
+    restart: unless-stopped
+    # 公開ポートは roles/ufw_docker（DOCKER-USER）で vm-infra（Caddy）だけに絞る
+    ports:
+      - "5678:5678"
+    # N8N_ENCRYPTION_KEY（認証情報の暗号化鍵）は SOPS から生成した .env で渡す
+    env_file: .env
+    environment:
+      - TZ=Asia/Tokyo
+      - GENERIC_TIMEZONE=Asia/Tokyo
+      # Caddy（https://n8n.lab.kanare.dev）の裏で動かす。Webhook の URL もこの名前で組み立てる
+      - N8N_HOST=n8n.lab.kanare.dev
+      - N8N_PROTOCOL=https
+      - WEBHOOK_URL=https://n8n.lab.kanare.dev/
+      - N8N_PROXY_HOPS=1
+      - N8N_DIAGNOSTICS_ENABLED=false
+      - N8N_VERSION_NOTIFICATIONS_ENABLED=false
+      - N8N_PERSONALIZATION_ENABLED=false
+      # 実行履歴は 7 日で削除する（SQLite の肥大化を防ぐ）
+      - EXECUTIONS_DATA_PRUNE=true
+      - EXECUTIONS_DATA_MAX_AGE=168
+    volumes:
+      - /opt/n8n/data:/home/node/.n8n
+
+networks: {}

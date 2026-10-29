@@ -9,6 +9,7 @@ ufw_allowed_ports:
 # Docker の公開ポートは UFW では絞れないので、roles/ufw_docker が DOCKER-USER で絞る
 docker_published_allow:
   - { port: 3001, from: "192.168.11.11" }   # Homepage (Caddy on vm-infra)
+  - { port: 5678, from: "192.168.11.11" }   # n8n (Caddy on vm-infra)
 
 # 許可元を絞る前の「どこからでも許可」ルール。common ロールが削除する
 ufw_removed_ports:
