@@ -105,7 +105,7 @@ homelab の監視とアラート通知の仕組み。2026-10-22 の障害（[INC
 | Docker コンテナログ（monitoring / dns / reverse-proxy / homepage / homeassistant / n8n / freshrss） | 10MB × 3 ファイル | 各 `docker-compose.yml` の `x-logging` |
 | Home Assistant の履歴（recorder） | 10 日（既定の `purge_keep_days`）。データベースは `/opt/homeassistant/config` | Home Assistant の既定値（変更していない） |
 | n8n の実行履歴 | 7 日。データベースは `/opt/n8n/data` | `docker-compose.yml` の `EXECUTIONS_DATA_MAX_AGE=168` |
-| FreshRSS の記事 | 保持期間と件数は画面で絞る（[初回のセットアップ](09-freshrss.md#初回のセットアップ)）。データベースは `/opt/freshrss/data` | FreshRSS の設定「アーカイブ」（導入直後は未設定。ユーザー作成後に設定する） |
+| FreshRSS の記事 | 1 フィードあたり 200 件、最長 3 か月（購読の既定値）。データベースは `/opt/freshrss/data` | FreshRSS の設定「アーカイブ」（既定値のまま） |
 | journald（全 VM） | 200M、1 か月 | `ansible/roles/common`（`journald_system_max_use`、`journald_max_retention`） |
 | AdGuard Home クエリログ | 7 日（168h） | `ansible/playbooks/infra.yml`、`group_vars/infra/vars.yml` |
 | thin pool の未使用ブロック返却 | 毎週 `fstrim.timer` | `ansible/roles/common` |
