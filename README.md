@@ -6,21 +6,11 @@ Proxmox 上に複数 VM を構築し、Terraform + Ansible + Docker Compose で�
 
 24GB RAM の ThinkCentre Tiny 1 台で、DNS・リバースプロキシ・監視・リモート開発環境を常時運用している。構成はすべてコードで管理し、機密値は SOPS + age で暗号化して公開リポジトリに置いている。
 
-## 方針
+## 全体方針
 
 - **再現可能性**: すべての構成をコードで管理し、いつでも同じ環境を再構築できる
 - **可観測性**: Prometheus と Grafana で VM やサービスの状態を継続的に可視化し、異常は Slack に通知する
 - **ドキュメント駆動**: このリポジトリ内のドキュメントを読めば、全体構成、設計方針、運用方法等が分かる
-
-## スクリーンショット
-
-### Proxmox VE — VM 稼働状況
-
-![Proxmox VMs Running](docs/screenshots/proxmox-vms-running.png)
-
-### Grafana — Node Exporter ダッシュボード
-
-![Grafana Node Exporter Dashboard](docs/screenshots/grafana-node-exporter-dashboard.png)
 
 ## 構成
 
@@ -38,6 +28,16 @@ Proxmox 上に複数 VM を構築し、Terraform + Ansible + Docker Compose で�
 | `vm-dev` | `121` | `192.168.11.21` | 任意起動 | 開発・実験 | playground |
 
 ハードウェアは Lenovo ThinkCentre M70q Tiny（i5-10400T / 24GB RAM / 256GB NVMe）。メモリの配分は [性能・拡張性](docs/architecture/02-infrastructure.md) を参照。
+
+## スクリーンショット
+
+### Proxmox VE — VM 稼働状況
+
+![Proxmox VMs Running](docs/screenshots/proxmox-vms-running.png)
+
+### Grafana — Node Exporter ダッシュボード
+
+![Grafana Node Exporter Dashboard](docs/screenshots/grafana-node-exporter-dashboard.png)
 
 ## 技術スタック
 
