@@ -57,5 +57,5 @@ LAN 内サービスへのリンクと、状態のウィジェットを 1 画面�
 ## 注意点
 
 - `latest` を使っているため、再作成のたびにバージョンが変わりうる。設定の書式が変わって表示が壊れたら、`docker logs homepage` で原因を確認する。
-- `vm-apps` の他のコンテナ（Home Assistant、n8n）と同じ VM を共有する。メモリを使い切ると Homepage にも影響する。
+- `vm-apps` の他のコンテナ（Home Assistant、n8n、FreshRSS）と同じ VM を共有する。メモリを使い切ると Homepage にも影響する。
 - Docker ソケット（`/var/run/docker.sock`）を読み取り専用でマウントしている。Docker の統合を使う場合のためで、現在のタイルは使っていない。

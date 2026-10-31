@@ -23,6 +23,7 @@
 - [x] 常用リモート開発環境を `vm-dev` から分離し、`vm-code` として切り出した（[vm-code](../../services/08-vm-code.md)）
 - [x] Home Assistant を `vm-apps` に導入し、SwitchBot Cloud と Spotify をつなぐ（[ADR 0011](../../adr/0011-home-assistant-on-vm-apps.md)、[Home Assistant](../../services/05-home-assistant.md)）
 - [x] n8n を `vm-apps` に導入し、週次レポート `weekly-report` を `#homelab-reports` に送る（[ADR 0012](../../adr/0012-n8n-on-vm-apps.md)、[n8n](../../services/06-n8n.md)）。アラートの通知は Alertmanager の直送のままにする（通知の経路が他の VM の障害に左右されないため。[ADR 0007](../../adr/0007-vm-host-dns-is-router.md)、[ADR 0010](../../adr/0010-external-heartbeat.md)）
+- [x] FreshRSS を `vm-apps` に導入する（[ADR 0014](../../adr/0014-freshrss-on-vm-apps.md)、[FreshRSS](../../services/09-freshrss.md)）。購読リストだけ iCloud Drive に退避する
 
 ## 監視・可観測性
 

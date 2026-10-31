@@ -12,6 +12,7 @@
 | 04 | [Homepage](04-homepage.md) | LAN 内サービスのダッシュボード |
 | 05 | [Home Assistant](05-home-assistant.md) | スマートホームの操作と自動化 |
 | 06 | [n8n](06-n8n.md) | ワークフローの自動実行と週次レポート |
+| 09 | [FreshRSS](09-freshrss.md) | RSS リーダー。購読リストの退避 |
 | 07 | [CI/CD](07-cicd.md) | Terraform + Ansible のフローと CI の方針 |
 | 08 | [vm-code](08-vm-code.md) | 常用リモート開発環境 |
 

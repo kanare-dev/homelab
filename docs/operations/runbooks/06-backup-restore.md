@@ -22,6 +22,16 @@ make n8n-workflows-pull
 
 失ったときの手順は [n8n の復旧](../../services/06-n8n.md#復旧)。
 
+## FreshRSS の購読リストを退避する
+
+フィードを足す、または整理したら、iCloud Drive に書き出す（Git には入れない。[ADR-0014](../../adr/0014-freshrss-on-vm-apps.md)）。
+
+```bash
+make freshrss-opml-pull FRESHRSS_USER=<ユーザー名>
+```
+
+失ったときの手順は [FreshRSS の復旧](../../services/09-freshrss.md#復旧)。
+
 ## Git に入らないものの退避
 
 age 秘密鍵は iCloud Keychain に退避する（[秘密情報の管理](03-secrets.md#age-秘密鍵)）。SSH 鍵、Terraform の state、証明書などは、非公開の台帳に追記する（`private/secrets-inventory.md`。実体は iCloud Drive で、Git 管理外）。

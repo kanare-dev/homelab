@@ -68,6 +68,7 @@ AdGuard の fallback DNS が使われるのは、upstream に**接続できな�
 | `vm-apps` | 192.168.11.20 | vm-apps |
 | `ha` | 192.168.11.11 | Caddy 経由（Home Assistant） |
 | `n8n` | 192.168.11.11 | Caddy 経由（n8n） |
+| `rss` | 192.168.11.11 | Caddy 経由（FreshRSS） |
 | `adguard` | 192.168.11.11 | Caddy 経由 |
 | `code` | 192.168.11.11 | Caddy 経由（code-server） |
 | `cloudcli` | 192.168.11.11 | Caddy 経由（CloudCLI） |
@@ -79,7 +80,7 @@ AdGuard の fallback DNS が使われるのは、upstream に**接続できな�
 
 全 VM のホスト DNS は、AdGuard ではなくルーター（`192.168.11.1`）を指している。そのため VM 内のホストから `*.lab.kanare.dev` は引けない。AdGuard の障害時にも、Slack 通知・apt・`docker pull` が使えるようにするため。判断の記録: [ADR 0007](../adr/0007-vm-host-dns-is-router.md)。
 
-AdGuard を使いたいコンテナは `docker-compose.yml` の `dns:` で個別に指定する（例: blackbox-exporter、n8n）。
+AdGuard を使いたいコンテナは `docker-compose.yml` の `dns:` で個別に指定する（例: blackbox-exporter、n8n、FreshRSS）。
 
 ## ルーター管理画面
 
