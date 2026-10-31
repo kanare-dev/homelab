@@ -76,11 +76,35 @@
     state: absent
 
 # --- Claude Code CLI ---
-- name: Install Claude Code CLI
+# ネイティブインストーラ版を ~/.local/bin に入れる（自動更新は Claude Code 自身が行う）
+- name: Remove npm-installed Claude Code CLI (replaced by the native installer)
   community.general.npm:
     name: "@anthropic-ai/claude-code"
     global: true
-    state: present
+    state: absent
+
+- name: Check if Claude Code is already installed
+  ansible.builtin.stat:
+    path: "/home/{{ ansible_user }}/.local/bin/claude"
+  register: code_tools_claude_binary
+
+- name: Download Claude Code install script
+  ansible.builtin.get_url:
+    url: https://claude.ai/install.sh
+    dest: /tmp/claude-install.sh
+    mode: "0755"
+  when: not code_tools_claude_binary.stat.exists
+
+- name: Run Claude Code install script (installs to ~/.local/bin for {{ ansible_user }})
+  ansible.builtin.command: bash /tmp/claude-install.sh
+  become: false
+  changed_when: true
+  when: not code_tools_claude_binary.stat.exists
+
+- name: Clean up Claude Code install script
+  ansible.builtin.file:
+    path: /tmp/claude-install.sh
+    state: absent
 
 # --- CloudCLI (Claude Code UI, aka claudecodeui) ---
 - name: Install CloudCLI
@@ -108,6 +132,7 @@
       User={{ ansible_user }}
       WorkingDirectory=/home/{{ ansible_user }}
       Environment=HOME=/home/{{ ansible_user }}
+      Environment=PATH=/home/{{ ansible_user }}/.local/bin:/usr/local/bin:/usr/bin:/bin
       Environment=HOST=0.0.0.0
       Environment=SERVER_PORT={{ cloudcli_port }}
       ExecStart={{ code_tools_cloudcli_bin.stdout }}
