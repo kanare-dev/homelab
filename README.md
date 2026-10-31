@@ -51,7 +51,7 @@ Proxmox 上に複数 VM を構築し、Terraform + Ansible + Docker Compose で�
 | --- | --- |
 | [docs/architecture/](docs/architecture/README.md) | 方式設計。[システム概要](docs/architecture/01-overview.md)、[インフラ構成](docs/architecture/02-infrastructure.md)、[ネットワーク設計](docs/architecture/03-network.md)、[可用性・信頼性](docs/architecture/04-reliability.md)、[セキュリティ](docs/architecture/05-security.md)、[移行性](docs/architecture/06-migration.md)、[災害対策](docs/architecture/07-disaster-recovery.md)、[VLAN 設計](docs/architecture/08-vlan-design.md) |
 | [docs/services/](docs/services/dns.md) | サービスごとの詳細設計。[DNS](docs/services/dns.md)、[リバースプロキシと TLS](docs/services/reverse-proxy-tls.md)、[監視・アラート](docs/services/monitoring.md)、[Home Assistant](docs/services/home-assistant.md)、[Homepage](docs/services/homepage.md)、[n8n](docs/services/n8n.md)、[CI/CD](docs/services/cicd.md) |
-| [docs/operations/](docs/operations/runbooks/README.md) | 運用。[Runbook](docs/operations/runbooks/README.md)、[バックアップ・復旧](docs/operations/backup-restore.md)、障害記録、[ロードマップ](docs/operations/roadmap.md) |
+| [docs/operations/](docs/operations/runbooks/README.md) | 運用。[Runbook](docs/operations/runbooks/README.md)、[バックアップ・復旧](docs/operations/backup-restore.md)、障害記録、[ロードマップ](docs/operations/roadmap/README.md) |
 | [docs/adr/](docs/adr/README.md) | 設計判断の記録（ADR） |
 
 ## 主な設計の特徴

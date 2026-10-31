@@ -69,7 +69,7 @@ Home Assistant 2026.10 以降、`http:` の設定は初回起動のときだけ 
 現在は全機器が同じ LAN にあるため、mDNS / SSDP の検出が届く。[VLAN 設計](../architecture/08-vlan-design.md) に移行すると、`vm-apps`（Servers）から Clients・IoT の機器が見えなくなる。
 
 - SwitchBot Cloud と Spotify はクラウド経由なので影響しない。
-- Google Cast（テレビ）や Matter、LAN 内の機器を使うときは、次のどちらかを決める必要がある（未決。[ロードマップ](../operations/roadmap.md)）。
+- Google Cast（テレビ）や Matter、LAN 内の機器を使うときは、次のどちらかを決める必要がある（未決。[ロードマップ](../operations/roadmap/01-backlog.md)）。
   - Servers ↔ IoT / Clients に mDNS の中継と、必要なポートの許可を追加する。
   - Home Assistant を IoT または Clients に置く。
 - host ネットワークで動くので、UFW の受信拒否が機器からの応答を落とすことがある。検出が必要になったときに、実機で確認してポートを許可する（推測で開けない）。

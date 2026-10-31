@@ -1,6 +1,6 @@
 # Omada 導入・VLAN 化・OPNsense 導入
 
-[ロードマップ](../roadmap.md)の大型計画。ER605・SG2008P・EAP（AP）で Omada のネットワークを作り、VLAN で分離し、そのあとに OPNsense を学習用に足す。設計は完了、機器は未購入で未着手。
+[ロードマップ](README.md)の大型計画。ER605・SG2008P・EAP（AP）で Omada のネットワークを作り、VLAN で分離し、そのあとに OPNsense を学習用に足す。設計は完了、機器は未購入で未着手。
 
 詳細は設計書と ADR にある。この文書は、進行の順序とチェック項目だけを持つ。
 
@@ -68,5 +68,5 @@
 ## 関連する検討
 
 - Home Assistant の機器の検出と VLAN（Servers から Clients・IoT への mDNS の中継か、置き場所の変更）。Cast や Matter を使う前に決める
-- GPU 搭載 PC の VLAN とファイアウォールルール（[GPU 搭載ゲーミング PC](gpu-pc.md) の Phase 5）
+- GPU 搭載 PC の VLAN とファイアウォールルール（[GPU 搭載ゲーミング PC](05-gpu-pc.md) の Phase 5）
 - Cloudflare Tunnel と Split-Horizon DNS は、共有のニーズが出るまで着手しない（ロードマップの方針）
