@@ -36,6 +36,10 @@
 - [ ] メディアサーバーの導入（Jellyfin / Plex / Emby）
 - [ ] テレビの統合
 
+## アプリケーション
+
+- [ ] FreshRSS（RSS リーダー）を `vm-apps` で動かすことを検討する。導入するか、構成（Docker Compose、データの置き場所、Tailscale 経由のアクセス、バックアップ）を決めてから着手する
+
 ## 大型計画
 
 - [ ] [Omada 導入・VLAN 化・OPNsense 導入](04-network-omada-vlan.md)
