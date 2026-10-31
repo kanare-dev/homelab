@@ -115,7 +115,7 @@ homelab の監視とアラート通知の仕組み。2026-10-22 の障害（[INC
 | --- | --- | --- |
 | 2026-10-22 | `TestAlert` を Alertmanager に直接送信 | Slack に `[WARNING] TestAlert` が届いた |
 | 2026-10-22 | vm-code を `qm shutdown` で停止（実機テスト） | 停止から約 3.5 分で `TargetDown`、約 4 分で `PveVmStopped` が発報。Slack に両方届いた（ユーザー確認）。起動後 1 分以内にアラートは解消 |
-| 2026-10-22 | Unbound の実障害（`do-ip6` が有効で `max-sends` 超過 → 未キャッシュの名前が `SERVFAIL`） | `UnboundProbeFailing` が pending になり、検知できた。`do-ip6: no` で解消（[dns.md](dns.md)）。待ち時間（3 分）内に復旧したため、Slack 通知は未確認 |
+| 2026-10-22 | Unbound の実障害（`do-ip6` が有効で `max-sends` 超過 → 未キャッシュの名前が `SERVFAIL`） | `UnboundProbeFailing` が pending になり、検知できた。`do-ip6: no` で解消（[01-dns.md](01-dns.md)）。待ち時間（3 分）内に復旧したため、Slack 通知は未確認 |
 | 2026-10-25 | 外部 Heartbeat の導入。vm-monitoring の `alertmanager` コンテナを 23:39:05 に `docker stop`（実機テスト） | 23:46 に Healthchecks.io から DOWN が Slack とメールの両方に届いた。23:51:19 に起動し、23:52 に UP が両方に届いた（ユーザー確認）。停止から DOWN までは約 7 分（最後の ping が停止の最大 5 分前なので、Period + Grace の 10 分より短い） |
 | 2026-10-24 | 外形監視の導入。vm-apps の `homepage` コンテナを `docker stop`（実機テスト） | 約 3.5 分後に `ServiceProbeFailed`（`https://home.lab.kanare.dev`）が Alertmanager で firing。起動後 1 分以内に解消。初回デプロイ時は vm-monitoring の DNS（ルーター）が `lab.kanare.dev` を引けず全 HTTPS が失敗したため、コンテナの `dns:` を AdGuard に指定して解決。Slack 画面の確認は未実施 |
 
@@ -255,8 +255,8 @@ Slack App の「Incoming Webhooks」で再発行し、`sops ansible/inventory/gr
 | PveVmStopped | PVE の UI で状態確認。`qm start <vmid>`。意図した停止なら `onboot` の設定を見直す |
 | TargetDown | VM が起動しているか、`ssh` できるか、`systemctl status node_exporter` を確認 |
 | ServiceProbeFailed | `curl -v https://<名前>` で DNS・TLS・応答を切り分ける。DNS なら `dig @192.168.11.11 <名前>`、TLS なら Caddy のログ、5xx ならバックエンドのコンテナを確認する |
-| DnsProbeFailed | `dig @192.168.11.11 grafana.lab.kanare.dev`（内部）と `dig @192.168.11.11 cloudflare.com`（外部）で、どちらが落ちているか確認する。`docker ps` で adguard / unbound / coredns を見る。[dns.md](dns.md) 参照 |
-| TlsCertExpiring* | vm-infra で `docker logs caddy` を確認する。Cloudflare API トークンの失効が典型。[reverse-proxy-tls.md](reverse-proxy-tls.md) 参照 |
+| DnsProbeFailed | `dig @192.168.11.11 grafana.lab.kanare.dev`（内部）と `dig @192.168.11.11 cloudflare.com`（外部）で、どちらが落ちているか確認する。`docker ps` で adguard / unbound / coredns を見る。[01-dns.md](01-dns.md) 参照 |
+| TlsCertExpiring* | vm-infra で `docker logs caddy` を確認する。Cloudflare API トークンの失効が典型。[02-reverse-proxy-tls.md](02-reverse-proxy-tls.md) 参照 |
 | BlackboxProbeMissing | vm-monitoring で `docker logs blackbox-exporter`、`docker compose ps` を確認する |
 | HostDiskUsage* | `du -xh --max-depth=2 /`、`docker system df` |
 

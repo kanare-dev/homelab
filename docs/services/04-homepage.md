@@ -34,7 +34,7 @@ LAN 内サービスへのリンクと、状態のウィジェットを 1 画面�
 | Hosts（`pve`、`vm-infra`、`vm-monitoring`、`vm-apps`、`vm-code`） | Prometheus の `node_exporter` から、CPU・メモリ・ディスク（`/`）の使用率を出す（アイコンは Ubuntu、`pve` は Proxmox）。手動起動の `vm-dev` は、停止中に値が取れないため含めない。Grafana のダッシュボードと同じ元データで、こちらは現在値の一覧向き | なし |
 | Prometheus | `https://prometheus.lab.kanare.dev`。監視対象の up / down 数。手動起動の `vm-dev` は down に数えない（`TargetDown` と同じ条件） | なし |
 | Alertmanager | 同上（ウィジェットの種類は `prometheusmetric`）。Prometheus の `ALERTS` から、発報中（`Watchdog` を除く）と保留中の件数を出す。Alertmanager 専用のウィジェットはないため | なし |
-| Healthchecks.io | `https://healthchecks.io` の API。外部 Heartbeat（[監視・アラート](monitoring.md#外部-heartbeat)）の状態 | SOPS（`homepage_healthchecks_api_key`。読み取り専用キー） |
+| Healthchecks.io | `https://healthchecks.io` の API。外部 Heartbeat（[監視・アラート](03-monitoring.md#外部-heartbeat)）の状態 | SOPS（`homepage_healthchecks_api_key`。読み取り専用キー） |
 | Home Assistant | `https://ha.lab.kanare.dev`。SwitchBot Hub 2 の温度・湿度（`sensor.switchbot_hub_2_temperature` / `sensor.switchbot_hub_2_humidity`） | SOPS（`homepage_ha_token`。HA の長期アクセストークン `homepage`） |
 | 天気 | Open-Meteo（東京の座標。リポジトリが公開なので、市区町村レベルに留める） | なし（キー不要） |
 

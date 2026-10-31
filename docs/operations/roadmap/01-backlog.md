@@ -10,7 +10,7 @@
 ## インフラ・IaC・運用
 
 - [ ] メモリの配分を見直す（`vm-windows` は停止前提なので、常時起動する VM だけで見積もる）
-- [ ] `vm-dev` を Ansible、Docker、ネットワーク設定の破壊検証用として運用する（[vm-code](../../services/vm-code.md) と分離済み）
+- [ ] `vm-dev` を Ansible、Docker、ネットワーク設定の破壊検証用として運用する（[vm-code](../../services/08-vm-code.md) と分離済み）
 - [ ] homepage のデプロイを効率化する（`make setup-apps` は `common` / `docker` / `node_exporter` ロールも毎回流れる）
   - `playbooks/apps.yml` の homepage 関連タスクに `tags: [homepage]` を付け、`--tags homepage` で設定だけ反映できるようにする
   - Makefile に `deploy-homepage` ターゲットを追加する

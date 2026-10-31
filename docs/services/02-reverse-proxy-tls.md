@@ -26,7 +26,7 @@ client ─► https://<name>.lab.kanare.dev (192.168.11.11:443, Caddy)
 | FQDN ごとに取得する | ワイルドカード（`*.lab.kanare.dev`）は使わず、サービスごとに個別取得している（サブドメインが少ない） |
 | 入口を `vm-infra` に集約する | 新しいサービスも同じ入口に追加できる。一方で、`vm-infra` の障害が全 Web 入口に影響する（[可用性](../architecture/04-reliability.md)） |
 | Proxmox は `tls_insecure_skip_verify` | バックエンドが自己署名証明書のため。LAN 内に限る（[セキュリティ](../architecture/05-security.md)） |
-| ルーター管理画面も Caddy 経由にする | `.dev` は HSTS プリロードで HTTP が使えない。ルーターは 443 に対応しないため、Caddy で HTTPS 化する（[DNS 構成](dns.md#ルーター管理画面)） |
+| ルーター管理画面も Caddy 経由にする | `.dev` は HSTS プリロードで HTTP が使えない。ルーターは 443 に対応しないため、Caddy で HTTPS 化する（[DNS 構成](01-dns.md#ルーター管理画面)） |
 
 ## 転送先
 

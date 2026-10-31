@@ -36,7 +36,7 @@ homelab の全体像。最新の構成図、目的、構成の理由、前提と
 └─────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
-`vm-monitoring` では Prometheus に加えて blackbox-exporter が、Caddy 経由の HTTPS と AdGuard の名前解決を外形監視する（[監視・アラート](../services/monitoring.md)）。
+`vm-monitoring` では Prometheus に加えて blackbox-exporter が、Caddy 経由の HTTPS と AdGuard の名前解決を外形監視する（[監視・アラート](../services/03-monitoring.md)）。
 
 外部サービス（Healthchecks.io、Slack、Cloudflare、Let's Encrypt、Tailscale、GitHub）は、図の上部にまとめて描いている。いずれも LAN から外向きに接続するだけで、外部から入る経路は Tailscale のみ（[外部接続](03-network.md#外部サービスへの依存)）。
 

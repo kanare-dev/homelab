@@ -1,6 +1,6 @@
 # アーキテクチャ
 
-homelab の方式設計。構成の全体像から読み、必要な観点へ進む。サービスごとの詳細は [services/](../services/dns.md)、設計判断の経緯は [adr/](../adr/README.md)、運用手順は [operations/](../operations/runbooks/README.md)。
+homelab の方式設計。構成の全体像から読み、必要な観点へ進む。サービスごとの詳細は [services/](../services/01-dns.md)、設計判断の経緯は [adr/](../adr/README.md)、運用手順は [operations/](../operations/runbooks/README.md)。
 
 ## 目次
 

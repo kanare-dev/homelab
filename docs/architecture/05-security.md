@@ -33,7 +33,7 @@
 - Ansible は `community.sops` の vars プラグインで、Terraform は `carlpett/sops` プロバイダーで、実行時に復号する。VM 上の `.env` は Ansible がテンプレートから生成する。
 - 平文のシークレットファイルを作らない。`sops -d` の出力を保存しない。値はチャット・ログ・文書に書かない（文字数・ハッシュ・一部の文字も含む）。
 - SOPS 内のシークレットの一覧は Runbook の表が正。SOPS の外にあるものは、非公開の台帳（リポジトリ外）で管理する。
-- CI では復号しない（age 秘密鍵を CI に置かない）。暗号化されていることだけを確認する（[CI/CD](../services/cicd.md)）。
+- CI では復号しない（age 秘密鍵を CI に置かない）。暗号化されていることだけを確認する（[CI/CD](../services/07-cicd.md)）。
 
 ### 鍵の保管と退避
 
@@ -128,7 +128,7 @@ Proxmox ホストの UFW / Proxmox ファイアウォールの設定は、この
 | --- | --- | --- |
 | Proxmox ホストの node_exporter（9100）・SSH・8006 | ファイアウォールが無効で、LAN からどこからでも届く | 上の「Proxmox ホストのファイアウォール」と合わせて方針を決める |
 | `vm-infra` の 51820/udp | `# WireGuard` のコメント付きで許可しているが、WireGuard 単体は構成に含まれない（VPN は Tailscale） | 用途を確認し、不要なら閉じる |
-| Tailscale の ACL | 既定のまま。`192.168.11.1`（ルーター）にも届く | ACL で管理画面を除外する（未実施。[DNS 構成](../services/dns.md#ルーター管理画面)） |
+| Tailscale の ACL | 既定のまま。`192.168.11.1`（ルーター）にも届く | ACL で管理画面を除外する（未実施。[DNS 構成](../services/01-dns.md#ルーター管理画面)） |
 | 認証の一元化 | Prometheus・Homepage は認証なし | 導入しない（[ADR 0008](../adr/0008-no-authelia.md)）。ポートの許可元の絞り込みは別途検討 |
 | OS・コンテナの更新 | 手動。コンテナイメージは `latest` | 定期更新の手順とタイミングを決める |
 | ルーターへの通信 | Caddy からの転送が平文 HTTP | LAN 内のみのため受け入れ。TP-Link への移行で再設計 |

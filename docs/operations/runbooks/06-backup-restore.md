@@ -10,7 +10,7 @@ VM 全体のバックアップは取らない（判断は [ADR-0001](../../adr/0
 make ha-config-pull
 ```
 
-失ったときの手順は [Home Assistant の復旧](../../services/home-assistant.md#復旧)。
+失ったときの手順は [Home Assistant の復旧](../../services/05-home-assistant.md#復旧)。
 
 ## n8n のワークフローを Git に取り込む
 
@@ -20,7 +20,7 @@ make ha-config-pull
 make n8n-workflows-pull
 ```
 
-失ったときの手順は [n8n の復旧](../../services/n8n.md#復旧)。
+失ったときの手順は [n8n の復旧](../../services/06-n8n.md#復旧)。
 
 ## Git に入らないものの退避
 

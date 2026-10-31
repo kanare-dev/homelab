@@ -36,7 +36,7 @@ Prometheus / Grafana のアラートの整形、Home Assistant の外のサー�
 
 ## 影響と再検討の条件
 
-- **失うもの**: VM を失うと、ユーザー、認証情報、実行履歴が消える。ワークフローは最後に `make n8n-workflows-pull` した時点まで戻せる。認証情報は入れ直す。手順は [n8n](../services/n8n.md#復旧)。
+- **失うもの**: VM を失うと、ユーザー、認証情報、実行履歴が消える。ワークフローは最後に `make n8n-workflows-pull` した時点まで戻せる。認証情報は入れ直す。手順は [n8n](../services/06-n8n.md#復旧)。
 - **設定の運用**: 画面で作ったワークフローは、`make n8n-workflows-pull` で Git に取り込まないと守られない。
 - **認証**: n8n 自身のログインのみ。Authelia は使わない（[ADR-0008](0008-no-authelia.md)）。Webhook は、LAN 内と Tailscale からだけ届く。外部サービスからの Webhook 受信は、外部に公開しない方針なので使えない。
 - **同居のリスク**: Homepage、Home Assistant と同じ VM を共有する。
@@ -46,4 +46,4 @@ Prometheus / Grafana のアラートの整形、Home Assistant の外のサー�
   - 別ストレージ（USB ディスク、NAS）を導入した（データ全体を守る）。
   - `vm-apps` のメモリが逼迫した。
 
-関連: [n8n](../services/n8n.md)、[ADR-0001](0001-no-vm-backup.md)、[ADR-0011](0011-home-assistant-on-vm-apps.md)
+関連: [n8n](../services/06-n8n.md)、[ADR-0001](0001-no-vm-backup.md)、[ADR-0011](0011-home-assistant-on-vm-apps.md)

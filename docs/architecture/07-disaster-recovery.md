@@ -30,9 +30,9 @@
 | VM のディスク | **なし** | — | 取得しない（方針による） |
 | Prometheus / Grafana / AdGuard のデータ | **なし** | — | 取得しない。履歴は失ってよい |
 | Home Assistant の設定（YAML） | Git（`make ha-config-pull`） | GitHub | 取得済み。画面で編集したら取り込む必要がある（[ADR-0011](../adr/0011-home-assistant-on-vm-apps.md)） |
-| Home Assistant の登録情報・履歴（`.storage/`、DB） | **なし** | — | 取得しない。統合を入れ直す（[復旧](../services/home-assistant.md#復旧)） |
+| Home Assistant の登録情報・履歴（`.storage/`、DB） | **なし** | — | 取得しない。統合を入れ直す（[復旧](../services/05-home-assistant.md#復旧)） |
 | n8n のワークフロー（JSON） | Git（`make n8n-workflows-pull`） | GitHub | 取得済み。画面で作ったら取り込む必要がある（[ADR-0012](../adr/0012-n8n-on-vm-apps.md)） |
-| n8n のユーザー・認証情報・実行履歴（`/opt/n8n/data`） | **なし** | — | 取得しない。認証情報を入れ直す（[復旧](../services/n8n.md#復旧)）。暗号鍵は SOPS にある |
+| n8n のユーザー・認証情報・実行履歴（`/opt/n8n/data`） | **なし** | — | 取得しない。認証情報を入れ直す（[復旧](../services/06-n8n.md#復旧)）。暗号鍵は SOPS にある |
 | PVE ホストの設定 | **なし** | — | `ansible/roles/proxmox/` で再現できる範囲のみ。ストレージ設定などは手作業 |
 
 **再検討する条件**: [ADR-0001](../adr/0001-no-vm-backup.md#影響と再検討の条件)のとおり。そのときは Proxmox Backup Server か `vzdump` を別ストレージ向けに設定する。ロードマップの「NAS の導入」に該当する（[未着手の項目](../operations/roadmap/01-backlog.md)）。
@@ -68,7 +68,7 @@
 4. **ホストを構成する**: `make setup-proxmox`（収集スクリプト、node_exporter）。
 5. **VM を作る**: `terraform init && terraform plan && terraform apply`。state がない場合は新規作成になる（既存の VM が残っていると衝突するため、事前に確認する）。
 6. **基盤を構成する**: `make setup-infra`（DNS、Caddy、Tailscale）→ `make setup-monitoring` → `make setup-apps` → `make setup-code`。全体は `make setup`。
-7. **Tailscale を再登録する**: `tailscale_authkey` で登録し、管理画面で subnet route（`192.168.11.0/24`）の承認と、`vm-infra` の key expiry 無効化、split DNS の設定を確認する（[DNS 構成](../services/dns.md#tailscale-との連携)）。
+7. **Tailscale を再登録する**: `tailscale_authkey` で登録し、管理画面で subnet route（`192.168.11.0/24`）の承認と、`vm-infra` の key expiry 無効化、split DNS の設定を確認する（[DNS 構成](../services/01-dns.md#tailscale-との連携)）。
 8. **確認する**: `dig @192.168.11.11 grafana.lab.kanare.dev`、`https://grafana.lab.kanare.dev`、Prometheus の Targets、Slack のテスト通知（[運用 Runbook](../operations/runbooks/05-slack-alerts.md#slack-アラート通知)）、外出先（モバイル回線）からの接続。
 9. **記録する**: 障害記録を `docs/operations/incidents/` に書く。台帳に変更があれば更新する。
 

@@ -76,7 +76,7 @@ Home Assistant 2026.10 以降、`http:` の設定は初回起動のときだけ 
 
 ## 監視
 
-- `blackbox_http` で `https://ha.lab.kanare.dev` を外形監視する（`service="homeassistant"`、`host="vm-apps"`）。失敗は `ServiceProbeFailed` で通知される（[監視・アラート](monitoring.md)）。
+- `blackbox_http` で `https://ha.lab.kanare.dev` を外形監視する（`service="homeassistant"`、`host="vm-apps"`）。失敗は `ServiceProbeFailed` で通知される（[監視・アラート](03-monitoring.md)）。
 - Homepage に「Home」の Home Assistant タイルがある。
 - コンテナのログは 10MB × 3 ファイル（`docker-compose.yml` の `x-logging`）。履歴は HA の recorder が既定で 10 日分だけ残して削除する。
 
