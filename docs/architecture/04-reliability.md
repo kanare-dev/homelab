@@ -69,7 +69,7 @@
 | Grafana | 同上 | ダッシュボードは provisioning でコード化 | 手作業で作った設定だけ消える |
 | AdGuard の設定・クエリログ | `vm-infra`（`/opt/dns/adguard/`） | クエリログは 7 日保持。設定は `playbooks/infra.yml` で再現できる範囲 | 手作業で追加したフィルタ設定が消える |
 | Caddy の証明書 | `vm-infra` の Docker ボリューム | 再取得できる | 再取得まで一時的に HTTPS が使えない |
-| VM 全体 | `local-lvm` | **バックアップを取らない**（[運用 Runbook](../operations/backup-restore.md#バックアップ)） | 再構築する |
+| VM 全体 | `local-lvm` | **バックアップを取らない**（[ADR-0001](../adr/0001-no-vm-backup.md)） | 再構築する |
 
 ## 容量の上限
 

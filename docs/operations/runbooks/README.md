@@ -11,7 +11,7 @@
 | [秘密情報の管理](secrets.md) | SOPS + age。編集、別の Mac での復元、鍵のローテーション |
 | [TLS 証明書](tls-certificates.md) | 証明書の確認・更新、サービスの追加 |
 | [Slack アラート通知](slack-alerts.md) | Webhook の登録、通知テスト、主なルール |
-| [バックアップ・復旧](../backup-restore.md) | バックアップの方針と手動の取り方 |
+| [バックアップの手順](backup-restore.md) | HA の設定・n8n のワークフローの取り込み、手動の取り方 |
 
 ## 障害対応
 
