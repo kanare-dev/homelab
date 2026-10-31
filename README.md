@@ -6,20 +6,27 @@ Proxmox 上に複数 VM を構築し、Terraform + Ansible + Docker Compose で�
 
 24GB RAM の ThinkCentre Tiny 1 台で、DNS・リバースプロキシ・監視・リモート開発環境を常時運用している。構成はすべてコードで管理し、機密値は SOPS + age で暗号化して公開リポジトリに置いている。
 
-## 思想
+## 方針
 
 - **再現可能性**: すべての構成をコードで管理し、いつでも同じ環境を再構築できる
-- **最小構成から育てる**: まずは軽量な構成で動かし、必要に応じて段階的に拡張する
-- **ドキュメント駆動**: このリポジトリを読めば全体像、命名規約、セットアップ手順が分かる
-- **観測可能性**: Prometheus と Grafana で VM やサービスの状態を継続的に可視化し、異常は Slack に通知する
+- **可観測性**: Prometheus と Grafana で VM やサービスの状態を継続的に可視化し、異常は Slack に通知する
+- **ドキュメント駆動**: このリポジトリ内のドキュメントを読めば、全体構成、設計方針、運用方法等が分かる
 
-## 構成図
+## スクリーンショット
+
+### Proxmox VE — VM 稼働状況
+
+![Proxmox VMs Running](docs/screenshots/proxmox-vms-running.png)
+
+### Grafana — Node Exporter ダッシュボード
+
+![Grafana Node Exporter Dashboard](docs/screenshots/grafana-node-exporter-dashboard.png)
+
+## 構成
 
 ![構成図](docs/diagrams/architecture.drawio.svg)
 
 最新の構成図（テキスト版）と、VM ごとの割当（CPU・メモリ・ディスク）は [システム構成・環境](docs/architecture/01-overview.md) を参照。
-
-## 構成の概要
 
 | 名前 | VMID | IP | 状態 | 役割 | 主なサービス |
 | --- | --- | --- | --- | --- | --- |
@@ -54,15 +61,15 @@ Proxmox 上に複数 VM を構築し、Terraform + Ansible + Docker Compose で�
 | [docs/operations/](docs/operations/runbooks/README.md) | 運用。[Runbook](docs/operations/runbooks/README.md)、[バックアップの手順](docs/operations/runbooks/06-backup-restore.md)、[障害記録](docs/operations/incidents/README.md)、[ロードマップ](docs/operations/roadmap/README.md) |
 | [docs/adr/](docs/adr/README.md) | 設計判断の記録（ADR） |
 
-## 主な設計の特徴
+## 設計の特徴
 
 - **3 層 DNS**: AdGuard Home（フィルタリング）→ CoreDNS（`lab.kanare.dev` の権威）/ Unbound（ルートからの再帰解決）。1.1.1.1 などの外部リゾルバに依存しない（[DNS 構成](docs/services/01-dns.md)）
 - **正規の TLS 証明書**: Caddy が Cloudflare DNS-01 で Let's Encrypt の証明書を取得し、LAN 内でも警告なしで HTTPS（[リバースプロキシと TLS](docs/services/02-reverse-proxy-tls.md)）
 - **二重 NAT でも外出先から接続**: Tailscale を subnet router として動かし、split DNS で `lab.kanare.dev` を引く（[ネットワーク設計](docs/architecture/03-network.md)）
-- **公開リポジトリでの機密管理**: SOPS + age で暗号化して Git に置く。CI で gitleaks と暗号化漏れを検査する（[セキュリティ](docs/architecture/05-security.md)）
-- **監視と通知**: Prometheus + Alertmanager で、容量枯渇・VM 停止・OOM などを検知して Slack に通知する（[監視・アラート](docs/services/03-monitoring.md)）
+- **機密情報管理**: SOPS + age で暗号化して Git に置く。CI で gitleaks と暗号化漏れを検査する（[セキュリティ](docs/architecture/05-security.md)）
+- **可観測性**: Prometheus + Alertmanager で、容量枯渇・VM 停止・OOM などを検知して Slack に通知する（[監視・アラート](docs/services/03-monitoring.md)）
 
-## 管理画面リンク
+## 管理画面
 
 | サービス | ドメイン | 備考 |
 | --- | --- | --- |
@@ -83,7 +90,7 @@ Proxmox 上に複数 VM を構築し、Terraform + Ansible + Docker Compose で�
 - SSH は鍵認証のみ。ファイアウォール（`ufw`）で必要なポートだけ開放する
 - LAN 内も Caddy で HTTPS 化する
 
-詳細と未対応の項目は [セキュリティ](docs/architecture/05-security.md) を参照。
+詳細は [セキュリティ](docs/architecture/05-security.md) を参照。
 
 ## リポジトリ構成
 
@@ -167,30 +174,3 @@ open http://192.168.11.13:9090
 ```
 
 各ディレクトリの README（`terraform/proxmox/`、`ansible/`、`docker/compose/`）に、詳細な手順がある。
-
-## Screenshots
-
-### Proxmox VE — VM 稼働状況
-
-Terraform でプロビジョニングした vm-infra (111) と vm-monitoring (113) が running 状態。
-
-![Proxmox VMs Running](docs/screenshots/proxmox-vms-running.png)
-
-### Grafana — Node Exporter ダッシュボード
-
-`https://grafana.lab.kanare.dev`（AdGuard Home + CoreDNS + Caddy 経由）で Grafana にアクセスし、
-node_exporter で収集した VM のメトリクスを可視化している。
-
-![Grafana Node Exporter Dashboard](docs/screenshots/grafana-node-exporter-dashboard.png)
-
-### Terraform — 構成の冪等性
-
-`terraform apply` を実行すると `No changes.` となり、実インフラがコードと完全に一致していることを確認。
-
-![Terraform Apply Output](docs/screenshots/terraform-apply-output.png)
-
-### Ansible — Playbook 実行結果
-
-`ansible-playbook` で vm-infra・vm-monitoring の両 VM に設定を適用。`failed=0` で正常完了。
-
-![Ansible Playbook Recap](docs/screenshots/ansible-playbook-recap.png)
