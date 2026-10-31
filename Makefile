@@ -51,6 +51,14 @@ n8n-workflows-pull: ## Export n8n workflows from vm-apps into Git (workflows onl
 		&& rm -rf $$tmp && git status --short docker/compose/n8n/workflows \
 		|| { rm -rf $$tmp; exit 1; }
 
+freshrss-opml-pull: ## Export FreshRSS subscriptions (OPML) from vm-apps to iCloud Drive, not Git. Usage: make freshrss-opml-pull FRESHRSS_USER=<name>
+	@test -n "$(FRESHRSS_USER)" || { echo "FRESHRSS_USER is required"; exit 1; }
+	@dir="$(HOME)/Library/Mobile Documents/com~apple~CloudDocs/homelab" && test -d "$$dir" \
+		&& ssh -o BatchMode=yes -i ~/.ssh/id_ed25519_homelab ubuntu@192.168.11.20 "sudo docker exec freshrss ./cli/export-opml-for-user.php --user '$(FRESHRSS_USER)'" > "$$dir/freshrss-subscriptions.opml.tmp" \
+		&& test -s "$$dir/freshrss-subscriptions.opml.tmp" && mv "$$dir/freshrss-subscriptions.opml.tmp" "$$dir/freshrss-subscriptions.opml" \
+		&& echo "saved: $$dir/freshrss-subscriptions.opml" \
+		|| { rm -f "$$dir/freshrss-subscriptions.opml.tmp"; echo "export failed"; exit 1; }
+
 setup-proxmox: ## Run Ansible for Proxmox host only
 	cd ansible && ansible-playbook playbooks/proxmox.yml
 

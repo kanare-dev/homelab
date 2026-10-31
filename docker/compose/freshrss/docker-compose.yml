@@ -1,0 +1,32 @@
+# INC-2026-10-22: コンテナログがディスクを圧迫しないよう上限を設ける
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
+services:
+  freshrss:
+    image: freshrss/freshrss:1.30.4
+    container_name: freshrss
+    logging: *default-logging
+    restart: unless-stopped
+    # 公開ポートは roles/ufw_docker（DOCKER-USER）で vm-infra（Caddy）だけに絞る
+    ports:
+      - "8081:80"
+    # ホストの DNS（ルーター）は lab.kanare.dev を引けない。他のコンテナと同じく AdGuard を使い、2 つ目にルーターを置く（ADR-0007）
+    dns:
+      - 192.168.11.11
+      - 192.168.11.1
+    environment:
+      - TZ=Asia/Tokyo
+      # フィードの更新。毎時 7 分と 37 分に実行する（イメージ内の cron）
+      - CRON_MIN=7,37
+      # Caddy（https://rss.lab.kanare.dev）の裏で動かす。Caddy の IP だけを信頼して、X-Forwarded-* を読む
+      - BASE_URL=https://rss.lab.kanare.dev
+      - TRUSTED_PROXY=192.168.11.11
+    volumes:
+      - /opt/freshrss/data:/var/www/FreshRSS/data
+      - /opt/freshrss/extensions:/var/www/FreshRSS/extensions
+
+networks: {}

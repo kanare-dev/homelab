@@ -250,6 +250,11 @@
               label: 温度
             - state: sensor.switchbot_hub_2_humidity
               label: 湿度
+    - FreshRSS:
+        href: https://rss.lab.kanare.dev
+        description: RSS Reader
+        icon: freshrss.png
+        siteMonitor: https://rss.lab.kanare.dev
 
 - Automation:
     - n8n:

@@ -156,6 +156,29 @@
         project_src: /opt/n8n
         state: present
 
+    # --- FreshRSS ---
+    # data / extensions の権限は、コンテナの起動時にイメージ側が整える
+    - name: Create freshrss directories
+      ansible.builtin.file:
+        path: "/opt/freshrss/{{ item }}"
+        state: directory
+        mode: "0755"
+      loop:
+        - data
+        - extensions
+
+    - name: Copy freshrss docker-compose.yml
+      ansible.builtin.copy:
+        src: "{{ playbook_dir }}/../../docker/compose/freshrss/docker-compose.yml"
+        dest: /opt/freshrss/docker-compose.yml
+        mode: "0644"
+      notify: Restart freshrss
+
+    - name: Start freshrss stack
+      community.docker.docker_compose_v2:
+        project_src: /opt/freshrss
+        state: present
+
   handlers:
     - name: Restart homeassistant
       community.docker.docker_compose_v2:
@@ -169,4 +192,11 @@
         project_src: /opt/n8n
         services:
           - n8n
+        state: restarted
+
+    - name: Restart freshrss
+      community.docker.docker_compose_v2:
+        project_src: /opt/freshrss
+        services:
+          - freshrss
         state: restarted
