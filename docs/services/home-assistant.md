@@ -52,7 +52,7 @@ Home Assistant 2026.10 以降、`http:` の設定は初回起動のときだけ 
 - `.storage/`（ユーザー、機器と統合の登録、ダッシュボード、トークン）
 - 履歴のデータベース（`home-assistant_v2.db`）
 
-統合のトークンは SOPS にも入れない。HA の画面に直接入力し、`.storage/` にだけ保存する。再発行の手段は非公開の台帳に記録する（[秘密情報管理](../operations/runbooks/secrets.md)）。
+統合のトークンは SOPS にも入れない。HA の画面に直接入力し、`.storage/` にだけ保存する。再発行の手段は非公開の台帳に記録する（[秘密情報管理](../operations/runbooks/03-secrets.md)）。
 
 ## 統合
 

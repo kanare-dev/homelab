@@ -36,7 +36,7 @@ Mac / スマホ ─ HTTPS ─> Caddy（vm-infra :443） ─ HTTP ─> vm-apps :5
 | ユーザー、認証情報、実行履歴 | `/opt/n8n/data`。Git に入らない |
 | ワークフロー | 画面で作る。`make n8n-workflows-pull` で Git（`docker/compose/n8n/workflows/`）に取り込む |
 
-- 暗号鍵を失うと、保存した認証情報を復号できない。SOPS に入っているので、age 鍵があれば取り出せる（[秘密情報管理](../operations/runbooks/secrets.md)）。
+- 暗号鍵を失うと、保存した認証情報を復号できない。SOPS に入っているので、age 鍵があれば取り出せる（[秘密情報管理](../operations/runbooks/03-secrets.md)）。
 - 暗号鍵は、データを作る前に設定する。後から変えると、既存の認証情報が読めなくなる。
 - ワークフローに API トークンなどを直接書かない。認証情報（Credentials）の機能を使う。書き出した JSON は公開リポジトリに入る。
 

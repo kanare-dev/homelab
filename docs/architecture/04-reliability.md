@@ -38,7 +38,7 @@
 
 - 停止は逆順。DNS（`vm-infra`）が最後に止まり、最初に起動する。
 - 各 VM のコンテナは `restart: unless-stopped`。VM が起動すれば、コンテナも自動で戻る。
-- 手動操作は [運用 Runbook](../operations/runbooks/vm-startup-shutdown.md#vm-自動起動停止)。
+- 手動操作は [運用 Runbook](../operations/runbooks/01-vm-startup-shutdown.md#vm-自動起動停止)。
 
 ## 部分障害への備え
 
@@ -46,7 +46,7 @@
 | --- | --- |
 | DNS の上流断 | AdGuard の fallback DNS（`1.1.1.1` / `9.9.9.9`）。upstream に**接続できない**ときだけ働く |
 | Unbound の一時的な応答なし | `serve-expired: yes`（TTL 1 時間）で、期限切れのキャッシュを返す |
-| `terraform apply` による VM の再起動 | 再起動を伴う変更は 1 台ずつ適用し、`vm-infra` は最後にする（[運用 Runbook](../operations/runbooks/terraform-apply-restart.md#terraform-apply-が-vm-を再起動するとき)） |
+| `terraform apply` による VM の再起動 | 再起動を伴う変更は 1 台ずつ適用し、`vm-infra` は最後にする（[運用 Runbook](../operations/runbooks/15-terraform-apply-restart.md#terraform-apply-が-vm-を再起動するとき)） |
 | 外出先からの到達 | Tailscale の key expiry を `vm-infra` で無効化（期限切れで繋がらなくなるのを防ぐ） |
 
 ## 変更時の信頼性確保
@@ -95,7 +95,7 @@
 | 弱点 | 状況 |
 | --- | --- |
 | コンテナイメージが `latest` | 更新で意図せず挙動が変わる。バージョン固定は未実施 |
-| Docker イメージ・OS の更新が手動 | 手順は [運用 Runbook](../operations/runbooks/updates.md#更新手順)。定期実施の仕組みはない |
+| Docker イメージ・OS の更新が手動 | 手順は [運用 Runbook](../operations/runbooks/02-updates.md#更新手順)。定期実施の仕組みはない |
 | NTP の時刻ずれの監視がない | `ntp.nict.jp` / `time.google.com` に同期するが、ずれの検知は未実施 |
 | 復旧手順の訓練 | VM 停止と Unbound 障害の検知は実機で確認済み。ホストの再構築は未実施（[災害対策](07-disaster-recovery.md)） |
 

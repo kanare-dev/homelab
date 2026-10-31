@@ -39,14 +39,14 @@ LAN 内サービスへのリンクと、状態のウィジェットを 1 画面�
 | 天気 | Open-Meteo（東京の座標。リポジトリが公開なので、市区町村レベルに留める） | なし（キー不要） |
 
 - Prometheus は、`vm-apps` から `9090` に直接届かない（`vm-monitoring` の `DOCKER-USER` が Caddy だけを許可している）。そのため Caddy 経由の URL を使う。
-- シークレットは `homepage.env.j2` が `/opt/homepage/.env` に `HOMEPAGE_VAR_*` として書き出し、`services.yaml` が `{{HOMEPAGE_VAR_*}}` で参照する。値は Git に入れない（[秘密情報管理](../operations/runbooks/secrets.md)）。
+- シークレットは `homepage.env.j2` が `/opt/homepage/.env` に `HOMEPAGE_VAR_*` として書き出し、`services.yaml` が `{{HOMEPAGE_VAR_*}}` で参照する。値は Git に入れない（[秘密情報管理](../operations/runbooks/03-secrets.md)）。
 
 ### ウィジェットを足すとき
 
 1. シークレットが要るなら、先にユーザーが `sops ansible/inventory/group_vars/apps/secrets.sops.yml` で追記する。`monitoring` など別グループのファイルに入れると、`vm-apps` から読めない。
 2. `homepage.env.j2` に `HOMEPAGE_VAR_*` を足し、`services.yaml` か `widgets.yaml` にウィジェットを書く。
 3. `make setup-apps` で反映する。表示が空のときは `docker logs homepage` を見る。
-4. `docs/operations/runbooks/secrets.md` の表と、この文書のウィジェットの表を更新する。
+4. `docs/operations/runbooks/03-secrets.md` の表と、この文書のウィジェットの表を更新する。
 
 ### 見送ったもの
 

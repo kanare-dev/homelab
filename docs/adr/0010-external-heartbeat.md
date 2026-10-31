@@ -27,7 +27,7 @@ ADR-0002 の案 B〜E のうち、B（別ホスト）と C（VPS）は、ハー�
 
 ## 影響と再検討の条件
 
-- ping URL が増える。SOPS で管理する（`heartbeat_ping_url`。[秘密情報管理](../operations/runbooks/secrets.md)）。URL を知っていれば誰でも ping できるため、漏えいしたら再発行する。
+- ping URL が増える。SOPS で管理する（`heartbeat_ping_url`。[秘密情報管理](../operations/runbooks/03-secrets.md)）。URL を知っていれば誰でも ping できるため、漏えいしたら再発行する。
 - 回線断や停電でも通知が出る（ホストの外から見るため）。これは意図した挙動で、障害の種類（ホスト停止か回線断か）は通知だけでは区別できない。
 - 外部サービス（Healthchecks.io）に依存する。無料枠の条件の変更や、サービスの終了があれば再検討する。
 - 通知は Healthchecks.io から直接送る。Slack（`#homelab-alerts`）とメールの 2 経路にした。Alertmanager 経由の Slack と違い、ホストが止まっても届く。Slack 側の障害に備えて、メールを併用する。

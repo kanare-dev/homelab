@@ -24,7 +24,7 @@ make n8n-workflows-pull
 
 ## Git に入らないものの退避
 
-age 秘密鍵は iCloud Keychain に退避する（[秘密情報の管理](secrets.md#age-秘密鍵)）。SSH 鍵、Terraform の state、証明書などは、非公開の台帳に追記する（`private/secrets-inventory.md`。実体は iCloud Drive で、Git 管理外）。
+age 秘密鍵は iCloud Keychain に退避する（[秘密情報の管理](03-secrets.md#age-秘密鍵)）。SSH 鍵、Terraform の state、証明書などは、非公開の台帳に追記する（`private/secrets-inventory.md`。実体は iCloud Drive で、Git 管理外）。
 
 ## （参考）手動で vzdump を取る
 

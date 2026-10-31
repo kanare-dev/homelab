@@ -206,7 +206,7 @@ VM 内のデータは削除していない。強制停止やリセットも行�
 | 可視化 | Grafana「Storage / Thin Pool」（14 パネル。pool 使用率、空き、満杯までの予測、VM ディスクごとの割当と増加ペース、ゲストとの対比、VM の稼働状態） |
 | 監視対象の追加 | vm-code を scrape 対象に追加。ESP32 は現在意図的に停止中のため scrape から外した |
 | シークレットの扱い | Mac にしかない再現不能データ（Vault パスワードなど）を iCloud Keychain に退避し、非公開の台帳で管理。新しいシークレットを作ったときに登録を促すルールを `CLAUDE.md` に追加。**（2026-10-23 追記: 当時は Vault パスワードなどを個別に退避していたが、現在は SOPS + age に移行し、退避するのは age 秘密鍵 1 つになった。ルールも `CLAUDE.md` で更新済み）** |
-| ドキュメント | `docs/services/monitoring.md`（監視の全体像、アラート一覧、限界、運用）、`docs/operations/runbooks/slack-alerts.md`（Slack 通知）、`docs/adr/0001-no-vm-backup.md`（バックアップ方針） |
+| ドキュメント | `docs/services/monitoring.md`（監視の全体像、アラート一覧、限界、運用）、`docs/operations/runbooks/05-slack-alerts.md`（Slack 通知）、`docs/adr/0001-no-vm-backup.md`（バックアップ方針） |
 
 ### 4.3 見送った対策（判断の記録）
 

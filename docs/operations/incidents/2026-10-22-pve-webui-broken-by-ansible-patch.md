@@ -209,7 +209,7 @@ apt-get install --reinstall -y proxmox-widget-toolkit
 | 2 | Ansible のタスクを冪等で構文を壊さない形に書き換える | **完了**（10-22） | - |
 | 3 | ブラウザで管理画面が表示されることを確認する（強制再読み込み。ログイン、ノード・VM 一覧、サブスクリプション警告が出ないこと） | **完了**（10-22）。ユーザーが表示を確認 | - |
 | 4 | ホストに残った Ansible のバックアップファイル 19 個を削除する | **完了**（10-22）。AI の権限で拒否されたため、ユーザーが実行した | - |
-| 5 | 本ドキュメントと `docs/operations/runbooks/pve-webui-recovery.md` に、症状と復旧手順を記載する | **完了**（10-22） | - |
+| 5 | 本ドキュメントと `docs/operations/runbooks/13-pve-webui-recovery.md` に、症状と復旧手順を記載する | **完了**（10-22） | - |
 | 6 | ホストの保留中アップデート（`apt list --upgradable` で 248 パッケージ。`pve-manager` 9.1.7 → 9.2.21、`pve-qemu-kvm` 10 → 11、カーネルなど）を適用する | **見送り**（10-22）。当面は更新しない方針。再検討の条件は §4.3 | 再検討の条件に該当したとき |
 
 手順 4 の削除コマンド（実行済み。PVE ホストで実行。`.orig` は対象外）:
@@ -264,4 +264,4 @@ rm /usr/share/javascript/proxmox-widget-toolkit/proxmoxlib.js.*~
 ## 7. 関連ドキュメント
 
 - [INC-2026-10-22: LVM-thin プール枯渇](2026-10-22-lvm-thin-exhaustion.md)（この障害の発生時に実行したプレイブックが引き金になった）
-- [運用 Runbook](../runbooks/pve-webui-recovery.md#pve-の管理画面が開かないとき)
+- [運用 Runbook](../runbooks/13-pve-webui-recovery.md#pve-の管理画面が開かないとき)

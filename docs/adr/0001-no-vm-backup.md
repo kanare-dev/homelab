@@ -31,4 +31,4 @@ VM 全体のバックアップは当面取らない。守る対象は **VM の�
 - ホストやディスクを失うと、VM は再構築になる（[災害対策](../architecture/07-disaster-recovery.md)）。
 - 次のいずれかになったら再検討する: NAS や外部ストレージを追加した、VM に再現できないデータを置くようになった、`vm-windows` を実用に使い始めた。
 
-何を守り、何を守らないか: [災害対策](../architecture/07-disaster-recovery.md#バックアップの状況)。手順: [バックアップの手順](../operations/runbooks/backup-restore.md)
+何を守り、何を守らないか: [災害対策](../architecture/07-disaster-recovery.md#バックアップの状況)。手順: [バックアップの手順](../operations/runbooks/06-backup-restore.md)

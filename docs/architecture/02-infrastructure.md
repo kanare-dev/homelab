@@ -27,7 +27,7 @@ Proxmox VE 上に Terraform で VM を作り、Ansible で設定し、各 VM で
 | `vm-windows` | 130 | — | 4 | 8GB | 60G | 手動（停止） | 検証用 | Windows 11 |
 | `ubuntu-cloud` | 9000 | — | — | — | — | — | VM テンプレート | cloud-init 付き Ubuntu |
 
-正の定義は `terraform/proxmox/terraform.tfvars`（`vm-windows` は `windows.tf`）。起動順序と待機秒数は [運用 Runbook](../operations/runbooks/vm-startup-shutdown.md#vm-自動起動停止) を参照。
+正の定義は `terraform/proxmox/terraform.tfvars`（`vm-windows` は `windows.tf`）。起動順序と待機秒数は [運用 Runbook](../operations/runbooks/01-vm-startup-shutdown.md#vm-自動起動停止) を参照。
 
 ## ソフトウェア構成
 
@@ -39,7 +39,7 @@ Proxmox VE 上に Terraform で VM を作り、Ansible で設定し、各 VM で
 | コンテナ | Docker Compose | `docker/compose/<stack>/` → VM 上の `/opt/<stack>/` |
 | 監視 | Prometheus, Alertmanager, Grafana, blackbox-exporter, node_exporter | [監視・アラート](../services/monitoring.md) |
 | 名前解決 | AdGuard Home → CoreDNS / Unbound | [DNS 構成](../services/dns.md) |
-| リバースプロキシ・TLS | Caddy + Let's Encrypt（Cloudflare DNS-01） | [運用 Runbook](../operations/runbooks/tls-certificates.md#lan-内-tls) |
+| リバースプロキシ・TLS | Caddy + Let's Encrypt（Cloudflare DNS-01） | [運用 Runbook](../operations/runbooks/04-tls-certificates.md#lan-内-tls) |
 | 秘密情報 | SOPS + age | [セキュリティ](05-security.md) |
 | CI | GitHub Actions（lint のみ） | [CI/CD](../services/cicd.md) |
 

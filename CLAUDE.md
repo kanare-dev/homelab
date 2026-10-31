@@ -2,14 +2,14 @@
 
 ## シークレット
 
-- 機密値は SOPS + age で暗号化して Git に置く（`*.sops.yml`。詳細は `docs/operations/runbooks/secrets.md`）。復号できるのは age 秘密鍵だけ。
+- 機密値は SOPS + age で暗号化して Git に置く（`*.sops.yml`。詳細は `docs/operations/runbooks/03-secrets.md`）。復号できるのは age 秘密鍵だけ。
 - 新しいシークレットは、`group_vars/<group>/secrets.sops.yml`（Terraform は `terraform/proxmox/secrets.sops.yml`）に追加する。追記はユーザーが `sops <ファイル>` で行い、値をチャットに貼らせない。
 - 値は、チャット・コミット・ログ・ドキュメントに書かない。文字数・ハッシュ・一部の文字も書かない（リポジトリは公開）。確認が必要なときは、値を変数に入れて API で検証する。
 - 平文のシークレットファイル（`.env` など）を作らない。`sops -d` の出力をファイルに保存しない。age 秘密鍵（`keys.txt`）をリポジトリに入れない。
 
 ### 記録と退避
 
-- SOPS 内のシークレットの一覧は `docs/operations/runbooks/secrets.md` の表が正。追加・削除したら表を更新する。
+- SOPS 内のシークレットの一覧は `docs/operations/runbooks/03-secrets.md` の表が正。追加・削除したら表を更新する。
 - SOPS の外にあるもの（`*.tfstate`、SSH 鍵、証明書、Proxmox の root パスワードなど）は、非公開の台帳（`private/secrets-inventory.md`。実体は iCloud Drive で、Git 管理外）に追記する。
 - iCloud Keychain への登録が必要なのは、age 鍵と、再発行できず SOPS にも入れないものだけ。作業を終える前にユーザーへ促す。値を画面に出さない方法（`pbcopy < file` など）を案内する。
 

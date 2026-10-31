@@ -1,6 +1,6 @@
 # リバースプロキシと TLS
 
-`vm-infra` 上の Caddy が、LAN 内サービスの入口と HTTPS 化を担う。操作手順（証明書の確認・更新、サービスの追加）は [運用 Runbook](../operations/runbooks/tls-certificates.md#lan-内-tls)。
+`vm-infra` 上の Caddy が、LAN 内サービスの入口と HTTPS 化を担う。操作手順（証明書の確認・更新、サービスの追加）は [運用 Runbook](../operations/runbooks/04-tls-certificates.md#lan-内-tls)。
 
 ## 構成
 

@@ -77,7 +77,7 @@ docker compose up -d
 ## 環境変数
 
 機密値は SOPS で暗号化した `ansible/inventory/group_vars/<group>/secrets.sops.yml` で管理する。
-`.env` はリポジトリに置かず、Ansible が `ansible/playbooks/templates/*.env.j2` から生成して VM 上の `/opt/<stack>/.env` に配置する（`docs/operations/runbooks/secrets.md` 参照）。
+`.env` はリポジトリに置かず、Ansible が `ansible/playbooks/templates/*.env.j2` から生成して VM 上の `/opt/<stack>/.env` に配置する（`docs/operations/runbooks/03-secrets.md` 参照）。
 
 ## Reverse Proxy のデプロイ方式について
 

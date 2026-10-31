@@ -7,7 +7,7 @@
 - [x] ハードウェア調達、Proxmox VE インストール（`192.168.11.10`）、メモリ増設（8GB → 24GB）
 - [x] ネットワーク設計と IP 規約の確定（`README.md`）、DNS ドメイン `lab.kanare.dev` の決定
 - [x] Cloud-init テンプレート VM、SSH 鍵ペア、Proxmox API トークン（`terraform/proxmox/README.md`）
-- [x] 秘密情報管理方針（SOPS + age。[secrets Runbook](../runbooks/secrets.md)）
+- [x] 秘密情報管理方針（SOPS + age。[secrets Runbook](../runbooks/03-secrets.md)）
 - [x] バックアップ方針（VM 全体は取らない。VM 外の再現不能データだけ台帳で守る。[ADR 0001](../../adr/0001-no-vm-backup.md)）
 - [x] CI（lint のみ。`plan` / `apply` は自動化しない。[ADR 0006](../../adr/0006-ci-lint-only.md)、[CI/CD](../../services/cicd.md)）
 - [x] AS-IS の構成図（[概要](../../architecture/01-overview.md) の ASCII 図と `docs/diagrams/`）
