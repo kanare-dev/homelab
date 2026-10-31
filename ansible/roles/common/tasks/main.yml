@@ -49,6 +49,13 @@
   notify: Restart systemd-timesyncd
   when: ntp_servers is defined
 
+# ADR-0013: コンソール（Proxmox noVNC）と sudo -v 用。SSH は鍵認証のみのまま（下のタスク）
+- name: Set console password for the login user
+  ansible.builtin.user:
+    name: "{{ ansible_user }}"
+    password: "{{ vm_user_password_hash }}"
+  no_log: true
+
 - name: Disable SSH password authentication
   ansible.builtin.lineinfile:
     path: /etc/ssh/sshd_config

@@ -11,9 +11,10 @@
 
 3. Proxmox コンソールで起動状況を確認
    → Web UI > VM > Console
-   ※ ログインはできない。VM の `ubuntu` / `root` はパスワードがロックされており、
-     SSH も鍵認証のみ（`PasswordAuthentication no`）。表示されるのは起動ログとログインプロンプトまで。
-     入る必要があるときは SSH を使う。緊急用のパスワードは設定していない（2026-10-22 に見送り）
+   ※ SSH が使えないときは、コンソールから `ubuntu` でログインできる
+     （全 VM 共通のパスワード。iCloud Keychain `homelab / vm ubuntu password`）。
+     `root` はロックされているので、必要なら `sudo -i`（パスワード不要）。
+     SSH はパスワード認証を無効にしている（鍵のみ）。
 
 4. VM を再起動
    $ ssh root@192.168.11.10 "qm reboot <vmid>"

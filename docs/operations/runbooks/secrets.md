@@ -8,6 +8,7 @@
 
 | ファイル | キー | 使い道 |
 | --- | --- | --- |
+| `ansible/inventory/group_vars/all/secrets.sops.yml` | `vm_user_password_hash` | 全 VM の `ubuntu` のパスワード（SHA-512 のハッシュ。コンソールと `sudo -v` 用。[ADR-0013](../../adr/0013-vm-console-password.md)） |
 | `ansible/inventory/group_vars/code/secrets.sops.yml` | `code_server_password` | code-server のログイン |
 | `ansible/inventory/group_vars/infra/secrets.sops.yml` | `cloudflare_api_token`, `tailscale_authkey` | Caddy の DNS-01、Tailscale 登録 |
 | `ansible/inventory/group_vars/monitoring/secrets.sops.yml` | `grafana_admin_password`, `slack_webhook_url`, `heartbeat_ping_url` | Grafana、Alertmanager（Slack 通知、外部 Heartbeat） |

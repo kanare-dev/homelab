@@ -17,8 +17,8 @@ ansible/
 ├── inventory/
 │   ├── hosts.yml        # ホスト一覧
 │   ├── group_vars/      # グループ変数
-│   │   ├── all.yml
 │   │   ├── dev.yml
+│   │   ├── all/         # vars.yml + secrets.sops.yml（SOPS 暗号化）
 │   │   ├── apps/        # vars.yml + secrets.sops.yml（SOPS 暗号化）
 │   │   ├── code/        # 同上
 │   │   ├── infra/       # 同上

@@ -50,9 +50,9 @@
 
 | 項目 | 設定 | 管理場所 |
 | --- | --- | --- |
-| SSH | 鍵認証のみ（`PasswordAuthentication no`）、root ログイン禁止 | `ansible/roles/common/`、`group_vars/all.yml` |
-| VM のパスワード | `ubuntu` / `root` はロック。緊急用パスワードは設定していない（2026-10-22 に見送り） | [運用 Runbook](../operations/runbooks/troubleshooting.md#vm-が応答しない) |
-| コンソール | Proxmox のコンソールからはログインできない。入るときは SSH | 同上 |
+| SSH | 鍵認証のみ（`PasswordAuthentication no`）、root ログイン禁止 | `ansible/roles/common/`、`group_vars/all/vars.yml` |
+| VM のパスワード | `ubuntu` に全 VM 共通のパスワードを設定（ハッシュは SOPS）。使うのはコンソールと `sudo -v` だけで、SSH のパスワード認証は無効のまま。`root` はロック（[ADR-0013](../adr/0013-vm-console-password.md)） | `ansible/roles/common/`、[秘密情報管理](../operations/runbooks/secrets.md) |
+| コンソール | Proxmox のコンソールから `ubuntu` でログインできる。`root` は入れない（`sudo -i` で昇格する） | 同上 |
 
 ### Web 画面
 

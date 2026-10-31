@@ -18,6 +18,7 @@
 | [0010](0010-external-heartbeat.md) | 外部 Heartbeat（Healthchecks.io）で監視 VM の停止を検知する | 採用 | 2026-10-25 |
 | [0011](0011-home-assistant-on-vm-apps.md) | Home Assistant を vm-apps に Container 版で置き、設定の YAML だけ Git で守る | 採用 | 2026-10-26 |
 | [0012](0012-n8n-on-vm-apps.md) | n8n を vm-apps に置き、ワークフローだけ Git で守る | 採用 | 2026-10-30 |
+| [0013](0013-vm-console-password.md) | 全 VM の `ubuntu` にコンソール用パスワードを設定する | 採用 | 2026-10-31 |
 
 ## 書き方
 

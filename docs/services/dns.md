@@ -103,7 +103,7 @@ IP が変わる場合、直す場所は次のとおり。`dns_records` の `rout
 | 場所 | 内容 |
 | --- | --- |
 | `docker/compose/reverse-proxy/Caddyfile` | `router.lab.kanare.dev` の `reverse_proxy` の転送先 |
-| `ansible/inventory/group_vars/all.yml` | `gateway`（DNS 障害時に経路が壊れないよう、名前ではなく IP のまま） |
+| `ansible/inventory/group_vars/all/vars.yml` | `gateway`（DNS 障害時に経路が壊れないよう、名前ではなく IP のまま） |
 | `terraform/proxmox/variables.tf` / `terraform.tfvars` | `gateway` |
 | `README.md` | ルーターの IP（構成表） |
 | `docker/compose/homepage/config/services.yaml` | Router の `description`（機種名） |
