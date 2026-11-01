@@ -22,7 +22,7 @@
 - 進める順序は、(1) ER605 と SG2210P を導入する（Omada の段階 1〜2）、(2) VLAN 化する（段階 3）、(3) DMZ と Cowrie を検証する（Phase 1〜3。追加のハードは不要）、(4) [ネットワーク通信の収集・可視化](06-network-traffic-analysis.md)の受信用ホストの購入を判断する。DMZ 専用の機器への移行や VPS の利用は、外部公開（Phase 4）の前に決める
 - [Omada 導入・VLAN 化](04-network-omada-vlan.md)の段階 3 まで（ER605、SG2210P、VLAN の切り替え）を終える
 - DMZ は VLAN70（`10.77.70.0/24`）。[VLAN 設計](../../architecture/08-vlan-design.md)と [ADR 0022](../../adr/0022-vlan-set-and-ids.md) に反映済み。VLAN とルールは段階 3 で作り、置くものはこの計画で追加する
-- コントローラーモードの ACL で LAN→LAN を制限できることを確認する（[VLAN 設計](../../architecture/08-vlan-design.md)の未決事項）。DMZ → 内部の遮断はこれに依存する。使えない場合は、スイッチの ACL などの代替を先に決める
+- コントローラーモードの ACL で LAN→LAN を制限できることを実機で確認する（公式 FAQ では可能。[VLAN 設計](../../architecture/08-vlan-design.md)の未決事項）。DMZ → 内部の遮断はこれに依存する。使えない場合は、スイッチの ACL などの代替を先に決める
 - 管理画面の外部到達（Caddy 経由）は、公開するものを置く前（Phase 4 の前）に、Tailscale の ACL で整理する（VLAN 設計の未決事項）
 - 現在は二重 NAT 環境で、外からポート開放ができない（VLAN 設計の前提）。外部公開は、次の「外部に公開する経路」のいずれかで行う
 
