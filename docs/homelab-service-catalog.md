@@ -190,7 +190,7 @@
 | 未検討 | nmap | ネットワーク・ポートのスキャン | — |
 | 未検討 | NetAlertX | ネットワーク上の端末の検出と新規端末の通知 | — |
 | 未検討 | netbox-community/netbox | IPAM / DCIM（IP アドレス・機器の台帳） | — |
-| 未検討 | Custom WiFi Monitor | Wi-Fi の電波状況・接続端末を監視する自作ツール | — |
+| 未検討 | Custom WiFi Monitor | Wi-Fi の電波状況・接続端末を監視する自作ツール（Wi-Fi 経由の速度・遅延の自動測定にも使う案） | [Wi-Fi 経由の測定](services/03-monitoring.md#wi-fi-経由の測定未実装) |
 | 未検討 | Pi.Alert (PiAlert) | ネットワーク上の端末の検出と新規端末の通知（NetAlertX の前身） | — |
 
 ---
