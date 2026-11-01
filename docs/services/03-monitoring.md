@@ -19,11 +19,8 @@ homelab の監視とアラート通知の仕組み。2026-10-22 の障害（[INC
                               v
                         blackbox-exporter :9115 (コンテナ内のみ)
                           ├─ HTTPS: *.lab.kanare.dev (Caddy 経由、証明書の期限も取得)
-                          └─ DNS: vm-infra AdGuard :53 (内部ゾーン / 外部の名前)
-                              │ /metrics (1時間毎)
-                              v
-                        speedtest-exporter :9798 (コンテナ内のみ。scrape のたびに Speedtest を実行)
-                          └─ インターネット回線の下り・上り・ping・ジッター
+                          ├─ DNS: vm-infra AdGuard :53 (内部ゾーン / 外部の名前)
+                          └─ ICMP: ルーター / 建物の共用ルーター / 1.1.1.1 / 8.8.8.8 (30秒毎。回線断・遅延)
                               │ 発報
                               v
                         Alertmanager :9093 ──> Slack Incoming Webhook (#homelab-alerts)
@@ -42,13 +39,12 @@ homelab の監視とアラート通知の仕組み。2026-10-22 の障害（[INC
 | unbound-metrics | vm-infra 専用。未キャッシュの名前を Unbound に直接引いて、再帰解決できているかを textfile に出力（1 分毎） | `ansible/roles/dns_metrics/` |
 | blackbox-exporter | 外形監視。HTTPS と DNS のプローブを実行する。ポートは公開しない（Prometheus からだけ使う） | `docker/compose/monitoring/blackbox/blackbox.yml`、`docker-compose.yml` |
 | Prometheus | 収集・ルール評価。`retention.time=30d`、`retention.size=5GB` | `docker/compose/monitoring/prometheus/prometheus.yml`、`docker-compose.yml` |
-| speedtest-exporter | インターネット回線の速度測定（Ookla Speedtest CLI）。Prometheus が 30 分毎に scrape した時に測る。ポートは公開しない | `docker/compose/monitoring/docker-compose.yml`、`prometheus.yml`（`speedtest` ジョブ） |
 | アラートルール | 発報条件 | `docker/compose/monitoring/prometheus/alerts.yml` |
 | Alertmanager | 通知のグルーピング・送信 | `docker/compose/monitoring/alertmanager/alertmanager.yml` |
 | 外部 Heartbeat | `Watchdog` を Healthchecks.io へ 5 分毎に送る。途絶えたら外部から通知（[ADR-0010](../adr/0010-external-heartbeat.md)） | `alertmanager.yml`（`heartbeat` receiver）、`ansible/playbooks/monitoring.yml` |
 | Heartbeat ping URL | 秘密情報 | `ansible/inventory/group_vars/monitoring/secrets.sops.yml`（`heartbeat_ping_url`、SOPS 暗号化） |
 | Slack Webhook URL | 秘密情報 | `ansible/inventory/group_vars/monitoring/secrets.sops.yml`（`slack_webhook_url`、SOPS 暗号化） |
-| Grafana ダッシュボード「Internet Speed」 | 下り・上り・ping・ジッターの推移、通知しきい値（中央値の 60%）、測定の成否 | `docker/compose/monitoring/grafana/dashboards/internet-speed.json`（`/d/homelab-internet-speed`） |
+| Grafana ダッシュボード「Internet Connectivity」 | ping の遅延（ルーター・建物の共用ルーター・インターネット）、疎通、通知しきい値 | `docker/compose/monitoring/grafana/dashboards/internet-connectivity.json`（`/d/homelab-internet-connectivity`） |
 | Grafana ダッシュボード「Storage / Thin Pool」 | pool とVM ディスク別の割当、増加ペース、VM 稼働状態 | `docker/compose/monitoring/grafana/dashboards/storage.json`（`/d/homelab-storage`） |
 | デプロイ | | `ansible/playbooks/monitoring.yml`（vm-monitoring）、`ansible/playbooks/proxmox.yml`（pve） |
 
@@ -76,9 +72,6 @@ homelab の監視とアラート通知の仕組み。2026-10-22 の障害（[INC
 | DnsProbeFailed | AdGuard への名前解決が失敗（`dns-lab`: 内部ゾーン、`dns-external`: 外部の名前） | 2m | critical | AdGuard / CoreDNS / Unbound の停止。発報中は `ServiceProbeFailed` を抑制する |
 | TlsCertExpiringSoon / Critical | 証明書の残り日数 < 14 / < 3 | 1h / 10m | warning / critical | Let's Encrypt の自動更新の失敗（Cloudflare トークン失効など） |
 | BlackboxProbeMissing | 外形監視のメトリクスが存在しない | 10m | warning | blackbox-exporter の停止（監視の盲点） |
-| InternetDownloadSlow | 直近 2 時間の下り速度の最大値が、7 日間の中央値の 60% 未満（測定 96 回 = 約 2 日分が溜まるまで評価しない） | 0 | warning | 回線の劣化・プロバイダの障害・ONU/ルーターの不調 |
-| InternetUploadSlow | 同上（上り） | 0 | warning | 同上 |
-| SpeedtestFailing | 回線速度の測定が失敗（`speedtest_up == 0` または scrape 失敗） | 2h | warning | 回線断・Speedtest サーバー障害・exporter の停止。回線断では速度のアラートは出ない |
 | InternetDown | ルーターには ping が通るが、`1.1.1.1` と `8.8.8.8` の両方に通らない | 2m | critical | **回線断**（建物側・ISP・ルーターの WAN 側）。回線が落ちている間は Slack に届かないので、外部 Heartbeat の DOWN が先に届く。Slack は回線復旧後に届く |
 | GatewayUnreachable | ルーター（`192.168.11.1`）に ping が通らない | 2m | critical | ルーターの停止、LAN の断、PVE の NIC 停止 |
 | InternetPacketLoss | `1.1.1.1` / `8.8.8.8` へのパケットロスが 10 分間で 10% 超 | 5m | warning | 回線の不安定（建物側の混雑など） |
@@ -102,27 +95,34 @@ homelab の監視とアラート通知の仕組み。2026-10-22 の障害（[INC
 - ターゲットを増やすときは、`prometheus.yml` の `blackbox_http` に URL と `host` / `service` ラベルを追加する。
 - プローブ元は vm-monitoring なので、**vm-monitoring や PVE ホストの停止は検知できない**（下記「限界」と同じ）。
 
-### 回線速度の監視
+### 回線の疎通・遅延の監視
 
-家のインターネット回線の速度を定期的に測り、推移を見て、遅くなったら Slack に通知する。
+家のインターネット回線が落ちた時と、建物側のネットワークが遅くなった時に気づけるようにする。判断は [ADR 0018](../adr/0018-internet-speed-monitoring.md)。
 
-- **測り方**: `speedtest-exporter`（Ookla Speedtest CLI）を `vm-monitoring` に置き、Prometheus が 30 分毎に scrape する。scrape のたびに 1 回測る（30〜60 秒。通信量は回線速度に比例し、1Gbps 級なら 1 回 1〜2GB 前後。1 日 48 回）。測定中は回線を使い切るので、同じ回線の他の通信にも影響する。判断は [ADR 0018](../adr/0018-internet-speed-monitoring.md)。
-- **メトリクス**: `speedtest_download_bits_per_second`、`speedtest_upload_bits_per_second`、`speedtest_ping_latency_milliseconds`、`speedtest_jitter_latency_milliseconds`、`speedtest_up`。
-- **遅いと判断する基準**: 固定の数値ではなく、**直近 7 日間の中央値の 60%**。直近 2 時間（約 4 回）の最大値がそれを下回った時だけ通知する。1 回の外れ値や、夜間の一時的な混雑では通知しない。契約速度や回線が変わっても、数字を直さずに追随する。
-- **立ち上がり**: 平常値が溜まる前（測定 96 回 = 約 2 日分）はアラートを評価しない。デプロイ直後の 2 日間は、ダッシュボードで推移を見るだけになる。
-- **しきい値を変えるとき**: `alerts.yml` の `0.6`（割合）と `[2h]`（窓）を直す。`prometheus.yml` の `scrape_interval` を変えたら、窓の中に 3 回前後の測定が入るよう `[3h]` も合わせる。
-- **限界**: vm-monitoring の VM 経由で測るので、同じ VM や同じ LAN の大きな通信と重なると遅く出る。ルーター（Buffalo）や ONU の手前で測るわけではない。`vm-monitoring` は有線なので、Wi-Fi の速度は測れない（下の拡張を参照）。回線断は ping（`InternetDown`、2 分）で検知する。回線断では速度のアラートは出ない（`InternetDown` が抑制する）。
+- **測り方**: blackbox-exporter の ICMP で、4 か所に 30 秒毎に ping する。通信量はほぼゼロなので、仕事中も止めない。
 
-#### 回線断・遅延の見方（ping）
+  | 宛先 | `service` ラベル | 意味 |
+  | --- | --- | --- |
+  | `192.168.11.1` | `gateway` | 自宅のルーター（Buffalo） |
+  | `172.22.0.1` | `building-router` | 建物の共用ルーター（traceroute の 2 ホップ目） |
+  | `1.1.1.1` | `internet-cloudflare` | インターネット（Cloudflare） |
+  | `8.8.8.8` | `internet-google` | インターネット（Google） |
 
-- 速度（Speedtest）は 30 分毎の傾向を見るもの。回線断や、建物側のネットワークが一時的に遅くなる状況は、30 秒毎の ping で見る。
-- ルーター → 建物の共用ルーター（`172.22.0.1`、traceroute の 2 ホップ目）→ `1.1.1.1` / `8.8.8.8` の順に、**どこまで届くか・どこから遅いか**を Grafana「Internet Speed」で切り分ける。建物の共用ルーターまでで遅延が増えていれば建物内、そこまで低くてその先で増えていれば ISP 側。
-- 建物の共用ルーター宛ての ping は、アラートにしていない（ICMP に応答しない構成だと誤報になるため。確認用のグラフのみ）。上流が変わったとき（引っ越しなど）は `prometheus.yml` の宛先を直す。
-- 回線が落ちている間は Slack に通知できない。外部 Heartbeat（Healthchecks.io）の DOWN が先に届き、Slack の `InternetDown` は回線復旧後に届く。
+- **切り分け**: ルーター → 建物の共用ルーター → インターネットの順に、**どこまで届くか・どこから遅いか**を Grafana「Internet Connectivity」で見る。建物の共用ルーターまでで遅延が増えていれば建物内、そこまで低くてその先で増えていれば ISP 側。
+- **回線断**: ルーターに届くのに `1.1.1.1` と `8.8.8.8` の両方に届かない状態が 2 分続くと `InternetDown`。片方だけ失敗するなら、その宛先側の問題とみなして発報しない。回線断の間は、遅延・パケットロスの通知と、外の名前解決の失敗（`DnsProbeFailed` の `dns-external`）を抑制する。
+- **遅延**: `1.1.1.1` への RTT（10 分平均）が、7 日間の中央値の 2 倍かつ 50ms を超えて 10 分続くと `InternetLatencyHigh`。平常値が溜まる前（約 2 日分）は評価しない。しきい値は `alerts.yml` の `2`（倍率）と `0.05`（下限）で変える。
+- **パケットロス**: 10 分間で 10% を超えて 5 分続くと `InternetPacketLoss`。
+- **建物の共用ルーター宛て**: ICMP に応答しない構成だと誤報になるため、アラートにせず、確認用のグラフだけにしている。上流が変わったとき（引っ越しなど）は `prometheus.yml` の `blackbox_icmp` の宛先を直す（[回線と WAN](../architecture/03-network.md#回線と-wan)）。
+- **回線断の通知**: 回線が落ちている間は Slack に通知できない。外部 Heartbeat（Healthchecks.io）の DOWN が先に届き、Slack の `InternetDown` は回線復旧後に届く。
+- **限界**: ping は遅延とロスを見るもので、**速度（Mbps）は測らない**。遅延が増えずに帯域だけ絞られる場合は検知できない。`vm-monitoring` は有線なので、Wi-Fi の状態も測れない。
+
+#### 回線速度（Speedtest）を測らない理由
+
+Ookla Speedtest は測定のたびに 30〜60 秒、回線を使い切る（1Gbps 級なら 1 回 1〜2GB 前後）。仕事中のビデオ会議などに影響し、建物の共用回線にも負荷をかけるため、見送った。再検討の条件は [見送り中の項目](../operations/roadmap/03-deferred.md#回線速度の定期測定speedtest)。
 
 #### Wi-Fi 経由の測定（未実装）
 
-`vm-monitoring` は有線なので、Wi-Fi の速度は測れない。「有線では速いが Wi-Fi だけ遅い」ことは、今のところ手元の端末で測るしかない。Wi-Fi 側を自動で測るには、Wi-Fi に常時つないだ端末（Raspberry Pi など）で同じ `speedtest-exporter` と ping を動かし、Prometheus に足す（サービスカタログの「Custom WiFi Monitor」）。有線との差が出れば、原因が建物側か、ルーターの Wi-Fi かを切り分けられる。
+`vm-monitoring` は有線なので、Wi-Fi の状態は測れない。「有線では速いが Wi-Fi だけ遅い」ことは、今のところ手元の端末で測るしかない。Wi-Fi 側を自動で測るには、Wi-Fi に常時つないだ端末（Raspberry Pi など）で ping（と必要なら速度）を測り、Prometheus に足す（サービスカタログの「Custom WiFi Monitor」）。有線との差が出れば、原因が建物側か、ルーターの Wi-Fi かを切り分けられる。
 
 #### 家庭内 LAN への拡張（未実装）
 
@@ -132,7 +132,7 @@ homelab の監視とアラート通知の仕組み。2026-10-22 の障害（[INC
 | --- | --- |
 | 1 | 測定の相手側に `iperf3 -s` を置く（例: `vm-infra`、`vm-apps`。Ansible のロールで systemd サービス化し、UFW で `vm-monitoring` からだけ許可する） |
 | 2 | `vm-monitoring` に `iperf3_exporter`（Prometheus 公式コミュニティ製）を追加し、`prometheus.yml` に `iperf3` ジョブを足す（`/probe?target=<相手>` 形式。blackbox と同じ書き方） |
-| 3 | `internet-speed.json` に LAN 用の行を足すか、別ダッシュボード「LAN Speed」を作る。アラートは `InternetDownloadSlow` と同じ「7 日間の中央値との比較」で書く |
+| 3 | `internet-connectivity.json` に LAN 用の行を足すか、別ダッシュボード「LAN Speed」を作る。アラートは `InternetLatencyHigh` と同じ「7 日間の中央値との比較」で書く |
 | 注意 | iperf3 は LAN の帯域を測定中に使い切る。頻度は 1 日数回にし、深夜などに寄せる。VLAN 化（[Omada 導入・VLAN 化](../operations/roadmap/04-network-omada-vlan.md)）の前に基準値を取っておくと、前後比較に使える |
 
 ### 通知の挙動
@@ -148,7 +148,7 @@ homelab の監視とアラート通知の仕組み。2026-10-22 の障害（[INC
 | 対象 | 上限 | 設定場所 |
 | --- | --- | --- |
 | Prometheus TSDB | 30 日 または 5GB | `docker/compose/monitoring/docker-compose.yml`（5GB は暫定値。実測で調整） |
-| speedtest-exporter | 30 分毎の測定で 5 系列程度。TSDB の上限に含まれる。通信量は回線速度に比例する（1Gbps 級なら 1 日数十 GB になりうる）。従量課金や上限のある回線では間隔を延ばす。ICMP（blackbox_icmp）は 4 宛先 × 30 秒毎で、通信量はほぼゼロ | `prometheus.yml`（`speedtest` ジョブの `scrape_interval: 1h`） |
+| blackbox_icmp | 4 宛先 × 30 秒毎の ping。通信量はほぼゼロ。Prometheus のデータ増加は 10 系列程度（TSDB の上限に含まれる） | `prometheus.yml`（`blackbox_icmp` ジョブ） |
 | blackbox-exporter | Prometheus のデータ増加は 10 系列 × 数メトリクス程度で軽微（TSDB の上限に含まれる） | `prometheus.yml`（`scrape_interval: 30s`） |
 | Docker コンテナログ（monitoring / dns / reverse-proxy / homepage / homeassistant / n8n / freshrss） | 10MB × 3 ファイル | 各 `docker-compose.yml` の `x-logging` |
 | Home Assistant の履歴（recorder） | 10 日（既定の `purge_keep_days`）。データベースは `/opt/homeassistant/config` | Home Assistant の既定値（変更していない） |

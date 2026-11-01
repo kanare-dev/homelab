@@ -26,6 +26,18 @@
   - thin pool の過剰割当を解消した（容量に余裕ができた）
 - 導入するときの方針（案）: `vm-monitoring` に Loki、全ホストに Grafana Alloy（Promtail は後継の Alloy に移行済み）。保持期間 14 日、容量の上限 3GB 程度から始める。ADR を追加し、`03-monitoring.md` の「容量の上限設定」の表も更新する
 
+## 回線速度の定期測定（Speedtest）
+
+見送り中（2026-11-01 時点では導入しない）。
+
+- 現状: 回線断と遅延は、blackbox-exporter の ICMP（30 秒毎）で見ている（[03-monitoring.md](../../services/03-monitoring.md#回線の疎通遅延の監視)、[ADR 0018](../../adr/0018-internet-speed-monitoring.md)）
+- 見送る理由: Speedtest は測定のたびに 30〜60 秒、回線を使い切る。仕事中のビデオ会議などに影響し、建物の共用回線にも負荷をかける。遅延とパケットロスでも、建物側の混雑は多くの場合に検知できる
+- 再検討する条件:
+  - 「遅いのに ping の遅延・ロスに出ていない」状況が起きた
+  - 建物の管理会社や ISP に、速度（Mbps）の数字を示す必要が出た
+  - 従量課金や上限のない回線になり、通信量を気にしなくてよくなった
+- 導入するときの方針（案）: 平日 9〜18 時を避け、systemd timer で 1 日数回だけ測り、結果を `node_exporter` の textfile に書く（PVE の `pve-storage-metrics` と同じ方式）。Prometheus の scrape で測る方式（`speedtest-exporter`）は、時間帯を指定できないため使わない。通知は 7 日間の中央値の 60% 未満で出す
+
 ## Glances（Homepage の VM 別バー表示）
 
 見送り中（2026-10-30 時点では導入しない）。
