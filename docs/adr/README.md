@@ -8,7 +8,7 @@
 | --- | --- | --- | --- |
 | [0001](0001-no-vm-backup.md) | VM のバックアップを取らない | 採用 | 2026-10-22 |
 | [0002](0002-no-external-monitoring.md) | 外部監視を導入しない | 置き換え済み（→ 0010） | 2026-10-22 |
-| [0003](0003-vlan-address-scheme.md) | VLAN のアドレス体系を `10.<VLAN>.0.0/24` にする | 採用（未適用） | 2026-10-23 |
+| [0003](0003-vlan-address-scheme.md) | VLAN のアドレス体系を `10.<VLAN>.0.0/24` にする | 置き換え済み（→ 0015） | 2026-10-23 |
 | [0004](0004-vlan-cutover-all-at-once.md) | VLAN 移行は一斉切り替えにする | 採用（未適用） | 2026-10-23 |
 | [0005](0005-tailscale-only-remote-access.md) | 外出先からのアクセスは Tailscale のみにする | 採用 | 記録なし |
 | [0006](0006-ci-lint-only.md) | CI は lint のみ。デプロイは自動化しない | 採用 | 記録なし |
@@ -20,6 +20,8 @@
 | [0012](0012-n8n-on-vm-apps.md) | n8n を vm-apps に置き、ワークフローだけ Git で守る | 採用 | 2026-10-30 |
 | [0013](0013-vm-console-password.md) | 全 VM の `ubuntu` にコンソール用パスワードを設定する | 採用 | 2026-10-31 |
 | [0014](0014-freshrss-on-vm-apps.md) | FreshRSS を vm-apps に置き、購読リストだけ Git の外に退避する | 採用 | 2026-11-01 |
+| [0015](0015-vlan-address-scheme-10-77.md) | VLAN のアドレス体系を `10.77.<VLAN>.0/24` にする | 採用（未適用） | 2026-11-01 |
+| [0016](0016-dmz-placement.md) | DMZ は VLAN60 に作り、まず Proxmox 上で公開せずに検証する | 採用（未適用） | 2026-11-01 |
 
 ## 書き方
 
