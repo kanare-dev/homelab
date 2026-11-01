@@ -25,6 +25,7 @@
 | [0017](0017-ipv6-disabled.md) | IPv6 は無効にし、IPv4 だけで設計する | 採用（未適用） | 2026-11-01 |
 | [0018](0018-internet-speed-monitoring.md) | 回線は ping（ICMP）で監視し、Speedtest は回線を使い切るため見送る | 採用（未適用） | 2026-11-01 |
 | [0019](0019-caddy-reverse-proxy.md) | リバースプロキシに Caddy を使う | 採用 | 2026-11-01 |
+| [0020](0020-dns-three-layer-stack.md) | DNS は AdGuard Home・CoreDNS・Unbound の3層にする | 採用 | 2026-11-01 |
 
 ## 書き方
 

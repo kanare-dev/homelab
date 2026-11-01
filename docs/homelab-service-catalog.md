@@ -155,10 +155,12 @@
 
 | 状況 | ツール | 説明 | 根拠・備考 |
 | --- | --- | --- | --- |
-| 導入済み | Unbound DNS | 軽量キャッシュ DNS リゾルバ | [DNS 構成](services/01-dns.md) |
-| 導入済み | CoreDNS | Kubernetes 向けプラグイン型 DNS | [DNS 構成](services/01-dns.md) |
-| 未検討 | pi-hole/pi-hole | 広告ブロック DNS | — |
-| 導入済み | adguard/adguardhome | 広告・トラッキングブロック DNS | [DNS 構成](services/01-dns.md) |
+| 導入済み | Unbound DNS | 軽量キャッシュ DNS リゾルバ | [ADR 0020](adr/0020-dns-three-layer-stack.md)、[DNS 構成](services/01-dns.md) |
+| 導入済み | CoreDNS | Kubernetes 向けプラグイン型 DNS（`lab.kanare.dev` の権威として利用） | [ADR 0020](adr/0020-dns-three-layer-stack.md)、[DNS 構成](services/01-dns.md) |
+| 見送り | pi-hole/pi-hole | 広告ブロック DNS | [ADR 0020](adr/0020-dns-three-layer-stack.md) |
+| 見送り | TechnitiumSoftware/DnsServer | 権威・再帰・ブロックを兼ねる DNS サーバー | [ADR 0020](adr/0020-dns-three-layer-stack.md) |
+| 見送り | isc-projects/bind9 | 権威・再帰の本格的な DNS サーバー | [ADR 0020](adr/0020-dns-three-layer-stack.md) |
+| 導入済み | adguard/adguardhome | 広告・トラッキングブロック DNS | [ADR 0020](adr/0020-dns-three-layer-stack.md)、[DNS 構成](services/01-dns.md) |
 | 導入済み | Cloudflare DNS | 公開ドメインの DNS と API（Caddy の DNS-01 証明書に利用。SaaS） | [リバースプロキシ・TLS](services/02-reverse-proxy-tls.md) |
 
 ### 4.3 リバースプロキシ
@@ -466,7 +468,7 @@
 | --- | --- | --- |
 | ハイパーバイザー | Proxmox VE | XCP-ng、Harvester（未検討） |
 | リバースプロキシ | Caddy（[ADR 0019](adr/0019-caddy-reverse-proxy.md)） | Nginx Proxy Manager、nginx（見送り）、Traefik（計画中。学習用に併設） |
-| DNS（広告ブロック） | AdGuard Home（+ Unbound、CoreDNS） | Pi-hole（未検討） |
+| DNS | AdGuard Home + CoreDNS + Unbound（[ADR 0020](adr/0020-dns-three-layer-stack.md)） | Pi-hole、Technitium DNS Server、BIND9（いずれも見送り） |
 | リモートアクセス | Tailscale | WireGuard（見送り）、OpenVPN（未検討） |
 | メトリクス監視 | Prometheus + Grafana | Netdata（未検討）、Glances・Telegraf + InfluxDB（見送り） |
 | 回線の疎通・遅延の監視 | blackbox-exporter（ICMP）+ Prometheus + Grafana（計画中） | Speedtest 系: speedtest-exporter（見送り）、MySpeed、LibreSpeed（未検討） |

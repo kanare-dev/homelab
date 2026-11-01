@@ -2,7 +2,7 @@
 
 ## 概要
 
-vm-infra (192.168.11.11) 上で3層の DNS スタックを運用する。
+vm-infra (192.168.11.11) 上で3層の DNS スタックを運用する。3層にした理由と他の候補との比較は [ADR 0020](../adr/0020-dns-three-layer-stack.md)。
 
 ```text
 client
@@ -76,6 +76,18 @@ AdGuard の fallback DNS が使われるのは、upstream に**接続できな�
 | `router` | 192.168.11.11 | Caddy 経由（ルーター管理画面）。ルーター本体は `192.168.11.1`（[ルーター管理画面](#ルーター管理画面)） |
 
 レコードの追加・変更は `ansible/inventory/group_vars/infra/vars.yml` の `dns_records` を編集し、`ansible-playbook playbooks/infra.yml` を実行する。
+
+## Cloudflare 上のレコード
+
+公開ドメイン `kanare.dev` のゾーンは Cloudflare で管理している。`lab.kanare.dev` の内部名は Cloudflare には置かず、CoreDNS だけが持つ（LAN と Tailscale の Split DNS からのみ引ける）。
+
+| 項目 | 内容 |
+| --- | --- |
+| ゾーン | `kanare.dev`（Cloudflare DNS） |
+| 用途 | Caddy が Let's Encrypt の DNS-01 チャレンジで、`_acme-challenge` の TXT を一時的に作成・削除する（[リバースプロキシと TLS](02-reverse-proxy-tls.md)） |
+| 認証 | API トークン `cloudflare_api_token`（SOPS 管理。[シークレット](../operations/runbooks/03-secrets.md)） |
+| 管理方法 | ダッシュボードで手動管理。Terraform などのコードにはしていない |
+| 常設レコード | このリポジトリには一覧を持たない。`kanare.dev` 本体のレコードは、Cloudflare のダッシュボードが正 |
 
 ## VM のホスト DNS
 
