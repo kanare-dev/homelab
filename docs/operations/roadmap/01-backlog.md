@@ -40,3 +40,5 @@
 
 - [ ] [Omada 導入・VLAN 化・OPNsense 導入](04-network-omada-vlan.md)
 - [ ] [GPU 搭載ゲーミング PC 兼ホームサーバー](05-gpu-pc.md)
+- [ ] [ネットワーク通信の収集・可視化](06-network-traffic-analysis.md)（ntopng などでパケットレベルの通信を可視化）
+- [ ] [DMZ と外部公開](07-dmz.md)（DMZ の VLAN にハニーポットや公開用 Web サーバーを置く）

@@ -11,6 +11,8 @@
 | 03 | [見送り中の項目](03-deferred.md) | 見送った理由と、再検討する条件 |
 | 04 | [Omada 導入・VLAN 化・OPNsense 導入](04-network-omada-vlan.md) | 大型計画。ER605・SG2008P・AP、VLAN、OPNsense の段階とチェック項目 |
 | 05 | [GPU 搭載ゲーミング PC 兼ホームサーバー](05-gpu-pc.md) | 大型計画。目的、構成、Phase 1〜6 |
+| 06 | [ネットワーク通信の収集・可視化](06-network-traffic-analysis.md) | 大型計画。要件、Wi-Fi 端末の取得位置、Phase 1〜4 |
+| 07 | [DMZ と外部公開](07-dmz.md) | 大型計画。DMZ の VLAN、ハニーポット（Cowrie）、公開用 Web サーバー、外部公開の経路、Phase 1〜5 |
 
 ## 運用
 
