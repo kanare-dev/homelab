@@ -126,7 +126,7 @@ homelab/
 
 - [Terraform](https://www.terraform.io/) >= 1.5
 - [Ansible](https://docs.ansible.com/) >= 2.15
-- Proxmox VE 8.x が `192.168.11.10` で稼働済み
+- Proxmox VE 9.x が `192.168.11.10` で稼働済み
 - 対象 VM に SSH 鍵認証でログインできること
 
 > [!IMPORTANT]

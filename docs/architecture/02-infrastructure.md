@@ -33,7 +33,7 @@ Proxmox VE 上に Terraform で VM を作り、Ansible で設定し、各 VM で
 
 | レイヤ | 採用技術 | 管理場所 |
 | --- | --- | --- |
-| ハイパーバイザ | Proxmox VE 8.x | `ansible/roles/proxmox/`（Web UI の警告除去、収集スクリプト） |
+| ハイパーバイザ | Proxmox VE 9.x（Debian 13 ベース） | `ansible/roles/proxmox/`（Web UI の警告除去、収集スクリプト） |
 | VM プロビジョニング | Terraform（`telmate/proxmox` 3.0.2-rc07） | `terraform/proxmox/` |
 | OS 設定 | Ansible（Ubuntu） | `ansible/roles/common/` ほか |
 | コンテナ | Docker Compose | `docker/compose/<stack>/` → VM 上の `/opt/<stack>/` |
