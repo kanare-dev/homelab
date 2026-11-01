@@ -14,6 +14,7 @@
 | 06 | [ネットワーク通信の収集・可視化](06-network-traffic-analysis.md) | 大型計画。要件、Wi-Fi 端末の取得位置、Phase 1〜4 |
 | 07 | [DMZ と外部公開](07-dmz.md) | 大型計画。DMZ の VLAN、ハニーポット（Cowrie）、公開用 Web サーバー、外部公開の経路、Phase 1〜5 |
 | 08 | [OPNsense 導入](08-network-opnsense.md) | 大型計画。補助的な役割での検証から ER605 の後継へ。購入基準、Phase 1〜3 |
+| 09 | [ラックの導入と 3D プリントのマウント](09-rack.md) | 大型計画。10 インチラックに M70q・ER605・SG2210P を載せる。マウントの 3D プリント（業者に依頼）、移設、Phase 1〜5 |
 
 ## 運用
 
