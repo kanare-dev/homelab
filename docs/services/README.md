@@ -15,6 +15,7 @@
 | 09 | [FreshRSS](09-freshrss.md) | RSS リーダー。購読リストの退避 |
 | 07 | [CI/CD](07-cicd.md) | Terraform + Ansible のフローと CI の方針 |
 | 08 | [vm-code](08-vm-code.md) | 常用リモート開発環境 |
+| 10 | [MOTD](10-motd.md) | SSH ログイン時の表示（ホスト名のバナーとシステム情報） |
 
 ## 運用
 
