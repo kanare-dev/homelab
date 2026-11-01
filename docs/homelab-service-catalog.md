@@ -24,6 +24,7 @@
 | Dell Optiplex Micro | 省スペース型デスクトップ PC | 未検討 |
 | HP EliteDesk Mini | 省スペース型デスクトップ PC | 未検討 |
 | Raspberry Pi | シングルボードコンピュータ | 未検討 |
+| RTL-SDR | USB 接続のソフトウェア無線レシーバー（電波の受信・解析） | 未検討 |
 
 ---
 
@@ -160,6 +161,7 @@
 | nextcloud/nextcloud | セルフホスト型クラウドストレージ | 未検討 |
 | linuxserver/duplicati | バックアップ・リストア | 未検討 |
 | linuxserver/syncthing | P2P ファイル同期 | 未検討 |
+| copyparty | ファイルサーバー（ブラウザからのアップロード・共有） | 未検討 |
 
 ---
 
@@ -189,6 +191,7 @@
 | healthchecks.io | 外部 Heartbeat（Alertmanager の Watchdog が途絶えたら通知。SaaS） | 導入済み |
 | linuxserver/tautulli | Plex 利用状況監視 | 未検討 |
 | nicolargo/glances | システムリソース監視（CPU・メモリ・ディスク・ネットワーク） | 見送り |
+| netdata/netdata | リアルタイムのシステム監視 | 未検討 |
 
 ---
 
@@ -216,6 +219,7 @@
 | plexinc/pms-docker | メディアサーバー | 検討中 |
 | emby/embyserver | メディアサーバー | 検討中 |
 | gotson/komga | コミック・漫画サーバー | 未検討 |
+| stashapp/stash | メディアコレクションの整理・タグ付け | 未検討 |
 
 ### 9.2 メディア取得・管理
 
@@ -263,6 +267,7 @@
 | koush/scrypted | カメラ・デバイスの HomeKit ブリッジ | 未検討 |
 | oznu/homebridge | HomeKit ブリッジ | 未検討 |
 | eclipse-mosquitto/eclipse-mosquitto | MQTT ブローカー | 計画中 |
+| Home Assistant Operating System (HAOS) | Home Assistant 専用 OS（アドオン対応。[ADR 0011](adr/0011-home-assistant-on-vm-apps.md) の代替案。Container 版を採用） | 見送り |
 
 ---
 
@@ -296,6 +301,9 @@
 | siteboon/claudecodeui | Claude Code をリモート管理する Web UI（CloudCLI UI） | 導入済み |
 | n8n-io/n8n | ワークフロー自動化 | 導入済み |
 | freshrss/freshrss | RSS リーダー | 導入済み |
+| DIYgod/RSSHub | あらゆるサイトの RSS フィードを生成 | 未検討 |
+| RSSHub Radar | RSSHub のフィードを見つけるブラウザ拡張 | 未検討 |
+| usememos/memos | セルフホスト型メモ | 未検討 |
 | GitHub Actions | CI（lint のみ） | 導入済み |
 
 ---
@@ -321,6 +329,7 @@
 | ツール | 説明 | 状況 |
 | --- | --- | --- |
 | plausible/analytics | プライバシー重視の Web 分析 | 未検討 |
+| Oracle Cloud Always Free | Oracle Cloud の無料枠 VPS（外部監視の案 C など、外部ホストの候補。[監視・アラート](services/03-monitoring.md)） | 未検討 |
 | AltServer | AltStore 用 AltServer（iOS サイドロード） | 未検討 |
 | AirMessage | iMessage を Android で利用 | 未検討 |
 
