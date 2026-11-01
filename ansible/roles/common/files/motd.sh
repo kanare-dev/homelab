@@ -11,7 +11,6 @@ RED=$'\033[91m'
 GREEN=$'\033[92m'
 YELLOW=$'\033[93m'
 BLUE=$'\033[94m'
-PURPLE=$'\033[95m'
 CYAN=$'\033[96m'
 WHITE=$'\033[97m'
 GRAY=$'\033[37m'
@@ -26,11 +25,13 @@ row() {
   printf "  ${DIM}%-10s${RESET}  ${2}%s${RESET}\n" "$1" "$3"
 }
 
+# 色の基準は Prometheus のアラート（docs/services/03-monitoring.md）に合わせる。
+# $1=使用率 $2=これを超えると黄（warning） $3=これを超えると赤（critical）
 pick_pct_color() {
-  local pct=$1
-  if   [ "$pct" -ge 85 ]; then printf "%s" "$RED"
-  elif [ "$pct" -ge 70 ]; then printf "%s" "$YELLOW"
-  else                         printf "%s" "$GREEN"
+  local pct=$1 warn=$2 crit=$3
+  if   [ "$pct" -gt "$crit" ]; then printf "%s" "$RED"
+  elif [ "$pct" -gt "$warn" ]; then printf "%s" "$YELLOW"
+  else                              printf "%s" "$GREEN"
   fi
 }
 
@@ -83,7 +84,8 @@ CPU_PCT=$(awk -v a="$CPU1" -v b="$CPU2" 'BEGIN {
   if (d>0) printf "%d", ((y[1]-x[1])*100/d);
   else print 0
 }')
-CPU_COLOR=$(pick_pct_color "$CPU_PCT")
+# HostCpuHigh / Critical: > 85% / 95%
+CPU_COLOR=$(pick_pct_color "$CPU_PCT" 85 95)
 
 # memory
 MEM_TOTAL=$(awk '/^MemTotal:/{print $2}'    /proc/meminfo 2>/dev/null)
@@ -92,7 +94,8 @@ MEM_USED=$(( MEM_TOTAL - MEM_AVAIL ))
 MEM_PCT=$(( MEM_USED * 100 / MEM_TOTAL ))
 MEM_USED_G=$(awk "BEGIN {printf \"%.1f\", $MEM_USED/1048576}")
 MEM_TOTAL_G=$(awk "BEGIN {printf \"%.1f\", $MEM_TOTAL/1048576}")
-MEM_COLOR=$(pick_pct_color "$MEM_PCT")
+# HostMemoryLow / Critical: 利用可能 < 10% / 5%（使用率 > 90% / 95%）
+MEM_COLOR=$(pick_pct_color "$MEM_PCT" 90 95)
 
 # disk
 read -r DISK_PCT DISK_USED DISK_TOTAL <<EOF
@@ -101,7 +104,8 @@ EOF
 [ -z "$DISK_PCT"   ] && DISK_PCT=0
 [ -z "$DISK_USED"  ] && DISK_USED="N/A"
 [ -z "$DISK_TOTAL" ] && DISK_TOTAL="N/A"
-DISK_COLOR=$(pick_pct_color "$DISK_PCT")
+# HostDiskUsageHigh / Critical: > 80% / 90%
+DISK_COLOR=$(pick_pct_color "$DISK_PCT" 80 90)
 
 # ip
 IP_ADDR=$(ip route get 1.1.1.1 2>/dev/null | awk '/src/ {for(i=1;i<=NF;i++) if($i=="src"){print $(i+1); exit}}')
@@ -109,23 +113,14 @@ IP_ADDR=$(ip route get 1.1.1.1 2>/dev/null | awk '/src/ {for(i=1;i<=NF;i++) if($
 [ -z "$IP_ADDR" ] && IP_ADDR="N/A"
 
 # updates
-UPDATE_COUNT=0
-if [ -f /var/lib/update-notifier/updates-available ]; then
-  UPDATE_COUNT=$(awk 'NR==1 {print $1}' /var/lib/update-notifier/updates-available 2>/dev/null)
-elif command -v apt-get >/dev/null 2>&1; then
-  UPDATE_COUNT=$(apt-get -s -o Debug::NoLocking=true upgrade 2>/dev/null | grep -c '^Inst' || true)
-fi
+# update-notifier が apt update と dpkg の実行のたびに更新するファイルから読む。
+# 件数の行は 1 行目とは限らない（0 件のときは 1 行目が空）ので、行を探して読む。
+UPDATE_COUNT=$(grep -m1 -oE '^[0-9]+ update' /var/lib/update-notifier/updates-available 2>/dev/null | grep -oE '^[0-9]+')
+UPDATE_COUNT=${UPDATE_COUNT:-0}
 
 # reboot required
 REBOOT_REQUIRED=0
 [ -f /var/run/reboot-required ] && REBOOT_REQUIRED=1
-
-# last login (MOTDはrootで実行されるため$USERでフィルタしない)
-LAST_LOGIN=$(last -n 5 2>/dev/null | awk '
-  /^reboot|^wtmp/ { next }
-  ++n == 2 { printf "%s %s %s %s from %s", $4, $5, $6, $7, $3; exit }
-')
-[ -z "$LAST_LOGIN" ] && LAST_LOGIN="no previous login"
 
 # ── 出力 ────────────────────────────────────────────────
 echo ""
@@ -170,14 +165,12 @@ if [ "$UPDATE_COUNT" -gt 0 ]; then
 fi
 
 if [ "$REBOOT_REQUIRED" -eq 1 ]; then
-  printf "${YELLOW}󰜗${RESET}  ${YELLOW}System restart required${RESET}\n"
+  printf '%s󰜗%s  %sSystem restart required%s\n' "$YELLOW" "$RESET" "$YELLOW" "$RESET"
 fi
 
 if [ "$UPDATE_COUNT" -gt 0 ] || [ "$REBOOT_REQUIRED" -eq 1 ]; then
   echo ""
 fi
-
-row "Last login" "$GRAY" "$LAST_LOGIN"
 
 sep
 echo ""

@@ -13,3 +13,9 @@
   ansible.builtin.service:
     name: systemd-journald
     state: restarted
+
+- name: Restart apt-daily.timer
+  ansible.builtin.systemd:
+    name: apt-daily.timer
+    state: restarted
+    daemon_reload: true

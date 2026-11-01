@@ -70,7 +70,7 @@
     line: "PermitRootLogin {{ ssh_permit_root_login }}"
   notify: Restart sshd
 
-- name: Disable SSH last login banner (shown by custom MOTD instead)
+- name: Disable SSH last login banner (the custom MOTD does not show login history either)
   ansible.builtin.lineinfile:
     path: /etc/ssh/sshd_config
     regexp: "^#?PrintLastLog"
@@ -120,21 +120,19 @@
     name: figlet
     state: present
 
-- name: Check if ansi-shadow font exists
-  ansible.builtin.stat:
-    path: /usr/share/figlet/ansi-shadow.flf
-  register: common_ansi_shadow_font
-
-- name: Download ansi-shadow figlet font
+# フォントは配布元（xero/figlet-fonts）にライセンスの記載が無く、作者も不明（"Font Author: ?"）なので、
+# リポジトリには置かない。コミットとチェックサムを固定して取得する。
+# 更新するときは、新しいコミットの URL と sha256 を、docs/services/10-motd.md の手順で確かめてから差し替える。
+- name: Download ansi-shadow figlet font (pinned)
   ansible.builtin.get_url:
-    url: https://raw.githubusercontent.com/xero/figlet-fonts/master/ANSI%20Shadow.flf
+    url: https://raw.githubusercontent.com/xero/figlet-fonts/fbf3b68dd0fcd1e63c0f04d3c79eea2743bb377c/ANSI%20Shadow.flf
     dest: /usr/share/figlet/ansi-shadow.flf
+    checksum: sha256:5b3141fa14163c90ff199d169331333875df557fa463b9fb05b85fee6eca6dc1
     mode: "0644"
-  when: not common_ansi_shadow_font.stat.exists
 
 - name: Deploy custom MOTD script
-  ansible.builtin.template:
-    src: motd.sh.j2
+  ansible.builtin.copy:
+    src: motd.sh
     dest: /etc/update-motd.d/99-custom
     mode: "0755"
     owner: root
@@ -168,3 +166,35 @@
   register: common_motd_news
   # ユニットが存在しない環境では「見つからない」だけを許容する
   failed_when: common_motd_news is failed and 'Could not find' not in (common_motd_news.msg | default(''))
+
+# MOTD の更新数は、パッケージ一覧が古いと古い値になる。標準は 1 日 1 回（実質）の更新なので、6 時間ごとにする
+- name: Create apt-daily.timer drop-in directory
+  ansible.builtin.file:
+    path: /etc/systemd/system/apt-daily.timer.d
+    state: directory
+    mode: "0755"
+    owner: root
+    group: root
+
+- name: Run apt-daily.timer every 6 hours
+  ansible.builtin.copy:
+    dest: /etc/systemd/system/apt-daily.timer.d/override.conf
+    content: |
+      [Timer]
+      OnCalendar=
+      OnCalendar=*-*-* 00,06,12,18:00
+      RandomizedDelaySec=30min
+    mode: "0644"
+    owner: root
+    group: root
+  notify: Restart apt-daily.timer
+
+- name: Update apt package lists on every apt-daily run
+  ansible.builtin.copy:
+    dest: /etc/apt/apt.conf.d/52apt-update-always
+    content: |
+      // apt-daily.timer の実行ごとにパッケージ一覧を更新する（MOTD の更新数を新しく保つ）
+      APT::Periodic::Update-Package-Lists "always";
+    mode: "0644"
+    owner: root
+    group: root
