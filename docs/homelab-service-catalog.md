@@ -126,6 +126,7 @@
 | --- | --- | --- | --- |
 | 見送り | portainer/portainer-ce | Docker / Kubernetes 管理 UI | [見送り中の項目](operations/roadmap/03-deferred.md#方針のない候補) |
 | 未検討 | containerrr/watchtower | コンテナイメージの自動更新 | — |
+| 未検討 | amir20/dozzle | Docker コンテナのログをブラウザでリアルタイム表示 | — |
 
 ---
 
@@ -148,6 +149,7 @@
 | --- | --- | --- | --- |
 | 計画中 | OPNSense | オープンソースファイアウォール・ルーター | [OPNsense 導入](operations/roadmap/08-network-opnsense.md) |
 | 未検討 | pfSense | オープンソースファイアウォール・ルーター | — |
+| 未検討 | FRITZ!Box（fritz.box） | AVM 製ルーター（管理画面は `fritz.box`） | — |
 
 ### 4.2 DNS
 
@@ -188,6 +190,8 @@
 | 未検討 | nmap | ネットワーク・ポートのスキャン | — |
 | 未検討 | NetAlertX | ネットワーク上の端末の検出と新規端末の通知 | — |
 | 未検討 | netbox-community/netbox | IPAM / DCIM（IP アドレス・機器の台帳） | — |
+| 未検討 | Custom WiFi Monitor | Wi-Fi の電波状況・接続端末を監視する自作ツール | — |
+| 未検討 | Pi.Alert (PiAlert) | ネットワーク上の端末の検出と新規端末の通知（NetAlertX の前身） | — |
 
 ---
 
@@ -205,6 +209,10 @@
 | 未検討 | kopia/kopia | 暗号化・重複排除つきのバックアップ（Web UI あり） | — |
 | 未検討 | rclone/rclone | クラウドストレージとの同期・転送 | — |
 | 未検討 | copyparty | ファイルサーバー（ブラウザからのアップロード・共有） | — |
+| 未検討 | OpenMediaVault (OMV) | Debian ベースの NAS 用 OS | — |
+| 未検討 | filebrowser/filebrowser | Web ブラウザで操作するファイルマネージャ（NAS 向け） | — |
+| 未検討 | kern/filepizza | ブラウザ間の P2P ファイル転送 | — |
+| 未検討 | plexdrive | クラウドストレージを Plex 向けにマウントする | — |
 
 ---
 
@@ -234,6 +242,15 @@
 | 未検討 | binwiederhier/ntfy | セルフホストのプッシュ通知（Alertmanager・n8n の通知先） | — |
 | 未検討 | gotify/server | セルフホストのプッシュ通知 | — |
 | 未検討 | prometheus-community/smartctl_exporter | ディスクの SMART 情報を Prometheus に出す | — |
+| 未検討 | allinurl/goaccess | Web サーバーのアクセスログのリアルタイム解析（Caddy / nginx のログ向け） | — |
+| 未検討 | AnalogJ/scrutiny | ディスクの SMART 情報の Web ダッシュボード・故障予兆の検知 | — |
+| 未検討 | gnmyt/myspeed | インターネット回線速度の定期測定・履歴表示 | — |
+| 未検討 | librespeed/speedtest | セルフホストの回線速度テスト（LAN 内の速度測定にも使える） | — |
+| 未検討 | oss/smokeping | ネットワークの遅延・パケットロスの長期グラフ化 | — |
+| 未検討 | statping-ng/statping-ng | サービス稼働監視・ステータスページ | — |
+| 未検討 | Monit | プロセス・ファイル・ホストの監視と自動復旧 | — |
+| 未検討 | Zabbix | エージェント型の統合監視プラットフォーム | — |
+| 未検討 | google/cadvisor | コンテナごとのリソース使用量メトリクス（Prometheus 連携可） | — |
 | 未検討 | NUT (Network UPS Tools) | UPS の監視と自動シャットダウン（UPS 導入が前提） | [未着手の項目](operations/roadmap/01-backlog.md) |
 | 導入済み | Slack | Alertmanager の通知先（SaaS） | [監視・アラート](services/03-monitoring.md) |
 | 導入済み | healthchecks.io | 外部 Heartbeat（Alertmanager の Watchdog が途絶えたら通知。SaaS） | [ADR 0010](adr/0010-external-heartbeat.md) |
@@ -257,6 +274,7 @@
 | 未検討 | Wazuh | HIDS / SIEM（ホストの侵入検知・ログ分析） | — |
 | 未検討 | fail2ban/fail2ban | ログイン失敗の多い IP の遮断 | — |
 | 未検討 | aquasecurity/trivy | コンテナイメージ・設定の脆弱性スキャン | — |
+| 未検討 | stamparm/maltrail | 悪性トラフィック（既知の不審な通信先）の検知 | — |
 
 ---
 
@@ -271,6 +289,7 @@
 | 検討中 | emby/embyserver | メディアサーバー | [未着手の項目](operations/roadmap/01-backlog.md) |
 | 未検討 | gotson/komga | コミック・漫画サーバー | — |
 | 未検討 | stashapp/stash | メディアコレクションの整理・タグ付け | — |
+| 未検討 | airsonic/airsonic | 音楽ストリーミングサーバー | — |
 
 ### 9.2 メディア取得・管理
 
@@ -282,12 +301,21 @@
 | 未検討 | linuxserver/jackett | トラッカー・プロキシ | — |
 | 未検討 | linuxserver/bazarr | 字幕の自動取得 | — |
 | 未検討 | linuxserver/ombi | メディアリクエスト UI | — |
+| 未検討 | CouchPotato | 映画の自動取得・管理（Radarr の前身） | — |
+| 未検討 | darkalfx/requestrr | Discord から映画・TV 番組をリクエストする Bot | — |
+| 未検討 | lordmyrdal/plexrequests | Plex 向けのメディアリクエスト UI | — |
+| 未検討 | fallenbagel/jellyseerr | Jellyfin / Plex / Emby 向けのメディアリクエスト UI | — |
+| 未検討 | revenz/fileflows | メディアファイルの自動変換・処理（エンコード、整理） | — |
 
 ### 9.3 ダウンロード
 
 | 状況 | ツール | 説明 | 根拠・備考 |
 | --- | --- | --- | --- |
 | 未検討 | haugene/transmission-openvpn | Transmission + OpenVPN | — |
+| 未検討 | AllTube | 動画サイトの動画をブラウザからダウンロードする（youtube-dl の Web UI） | — |
+| 未検討 | YT Downloads | YouTube 動画のダウンロードツール | — |
+| 未検討 | pyload/pyload | ダウンロードマネージャ（Web UI あり） | — |
+| 未検討 | linuxserver/deluge | BitTorrent クライアント（Web UI あり） | — |
 | 未検討 | binhex/arch-delugevpn | Deluge + VPN | — |
 | 未検討 | binhex/arch-sabnzbd | Usenet クライアント | — |
 
@@ -318,6 +346,10 @@
 | 未検討 | koush/scrypted | カメラ・デバイスの HomeKit ブリッジ | — |
 | 未検討 | oznu/homebridge | HomeKit ブリッジ | — |
 | 計画中 | eclipse-mosquitto/eclipse-mosquitto | MQTT ブローカー | [未着手の項目](operations/roadmap/01-backlog.md) |
+| 未検討 | nodered/node-red | フローベースの自動化・IoT 連携 | — |
+| 未検討 | OctoPrint | 3D プリンターの Web 管理・遠隔操作 | — |
+| 未検討 | AlarmPi | Raspberry Pi で作る目覚まし時計・アラーム | — |
+| 未検討 | BrewPi | 自家醸造（ビール）の温度制御・ログ | — |
 | 見送り | Home Assistant Operating System (HAOS) | Home Assistant 専用 OS（アドオン対応。Container 版を採用） | [ADR 0011](adr/0011-home-assistant-on-vm-apps.md) |
 
 ---
@@ -339,6 +371,7 @@
 | 導入済み | gethomepage/homepage | ホームラボ用ダッシュボード | [Homepage](services/04-homepage.md) |
 | 未検討 | linuxserver/heimdall | アプリケーションランチャー | — |
 | 未検討 | fenruscn/fenrus | ダッシュボード・ブックマーク | — |
+| 未検討 | glanceapp/glance | フィード・天気・監視をまとめて表示する軽量ダッシュボード | — |
 
 ---
 
@@ -359,6 +392,8 @@
 | 未検討 | DIYgod/RSSHub | あらゆるサイトの RSS フィードを生成 | — |
 | 未検討 | RSSHub Radar | RSSHub のフィードを見つけるブラウザ拡張 | — |
 | 未検討 | usememos/memos | セルフホスト型メモ | — |
+| 未検討 | go-gitea/gitea | セルフホスト型 Git サービス | — |
+| 未検討 | solidnerd/bookstack | Wiki 型のドキュメント管理 | — |
 | 導入済み | GitHub Actions | CI（lint のみ） | [CI/CD](services/07-cicd.md) |
 
 ---
@@ -384,6 +419,9 @@
 | 状況 | ツール | 説明 | 根拠・備考 |
 | --- | --- | --- | --- |
 | 未検討 | plausible/analytics | プライバシー重視の Web 分析 | — |
+| 未検討 | searxng/searxng | プライバシー重視のメタ検索エンジン（SearX の後継） | — |
+| 未検討 | sysadminsmedia/homebox | 家庭用の物品・備品の在庫管理 | — |
+| 未検討 | pterodactyl/panel | ゲームサーバーの管理パネル | — |
 | 未検討 | Oracle Cloud Always Free | Oracle Cloud の無料枠 VPS（外部監視の案 C など、外部ホストの候補。[監視・アラート](services/03-monitoring.md)） | — |
 | 未検討 | AltServer | AltStore 用 AltServer（iOS サイドロード） | — |
 | 未検討 | AirMessage | iMessage を Android で利用 | — |
@@ -439,3 +477,5 @@
 | メディアサーバー | なし | Jellyfin、Plex、Emby（検討中） |
 | ホームオートメーション | Home Assistant（Container 版） | HAOS（見送り） |
 | RSS | FreshRSS | RSSHub（未検討） |
+| ダッシュボード | Homepage | Glance、Heimdall、Fenrus（未検討） |
+| メディアリクエスト | なし | Jellyseerr、Ombi、Requestrr、Plex Requests（未検討） |
