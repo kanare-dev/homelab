@@ -95,7 +95,7 @@ F-11 は HTTPS で URL のパス、検索キーワード、ページ本文が暗
 
 ### Phase 4: OPNsense との統合
 
-- [ ] OPNsense の導入（[Omada 導入・VLAN 化・OPNsense 導入](04-network-omada-vlan.md)）後に、VLAN・Firewall・DNS・監視を統合する
+- [ ] OPNsense の導入（[OPNsense 導入](08-network-opnsense.md)）後に、VLAN・Firewall・DNS・監視を統合する
 - [ ] OPNsense 側での取得と Suricata の可否を判断する。受信用の別機器（Phase 2）を置き換えられるかも合わせて検討する
 
 ## 完了条件

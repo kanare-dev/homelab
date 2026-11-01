@@ -146,7 +146,7 @@
 
 | 状況 | ツール | 説明 | 根拠・備考 |
 | --- | --- | --- | --- |
-| 計画中 | OPNSense | オープンソースファイアウォール・ルーター | [Omada 導入・VLAN 化・OPNsense 導入](operations/roadmap/04-network-omada-vlan.md) |
+| 計画中 | OPNSense | オープンソースファイアウォール・ルーター | [OPNsense 導入](operations/roadmap/08-network-opnsense.md) |
 | 未検討 | pfSense | オープンソースファイアウォール・ルーター | — |
 
 ### 4.2 DNS
@@ -182,7 +182,7 @@
 | 状況 | ツール | 説明 | 根拠・備考 |
 | --- | --- | --- | --- |
 | 未検討 | Ubiquiti UniFi | ネットワーク機器・管理プラットフォーム | — |
-| 計画中 | TP-Link Omada | ネットワーク機器・管理プラットフォーム | [Omada 導入・VLAN 化・OPNsense 導入](operations/roadmap/04-network-omada-vlan.md) |
+| 計画中 | TP-Link Omada | ネットワーク機器・管理プラットフォーム | [Omada 導入・VLAN 化](operations/roadmap/04-network-omada-vlan.md) |
 | 未検討 | LibreNMS | ネットワーク監視 (SNMP) | — |
 | 廃止 | Scanopy | ネットワーク探索・トポロジー図の自動作成 | [見送り中の項目](operations/roadmap/03-deferred.md#scanopyネットワーク探索トポロジー図) |
 | 未検討 | nmap | ネットワーク・ポートのスキャン | — |

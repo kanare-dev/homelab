@@ -5,7 +5,7 @@
 ## ネットワーク・DNS
 
 - 方針: 自分専用アクセスは Tailscale のみで完結させる（[ADR 0005](../../adr/0005-tailscale-only-remote-access.md)）。Cloudflare Tunnel による外部公開は、Tailscale を入れていない他人と共有する具体的なニーズが出たサービスに限る。それまで Cloudflare Tunnel と Split-Horizon DNS には着手しない
-- Omada 導入・VLAN 化・OPNsense 導入は大型計画として扱う（下の「大型計画」）
+- Omada 導入・VLAN 化と OPNsense 導入は、それぞれ大型計画として扱う（下の「大型計画」）
 
 ## インフラ・IaC・運用
 
@@ -38,7 +38,8 @@
 
 ## 大型計画
 
-- [ ] [Omada 導入・VLAN 化・OPNsense 導入](04-network-omada-vlan.md)
+- [ ] [Omada 導入・VLAN 化](04-network-omada-vlan.md)
 - [ ] [GPU 搭載ゲーミング PC 兼ホームサーバー](05-gpu-pc.md)
 - [ ] [ネットワーク通信の収集・可視化](06-network-traffic-analysis.md)（ntopng などでパケットレベルの通信を可視化）
 - [ ] [DMZ と外部公開](07-dmz.md)（DMZ の VLAN にハニーポットや公開用 Web サーバーを置く）
+- [ ] [OPNsense 導入](08-network-opnsense.md)（Omada・VLAN 化のあと。補助的に検証し、ER605 の後継にする）
