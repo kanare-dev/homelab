@@ -70,7 +70,7 @@ make freshrss-opml-pull FRESHRSS_USER=<ユーザー名>
 1. [リリースノート](https://github.com/FreshRSS/FreshRSS/releases)の破壊的変更を確認する。
 2. 先に `make freshrss-opml-pull` で購読リストを退避しておく。
 3. `docker/compose/freshrss/docker-compose.yml` のイメージのタグを変える。
-4. `make setup-apps` を実行する（compose の変更で再起動される）。
+4. `make deploy-apps APP=freshrss` を実行する（compose の変更で再起動される）。
 5. `https://rss.lab.kanare.dev` が開き、`probe_success` が 1 に戻ることを確認する。
 
 ## 復旧

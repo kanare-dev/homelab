@@ -7,177 +7,189 @@
     - node_exporter
     - ufw_docker
   tasks:
-    - name: Create homepage directory
-      ansible.builtin.file:
-        path: /opt/homepage
-        state: directory
-        owner: "{{ ansible_user }}"
-        mode: "0755"
+    - name: Deploy Homepage
+      tags: [homepage]
+      block:
+        - name: Create homepage directory
+          ansible.builtin.file:
+            path: /opt/homepage
+            state: directory
+            owner: "{{ ansible_user }}"
+            mode: "0755"
 
-    - name: Create homepage config directory
-      ansible.builtin.file:
-        path: /opt/homepage/config
-        state: directory
-        owner: "{{ ansible_user }}"
-        mode: "0755"
+        - name: Create homepage config directory
+          ansible.builtin.file:
+            path: /opt/homepage/config
+            state: directory
+            owner: "{{ ansible_user }}"
+            mode: "0755"
 
-    - name: Copy docker-compose.yml
-      ansible.builtin.copy:
-        src: "{{ playbook_dir }}/../../docker/compose/homepage/docker-compose.yml"
-        dest: /opt/homepage/docker-compose.yml
-        mode: "0644"
+        - name: Copy docker-compose.yml
+          ansible.builtin.copy:
+            src: "{{ playbook_dir }}/../../docker/compose/homepage/docker-compose.yml"
+            dest: /opt/homepage/docker-compose.yml
+            mode: "0644"
 
-    - name: Deploy .env with Proxmox token and AdGuard credentials
-      ansible.builtin.template:
-        src: homepage.env.j2
-        dest: /opt/homepage/.env
-        mode: "0600"
+        - name: Deploy .env with Proxmox token and AdGuard credentials
+          ansible.builtin.template:
+            src: homepage.env.j2
+            dest: /opt/homepage/.env
+            mode: "0600"
 
-    - name: Copy homepage config files
-      ansible.builtin.copy:
-        src: "{{ playbook_dir }}/../../docker/compose/homepage/config/{{ item }}"
-        dest: /opt/homepage/config/{{ item }}
-        mode: "0644"
-      loop:
-        - settings.yaml
-        - services.yaml
-        - widgets.yaml
-        - bookmarks.yaml
-        - docker.yaml
+        - name: Copy homepage config files
+          ansible.builtin.copy:
+            src: "{{ playbook_dir }}/../../docker/compose/homepage/config/{{ item }}"
+            dest: /opt/homepage/config/{{ item }}
+            mode: "0644"
+          loop:
+            - settings.yaml
+            - services.yaml
+            - widgets.yaml
+            - bookmarks.yaml
+            - docker.yaml
 
-    - name: Copy homepage custom icons
-      ansible.builtin.copy:
-        src: "{{ playbook_dir }}/../../docker/compose/homepage/icons/"
-        dest: /opt/homepage/icons/
-        mode: "0644"
+        - name: Copy homepage custom icons
+          ansible.builtin.copy:
+            src: "{{ playbook_dir }}/../../docker/compose/homepage/icons/"
+            dest: /opt/homepage/icons/
+            mode: "0644"
 
-    - name: Start homepage stack
-      community.docker.docker_compose_v2:
-        project_src: /opt/homepage
-        state: present
+        - name: Start homepage stack
+          community.docker.docker_compose_v2:
+            project_src: /opt/homepage
+            state: present
 
-    - name: Restart homepage to load config changes
-      community.docker.docker_compose_v2:
-        project_src: /opt/homepage
-        services:
-          - homepage
-        state: restarted
+        - name: Restart homepage to load config changes
+          community.docker.docker_compose_v2:
+            project_src: /opt/homepage
+            services:
+              - homepage
+            state: restarted
 
     # --- Home Assistant ---
-    # コンテナは root で動くため、設定ディレクトリは root 所有にする
-    - name: Create homeassistant config directory
-      ansible.builtin.file:
-        path: /opt/homeassistant/config
-        state: directory
-        owner: root
-        group: root
-        mode: "0755"
+    - name: Deploy Home Assistant
+      tags: [homeassistant]
+      block:
+        # コンテナは root で動くため、設定ディレクトリは root 所有にする
+        - name: Create homeassistant config directory
+          ansible.builtin.file:
+            path: /opt/homeassistant/config
+            state: directory
+            owner: root
+            group: root
+            mode: "0755"
 
-    - name: Copy homeassistant docker-compose.yml
-      ansible.builtin.copy:
-        src: "{{ playbook_dir }}/../../docker/compose/homeassistant/docker-compose.yml"
-        dest: /opt/homeassistant/docker-compose.yml
-        mode: "0644"
-      notify: Restart homeassistant
+        - name: Copy homeassistant docker-compose.yml
+          ansible.builtin.copy:
+            src: "{{ playbook_dir }}/../../docker/compose/homeassistant/docker-compose.yml"
+            dest: /opt/homeassistant/docker-compose.yml
+            mode: "0644"
+          notify: Restart homeassistant
 
-    - name: Copy homeassistant configuration.yaml
-      ansible.builtin.copy:
-        src: "{{ playbook_dir }}/../../docker/compose/homeassistant/config/configuration.yaml"
-        dest: /opt/homeassistant/config/configuration.yaml
-        owner: root
-        group: root
-        mode: "0644"
-      notify: Restart homeassistant
+        - name: Copy homeassistant configuration.yaml
+          ansible.builtin.copy:
+            src: "{{ playbook_dir }}/../../docker/compose/homeassistant/config/configuration.yaml"
+            dest: /opt/homeassistant/config/configuration.yaml
+            owner: root
+            group: root
+            mode: "0644"
+          notify: Restart homeassistant
 
-    # HTTP の設定（Caddy を信頼する）の初期値。HA はこのファイルを以後は自分で管理するので、無いときだけ置く
-    - name: Create homeassistant .storage directory
-      ansible.builtin.file:
-        path: /opt/homeassistant/config/.storage
-        state: directory
-        owner: root
-        group: root
-        mode: "0755"
+        # HTTP の設定（Caddy を信頼する）の初期値。HA はこのファイルを以後は自分で管理するので、無いときだけ置く
+        - name: Create homeassistant .storage directory
+          ansible.builtin.file:
+            path: /opt/homeassistant/config/.storage
+            state: directory
+            owner: root
+            group: root
+            mode: "0755"
 
-    - name: Seed homeassistant HTTP config if missing
-      ansible.builtin.copy:
-        src: "{{ playbook_dir }}/../../docker/compose/homeassistant/storage/http"
-        dest: /opt/homeassistant/config/.storage/http
-        owner: root
-        group: root
-        mode: "0600"
-        force: false
-      notify: Restart homeassistant
+        - name: Seed homeassistant HTTP config if missing
+          ansible.builtin.copy:
+            src: "{{ playbook_dir }}/../../docker/compose/homeassistant/storage/http"
+            dest: /opt/homeassistant/config/.storage/http
+            owner: root
+            group: root
+            mode: "0600"
+            force: false
+          notify: Restart homeassistant
 
-    # 画面から編集されるファイルは、無ければ作るだけ（上書きしない）。Git へは make ha-config-pull で取り込む
-    - name: Create homeassistant UI-managed YAML files if missing
-      ansible.builtin.copy:
-        src: "{{ playbook_dir }}/../../docker/compose/homeassistant/config/{{ item }}"
-        dest: /opt/homeassistant/config/{{ item }}
-        owner: root
-        group: root
-        mode: "0644"
-        force: false
-      loop:
-        - automations.yaml
-        - scripts.yaml
-        - scenes.yaml
+        # 画面から編集されるファイルは、無ければ作るだけ（上書きしない）。Git へは make ha-config-pull で取り込む
+        - name: Create homeassistant UI-managed YAML files if missing
+          ansible.builtin.copy:
+            src: "{{ playbook_dir }}/../../docker/compose/homeassistant/config/{{ item }}"
+            dest: /opt/homeassistant/config/{{ item }}
+            owner: root
+            group: root
+            mode: "0644"
+            force: false
+          loop:
+            - automations.yaml
+            - scripts.yaml
+            - scenes.yaml
 
-    - name: Start homeassistant stack
-      community.docker.docker_compose_v2:
-        project_src: /opt/homeassistant
-        state: present
+        - name: Start homeassistant stack
+          community.docker.docker_compose_v2:
+            project_src: /opt/homeassistant
+            state: present
 
     # --- n8n ---
-    # コンテナは node ユーザー（UID 1000 = ubuntu）で動く
-    - name: Create n8n data directory
-      ansible.builtin.file:
-        path: /opt/n8n/data
-        state: directory
-        owner: "1000"
-        group: "1000"
-        mode: "0755"
+    - name: Deploy n8n
+      tags: [n8n]
+      block:
+        # コンテナは node ユーザー（UID 1000 = ubuntu）で動く
+        - name: Create n8n data directory
+          ansible.builtin.file:
+            path: /opt/n8n/data
+            state: directory
+            owner: "1000"
+            group: "1000"
+            mode: "0755"
 
-    - name: Copy n8n docker-compose.yml
-      ansible.builtin.copy:
-        src: "{{ playbook_dir }}/../../docker/compose/n8n/docker-compose.yml"
-        dest: /opt/n8n/docker-compose.yml
-        mode: "0644"
-      notify: Restart n8n
+        - name: Copy n8n docker-compose.yml
+          ansible.builtin.copy:
+            src: "{{ playbook_dir }}/../../docker/compose/n8n/docker-compose.yml"
+            dest: /opt/n8n/docker-compose.yml
+            mode: "0644"
+          notify: Restart n8n
 
-    - name: Deploy n8n .env with the encryption key
-      ansible.builtin.template:
-        src: n8n.env.j2
-        dest: /opt/n8n/.env
-        mode: "0600"
-      notify: Restart n8n
+        - name: Deploy n8n .env with the encryption key
+          ansible.builtin.template:
+            src: n8n.env.j2
+            dest: /opt/n8n/.env
+            mode: "0600"
+          notify: Restart n8n
 
-    - name: Start n8n stack
-      community.docker.docker_compose_v2:
-        project_src: /opt/n8n
-        state: present
+        - name: Start n8n stack
+          community.docker.docker_compose_v2:
+            project_src: /opt/n8n
+            state: present
 
     # --- FreshRSS ---
-    # data / extensions の権限は、コンテナの起動時にイメージ側が整える
-    - name: Create freshrss directories
-      ansible.builtin.file:
-        path: "/opt/freshrss/{{ item }}"
-        state: directory
-        mode: "0755"
-      loop:
-        - data
-        - extensions
+    - name: Deploy FreshRSS
+      tags: [freshrss]
+      block:
+        # data / extensions の権限は、コンテナの起動時にイメージ側が整える
+        - name: Create freshrss directories
+          ansible.builtin.file:
+            path: "/opt/freshrss/{{ item }}"
+            state: directory
+            mode: "0755"
+          loop:
+            - data
+            - extensions
 
-    - name: Copy freshrss docker-compose.yml
-      ansible.builtin.copy:
-        src: "{{ playbook_dir }}/../../docker/compose/freshrss/docker-compose.yml"
-        dest: /opt/freshrss/docker-compose.yml
-        mode: "0644"
-      notify: Restart freshrss
+        - name: Copy freshrss docker-compose.yml
+          ansible.builtin.copy:
+            src: "{{ playbook_dir }}/../../docker/compose/freshrss/docker-compose.yml"
+            dest: /opt/freshrss/docker-compose.yml
+            mode: "0644"
+          notify: Restart freshrss
 
-    - name: Start freshrss stack
-      community.docker.docker_compose_v2:
-        project_src: /opt/freshrss
-        state: present
+        - name: Start freshrss stack
+          community.docker.docker_compose_v2:
+            project_src: /opt/freshrss
+            state: present
 
   handlers:
     - name: Restart homeassistant

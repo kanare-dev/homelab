@@ -32,6 +32,10 @@ setup-monitoring: ## Run Ansible for monitoring VM only
 setup-apps: ## Run Ansible for apps VM only
 	cd ansible && ansible-playbook playbooks/apps.yml
 
+deploy-apps: ## Deploy one vm-apps app only. Usage: make deploy-apps APP=homepage|homeassistant|n8n|freshrss
+	@test -n "$(APP)" || { echo "APP is required (homepage|homeassistant|n8n|freshrss)"; exit 1; }
+	cd ansible && ansible-playbook playbooks/apps.yml --tags $(APP)
+
 setup-code: ## Run Ansible for code VM only
 	cd ansible && ansible-playbook playbooks/code.yml
 

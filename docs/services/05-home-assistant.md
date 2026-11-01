@@ -42,7 +42,7 @@ Mac / スマホ ─ HTTPS ─> Caddy（vm-infra :443） ─ HTTP ─> vm-apps :8
 
 Home Assistant 2026.10 以降、`http:` の設定は初回起動のときだけ YAML から `.storage/http` に取り込まれる。以後は YAML が**無視される**ので、`configuration.yaml` に `trusted_proxies` を書いても効かない。信頼する Caddy の IP は `storage/http` の初期値で与える。
 
-- 初期値を変えて既存のインスタンスに反映するには、コンテナを止め、`/opt/homeassistant/config/.storage/http` を退避してから、`make setup-apps` を実行する（無ければ初期値が置かれる）。
+- 初期値を変えて既存のインスタンスに反映するには、コンテナを止め、`/opt/homeassistant/config/.storage/http` を退避してから、`make deploy-apps APP=homeassistant` を実行する（無ければ初期値が置かれる）。
 - 設定が合っていないと、Caddy 経由は HTTP 400 になる。ログに `your HTTP integration is not set-up for reverse proxies` が出る。
 
 ### Git に入らないもの
@@ -84,7 +84,7 @@ Home Assistant 2026.10 以降、`http:` の設定は初回起動のときだけ 
 
 1. [リリースノート](https://www.home-assistant.io/blog/categories/release-notes/) の破壊的変更を確認する。
 2. `docker/compose/homeassistant/docker-compose.yml` のイメージのタグを変える。
-3. `make setup-apps` を実行する（compose の変更で再起動される）。
+3. `make deploy-apps APP=homeassistant` を実行する（compose の変更で再起動される）。
 4. `https://ha.lab.kanare.dev` が開き、`probe_success` が 1 に戻ることを確認する。
 
 ## 復旧
