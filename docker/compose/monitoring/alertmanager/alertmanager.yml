@@ -33,6 +33,16 @@ inhibit_rules:
       - alertname = "DnsProbeFailed"
     target_matchers:
       - alertname = "ServiceProbeFailed"
+  # 回線断の間は、外の名前解決・速度の測定・遅延が必ず失敗する。回線断の 1 通にまとめる
+  - source_matchers:
+      - alertname = "InternetDown"
+    target_matchers:
+      - alertname =~ "SpeedtestFailing|InternetPacketLoss|InternetLatencyHigh"
+  - source_matchers:
+      - alertname = "InternetDown"
+    target_matchers:
+      - alertname = "DnsProbeFailed"
+      - service = "dns-external"
 
 receivers:
   - name: "null"

@@ -12,6 +12,14 @@ modules:
       preferred_ip_protocol: ip4
       ip_protocol_fallback: false
 
+  # 疎通と遅延（ICMP）。回線断の検知と、ping の遅延・パケットロスの記録に使う
+  icmp:
+    prober: icmp
+    timeout: 5s
+    icmp:
+      preferred_ip_protocol: ip4
+      ip_protocol_fallback: false
+
   # AdGuard Home (vm-infra) に lab 内部ゾーンの名前を引く（CoreDNS まで通る）
   dns_lab:
     prober: dns

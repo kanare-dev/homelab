@@ -114,10 +114,35 @@ scrape_configs:
       - target_label: __address__
         replacement: blackbox-exporter:9115
 
-  # 回線速度: scrape のたびに Speedtest が走る（1 回 30〜60 秒、数百 MB の通信）。
-  # 頻度を上げると回線を圧迫する。間隔を変えたら alerts.yml の speedtest グループの窓も見直す
+  # 外形監視: 疎通と遅延（ICMP）。ルーター → 建物の共用ルーター → インターネットの順に、
+  # どこまで届くかを切り分ける。建物の共用ルーター（172.22.0.1）は traceroute の 2 ホップ目。
+  # 引っ越しなどで上流が変わったら、このアドレスを直す（docs/architecture/03-network.md）
+  - job_name: "blackbox_icmp"
+    metrics_path: /probe
+    params:
+      module: [icmp]
+    scrape_interval: 30s
+    static_configs:
+      - targets: ["192.168.11.1"]
+        labels: { host: "router", service: "gateway" }
+      - targets: ["172.22.0.1"]
+        labels: { host: "building", service: "building-router" }
+      - targets: ["1.1.1.1"]
+        labels: { host: "internet", service: "internet-cloudflare" }
+      - targets: ["8.8.8.8"]
+        labels: { host: "internet", service: "internet-google" }
+    relabel_configs:
+      - source_labels: ["__address__"]
+        target_label: __param_target
+      - source_labels: ["service"]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox-exporter:9115
+
+  # 回線速度: scrape のたびに Speedtest が走る（1 回 30〜60 秒、回線を使い切る）。
+  # 頻度を上げると回線を圧迫する。間隔を変えたら alerts.yml の internet-speed グループの窓も見直す
   - job_name: "speedtest"
-    scrape_interval: 1h
+    scrape_interval: 30m
     scrape_timeout: 120s
     static_configs:
       - targets: ["speedtest-exporter:9798"]

@@ -5,7 +5,7 @@
     "homelab",
     "network"
   ],
-  "description": "インターネット回線の速度の推移（Speedtest を 1 時間毎に測定）。遅いと判断する基準は 7 日間の中央値の 60%。",
+  "description": "インターネット回線の速度（Speedtest を 30 分毎に測定）と、ping の遅延・パケットロスの推移。遅いと判断する基準は速度が 7 日間の中央値の 60%、ping が中央値の 2 倍。",
   "schemaVersion": 39,
   "version": 1,
   "editable": true,
@@ -387,6 +387,159 @@
           "expr": "speedtest_up",
           "legendFormat": "測定成功 (1) / 失敗 (0)",
           "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "type": "timeseries",
+      "title": "ping の遅延（RTT）",
+      "description": "ルーター → 建物の共用ルーター → インターネットの順に遅延が増える。建物の共用ルーターまでで高ければ建物内、そこまで低くてその先で高ければ ISP 側。",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${ds}"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 21,
+        "w": 12,
+        "h": 9
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "min": 0,
+          "custom": {
+            "lineWidth": 1,
+            "fillOpacity": 10,
+            "spanNulls": true,
+            "showPoints": "auto"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${ds}"
+          },
+          "expr": "probe_icmp_duration_seconds{phase=\"rtt\",service=\"gateway\"}",
+          "legendFormat": "ルーター",
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${ds}"
+          },
+          "expr": "probe_icmp_duration_seconds{phase=\"rtt\",service=\"building-router\"}",
+          "legendFormat": "建物の共用ルーター",
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${ds}"
+          },
+          "expr": "probe_icmp_duration_seconds{phase=\"rtt\",service=\"internet-cloudflare\"}",
+          "legendFormat": "1.1.1.1",
+          "refId": "C"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${ds}"
+          },
+          "expr": "probe_icmp_duration_seconds{phase=\"rtt\",service=\"internet-google\"}",
+          "legendFormat": "8.8.8.8",
+          "refId": "D"
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "type": "timeseries",
+      "title": "疎通（到達できているか）",
+      "description": "5 分間の成功率。1 未満はパケットロス。0 が続くと回線断（InternetDown）。",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${ds}"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 21,
+        "w": 12,
+        "h": 9
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit",
+          "min": 0,
+          "custom": {
+            "lineWidth": 1,
+            "fillOpacity": 10,
+            "spanNulls": true,
+            "showPoints": "auto"
+          },
+          "max": 1
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${ds}"
+          },
+          "expr": "avg_over_time(probe_success{service=\"gateway\"}[5m])",
+          "legendFormat": "ルーター",
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${ds}"
+          },
+          "expr": "avg_over_time(probe_success{service=\"building-router\"}[5m])",
+          "legendFormat": "建物の共用ルーター",
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${ds}"
+          },
+          "expr": "avg_over_time(probe_success{service=\"internet-cloudflare\"}[5m])",
+          "legendFormat": "1.1.1.1",
+          "refId": "C"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${ds}"
+          },
+          "expr": "avg_over_time(probe_success{service=\"internet-google\"}[5m])",
+          "legendFormat": "8.8.8.8",
+          "refId": "D"
         }
       ]
     }
