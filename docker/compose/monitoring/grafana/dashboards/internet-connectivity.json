@@ -1,19 +1,19 @@
 {
-  "uid": "homelab-internet-speed",
-  "title": "Internet Speed",
+  "uid": "homelab-internet-connectivity",
+  "title": "Internet Connectivity",
   "tags": [
     "homelab",
     "network"
   ],
-  "description": "インターネット回線の速度（Speedtest を 30 分毎に測定）と、ping の遅延・パケットロスの推移。遅いと判断する基準は速度が 7 日間の中央値の 60%、ping が中央値の 2 倍。",
+  "description": "インターネット回線の疎通・遅延・パケットロス（ping を 30 秒毎）。遅いと判断する基準は、遅延が 7 日間の中央値の 2 倍かつ 50ms 超。",
   "schemaVersion": 39,
   "version": 1,
   "editable": true,
   "graphTooltip": 1,
   "timezone": "browser",
-  "refresh": "5m",
+  "refresh": "1m",
   "time": {
-    "from": "now-7d",
+    "from": "now-24h",
     "to": "now"
   },
   "templating": {
@@ -39,7 +39,8 @@
     {
       "id": 1,
       "type": "stat",
-      "title": "下り（最新）",
+      "title": "1.1.1.1 への遅延（最新）",
+      "description": "",
       "datasource": {
         "type": "prometheus",
         "uid": "${ds}"
@@ -52,7 +53,7 @@
       },
       "fieldConfig": {
         "defaults": {
-          "unit": "bps",
+          "unit": "s",
           "decimals": 1
         },
         "overrides": []
@@ -73,7 +74,7 @@
             "type": "prometheus",
             "uid": "${ds}"
           },
-          "expr": "speedtest_download_bits_per_second",
+          "expr": "probe_icmp_duration_seconds{phase=\"rtt\",service=\"internet-cloudflare\"}",
           "legendFormat": "",
           "refId": "A",
           "instant": true,
@@ -84,7 +85,8 @@
     {
       "id": 2,
       "type": "stat",
-      "title": "上り（最新）",
+      "title": "遅延の 7 日間の中央値（通知の基準）",
+      "description": "この 2 倍かつ 50ms 超が 10 分続くと InternetLatencyHigh が発報する。",
       "datasource": {
         "type": "prometheus",
         "uid": "${ds}"
@@ -97,7 +99,7 @@
       },
       "fieldConfig": {
         "defaults": {
-          "unit": "bps",
+          "unit": "s",
           "decimals": 1
         },
         "overrides": []
@@ -118,7 +120,7 @@
             "type": "prometheus",
             "uid": "${ds}"
           },
-          "expr": "speedtest_upload_bits_per_second",
+          "expr": "quantile_over_time(0.5, probe_icmp_duration_seconds{phase=\"rtt\",service=\"internet-cloudflare\"}[7d])",
           "legendFormat": "",
           "refId": "A",
           "instant": true,
@@ -129,7 +131,8 @@
     {
       "id": 3,
       "type": "stat",
-      "title": "ping（最新）",
+      "title": "パケットロス（直近 10 分）",
+      "description": "",
       "datasource": {
         "type": "prometheus",
         "uid": "${ds}"
@@ -142,7 +145,7 @@
       },
       "fieldConfig": {
         "defaults": {
-          "unit": "ms",
+          "unit": "percentunit",
           "decimals": 1
         },
         "overrides": []
@@ -163,7 +166,7 @@
             "type": "prometheus",
             "uid": "${ds}"
           },
-          "expr": "speedtest_ping_latency_milliseconds",
+          "expr": "1 - avg_over_time(probe_success{service=\"internet-cloudflare\"}[10m])",
           "legendFormat": "",
           "refId": "A",
           "instant": true,
@@ -174,7 +177,8 @@
     {
       "id": 4,
       "type": "stat",
-      "title": "下り 7 日間の中央値（通知の基準）",
+      "title": "疎通（ルーター / 1.1.1.1 / 8.8.8.8）",
+      "description": "1 = 3 か所とも届いている。0 を含むと、どこかに届いていない。",
       "datasource": {
         "type": "prometheus",
         "uid": "${ds}"
@@ -187,8 +191,8 @@
       },
       "fieldConfig": {
         "defaults": {
-          "unit": "bps",
-          "decimals": 1
+          "unit": "short",
+          "decimals": 0
         },
         "overrides": []
       },
@@ -208,7 +212,7 @@
             "type": "prometheus",
             "uid": "${ds}"
           },
-          "expr": "quantile_over_time(0.5, speedtest_download_bits_per_second[7d])",
+          "expr": "min(probe_success{service=~\"gateway|internet-.*\"})",
           "legendFormat": "",
           "refId": "A",
           "instant": true,
@@ -219,180 +223,6 @@
     {
       "id": 5,
       "type": "timeseries",
-      "title": "下り・上り速度",
-      "description": "「下りの通知しきい値」の線を下回った状態が 3 時間続くと InternetDownloadSlow が発報する。",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${ds}"
-      },
-      "gridPos": {
-        "x": 0,
-        "y": 4,
-        "w": 24,
-        "h": 9
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "bps",
-          "min": 0,
-          "custom": {
-            "lineWidth": 1,
-            "fillOpacity": 10,
-            "spanNulls": true,
-            "showPoints": "auto"
-          }
-        },
-        "overrides": []
-      },
-      "options": {
-        "legend": {
-          "displayMode": "list",
-          "placement": "bottom"
-        },
-        "tooltip": {
-          "mode": "multi"
-        }
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${ds}"
-          },
-          "expr": "speedtest_download_bits_per_second",
-          "legendFormat": "下り",
-          "refId": "A"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${ds}"
-          },
-          "expr": "speedtest_upload_bits_per_second",
-          "legendFormat": "上り",
-          "refId": "B"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${ds}"
-          },
-          "expr": "0.6 * quantile_over_time(0.5, speedtest_download_bits_per_second[7d])",
-          "legendFormat": "下りの通知しきい値（中央値の 60%）",
-          "refId": "C"
-        }
-      ]
-    },
-    {
-      "id": 6,
-      "type": "timeseries",
-      "title": "ping・ジッター",
-      "description": "",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${ds}"
-      },
-      "gridPos": {
-        "x": 0,
-        "y": 13,
-        "w": 12,
-        "h": 8
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "ms",
-          "min": 0,
-          "custom": {
-            "lineWidth": 1,
-            "fillOpacity": 10,
-            "spanNulls": true,
-            "showPoints": "auto"
-          }
-        },
-        "overrides": []
-      },
-      "options": {
-        "legend": {
-          "displayMode": "list",
-          "placement": "bottom"
-        },
-        "tooltip": {
-          "mode": "multi"
-        }
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${ds}"
-          },
-          "expr": "speedtest_ping_latency_milliseconds",
-          "legendFormat": "ping",
-          "refId": "A"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${ds}"
-          },
-          "expr": "speedtest_jitter_latency_milliseconds",
-          "legendFormat": "ジッター",
-          "refId": "B"
-        }
-      ]
-    },
-    {
-      "id": 7,
-      "type": "timeseries",
-      "title": "測定の成否",
-      "description": "0 が続くと SpeedtestFailing が発報する。",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${ds}"
-      },
-      "gridPos": {
-        "x": 12,
-        "y": 13,
-        "w": 12,
-        "h": 8
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short",
-          "min": 0,
-          "custom": {
-            "lineWidth": 1,
-            "fillOpacity": 10,
-            "spanNulls": true,
-            "showPoints": "auto"
-          }
-        },
-        "overrides": []
-      },
-      "options": {
-        "legend": {
-          "displayMode": "list",
-          "placement": "bottom"
-        },
-        "tooltip": {
-          "mode": "multi"
-        }
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${ds}"
-          },
-          "expr": "speedtest_up",
-          "legendFormat": "測定成功 (1) / 失敗 (0)",
-          "refId": "A"
-        }
-      ]
-    },
-    {
-      "id": 8,
-      "type": "timeseries",
       "title": "ping の遅延（RTT）",
       "description": "ルーター → 建物の共用ルーター → インターネットの順に遅延が増える。建物の共用ルーターまでで高ければ建物内、そこまで低くてその先で高ければ ISP 側。",
       "datasource": {
@@ -401,8 +231,8 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 21,
-        "w": 12,
+        "y": 4,
+        "w": 24,
         "h": 9
       },
       "fieldConfig": {
@@ -463,23 +293,32 @@
           "expr": "probe_icmp_duration_seconds{phase=\"rtt\",service=\"internet-google\"}",
           "legendFormat": "8.8.8.8",
           "refId": "D"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${ds}"
+          },
+          "expr": "2 * quantile_over_time(0.5, probe_icmp_duration_seconds{phase=\"rtt\",service=\"internet-cloudflare\"}[7d])",
+          "legendFormat": "1.1.1.1 の通知しきい値（中央値の 2 倍。50ms 未満なら通知しない）",
+          "refId": "E"
         }
       ]
     },
     {
-      "id": 9,
+      "id": 6,
       "type": "timeseries",
-      "title": "疎通（到達できているか）",
-      "description": "5 分間の成功率。1 未満はパケットロス。0 が続くと回線断（InternetDown）。",
+      "title": "疎通（5 分間の成功率）",
+      "description": "1 未満はパケットロス。0 が続くと回線断（InternetDown）。",
       "datasource": {
         "type": "prometheus",
         "uid": "${ds}"
       },
       "gridPos": {
-        "x": 12,
-        "y": 21,
-        "w": 12,
-        "h": 9
+        "x": 0,
+        "y": 13,
+        "w": 24,
+        "h": 8
       },
       "fieldConfig": {
         "defaults": {

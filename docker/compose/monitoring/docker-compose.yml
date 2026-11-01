@@ -60,16 +60,6 @@ services:
     networks:
       - monitoring
 
-  # インターネット回線の速度測定（Ookla Speedtest CLI）。Prometheus が scrape した時に測る。
-  # Prometheus からだけ使うので、ポートは公開しない
-  speedtest-exporter:
-    image: miguelndecarvalho/speedtest-exporter:latest
-    container_name: speedtest-exporter
-    restart: unless-stopped
-    logging: *default-logging
-    networks:
-      - monitoring
-
   grafana:
     image: grafana/grafana:latest
     container_name: grafana

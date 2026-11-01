@@ -130,10 +130,10 @@
         dest: /opt/monitoring/grafana/provisioning/dashboards/json/storage.json
         mode: "0644"
 
-    - name: Copy internet speed dashboard
+    - name: Copy internet connectivity dashboard
       ansible.builtin.copy:
-        src: "{{ playbook_dir }}/../../docker/compose/monitoring/grafana/dashboards/internet-speed.json"
-        dest: /opt/monitoring/grafana/provisioning/dashboards/json/internet-speed.json
+        src: "{{ playbook_dir }}/../../docker/compose/monitoring/grafana/dashboards/internet-connectivity.json"
+        dest: /opt/monitoring/grafana/provisioning/dashboards/json/internet-connectivity.json
         mode: "0644"
 
     - name: Download Node Exporter Full dashboard
@@ -160,6 +160,5 @@
           - prometheus
           - alertmanager
           - blackbox-exporter
-          - speedtest-exporter
           - grafana
         state: restarted

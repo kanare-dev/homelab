@@ -260,46 +260,6 @@ groups:
           summary: "外形監視のメトリクスが存在しない"
           description: "blackbox-exporter の停止の可能性（監視の盲点）。`docker logs blackbox-exporter` を確認する。"
 
-  - name: internet-speed
-    rules:
-      # 直近 2 時間（30 分毎の測定で約 4 回）の最大値が、7 日間の中央値の 60% 未満。
-      # 一度の外れ値では発報せず、続けて遅い時だけ通知する。
-      # 平常値が溜まる前（測定 96 回 = 2 日分未満）は評価しない
-      - alert: InternetDownloadSlow
-        expr: |
-          max_over_time(speedtest_download_bits_per_second[2h])
-            < 0.6 * quantile_over_time(0.5, speedtest_download_bits_per_second[7d])
-          and count_over_time(speedtest_download_bits_per_second[7d]) > 96
-        for: 0m
-        labels:
-          severity: warning
-        annotations:
-          summary: "回線の下り速度が平常値の 60% 未満（直近 2 時間の最大 {{ $value | humanize }}bps）"
-          description: "7 日間の中央値と比べて下りが遅い状態が続いている。ルーター・ONU の再起動、プロバイダの障害、時間帯の混雑を確認する。Grafana の「Internet Speed」で推移を見る。"
-
-      - alert: InternetUploadSlow
-        expr: |
-          max_over_time(speedtest_upload_bits_per_second[2h])
-            < 0.6 * quantile_over_time(0.5, speedtest_upload_bits_per_second[7d])
-          and count_over_time(speedtest_upload_bits_per_second[7d]) > 96
-        for: 0m
-        labels:
-          severity: warning
-        annotations:
-          summary: "回線の上り速度が平常値の 60% 未満（直近 2 時間の最大 {{ $value | humanize }}bps）"
-          description: "7 日間の中央値と比べて上りが遅い状態が続いている。下りも遅いなら InternetDownloadSlow と同じ原因を疑う。"
-
-      # 測定自体が失敗している（回線断、Speedtest サーバー障害、exporter の停止）。
-      # 回線断なら外部 Heartbeat（Healthchecks.io）も別に通知する
-      - alert: SpeedtestFailing
-        expr: up{job="speedtest"} == 0 or speedtest_up == 0
-        for: 2h
-        labels:
-          severity: warning
-        annotations:
-          summary: "回線速度の測定が 2 時間失敗している"
-          description: "`docker logs speedtest-exporter` を確認する。回線が落ちている場合は、速度のアラートは出ず、この通知と外部 Heartbeat だけが出る。"
-
   - name: internet-connectivity
     rules:
       # ルーターには届くが、1.1.1.1 と 8.8.8.8 の両方に届かない = 回線断（建物側・ISP・ルーターの WAN 側）。
@@ -316,7 +276,7 @@ groups:
           severity: critical
         annotations:
           summary: "インターネットに届かない（1.1.1.1 と 8.8.8.8 の両方に ping が通らない）"
-          description: "ルーター（192.168.11.1）には届いている。Grafana「Internet Speed」の「建物の共用ルーター」が通っていれば ISP・建物の先、通っていなければ建物側（共用ルーター・ONU）を疑う。ルーターの WAN 側の再起動も試す。"
+          description: "ルーター（192.168.11.1）には届いている。Grafana「Internet Connectivity」の「建物の共用ルーター」が通っていれば ISP・建物の先、通っていなければ建物側（共用ルーター・ONU）を疑う。ルーターの WAN 側の再起動も試す。"
 
       - alert: GatewayUnreachable
         expr: probe_success{service="gateway"} == 0
@@ -334,7 +294,7 @@ groups:
           severity: warning
         annotations:
           summary: "{{ $labels.service }} へのパケットロスが {{ $value | humanizePercentage }}（10 分間）"
-          description: "回線が不安定。建物側のネットワークの混雑や、Wi-Fi ではなく有線側の問題。Grafana「Internet Speed」で遅延と合わせて見る。"
+          description: "回線が不安定。建物側のネットワークの混雑や、Wi-Fi ではなく有線側の問題。Grafana「Internet Connectivity」で遅延と合わせて見る。"
 
       # 平常（7 日間の中央値）の 2 倍かつ 50ms 超が 10 分続いたら通知する。
       # 平常値が溜まる前（測定 2 日分 = 5760 回未満）は評価しない

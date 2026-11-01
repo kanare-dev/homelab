@@ -139,15 +139,6 @@ scrape_configs:
       - target_label: __address__
         replacement: blackbox-exporter:9115
 
-  # 回線速度: scrape のたびに Speedtest が走る（1 回 30〜60 秒、回線を使い切る）。
-  # 頻度を上げると回線を圧迫する。間隔を変えたら alerts.yml の internet-speed グループの窓も見直す
-  - job_name: "speedtest"
-    scrape_interval: 30m
-    scrape_timeout: 120s
-    static_configs:
-      - targets: ["speedtest-exporter:9798"]
-        labels: { host: "vm-monitoring", service: "speedtest" }
-
   # ESP32 (01-esp32) は現在意図的に停止中。再開するときはコメントを外す。
   # 有効なまま止まっていると TargetDown が発報するため外している。
   # - job_name: "esp32"
