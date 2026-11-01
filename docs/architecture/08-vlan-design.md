@@ -298,6 +298,7 @@ Buffalo WSR-1800AX4P は VLAN に対応していない。AP モードにはで�
 - [ ] **管理画面の外部到達の見直し**: 時期は決定済み（[ADR-0016](../adr/0016-dmz-placement.md)）。VLAN 導入後、かつ DMZ に公開するもの（ハニーポット、Web サーバー）を置く前（[DMZ と外部公開](../operations/roadmap/07-dmz.md)の Phase 4 の前）に、Tailscale の ACL で整理する。
 - [ ] **通信監視の受信用ホスト**: [ネットワーク通信の収集・可視化](../operations/roadmap/06-network-traffic-analysis.md)のミラーポートを受ける機器。方針は、Proxmox に USB NIC を足さず（差しっぱなしと管理対象の増加を避ける）、NIC が 2 つ以上ある別の小型 PC（受信専用と管理用）を第一候補にする。OPNsense 用や DMZ 専用の機器とは兼用しない。OPNsense 導入後は、OPNsense 側で通信を取る案も別案として検討する（06 の Phase 4）。残る作業は、ミラーポートに使う SG2008P のポート、管理用 NIC を置く VLAN、機種と購入時期（Phase 2 で決める）。
 - [x] **VLAN の数の妥当性**（2026-11-01 決定）: 6 本（Management / Servers / Clients / IoT / Guests / DMZ）のまま進める。DMZ は有線で使うので SSID は増えない。許可表は 6 × 7 になるが、家庭の規模なら許容する。運用してから負荷を見て見直す。
+- [x] **IPv6 の扱い**（2026-11-01 決定、[ADR-0017](../adr/0017-ipv6-disabled.md)）: 無効にする。ER605 で IPv6 を有効にせず、各 VLAN にも IPv6 を配らない。上流が IPv6 を配ると、`10.77` の体系の外を通る経路ができ、DMZ や Guests の隔離に穴があくことがあるため。IPv4 だけで設計を完結させる。IPv6 を使うことにしたときは、別に設計して新しい ADR を追加する。
 - [ ] **WAN 側の繋ぎ方**: 現在は二重 NAT（建物の共用ルーター配下）。新ルーターの WAN 設定は、当面は今と同じ（DHCP で上流から受け取る）想定。引っ越し先が分かったら見直す。
 - [ ] **mDNS の中継**: 段階 3 で、ER605 のゲートウェイによる Clients ↔ IoT の中継（有線のテレビ）が動くか。動かなければ、段階 4 まで Clients に置く。Omada コントローラーは、ゲートウェイの mDNS に v5.6 以降、Bonjour サービスの設定に v5.8 以降、AP の VLAN 間 Bonjour に v5.9 以降が必要（公式ドキュメントより。購入前に再確認する）。
 - [ ] **テレビの追加通信**: AirPlay・Cast を実機で試し、IoT → Clients に開ける必要があるポートがあるか。
