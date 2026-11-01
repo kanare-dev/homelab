@@ -23,6 +23,7 @@
 | [0015](0015-vlan-address-scheme-10-77.md) | VLAN のアドレス体系を `10.77.<VLAN>.0/24` にする | 採用（未適用） | 2026-11-01 |
 | [0016](0016-dmz-placement.md) | DMZ は VLAN60 に作り、まず Proxmox 上で公開せずに検証する | 採用（未適用） | 2026-11-01 |
 | [0017](0017-ipv6-disabled.md) | IPv6 は無効にし、IPv4 だけで設計する | 採用（未適用） | 2026-11-01 |
+| [0018](0018-internet-speed-monitoring.md) | 回線速度は speedtest-exporter で測り、通知は 7 日間の中央値との比較にする | 採用（未適用） | 2026-11-01 |
 
 ## 書き方
 

@@ -101,12 +101,12 @@ homelab の監視とアラート通知の仕組み。2026-10-22 の障害（[INC
 
 家のインターネット回線の速度を定期的に測り、推移を見て、遅くなったら Slack に通知する。
 
-- **測り方**: `speedtest-exporter`（Ookla Speedtest CLI）を `vm-monitoring` に置き、Prometheus が 1 時間毎に scrape する。scrape のたびに 1 回測る（30〜60 秒、1 回あたり数百 MB の通信。1 日 24 回）。
+- **測り方**: `speedtest-exporter`（Ookla Speedtest CLI）を `vm-monitoring` に置き、Prometheus が 1 時間毎に scrape する。scrape のたびに 1 回測る（30〜60 秒。通信量は回線速度に比例し、1Gbps 級なら 1 回 1〜2GB 前後。1 日 24 回）。判断は [ADR 0018](../adr/0018-internet-speed-monitoring.md)。
 - **メトリクス**: `speedtest_download_bits_per_second`、`speedtest_upload_bits_per_second`、`speedtest_ping_latency_milliseconds`、`speedtest_jitter_latency_milliseconds`、`speedtest_up`。
 - **遅いと判断する基準**: 固定の数値ではなく、**直近 7 日間の中央値の 60%**。直近 3 時間（約 3 回）の最大値がそれを下回った時だけ通知する。1 回の外れ値や、夜間の一時的な混雑では通知しない。契約速度や回線が変わっても、数字を直さずに追随する。
 - **立ち上がり**: 平常値が溜まる前（測定 48 回 = 約 2 日分）はアラートを評価しない。デプロイ直後の 2 日間は、ダッシュボードで推移を見るだけになる。
 - **しきい値を変えるとき**: `alerts.yml` の `0.6`（割合）と `[3h]`（窓）を直す。`prometheus.yml` の `scrape_interval` を変えたら、窓の中に 3 回前後の測定が入るよう `[3h]` も合わせる。
-- **限界**: vm-monitoring の VM 経由で測るので、同じ VM や同じ LAN の大きな通信と重なると遅く出る。ルーター（ER605）や ONU の手前で測るわけではない。回線断では速度のアラートは出ず、`SpeedtestFailing`（3 時間後）と外部 Heartbeat が通知する。
+- **限界**: vm-monitoring の VM 経由で測るので、同じ VM や同じ LAN の大きな通信と重なると遅く出る。ルーター（Buffalo）や ONU の手前で測るわけではない。回線断では速度のアラートは出ず、`SpeedtestFailing`（3 時間後）と外部 Heartbeat が通知する。
 
 #### 家庭内 LAN への拡張（未実装）
 
@@ -132,7 +132,7 @@ homelab の監視とアラート通知の仕組み。2026-10-22 の障害（[INC
 | 対象 | 上限 | 設定場所 |
 | --- | --- | --- |
 | Prometheus TSDB | 30 日 または 5GB | `docker/compose/monitoring/docker-compose.yml`（5GB は暫定値。実測で調整） |
-| speedtest-exporter | 1 時間毎の測定で 5 系列程度。TSDB の上限に含まれる。通信量は 1 日あたり数 GB（1 回数百 MB × 24 回）。従量課金の回線では間隔を延ばす | `prometheus.yml`（`speedtest` ジョブの `scrape_interval: 1h`） |
+| speedtest-exporter | 1 時間毎の測定で 5 系列程度。TSDB の上限に含まれる。通信量は回線速度に比例する（1Gbps 級なら 1 日数十 GB になりうる）。従量課金や上限のある回線では間隔を延ばす | `prometheus.yml`（`speedtest` ジョブの `scrape_interval: 1h`） |
 | blackbox-exporter | Prometheus のデータ増加は 10 系列 × 数メトリクス程度で軽微（TSDB の上限に含まれる） | `prometheus.yml`（`scrape_interval: 30s`） |
 | Docker コンテナログ（monitoring / dns / reverse-proxy / homepage / homeassistant / n8n / freshrss） | 10MB × 3 ファイル | 各 `docker-compose.yml` の `x-logging` |
 | Home Assistant の履歴（recorder） | 10 日（既定の `purge_keep_days`）。データベースは `/opt/homeassistant/config` | Home Assistant の既定値（変更していない） |

@@ -244,7 +244,7 @@
 | 未検討 | prometheus-community/smartctl_exporter | ディスクの SMART 情報を Prometheus に出す | — |
 | 未検討 | allinurl/goaccess | Web サーバーのアクセスログのリアルタイム解析（Caddy / nginx のログ向け） | — |
 | 未検討 | AnalogJ/scrutiny | ディスクの SMART 情報の Web ダッシュボード・故障予兆の検知 | — |
-| 計画中 | miguelndecarvalho/speedtest-exporter | インターネット回線速度の定期測定（Ookla Speedtest CLI）を Prometheus に出す。Slack 通知は Alertmanager | [回線速度の監視](services/03-monitoring.md#回線速度の監視) |
+| 計画中 | miguelndecarvalho/speedtest-exporter | インターネット回線速度の定期測定（Ookla Speedtest CLI）を Prometheus に出す。Slack 通知は Alertmanager | [ADR 0018](adr/0018-internet-speed-monitoring.md)、[回線速度の監視](services/03-monitoring.md#回線速度の監視) |
 | 未検討 | iperf3_exporter | iperf3 で LAN 内の速度を測り Prometheus に出す（回線速度の監視の LAN 拡張用） | [家庭内 LAN への拡張](services/03-monitoring.md#家庭内-lan-への拡張未実装) |
 | 未検討 | gnmyt/myspeed | インターネット回線速度の定期測定・履歴表示（speedtest-exporter を採用したため単体では使わない） | — |
 | 未検討 | librespeed/speedtest | セルフホストの回線速度テスト（LAN 内の速度測定にも使える） | — |
