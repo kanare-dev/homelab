@@ -20,7 +20,7 @@ Proxmox VE 上に Terraform で VM を作り、Ansible で設定し、各 VM で
 | 名前 | VMID | IP | vCPU | RAM | ディスク | 起動 | 役割 | 主なサービス |
 | --- | --- | --- | ---: | ---: | ---: | --- | --- | --- |
 | `vm-infra` | 111 | `192.168.11.11` | 2 | 1.5GB | 20G | 自動（順序 1） | インフラ基盤 | AdGuard Home, Unbound, CoreDNS, Caddy, Tailscale |
-| `vm-monitoring` | 113 | `192.168.11.13` | 2 | 2GB | 40G | 自動（順序 2） | 監視 | Prometheus, Alertmanager, Grafana, blackbox-exporter |
+| `vm-monitoring` | 113 | `192.168.11.13` | 2 | 2GB | 40G | 自動（順序 2） | 監視 | Prometheus, Alertmanager, Grafana, blackbox-exporter, speedtest-exporter |
 | `vm-apps` | 120 | `192.168.11.20` | 2 | 4GB | 40G | 自動（順序 3） | アプリ | Homepage, Home Assistant, n8n, FreshRSS |
 | `vm-dev` | 121 | `192.168.11.21` | 2 | 1GB | 30G | 手動 | 破壊検証 | playground |
 | `vm-code` | 122 | `192.168.11.22` | 2 | 4GB | 30G | 自動（順序 5） | 常用リモート開発 | Claude Code, CloudCLI, code-server, gh, git, mosh, moshi-hook |

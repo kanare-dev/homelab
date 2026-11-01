@@ -20,6 +20,10 @@ homelab の監視とアラート通知の仕組み。2026-10-22 の障害（[INC
                         blackbox-exporter :9115 (コンテナ内のみ)
                           ├─ HTTPS: *.lab.kanare.dev (Caddy 経由、証明書の期限も取得)
                           └─ DNS: vm-infra AdGuard :53 (内部ゾーン / 外部の名前)
+                              │ /metrics (1時間毎)
+                              v
+                        speedtest-exporter :9798 (コンテナ内のみ。scrape のたびに Speedtest を実行)
+                          └─ インターネット回線の下り・上り・ping・ジッター
                               │ 発報
                               v
                         Alertmanager :9093 ──> Slack Incoming Webhook (#homelab-alerts)
@@ -38,11 +42,13 @@ homelab の監視とアラート通知の仕組み。2026-10-22 の障害（[INC
 | unbound-metrics | vm-infra 専用。未キャッシュの名前を Unbound に直接引いて、再帰解決できているかを textfile に出力（1 分毎） | `ansible/roles/dns_metrics/` |
 | blackbox-exporter | 外形監視。HTTPS と DNS のプローブを実行する。ポートは公開しない（Prometheus からだけ使う） | `docker/compose/monitoring/blackbox/blackbox.yml`、`docker-compose.yml` |
 | Prometheus | 収集・ルール評価。`retention.time=30d`、`retention.size=5GB` | `docker/compose/monitoring/prometheus/prometheus.yml`、`docker-compose.yml` |
+| speedtest-exporter | インターネット回線の速度測定（Ookla Speedtest CLI）。Prometheus が 1 時間毎に scrape した時に測る。ポートは公開しない | `docker/compose/monitoring/docker-compose.yml`、`prometheus.yml`（`speedtest` ジョブ） |
 | アラートルール | 発報条件 | `docker/compose/monitoring/prometheus/alerts.yml` |
 | Alertmanager | 通知のグルーピング・送信 | `docker/compose/monitoring/alertmanager/alertmanager.yml` |
 | 外部 Heartbeat | `Watchdog` を Healthchecks.io へ 5 分毎に送る。途絶えたら外部から通知（[ADR-0010](../adr/0010-external-heartbeat.md)） | `alertmanager.yml`（`heartbeat` receiver）、`ansible/playbooks/monitoring.yml` |
 | Heartbeat ping URL | 秘密情報 | `ansible/inventory/group_vars/monitoring/secrets.sops.yml`（`heartbeat_ping_url`、SOPS 暗号化） |
 | Slack Webhook URL | 秘密情報 | `ansible/inventory/group_vars/monitoring/secrets.sops.yml`（`slack_webhook_url`、SOPS 暗号化） |
+| Grafana ダッシュボード「Internet Speed」 | 下り・上り・ping・ジッターの推移、通知しきい値（中央値の 60%）、測定の成否 | `docker/compose/monitoring/grafana/dashboards/internet-speed.json`（`/d/homelab-internet-speed`） |
 | Grafana ダッシュボード「Storage / Thin Pool」 | pool とVM ディスク別の割当、増加ペース、VM 稼働状態 | `docker/compose/monitoring/grafana/dashboards/storage.json`（`/d/homelab-storage`） |
 | デプロイ | | `ansible/playbooks/monitoring.yml`（vm-monitoring）、`ansible/playbooks/proxmox.yml`（pve） |
 
@@ -70,6 +76,9 @@ homelab の監視とアラート通知の仕組み。2026-10-22 の障害（[INC
 | DnsProbeFailed | AdGuard への名前解決が失敗（`dns-lab`: 内部ゾーン、`dns-external`: 外部の名前） | 2m | critical | AdGuard / CoreDNS / Unbound の停止。発報中は `ServiceProbeFailed` を抑制する |
 | TlsCertExpiringSoon / Critical | 証明書の残り日数 < 14 / < 3 | 1h / 10m | warning / critical | Let's Encrypt の自動更新の失敗（Cloudflare トークン失効など） |
 | BlackboxProbeMissing | 外形監視のメトリクスが存在しない | 10m | warning | blackbox-exporter の停止（監視の盲点） |
+| InternetDownloadSlow | 直近 3 時間の下り速度の最大値が、7 日間の中央値の 60% 未満（測定 48 回 = 約 2 日分が溜まるまで評価しない） | 0 | warning | 回線の劣化・プロバイダの障害・ONU/ルーターの不調 |
+| InternetUploadSlow | 同上（上り） | 0 | warning | 同上 |
+| SpeedtestFailing | 回線速度の測定が失敗（`speedtest_up == 0` または scrape 失敗） | 3h | warning | 回線断・Speedtest サーバー障害・exporter の停止。回線断では速度のアラートは出ない |
 | Watchdog | 常に firing | - | none | 通知経路の死活確認。Slack には送らず、Healthchecks.io へ 5 分毎に送る（途絶えたら外部から通知） |
 
 ### 外形監視（blackbox）
@@ -88,6 +97,28 @@ homelab の監視とアラート通知の仕組み。2026-10-22 の障害（[INC
 - ターゲットを増やすときは、`prometheus.yml` の `blackbox_http` に URL と `host` / `service` ラベルを追加する。
 - プローブ元は vm-monitoring なので、**vm-monitoring や PVE ホストの停止は検知できない**（下記「限界」と同じ）。
 
+### 回線速度の監視
+
+家のインターネット回線の速度を定期的に測り、推移を見て、遅くなったら Slack に通知する。
+
+- **測り方**: `speedtest-exporter`（Ookla Speedtest CLI）を `vm-monitoring` に置き、Prometheus が 1 時間毎に scrape する。scrape のたびに 1 回測る（30〜60 秒、1 回あたり数百 MB の通信。1 日 24 回）。
+- **メトリクス**: `speedtest_download_bits_per_second`、`speedtest_upload_bits_per_second`、`speedtest_ping_latency_milliseconds`、`speedtest_jitter_latency_milliseconds`、`speedtest_up`。
+- **遅いと判断する基準**: 固定の数値ではなく、**直近 7 日間の中央値の 60%**。直近 3 時間（約 3 回）の最大値がそれを下回った時だけ通知する。1 回の外れ値や、夜間の一時的な混雑では通知しない。契約速度や回線が変わっても、数字を直さずに追随する。
+- **立ち上がり**: 平常値が溜まる前（測定 48 回 = 約 2 日分）はアラートを評価しない。デプロイ直後の 2 日間は、ダッシュボードで推移を見るだけになる。
+- **しきい値を変えるとき**: `alerts.yml` の `0.6`（割合）と `[3h]`（窓）を直す。`prometheus.yml` の `scrape_interval` を変えたら、窓の中に 3 回前後の測定が入るよう `[3h]` も合わせる。
+- **限界**: vm-monitoring の VM 経由で測るので、同じ VM や同じ LAN の大きな通信と重なると遅く出る。ルーター（ER605）や ONU の手前で測るわけではない。回線断では速度のアラートは出ず、`SpeedtestFailing`（3 時間後）と外部 Heartbeat が通知する。
+
+#### 家庭内 LAN への拡張（未実装）
+
+まずは回線のみ。LAN 内の速度（VM 間、PVE との間、VLAN 化の前後比較）も同じ仕組みに足せる設計にしてある。
+
+| 手順 | 内容 |
+| --- | --- |
+| 1 | 測定の相手側に `iperf3 -s` を置く（例: `vm-infra`、`vm-apps`。Ansible のロールで systemd サービス化し、UFW で `vm-monitoring` からだけ許可する） |
+| 2 | `vm-monitoring` に `iperf3_exporter`（Prometheus 公式コミュニティ製）を追加し、`prometheus.yml` に `iperf3` ジョブを足す（`/probe?target=<相手>` 形式。blackbox と同じ書き方） |
+| 3 | `internet-speed.json` に LAN 用の行を足すか、別ダッシュボード「LAN Speed」を作る。アラートは `InternetDownloadSlow` と同じ「7 日間の中央値との比較」で書く |
+| 注意 | iperf3 は LAN の帯域を測定中に使い切る。頻度は 1 日数回にし、深夜などに寄せる。VLAN 化（[Omada 導入・VLAN 化](../operations/roadmap/04-network-omada-vlan.md)）の前に基準値を取っておくと、前後比較に使える |
+
 ### 通知の挙動
 
 - 同じ `alertname` + `instance` を 1 通にまとめる。最初の通知まで 30 秒待つ。
@@ -101,6 +132,7 @@ homelab の監視とアラート通知の仕組み。2026-10-22 の障害（[INC
 | 対象 | 上限 | 設定場所 |
 | --- | --- | --- |
 | Prometheus TSDB | 30 日 または 5GB | `docker/compose/monitoring/docker-compose.yml`（5GB は暫定値。実測で調整） |
+| speedtest-exporter | 1 時間毎の測定で 5 系列程度。TSDB の上限に含まれる。通信量は 1 日あたり数 GB（1 回数百 MB × 24 回）。従量課金の回線では間隔を延ばす | `prometheus.yml`（`speedtest` ジョブの `scrape_interval: 1h`） |
 | blackbox-exporter | Prometheus のデータ増加は 10 系列 × 数メトリクス程度で軽微（TSDB の上限に含まれる） | `prometheus.yml`（`scrape_interval: 30s`） |
 | Docker コンテナログ（monitoring / dns / reverse-proxy / homepage / homeassistant / n8n / freshrss） | 10MB × 3 ファイル | 各 `docker-compose.yml` の `x-logging` |
 | Home Assistant の履歴（recorder） | 10 日（既定の `purge_keep_days`）。データベースは `/opt/homeassistant/config` | Home Assistant の既定値（変更していない） |

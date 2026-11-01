@@ -244,7 +244,9 @@
 | 未検討 | prometheus-community/smartctl_exporter | ディスクの SMART 情報を Prometheus に出す | — |
 | 未検討 | allinurl/goaccess | Web サーバーのアクセスログのリアルタイム解析（Caddy / nginx のログ向け） | — |
 | 未検討 | AnalogJ/scrutiny | ディスクの SMART 情報の Web ダッシュボード・故障予兆の検知 | — |
-| 未検討 | gnmyt/myspeed | インターネット回線速度の定期測定・履歴表示 | — |
+| 計画中 | miguelndecarvalho/speedtest-exporter | インターネット回線速度の定期測定（Ookla Speedtest CLI）を Prometheus に出す。Slack 通知は Alertmanager | [回線速度の監視](services/03-monitoring.md#回線速度の監視) |
+| 未検討 | iperf3_exporter | iperf3 で LAN 内の速度を測り Prometheus に出す（回線速度の監視の LAN 拡張用） | [家庭内 LAN への拡張](services/03-monitoring.md#家庭内-lan-への拡張未実装) |
+| 未検討 | gnmyt/myspeed | インターネット回線速度の定期測定・履歴表示（speedtest-exporter を採用したため単体では使わない） | — |
 | 未検討 | librespeed/speedtest | セルフホストの回線速度テスト（LAN 内の速度測定にも使える） | — |
 | 未検討 | oss/smokeping | ネットワークの遅延・パケットロスの長期グラフ化 | — |
 | 未検討 | statping-ng/statping-ng | サービス稼働監視・ステータスページ | — |
@@ -467,6 +469,7 @@
 | DNS（広告ブロック） | AdGuard Home（+ Unbound、CoreDNS） | Pi-hole（未検討） |
 | リモートアクセス | Tailscale | WireGuard（見送り）、OpenVPN（未検討） |
 | メトリクス監視 | Prometheus + Grafana | Netdata（未検討）、Glances・Telegraf + InfluxDB（見送り） |
+| 回線速度の監視 | speedtest-exporter + Prometheus + Grafana（計画中） | MySpeed、LibreSpeed（未検討） |
 | 死活監視・ステータスページ | blackbox-exporter + Alertmanager | Uptime Kuma（見送り） |
 | ログ集約 | なし（journald と Docker のログ） | Loki + Alloy（見送り） |
 | コンテナ管理 | Docker Compose | Portainer（見送り）、k3s（検討中） |
