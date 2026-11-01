@@ -15,12 +15,12 @@
 - 公開の有無にかかわらず、まず DMZ と Cowrie（SSH / Telnet のハニーポット）を作り、Grafana で見る。T-Pot や Dionaea などは、運用に慣れてから検討する
 - ハニーポットは、DMZ から外部への通信を原則禁止する。侵害されたハニーポットが、第三者への攻撃の踏み台になるのを防ぐ
 - 公開用の Web サーバーは、ハニーポットと許可する通信が異なる（更新や Tunnel のために外向きの通信が要る）。同じ DMZ に置くか、分けるかは、Phase 1 で決める
-- ER605 + SG2008P の VLAN とファイアウォールルールで実現する。OPNsense の導入を待たない
+- ER605 + SG2210P の VLAN とファイアウォールルールで実現する。OPNsense の導入を待たない
 
 ## 前提
 
-- 進める順序は、(1) ER605 と SG2008P を導入する（Omada の段階 1〜2）、(2) VLAN 化する（段階 3）、(3) DMZ と Cowrie を検証する（Phase 1〜3。追加のハードは不要）、(4) [ネットワーク通信の収集・可視化](06-network-traffic-analysis.md)の受信用ホストの購入を判断する。DMZ 専用の機器への移行や VPS の利用は、外部公開（Phase 4）の前に決める
-- [Omada 導入・VLAN 化](04-network-omada-vlan.md)の段階 3 まで（ER605、SG2008P、VLAN の切り替え）を終える
+- 進める順序は、(1) ER605 と SG2210P を導入する（Omada の段階 1〜2）、(2) VLAN 化する（段階 3）、(3) DMZ と Cowrie を検証する（Phase 1〜3。追加のハードは不要）、(4) [ネットワーク通信の収集・可視化](06-network-traffic-analysis.md)の受信用ホストの購入を判断する。DMZ 専用の機器への移行や VPS の利用は、外部公開（Phase 4）の前に決める
+- [Omada 導入・VLAN 化](04-network-omada-vlan.md)の段階 3 まで（ER605、SG2210P、VLAN の切り替え）を終える
 - DMZ は VLAN60（`10.77.60.0/24`）。[VLAN 設計](../../architecture/08-vlan-design.md)と [ADR 0015](../../adr/0015-vlan-address-scheme-10-77.md) に反映済み。VLAN とルールは段階 3 で作り、置くものはこの計画で追加する
 - コントローラーモードの ACL で LAN→LAN を制限できることを確認する（[VLAN 設計](../../architecture/08-vlan-design.md)の未決事項）。DMZ → 内部の遮断はこれに依存する。使えない場合は、スイッチの ACL などの代替を先に決める
 - 管理画面の外部到達（Caddy 経由）は、公開するものを置く前（Phase 4 の前）に、Tailscale の ACL で整理する（VLAN 設計の未決事項）
