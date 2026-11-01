@@ -35,6 +35,7 @@
 | 計画中 | 導入を決めて、ロードマップに載せている | [未着手の項目](operations/roadmap/01-backlog.md)、大型計画 |
 | 検討中 | 導入するか、条件が整ったら着手するかを検討している | [ロードマップ](operations/roadmap/README.md)、[ADR](adr/README.md) |
 | 見送り | 検討して導入しないと決めた | [見送り中の項目](operations/roadmap/03-deferred.md)、[ADR](adr/README.md) |
+| 廃止 | 導入して使っていたが、のちに外した | 外した理由を [ADR](adr/README.md) か[障害記録](operations/incidents/README.md)に残す |
 | 未検討 | 候補として挙げただけで、判断していない | — |
 
 構成を変えたら、この状況も同じ変更で更新する。
@@ -150,6 +151,7 @@
 | 導入済み | CoreDNS | Kubernetes 向けプラグイン型 DNS |
 | 未検討 | pi-hole/pi-hole | 広告ブロック DNS |
 | 導入済み | adguard/adguardhome | 広告・トラッキングブロック DNS |
+| 導入済み | Cloudflare DNS | 公開ドメインの DNS と API（Caddy の DNS-01 証明書に利用。SaaS） |
 
 ### 4.3 リバースプロキシ
 
@@ -158,6 +160,7 @@
 | 未検討 | nginx/nginx | Web サーバー・リバースプロキシ |
 | 未検討 | jc21/nginx-proxy-manager | Nginx の Web UI 管理ツール |
 | 導入済み | caddy/caddy | 自動 HTTPS 対応の Web サーバー |
+| 導入済み | Let's Encrypt | 無料の TLS 証明書（Caddy が DNS-01 で取得。SaaS） |
 | 見送り | traefik/traefik | 動的リバースプロキシ・ロードバランサ |
 
 ### 4.4 VPN
@@ -186,6 +189,11 @@
 | 未検討 | nextcloud/nextcloud | セルフホスト型クラウドストレージ |
 | 未検討 | linuxserver/duplicati | バックアップ・リストア |
 | 未検討 | linuxserver/syncthing | P2P ファイル同期 |
+| 検討中 | Proxmox Backup Server (PBS) | Proxmox 向けの差分バックアップ（[ADR 0001](adr/0001-no-vm-backup.md)。NAS 導入後に見直す） |
+| 検討中 | restic | 暗号化・重複排除つきの CLI バックアップ（[ADR 0001](adr/0001-no-vm-backup.md)。NAS 導入後に見直す） |
+| 未検討 | borgbackup/borg | 重複排除つきのバックアップ |
+| 未検討 | kopia/kopia | 暗号化・重複排除つきのバックアップ（Web UI あり） |
+| 未検討 | rclone/rclone | クラウドストレージとの同期・転送 |
 | 未検討 | copyparty | ファイルサーバー（ブラウザからのアップロード・共有） |
 
 ---
@@ -213,6 +221,11 @@
 | 見送り | grafana/promtail | Loki 用ログ収集エージェント |
 | 見送り | influxdata/telegraf | メトリクス・ログ収集エージェント |
 | 見送り | louislam/uptime-kuma | サービス稼働監視・ステータスページ |
+| 未検討 | binwiederhier/ntfy | セルフホストのプッシュ通知（Alertmanager・n8n の通知先） |
+| 未検討 | gotify/server | セルフホストのプッシュ通知 |
+| 未検討 | prometheus-community/smartctl_exporter | ディスクの SMART 情報を Prometheus に出す |
+| 未検討 | NUT (Network UPS Tools) | UPS の監視と自動シャットダウン（UPS 導入が前提。[未着手の項目](operations/roadmap/01-backlog.md)） |
+| 導入済み | Slack | Alertmanager の通知先（SaaS） |
 | 導入済み | healthchecks.io | 外部 Heartbeat（Alertmanager の Watchdog が途絶えたら通知。SaaS） |
 | 未検討 | linuxserver/tautulli | Plex 利用状況監視 |
 | 見送り | nicolargo/glances | システムリソース監視（CPU・メモリ・ディスク・ネットワーク） |
@@ -231,6 +244,9 @@
 | 未検討 | gravitational/teleport | セキュアなインフラアクセス |
 | 検討中 | cloudflare/cloudflared | Cloudflare Tunnel（セキュアリモートアクセス） |
 | 導入済み | SOPS + age | シークレットの暗号化（Git に暗号化して置く） |
+| 未検討 | Wazuh | HIDS / SIEM（ホストの侵入検知・ログ分析） |
+| 未検討 | fail2ban/fail2ban | ログイン失敗の多い IP の遮断 |
+| 未検討 | aquasecurity/trivy | コンテナイメージ・設定の脆弱性スキャン |
 
 ---
 
@@ -325,6 +341,10 @@
 | 未検討 | ich777/krusader | ファイルマネージャ |
 | 導入済み | siteboon/claudecodeui | Claude Code をリモート管理する Web UI（CloudCLI UI） |
 | 導入済み | n8n-io/n8n | ワークフロー自動化 |
+| 未検討 | Renovate | 依存・Docker イメージのバージョン更新の自動 PR |
+| 未検討 | Dependabot | GitHub 標準の依存更新の自動 PR |
+| 導入済み | mosh | 切れにくい SSH 代替（`vm-code` で利用） |
+| 導入済み | GitHub CLI (gh) | GitHub 操作の CLI（`vm-code` で利用） |
 | 導入済み | freshrss/freshrss | RSS リーダー |
 | 未検討 | DIYgod/RSSHub | あらゆるサイトの RSS フィードを生成 |
 | 未検討 | RSSHub Radar | RSSHub のフィードを見つけるブラウザ拡張 |
