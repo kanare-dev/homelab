@@ -66,3 +66,14 @@
 - telegraf + InfluxDB（メトリクスは Prometheus で足りている）
 - Portainer（Docker の状態の可視化）
 - VM テンプレートの Packer 化（テンプレートは Terraform + cloud-init で再現できる）
+
+## Debian（VM の OS）
+
+見送り中（2026-11-01 時点では Ubuntu のまま）。
+
+- 現状: 全 VM は Ubuntu Server 24.04 LTS。PVE ホストは Debian 13 ベース（[ADR 0021](../../adr/0021-ubuntu-lts-for-vms.md)）
+- 見送る理由: Docker を載せるだけの VM では Ubuntu との差が小さい。テンプレートと Ansible の `common` ロールを作り直す手間に見合わない
+- 再検討する条件:
+  - snap が実害になった
+  - VM のメモリが逼迫し、OS の素のフットプリントが効いてきた
+  - PVE ホストと系統を揃えて、運用を単純にしたくなった

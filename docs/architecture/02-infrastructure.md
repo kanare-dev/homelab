@@ -35,7 +35,7 @@ Proxmox VE 上に Terraform で VM を作り、Ansible で設定し、各 VM で
 | --- | --- | --- |
 | ハイパーバイザ | Proxmox VE 9.x（Debian 13 ベース） | `ansible/roles/proxmox/`（Web UI の警告除去、収集スクリプト） |
 | VM プロビジョニング | Terraform（`telmate/proxmox` 3.0.2-rc07） | `terraform/proxmox/` |
-| OS 設定 | Ansible（Ubuntu） | `ansible/roles/common/` ほか |
+| OS 設定 | Ansible（Ubuntu Server 24.04 LTS。[ADR 0021](../adr/0021-ubuntu-lts-for-vms.md)） | `ansible/roles/common/` ほか |
 | コンテナ | Docker Compose | `docker/compose/<stack>/` → VM 上の `/opt/<stack>/` |
 | 監視 | Prometheus, Alertmanager, Grafana, blackbox-exporter, node_exporter | [監視・アラート](../services/03-monitoring.md) |
 | 名前解決 | AdGuard Home → CoreDNS / Unbound | [DNS 構成](../services/01-dns.md) |

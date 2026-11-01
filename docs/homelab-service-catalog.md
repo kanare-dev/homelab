@@ -134,8 +134,8 @@
 
 | 状況 | ツール | 説明 | 根拠・備考 |
 | --- | --- | --- | --- |
-| 導入済み | Ubuntu | Debian 系 Linux ディストリビューション | [インフラ構成](architecture/02-infrastructure.md) |
-| 未検討 | Debian | 汎用 Linux ディストリビューション | — |
+| 導入済み | Ubuntu | Debian 系 Linux ディストリビューション。VM は 24.04 LTS | [ADR 0021](adr/0021-ubuntu-lts-for-vms.md)、[インフラ構成](architecture/02-infrastructure.md) |
+| 見送り | Debian | 汎用 Linux ディストリビューション。PVE ホストは Debian 13 ベース | [ADR 0021](adr/0021-ubuntu-lts-for-vms.md)、[見送り中の項目](operations/roadmap/03-deferred.md) |
 | 未検討 | Arch | ロールリリース型 Linux ディストリビューション | — |
 | 未検討 | openSUSE | SUSE 系 Linux ディストリビューション | — |
 
@@ -475,6 +475,7 @@
 | 死活監視・ステータスページ | blackbox-exporter + Alertmanager | Uptime Kuma（見送り） |
 | ログ集約 | なし（journald と Docker のログ） | Loki + Alloy（見送り） |
 | コンテナ管理 | Docker Compose | Portainer（見送り）、k3s（検討中） |
+| VM の OS | Ubuntu Server LTS（[ADR 0021](adr/0021-ubuntu-lts-for-vms.md)） | Debian（見送り）、Arch、openSUSE（未検討） |
 | VM イメージ | Terraform + cloud-init | Packer（見送り） |
 | 認証の一元化 | なし（各サービスのログイン） | Authelia（見送り）、authentik（未検討） |
 | バックアップ | なし（[ADR 0001](adr/0001-no-vm-backup.md)） | PBS、restic（検討中）、borg、kopia（未検討） |
