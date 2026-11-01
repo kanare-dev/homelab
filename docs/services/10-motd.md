@@ -54,7 +54,7 @@
 
 1. `figlet` をインストールし、フォント `ansi-shadow` を `/usr/share/figlet/` に取得する（コミットとチェックサムを固定。下の「フォントのライセンスと更新」）
 2. スクリプトを `/etc/update-motd.d/99-custom` に配置する
-3. Ubuntu の標準の MOTD スクリプト（`/etc/update-motd.d/` の他のファイル）の実行権限を外し、標準の表示を出さない
+3. Ubuntu の標準の MOTD スクリプト（`/etc/update-motd.d/` の他のファイル）の実行権限を外し、標準の表示を出さない（シンボリックリンクは、リンク先を `dpkg-statoverride` で止める。下の「標準の MOTD の無効化」）
 4. `motd-news.service` と `motd-news.timer` を停止して無効化・マスクする（Ubuntu の広告つきニュース表示を止める）
 5. sshd の `PrintLastLog` を `no` にする
 6. `apt-daily.timer` を 6 時間ごと（0・6・12・18 時、最大 30 分の遅延）に動かし、`APT::Periodic::Update-Package-Lists` を `always` にして、実行のたびにパッケージ一覧を更新する（`/etc/systemd/system/apt-daily.timer.d/override.conf` と `/etc/apt/apt.conf.d/52apt-update-always`）。無人の自動更新（`apt-daily-upgrade`）の時刻は変えない
@@ -94,16 +94,28 @@ gh api -H "Accept: application/vnd.github.raw" \
 
 ## 標準の MOTD の無効化
 
-標準の MOTD スクリプトは、実行権限を外して止めている（`find` で見つけたものを `0644` にする）。2026-11-01 に、実機（`vm-infra`、`vm-monitoring`、`vm-apps`、`vm-code`）で確認した。
+標準の MOTD スクリプト（`/etc/update-motd.d/` の `99-custom` 以外）は、実行権限を外して止めている。
 
-- `/etc/update-motd.d/` の標準のスクリプト（`00-header`、`10-help-text`、`50-motd-news`、`85-fwupd`、`90-updates-available` など）は、全て `-rw-r--r--` で止まっている。実行できるのは `99-custom` だけ
-- `50-landscape-sysinfo` はシンボリックリンクで、リンク先は `/usr/share/landscape/landscape-sysinfo.wrapper`。タスクが `follow: true` で権限を変えるため、**リンク先（`/etc/update-motd.d` の外、`landscape-common` パッケージのファイル）の権限が `0644` に変わっている**
+| 対象 | 止め方 |
+| --- | --- |
+| 通常のファイル（`00-header`、`10-help-text`、`50-motd-news`、`85-fwupd`、`90-updates-available` など） | ファイルの権限を `0644` にする。リンクではないので、他のファイルには触らない |
+| シンボリックリンク（`50-landscape-sysinfo`） | リンク先（`/usr/share/landscape/landscape-sysinfo.wrapper`、`landscape-common` パッケージのファイル）に、`dpkg-statoverride` で「所有者 root、権限 `0644`」を記録する |
 
-2 点目の影響は次のとおり。
+シンボリックリンクのリンク先を `chmod` するだけだと、パッケージの更新で実行権限が戻り、標準の「System information」が次の Ansible 実行まで混ざって出る。`dpkg-statoverride` に記録すると、dpkg がパッケージの更新のたびにこの権限を適用するので、戻らない。
 
-- 動作上の問題はない（リンク先が実行できないので、標準の表示は出ない）
-- パッケージのファイルを書き換えているので、`landscape-common` が更新されると、権限が `0755` に戻る可能性がある。戻ると、標準の「System information」が次の Ansible 実行まで出る
-- `pve` には `/etc/update-motd.d/10-uname` だけがあり、`landscape` の件は関係しない
+```bash
+# 記録されている権限の上書きを見る
+dpkg-statoverride --list /usr/share/landscape/landscape-sysinfo.wrapper
+# → root root 0644 /usr/share/landscape/landscape-sysinfo.wrapper
+
+# 記録を外す（標準の表示を戻したいとき）
+sudo dpkg-statoverride --remove /usr/share/landscape/landscape-sysinfo.wrapper
+sudo chmod 0755 /usr/share/landscape/landscape-sysinfo.wrapper
+```
+
+- 以前のタスクは、`find` の結果を `follow: true` で `chmod` していたため、リンク先の権限だけが変わり、パッケージの更新で戻る状態だった（2026-11-01 に実機の `vm-infra`、`vm-monitoring`、`vm-apps`、`vm-code` で、リンク先が `0644` に変わっていることを確認した）。現在のタスクは、通常のファイルだけを `chmod` し、リンクは `dpkg-statoverride` に任せる
+- 標準のスクリプトが増えたときも、`find` が見つけて同じ方法で止める
+- `pve` は `common` ロールの対象外。`/etc/update-motd.d/10-uname` だけがあり、`landscape` の件は関係しない
 
 ## 注意点
 

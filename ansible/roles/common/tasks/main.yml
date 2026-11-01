@@ -145,14 +145,45 @@
     excludes: "99-custom"
   register: common_default_motd_scripts
 
-- name: Disable default MOTD scripts
+# 標準の MOTD スクリプトは、実行権限を外して止める。
+# 通常のファイルは、そのまま権限を外す（リンク先は触らない）。
+- name: Disable default MOTD scripts (regular files)
   ansible.builtin.file:
     path: "{{ item.path }}"
     mode: "0644"
-    follow: true
-  loop: "{{ common_default_motd_scripts.files }}"
+    follow: false
+  loop: "{{ common_default_motd_scripts.files | rejectattr('islnk') | list }}"
   loop_control:
     label: "{{ item.path }}"
+
+# シンボリックリンク（例: 50-landscape-sysinfo）は、リンク先がパッケージのファイル。
+# リンク先を chmod するだけだと、パッケージの更新で実行権限が戻るので、dpkg-statoverride に記録する。
+- name: Resolve symlinked default MOTD scripts
+  ansible.builtin.command: readlink -f {{ item.path }}
+  loop: "{{ common_default_motd_scripts.files | selectattr('islnk') | list }}"
+  loop_control:
+    label: "{{ item.path }}"
+  register: common_motd_symlink_targets
+  changed_when: false
+  check_mode: false
+
+- name: List existing dpkg-statoverride entries for the symlink targets
+  ansible.builtin.command: dpkg-statoverride --list {{ item.stdout }}
+  loop: "{{ common_motd_symlink_targets.results }}"
+  loop_control:
+    label: "{{ item.stdout }}"
+  register: common_motd_statoverride
+  changed_when: false
+  failed_when: false
+  check_mode: false
+
+- name: Keep the symlink targets non-executable across package updates
+  ansible.builtin.command: dpkg-statoverride --update --add root root 0644 {{ item.item.stdout }}
+  loop: "{{ common_motd_statoverride.results }}"
+  loop_control:
+    label: "{{ item.item.stdout }}"
+  when: item.stdout | length == 0
+  changed_when: true
 
 - name: Disable motd-news service and timer
   ansible.builtin.systemd:
