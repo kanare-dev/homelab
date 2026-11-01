@@ -74,7 +74,7 @@ VM の IP は Terraform（`terraform.tfvars`）で固定する。VMID は IP の
 | 利用例 | スマホ・Mac から `https://home.lab.kanare.dev`、`vm-code` への SSH / mosh / CloudCLI / code-server |
 
 - 設定の詳細と注意点（iOS の DNS、`1.1.1.1` を併記しない理由など）は [DNS 構成](../services/01-dns.md#tailscale-との連携)。
-- VLAN 移行後は、広告するのを Servers（`10.77.20.0/24`）のみにする（[VLAN 設計](08-vlan-design.md#外出先からのアクセスtailscale)）。
+- VLAN 移行後は、広告するのを Servers（`10.77.20.0/24`）と Lab（`10.77.40.0/24`）のみにする（[VLAN 設計](08-vlan-design.md#外出先からのアクセスtailscale)）。
 
 ## 外部サービスへの依存
 

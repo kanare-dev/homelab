@@ -21,7 +21,7 @@
 
 ## ホームオートメーション
 
-- [ ] Home Assistant の機器の検出と VLAN を決める（[VLAN 化](04-network-omada-vlan.md)と合わせて。Servers から Clients・IoT への mDNS の中継か、置き場所の変更。Cast や Matter を使う前に）
+- [ ] Home Assistant の機器の検出と VLAN を決める（[VLAN 化](04-network-omada-vlan.md)と合わせて。Servers から Trusted・IoT への mDNS の中継か、置き場所の変更。Cast や Matter を使う前に）
 - [ ] MQTT (Mosquitto) + ESP32 連携
 
   ```plaintext

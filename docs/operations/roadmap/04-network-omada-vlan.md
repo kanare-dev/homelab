@@ -42,11 +42,11 @@
 ### 段階 3: VLAN と `10.x` への一斉切り替え
 
 - [ ] コントローラーモードの ACL で、LAN → LAN を制限できるか確認する（段階 3 の前）
-- [ ] mDNS の中継（Clients ↔ IoT）が動くか確認する。動かなければ、段階 4 まで有線のテレビを Clients に置く
+- [ ] mDNS の中継（Trusted ↔ IoT）が動くか確認する。動かなければ、段階 4 まで有線のテレビを Trusted に置く
 - [ ] TO-BE の構成図を描く
 - [ ] 物理設置（ThinkCentre・ルーター・スイッチの置き場所、通気、電源、ケーブル）を決める
 - [ ] 戻し手順を書く（戻し先は段階 2 の状態。Omada のバックアップと `terraform state` を事前に保存する）
-- [ ] VLAN10 Management / VLAN20 Servers / VLAN30 Clients / VLAN40 IoT / VLAN50 Guests へ全ホストを一斉に切り替える（VLAN60 DMZ は VLAN とルールだけ作る。詳細は [DMZ と外部公開](07-dmz.md)）
+- [ ] VLAN10 Management / VLAN20 Servers / VLAN30 Trusted / VLAN40 Lab / VLAN50 IoT / VLAN60 Guests へ全ホストを一斉に切り替える（VLAN70 DMZ は VLAN とルールだけ作る。詳細は [DMZ と外部公開](07-dmz.md)）
 - [ ] 設計書・構成図・Terraform・Ansible・DNS の IP を更新する
 
 ### 段階 4: AP（EAP）
@@ -57,7 +57,7 @@
 
 ## 関連する検討
 
-- Home Assistant の機器の検出と VLAN（Servers から Clients・IoT への mDNS の中継か、置き場所の変更）。Cast や Matter を使う前に決める
+- Home Assistant の機器の検出と VLAN（Servers から Trusted・IoT への mDNS の中継か、置き場所の変更）。Cast や Matter を使う前に決める
 - GPU 搭載 PC の VLAN とファイアウォールルール（[GPU 搭載ゲーミング PC](05-gpu-pc.md) の Phase 5）
 - 通信の収集・可視化（[ネットワーク通信の収集・可視化](06-network-traffic-analysis.md)）。Buffalo を AP モードにして Wi-Fi の通信をスイッチに通す構成（段階 1〜2）が、取得位置の第一候補。ER605 の導入を先に進める
 - DMZ の VLAN（[DMZ と外部公開](07-dmz.md)）。VLAN 設計に DMZ を足すか、段階 3 の前に決める
