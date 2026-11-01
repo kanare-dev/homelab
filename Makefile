@@ -1,4 +1,4 @@
-.PHONY: help plan apply destroy setup lint check secrets-check lint-all sops-encrypted-check md-lint md-links hooks
+.PHONY: help plan apply destroy setup lint check secrets-check lint-all sops-encrypted-check md-lint md-links shell-lint hooks
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
@@ -73,8 +73,13 @@ lint-all: lint sops-encrypted-check ## Run every check that CI runs (.github/wor
 	cd terraform/proxmox && terraform fmt -check -recursive
 	cd terraform/proxmox && terraform init -backend=false > /dev/null && terraform validate
 	yamllint -s .
+	$(MAKE) shell-lint
 	$(MAKE) md-lint md-links
 	gitleaks detect --no-banner --log-opts=HEAD
+
+shell-lint: ## Lint shell scripts (shellcheck; brew install shellcheck)
+	@command -v shellcheck >/dev/null || { echo "shellcheck が見つからない: brew install shellcheck"; exit 1; }
+	shellcheck $$(git ls-files '*.sh') .githooks/pre-push
 
 md-lint: ## Lint Markdown style (markdownlint-cli2, needs npx)
 	npx --yes markdownlint-cli2@0.24.0

@@ -44,6 +44,13 @@ jobs:
       - run: pip install yamllint
       - run: yamllint -s .
 
+  shellcheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # ubuntu-latest には shellcheck が入っている
+      - run: shellcheck $(git ls-files '*.sh') .githooks/pre-push
+
   markdown:
     runs-on: ubuntu-latest
     steps:
