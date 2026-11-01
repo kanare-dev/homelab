@@ -95,6 +95,12 @@ class Model:
         if m:
             self.xml = self.xml[:m.start()] + self.xml[m.end():]
 
+    def remove(self, cid):
+        """図形（edge 以外のセル）を消す。廃止したサービスの図形が SVG に残らないようにする。"""
+        m = re.search(r'<mxCell id="%s" .*?</mxCell>' % re.escape(cid), self.xml, re.S)
+        if m:
+            self.xml = self.xml[:m.start()] + self.xml[m.end():]
+
     def clone(self, src, new_id, icon=None):
         """既存セルを複製して新しい ID で追加する（すでにあれば何もしない）。
         icon に SVG のパスを渡すと、複製したセルの画像をその SVG に差し替える（初回だけ読む）。"""
@@ -181,9 +187,6 @@ def layout(m):
     m.clone("64", "vmmon-blackbox-icon")
     m.clone("66", "vmmon-blackbox-text")
     m.value("vmmon-blackbox-text", svc("blackbox-exporter", ":9115"))
-    m.clone("64", "vmmon-speedtest-icon")
-    m.clone("66", "vmmon-speedtest-text")
-    m.value("vmmon-speedtest-text", svc("speedtest-exporter", ":9798"))
     m.value("93", svc("Homepage", ":3001"))
     m.clone("92", "vmapps-ha-icon", icon="apps/home-assistant.svg")
     m.clone("93", "vmapps-ha-text")
@@ -223,7 +226,7 @@ def layout(m):
     m.clone("90", "vmwin-icon", icon="platform/windows-11.svg")
     m.clone("91", "vmwin-text")
     m.value("vmwin-text", "<i>vm-windows</i> " + ORANGE % "DHCP" + "<br>Windows 11")
-    m.geo("77", 0, 0, 1380, 1110)                      # 背景（キャンバス）。外周の余白は 40
+    m.geo("77", 0, 0, 1380, 1070)                      # 背景（キャンバス）。外周の余白は 40
     m.geo("28", 40, 40, 140, 40)
     m.geo("24", 40, 40, 140, 40)
 
@@ -237,6 +240,8 @@ def layout(m):
     m.edge("21", cx, 240, cx, 320)
     for cid in ("42", "68", "69"):
         m.drop(cid)
+    for cid in ("vmmon-speedtest-icon", "vmmon-speedtest-text"):  # 廃止した speedtest-exporter（ADR 0018）
+        m.remove(cid)
 
     m.geo("ext-frame", 220, 40, 640, 150)             # 外部サービス（Internet の左）。VM 枠と同じ見た目
     m.geo("ext-label", 240, 50, 200, 30)
@@ -247,7 +252,7 @@ def layout(m):
     m.geo("12", 530 - 25.05, 340 - 52)                # 90 度回転した画像。見た目の中心は (530, 340)
     m.geo("15", 380, 225, 300, 80)
 
-    m.geo("14", 40, 340, 980, 730)                    # PVE 枠
+    m.geo("14", 40, 340, 980, 690)                    # PVE 枠
     m.head("26", "27", 60, 360, 300)
     m.geo("27", 110, 360, 260, 60)
 
@@ -260,13 +265,12 @@ def layout(m):
     m.vm("89", "90", "91", c1, top + 400, 120)        # vm-dev
     m.row("vmdev-nodeexp-icon", "vmdev-nodeexp-text", c1 + 40, top + 470, 220)
 
-    m.vm("35", "36", "37", c2, top, 340)              # vm-monitoring
-    m.dbox("67", [("61", "62"), ("63", "65"), ("64", "66"), ("vmmon-blackbox-icon", "vmmon-blackbox-text"),
-                    ("vmmon-speedtest-icon", "vmmon-speedtest-text")], c2, top + 70)
-    m.row("85", "86", c2 + 40, top + 290, 220)
-    m.vm(K + "104", K + "105", K + "106", c2, top + 360, 240)   # vm-code
+    m.vm("35", "36", "37", c2, top, 300)              # vm-monitoring
+    m.dbox("67", [("61", "62"), ("63", "65"), ("64", "66"), ("vmmon-blackbox-icon", "vmmon-blackbox-text")], c2, top + 70)
+    m.row("85", "86", c2 + 40, top + 250, 220)
+    m.vm(K + "104", K + "105", K + "106", c2, top + 320, 240)   # vm-code
     for k, n in enumerate(("claude", "cloudcli", "codeserver", "nodeexp")):
-        m.row(f"vmcode-{n}-icon", f"vmcode-{n}-text", c2 + 40, top + 430 + 40 * k, 220)
+        m.row(f"vmcode-{n}-icon", f"vmcode-{n}-text", c2 + 40, top + 390 + 40 * k, 220)
 
     m.vm("45", "46", "47", c3, top, 340)              # vm-apps
     m.dbox("96", [("97", "98"), ("92", "93"), ("vmapps-ha-icon", "vmapps-ha-text"),
@@ -275,7 +279,7 @@ def layout(m):
     m.vm("vmwin-frame", "vmwin-icon", "vmwin-text", c3, top + 360, 80)   # vm-windows（手動起動。node_exporter 未導入）
     m.geo("vmwin-icon", c3 + 25, top + 385, 30, 30)    # 余白のないロゴなので、他の見出しアイコンと大きさが合うよう小さくする
 
-    m.row("87", "88", 80, 1020, 220)                   # Proxmox ホスト自身の node_exporter（PVE 枠の左下）
+    m.row("87", "88", 80, 980, 220)                   # Proxmox ホスト自身の node_exporter（PVE 枠の左下）
 
     rx, rw = 1060, 280                                # LAN / IoT の枠。上端・下端は PVE 枠に合わせる
     m.head("30", "43", rx + 20, 290, rw - 20)
@@ -283,7 +287,7 @@ def layout(m):
     m.device("52", "59", rx, 360, 40, 30, rw)
     m.device("51", "60", rx, 440, 30, 40, rw)
     m.head("70", "53", rx + 20, 800, rw - 20)
-    m.geo("54", rx, 850, rw, 220)
+    m.geo("54", rx, 850, rw, 180)
     m.device("55", "57", rx, 870, 40, 40, rw)
     m.device("56", "58", rx, 950, 40, 40, rw)
 
