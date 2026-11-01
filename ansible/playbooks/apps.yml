@@ -29,12 +29,14 @@
             src: "{{ playbook_dir }}/../../docker/compose/homepage/docker-compose.yml"
             dest: /opt/homepage/docker-compose.yml
             mode: "0644"
+          notify: Restart homepage
 
         - name: Deploy .env with Proxmox token and AdGuard credentials
           ansible.builtin.template:
             src: homepage.env.j2
             dest: /opt/homepage/.env
             mode: "0600"
+          notify: Restart homepage
 
         - name: Copy homepage config files
           ansible.builtin.copy:
@@ -47,24 +49,19 @@
             - widgets.yaml
             - bookmarks.yaml
             - docker.yaml
+          notify: Restart homepage
 
         - name: Copy homepage custom icons
           ansible.builtin.copy:
             src: "{{ playbook_dir }}/../../docker/compose/homepage/icons/"
             dest: /opt/homepage/icons/
             mode: "0644"
+          notify: Restart homepage
 
         - name: Start homepage stack
           community.docker.docker_compose_v2:
             project_src: /opt/homepage
             state: present
-
-        - name: Restart homepage to load config changes
-          community.docker.docker_compose_v2:
-            project_src: /opt/homepage
-            services:
-              - homepage
-            state: restarted
 
     # --- Home Assistant ---
     - name: Deploy Home Assistant
@@ -192,6 +189,13 @@
             state: present
 
   handlers:
+    - name: Restart homepage
+      community.docker.docker_compose_v2:
+        project_src: /opt/homepage
+        services:
+          - homepage
+        state: restarted
+
     - name: Restart homeassistant
       community.docker.docker_compose_v2:
         project_src: /opt/homeassistant

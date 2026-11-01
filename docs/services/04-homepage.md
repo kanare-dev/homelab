@@ -14,7 +14,7 @@ LAN 内サービスへのリンクと、状態のウィジェットを 1 画面�
 
 - コンテナは `dns:` で AdGuard（`192.168.11.11`）を指定している。ホストの DNS（ルーター）は `*.lab.kanare.dev` を引けず、指定しないと `siteMonitor` とウィジェットが失敗する（[ADR-0007](../adr/0007-vm-host-dns-is-router.md)）。
 - 外部には公開しない。認証はない（LAN 内と Tailscale 経由のみ。[ADR-0005](../adr/0005-tailscale-only-remote-access.md)、[ADR-0008](../adr/0008-no-authelia.md)）。
-- 設定ファイルを変えたら `make deploy-apps APP=homepage` で反映する。Ansible がファイルを配置して、コンテナを再起動する。
+- 設定ファイルを変えたら `make deploy-apps APP=homepage` で反映する。Ansible がファイルを配置し、変更があったときだけコンテナを再起動する。
 
 ## 画面の構成
 

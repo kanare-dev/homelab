@@ -9,7 +9,6 @@
 
 ## インフラ・IaC・運用
 
-- [ ] homepage の末尾の無条件 `restarted`（`playbooks/apps.yml`）を、設定ファイル変更時のみ動く handler（`notify`）にする。homepage は設定を自動で再読み込みするため、再起動自体が不要な可能性もある
 - [ ] k3s などのクラスタ構成を検討する（学習用クラスタとして分離運用し、Grafana / PVE / AdGuard Home 等の安定稼働中サービスは当面 Docker Compose のまま維持する）。より重いワークロードや複数アプリの分離運用もここで扱う
 
 ## ハードウェア・拡張
