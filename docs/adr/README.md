@@ -20,13 +20,14 @@
 | [0012](0012-n8n-on-vm-apps.md) | n8n を vm-apps に置き、ワークフローだけ Git で守る | 採用 | 2026-10-30 |
 | [0013](0013-vm-console-password.md) | 全 VM の `ubuntu` にコンソール用パスワードを設定する | 採用 | 2026-10-31 |
 | [0014](0014-freshrss-on-vm-apps.md) | FreshRSS を vm-apps に置き、購読リストだけ Git の外に退避する | 採用 | 2026-11-01 |
-| [0015](0015-vlan-address-scheme-10-77.md) | VLAN のアドレス体系を `10.77.<VLAN>.0/24` にする | 採用（未適用） | 2026-11-01 |
+| [0015](0015-vlan-address-scheme-10-77.md) | VLAN のアドレス体系を `10.77.<VLAN>.0/24` にする | 置き換え済み（→ 0022） | 2026-11-01 |
 | [0016](0016-dmz-placement.md) | DMZ は VLAN60 に作り、まず Proxmox 上で公開せずに検証する | 採用（未適用） | 2026-11-01 |
 | [0017](0017-ipv6-disabled.md) | IPv6 は無効にし、IPv4 だけで設計する | 採用（未適用） | 2026-11-01 |
 | [0018](0018-internet-speed-monitoring.md) | 回線は ping（ICMP）で監視し、Speedtest は回線を使い切るため見送る | 採用（未適用） | 2026-11-01 |
 | [0019](0019-caddy-reverse-proxy.md) | リバースプロキシに Caddy を使う | 採用 | 2026-11-01 |
 | [0020](0020-dns-three-layer-stack.md) | DNS は AdGuard Home・CoreDNS・Unbound の3層にする | 採用 | 2026-11-01 |
 | [0021](0021-ubuntu-lts-for-vms.md) | VM の OS は Ubuntu Server LTS にし、LTS の入れ替えは VM の作り直しで行う | 採用 | 2026-11-01 |
+| [0022](0022-vlan-set-and-ids.md) | VLAN を 7 本（Trusted と Lab を含む）にし、ID を信頼度の順に振る | 採用（未適用） | 2026-11-02 |
 
 ## 書き方
 

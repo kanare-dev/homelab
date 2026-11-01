@@ -4,7 +4,7 @@ TP-Link（ルーター + Managed Switch + AP、Omada 管理）への移行と同
 
 ## 目的
 
-- IoT・ゲスト・クライアント・サーバー・管理機器・DMZ（外部に触れるもの）を分け、侵害されたときの影響範囲を狭める。
+- IoT・ゲスト・日常端末（Trusted）・サーバー・検証用（Lab）・管理機器・DMZ（外部に触れるもの）を分け、侵害されたときの影響範囲を狭める。
 - 管理画面（ルーター、スイッチ、AP、Proxmox、Omada コントローラー）を、管理用ネットワークだけに閉じる。
 - `192.168.11.x` という Buffalo ルーターの初期値に引きずられたアドレス体系を、VLAN ID と一致する体系（`10.77.<VLAN>.0/24`）に直す。
 
@@ -21,7 +21,7 @@ TP-Link（ルーター + Managed Switch + AP、Omada 管理）への移行と同
 
 ### アドレス体系: `10.77.<VLAN>.0/24`
 
-判断の記録: [ADR-0015](../adr/0015-vlan-address-scheme-10-77.md)（[ADR-0003](../adr/0003-vlan-address-scheme.md) を置き換え）
+判断の記録: [ADR-0015](../adr/0015-vlan-address-scheme-10-77.md)（[ADR-0003](../adr/0003-vlan-address-scheme.md) を置き換え）。VLAN の構成と ID の振り直しは [ADR-0022](../adr/0022-vlan-set-and-ids.md)
 
 **決定**: 各 VLAN を `10.77.<VLAN ID>.0/24` にする（例: Servers は `10.77.20.0/24`）。第 2 オクテット `77` は家に固有の値で固定し、第 3 オクテットを VLAN ID に揃える。家全体は `10.77.0.0/16` に収まる。
 
@@ -84,20 +84,41 @@ TP-Link（ルーター + Managed Switch + AP、Omada 管理）への移行と同
 
 **決定**: AirPlay・Google TV 対応のテレビは IoT VLAN に置く。
 
-**根拠**: ベンダーのクラウドに繋がる機器であり、他の VLAN から隔離したい。発見のための mDNS は、Clients ↔ IoT の間でだけ中継する（後述）。
+**根拠**: ベンダーのクラウドに繋がる機器であり、他の VLAN から隔離したい。発見のための mDNS は、Trusted ↔ IoT の間でだけ中継する（後述）。
 
 ## VLAN 一覧
 
 VLAN ID とサブネットの第 3 オクテットを揃える（第 2 オクテットは `77` で固定）。各ホストの末尾オクテットは現在の値を引き継ぎ、移行時に覚え直す量を減らす。
 
+VLAN の ID は、信頼度の高い順（内側から外側）に振る。外部に触れるもの（Guests、DMZ）を末尾に置く。判断の記録: [ADR-0022](../adr/0022-vlan-set-and-ids.md)
+
 | VLAN | 名前 | サブネット | ゲートウェイ | DHCP プール | 置くもの |
 | --- | --- | --- | --- | --- | --- |
 | 10 | Management | `10.77.10.0/24` | `.1` | なし（固定のみ） | ルーター、Managed Switch、AP、Omada コントローラー、Proxmox ホスト |
-| 20 | Servers | `10.77.20.0/24` | `.1` | なし（固定のみ） | `vm-infra`、`vm-monitoring`、`vm-apps`、`vm-dev`、`vm-code` |
-| 30 | Clients | `10.77.30.0/24` | `.1` | `.100–.199` | Mac、スマホ、iPad などの日常端末 |
-| 40 | IoT | `10.77.40.0/24` | `.1` | `.100–.199` | ESP32、テレビ（AirPlay / Google TV）などのデバイス |
-| 50 | Guests | `10.77.50.0/24` | `.1` | `.100–.199` | 来客の端末 |
-| 60 | DMZ | `10.77.60.0/24` | `.1` | なし（固定のみ） | ハニーポット、公開用の Web サーバー、`cloudflared`（[DMZ と外部公開](../operations/roadmap/07-dmz.md)）。VLAN とルールは段階 3 で作り、置くものは 07 の計画で追加する |
+| 20 | Servers | `10.77.20.0/24` | `.1` | なし（固定のみ） | 常時稼働のサーバー: `vm-infra`、`vm-monitoring`、`vm-apps`、`vm-code` |
+| 30 | Trusted | `10.77.30.0/24` | `.1` | `.100–.199` | 母艦 PC、スマホ、タブレットなどの日常端末 |
+| 40 | Lab | `10.77.40.0/24` | `.1` | `.100–.199` | 一時的な検証用 VM、開発環境（`vm-dev`） |
+| 50 | IoT | `10.77.50.0/24` | `.1` | `.100–.199` | ESP32、テレビ（AirPlay / Google TV）などのデバイス |
+| 60 | Guests | `10.77.60.0/24` | `.1` | `.100–.199` | 来客の端末 |
+| 70 | DMZ | `10.77.70.0/24` | `.1` | なし（固定のみ） | ハニーポット、公開用の Web サーバー、`cloudflared`（[DMZ と外部公開](../operations/roadmap/07-dmz.md)）。VLAN とルールは段階 3 で作り、置くものは 07 の計画で追加する |
+
+### アドレス帯の区切り
+
+全 VLAN で同じ区切りにする。
+
+| 範囲 | 用途 |
+| --- | --- |
+| `.1` | ゲートウェイ（ルーターの VLAN インターフェース） |
+| `.2–.9` | ネットワーク機器（Management のみ使う） |
+| `.10–.99` | 固定アドレス（VM、サーバーなど） |
+| `.100–.199` | DHCP プール（DHCP を使う VLAN のみ） |
+| `.200–.254` | 予備（DHCP 予約、将来の拡張） |
+
+- DHCP が配る DNS サーバーは、全 VLAN で `10.77.20.11`（`vm-infra`）。
+- Guests のリース時間は短め（数時間）にする。来客の端末の情報を長く保持しない。
+- Lab は、Terraform で固定 IP を振る VM（`vm-dev` など）と、手で立てる使い捨ての VM が混在する。前者は `.10–.99`、後者は DHCP の `.100–.199` に入れる。
+- Trusted の常用機（Mac など）は DHCP 予約で固定する。
+- Management・Servers・DMZ は DHCP を配らない。DMZ に侵入した端末が自動でアドレスを得るのを避ける。
 
 ### 固定アドレス
 
@@ -109,10 +130,10 @@ VLAN ID とサブネットの第 3 オクテットを揃える（第 2 オクテ
 | `vm-infra` | `192.168.11.11` | `10.77.20.11` | 20 |
 | `vm-monitoring` | `192.168.11.13` | `10.77.20.13` | 20 |
 | `vm-apps` | `192.168.11.20` | `10.77.20.20` | 20 |
-| `vm-dev` | `192.168.11.21` | `10.77.20.21` | 20 |
+| `vm-dev` | `192.168.11.21` | `10.77.40.21` | 40 |
 | `vm-code` | `192.168.11.22` | `10.77.20.22` | 20 |
-| ESP32 | `192.168.11.100` | `10.77.40.100` | 40 |
-| テレビ | DHCP | `10.77.40.x`（DHCP 予約で固定） | 40 |
+| ESP32 | `192.168.11.100` | `10.77.50.100` | 50 |
+| テレビ | DHCP | `10.77.50.x`（DHCP 予約で固定） | 50 |
 
 各 VLAN のゲートウェイはルーターの VLAN インターフェース（`.1`）。ルーター自身の管理アドレスは Management の `10.77.10.1`。
 
@@ -120,51 +141,57 @@ VLAN ID とサブネットの第 3 オクテットを揃える（第 2 オクテ
 
 - **Proxmox ホストは Management に置く。** 管理面（`:8006`）が VM と同じネットワークに載らない。
 - **VM は VLAN タグ付きで割り当てる。** Proxmox のブリッジ（`vmbr0`）を VLAN-aware にし、VM ごとに VLAN ID を指定する。Terraform の VM モジュールに `vlan_id` を持たせる。
-- **スイッチの Proxmox 向けポートは trunk。** Management を native（untagged）、Servers をタグ付きで通す。
-- **Omada コントローラーは Management の VM（または LXC）に置く。** 管理機器と同じ面に置き、Clients・Servers から直接触れないようにする。
+- **スイッチの Proxmox 向けポートは trunk。** Management を native（untagged）、Servers・Lab・IoT・DMZ など、VM を置く VLAN をタグ付きで通す。
+- **Omada コントローラーは Management の VM（または LXC）に置く。** 管理機器と同じ面に置き、Trusted・Servers・Lab から直接触れないようにする。
 - **DMZ の VM は、Proxmox の同じブリッジに載せる場合、ホスト侵害のリスクが VLAN 分離だけでは消えない。** Proxmox の管理面を DMZ に出さず、仮想 NIC とブリッジの設定を確認する。DMZ の置き場所は、まず同じホストで検証し、将来は別の機器（小型 PC やラズパイなど）にする（未決事項）。
+- **`vm-dev` は Lab、`vm-code` と `vm-apps` は Servers に置く。** 開発環境と一時的な検証用 VM は、常時稼働のサーバーと分け、Lab から他の VLAN へは入れないようにする。
 - **テレビは IoT に置く。** ベンダーのクラウドに繋がる機器であり、他の VLAN から隔離したい。ただし AirPlay・Cast の発見のために mDNS の中継が必要（次節）。
 
 ## mDNS（AirPlay / Google Cast）
 
-AirPlay も Google Cast も、機器の発見に mDNS を使う。mDNS の呼びかけは同じ VLAN の中にしか届かないため、Clients のスマホ・Mac から IoT のテレビが見えなくなる。
+AirPlay も Google Cast も、機器の発見に mDNS を使う。mDNS の呼びかけは同じ VLAN の中にしか届かないため、Trusted のスマホ・Mac から IoT のテレビが見えなくなる。
 
-**対処**: ルーターまたは AP で mDNS の中継（リフレクター）を有効にし、Clients と IoT の間でだけ中継する。Omada に該当機能がある（機種とコントローラーのバージョンによる。購入前に公式ドキュメントで確認する）。
+**対処**: ルーターまたは AP で mDNS の中継（リフレクター）を有効にし、Trusted と IoT の間でだけ中継する。Omada に該当機能がある（機種とコントローラーのバージョンによる。購入前に公式ドキュメントで確認する）。
 
 **関連する通信**:
 
-- Clients → IoT の新規接続は許可済み（許可表）。AirPlay・Cast の制御・ストリーミングはこの向き。
-- AirPlay のミラーリングやローカルメディアのキャスト（テレビが端末からメディアを取りに来る方式）では、テレビ → Clients の接続が必要になることがある。**既定では IoT → Clients を拒否する**ので、動かなければ、テレビの IP から Clients への必要なポートだけを個別に許可する。必要なポートは実機で確認してから決める（推測で開けない）。
-- mDNS の中継対象は Clients ↔ IoT のみ。Management・Servers・Guests には中継しない。
+- Trusted → IoT の新規接続は許可済み（許可表）。AirPlay・Cast の制御・ストリーミングはこの向き。
+- AirPlay のミラーリングやローカルメディアのキャスト（テレビが端末からメディアを取りに来る方式）では、テレビ → Trusted の接続が必要になることがある。**既定では IoT → Trusted を拒否する**ので、動かなければ、テレビの IP から Trusted への必要なポートだけを個別に許可する。必要なポートは実機で確認してから決める（推測で開けない）。
+- mDNS の中継対象は Trusted ↔ IoT のみ。Management・Servers・Lab・Guests には中継しない。
 
-**代替案**: mDNS の中継が機種の都合で使えない場合は、テレビを Clients に置く。IoT の隔離は弱くなるが、動作は確実。
+**代替案**: mDNS の中継が機種の都合で使えない場合は、テレビを Trusted に置く。IoT の隔離は弱くなるが、動作は確実。
 
 ## 通信ポリシー
 
 ファイアウォールの許可表。送信元から宛先への新規接続の可否を示す。戻りの通信（確立済み）は常に許可する。**表にない組み合わせは拒否**（デフォルト拒否）。
 
-| 送信元 ＼ 宛先 | Management | Servers | Clients | IoT | Guests | DMZ | インターネット |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| **Management** | 許可 | DNS(53)、NTP のみ | 拒否 | 拒否 | 拒否 | 管理用ポートのみ | 許可（更新用） |
-| **Servers** | 下記「Servers → Management」 | 許可 | 拒否 | 下記「Servers → IoT」 | 拒否 | ログ取得のポートのみ（`vm-monitoring` から） | 許可 |
-| **Clients** | 管理ポートのみ（80/443/8006/22） | Web(80/443)、SSH(22)、mosh(UDP 60000–61000)、DNS(53) | 許可 | 許可 | 拒否 | Web(80/443)、SSH(22) | 許可 |
-| **IoT** | 拒否 | DNS(53) を `vm-infra` へのみ | 拒否（例外は mDNS の節） | 許可 | 拒否 | 拒否 | 許可 |
-| **Guests** | 拒否 | DNS(53) を `vm-infra` へのみ | 拒否 | 拒否 | 許可（端末間は隔離） | 拒否 | 許可 |
-| **DMZ** | 拒否 | 拒否（DNS は未決事項） | 拒否 | 拒否 | 拒否 | 許可 | ハニーポットは拒否。Web サーバーと `cloudflared` は必要な宛先・ポートだけ許可 |
+| 送信元 ＼ 宛先 | Management | Servers | Trusted | Lab | IoT | Guests | DMZ | インターネット |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| **Management** | 許可 | DNS(53)、NTP のみ | 拒否 | 拒否 | 拒否 | 拒否 | 管理用ポートのみ | 許可（更新用） |
+| **Servers** | 下記「Servers → Management」 | 許可 | 拒否 | 下記「Servers → Lab」 | 下記「Servers → IoT」 | 拒否 | ログ取得のポートのみ（`vm-monitoring` から） | 許可 |
+| **Trusted** | 管理ポートのみ（80/443/8006/22） | Web(80/443)、SSH(22)、mosh(UDP 60000–61000)、DNS(53) | 許可 | SSH(22)、mosh(UDP 60000–61000)、Web(80/443) | 許可 | 拒否 | Web(80/443)、SSH(22) | 許可 |
+| **Lab** | 拒否 | DNS(53) を `vm-infra` へのみ | 拒否 | 許可 | 拒否 | 拒否 | 拒否 | 許可 |
+| **IoT** | 拒否 | DNS(53) を `vm-infra` へのみ | 拒否（例外は mDNS の節） | 拒否 | 許可 | 拒否 | 拒否 | 許可 |
+| **Guests** | 拒否 | DNS(53) を `vm-infra` へのみ | 拒否 | 拒否 | 拒否 | 許可（端末間は隔離） | 拒否 | 許可 |
+| **DMZ** | 拒否 | 拒否（DNS は未決事項） | 拒否 | 拒否 | 拒否 | 拒否 | 許可 | ハニーポットは拒否。Web サーバーと `cloudflared` は必要な宛先・ポートだけ許可 |
 
 ### 個別の許可
 
 - **Servers → Management**:
   - `vm-infra`（Caddy）→ Omada コントローラーの管理画面ポート、Proxmox `:8006`（`omada.lab.kanare.dev`、`pve.lab.kanare.dev` の転送先）。ルーター自身の管理画面は、コントローラーに採用すると使えなくなる（段階 1 を参照）ので、転送先にしない。
   - `vm-monitoring`（Prometheus）→ Proxmox などの `:9100`（node_exporter）。
+- **Servers → Lab**:
+  - `vm-infra` → Lab の SSH(22)、mosh(UDP 60000–61000)、Web(80/443)。外出先から Tailscale 経由で `vm-dev` に入る通信は、subnet router（`vm-infra`）が送信元になって Lab に届くため、この許可が要る。
+  - `vm-monitoring`（Prometheus）→ Lab の `:9100`（node_exporter）。
+  - Lab からサーバーへの取得は許可しない（DNS を除く）。Lab の VM が Servers の何かを必要とするときは、その都度、宛先とポートを限って追加する。
 - **Servers → IoT**: `vm-monitoring` → ESP32 `:80`（メトリクスの取得）。IoT からサーバーへの取得は許可しない。
 - **全 VLAN → `vm-infra:53`**: どの VLAN も DNS は AdGuard に向ける。DHCP が配る DNS サーバーは `10.77.20.11`。
 - **インターネット → DMZ**: Tunnel（`cloudflared`）の外向き接続で届く通信が基本。ポート転送で受ける場合は、公開するポートだけ許可する（[DMZ と外部公開](../operations/roadmap/07-dmz.md)）。
-- **Guests・IoT・DMZ の隔離**: 他の VLAN のプライベートアドレス（`10.0.0.0/8`、`172.16.0.0/12`、`192.168.0.0/16`）への通信は、DNS と上記の例外を除きすべて拒否する。
+- **Lab・Guests・IoT・DMZ の隔離**: 他の VLAN のプライベートアドレス（`10.0.0.0/8`、`172.16.0.0/12`、`192.168.0.0/16`）への通信は、DNS と上記の例外を除きすべて拒否する。
 
 ## 外出先からのアクセス（Tailscale）
 
-- `vm-infra` が subnet router として広告するのは **Servers（`10.77.20.0/24`）のみ**。Management は広告しない。ルーター・スイッチ・AP・Proxmox の管理面には外から届かない。
+- `vm-infra` が subnet router として広告するのは **Servers（`10.77.20.0/24`）と Lab（`10.77.40.0/24`）のみ**。Lab を広告するのは、外出先から `vm-dev` に入るため。Management は広告しない。ルーター・スイッチ・AP・Proxmox の管理面には外から届かない。
 - split DNS（`lab.kanare.dev` → `vm-infra`）は現状のまま。
 
 ### 管理画面への外部到達（リスクを受け入れる）
@@ -227,8 +254,8 @@ Omada コントローラー（`omada.lab.kanare.dev`）と Proxmox（`pve.lab.ka
 **段階 3: VLAN と `10.77.x.x` への一斉切り替え**
 
 - 追加の購入はない。下の「切り替え手順」で行う。
-- 有線の VLAN（Management / Servers / Clients と、必要なら IoT のポート）を使う。Wi-Fi は Buffalo（AP）が出す 1 つの SSID で、Clients に入る。
-- テレビ（有線）は IoT のポートにつなぎ、ゲートウェイの mDNS 中継（Clients ↔ IoT）を試す。動かなければ、段階 4 まで Clients に置く。
+- 有線の VLAN（Management / Servers / Trusted / Lab と、必要なら IoT のポート）を使う。Wi-Fi は Buffalo（AP）が出す 1 つの SSID で、Trusted に入る。
+- テレビ（有線）は IoT のポートにつなぎ、ゲートウェイの mDNS 中継（Trusted ↔ IoT）を試す。動かなければ、段階 4 まで Trusted に置く。
 - ESP32 は使っていないので、この段階では扱わない。
 - 戻し方: 段階 2 の状態（ER605 + スイッチ、`192.168.11.0/24`）に戻す。Omada のバックアップと `terraform state` を事前に保存しておく。
 
@@ -242,8 +269,8 @@ Omada コントローラー（`omada.lab.kanare.dev`）と Proxmox（`pve.lab.ka
 
 Buffalo WSR-1800AX4P は VLAN に対応していない。AP モードにはできる。このため段階 4 までは、Buffalo は **1 つの SSID だけを出す Wi-Fi の入口**として使う。
 
-- Wi-Fi の端末は、IoT・Guests に分けられない。段階 3 以降も、段階 4 までは Clients に入る。
-- AP モードの Buffalo の管理画面は、段階 3 以降 Clients VLAN 上に置かれる。実装が簡素な管理画面を Clients から届く場所に置くことになるので、段階 4 までの期間限定と割り切る。
+- Wi-Fi の端末は、IoT・Guests に分けられない。段階 3 以降も、段階 4 までは Trusted に入る。
+- AP モードの Buffalo の管理画面は、段階 3 以降 Trusted VLAN 上に置かれる。実装が簡素な管理画面を Trusted から届く場所に置くことになるので、段階 4 までの期間限定と割り切る。
 - Buffalo は、ルーターモードに戻せば旧構成のルーターとして使える。段階 1 の戻し先になる。
 
 ## 影響を受けるリポジトリ内の箇所
@@ -276,10 +303,10 @@ Buffalo WSR-1800AX4P は VLAN に対応していない。AP モードにはで�
 ### 切り替え当日
 
 1. 旧ネットワークで現在の状態を保存する（Proxmox の VM 設定、各ホストの設定、`terraform state`）。
-2. スイッチの Proxmox 向けポートを trunk にし、ルーターの VLAN インターフェースを有効にする。Buffalo（AP）は Clients のポートにつなぎ替える。
+2. スイッチの Proxmox 向けポートを trunk にし、ルーターの VLAN インターフェースを有効にする。Buffalo（AP）は Trusted のポートにつなぎ替える。
 3. Proxmox ホストの IP を `10.77.10.10` に変え、`vmbr0` を VLAN-aware にする。必要なら物理コンソールから行う。
 4. VM の IP と VLAN を新アドレスに変える（`terraform apply`）。起動順は `vm-infra` を最初にする（DNS を先に復旧させる）。
-5. Ansible を流し、各ホストの設定（DNS レコード、UFW、Tailscale の `--advertise-routes=10.77.20.0/24` など）を反映する。Tailscale の新しい経路は Admin Console で承認し、旧経路を外す。
+5. Ansible を流し、各ホストの設定（DNS レコード、UFW、Tailscale の `--advertise-routes=10.77.20.0/24,10.77.40.0/24` など）を反映する。Tailscale の新しい経路は Admin Console で承認し、旧経路を外す。
 6. 疎通を確認する: 名前解決、各 VLAN から Servers への接続、Caddy 経由の各サービス、Prometheus の scrape、外出先からの Tailscale 接続、テレビへの AirPlay・Cast。
 7. ファイアウォールは最初は緩め（全許可）にして疎通を確認し、ログを見ながら許可表の内容に絞る。
 8. 戻す判断の時刻までに疎通が取れなければ、事前に書いた戻し手順に従う。
@@ -297,15 +324,15 @@ Buffalo WSR-1800AX4P は VLAN に対応していない。AP モードにはで�
 - [ ] **DMZ の置き場所**: 決定済み（[ADR-0016](../adr/0016-dmz-placement.md)）。まず Proxmox の同じホストで、安全な範囲（インターネットに公開しない段階）で検証する。将来は、別の小型 PC やラズパイなどを DMZ 専用にする。残る作業は、別の機器へ移す時期の判断（外部公開の前に移すか）と、同じホストの間の仮想 NIC・ブリッジの設定の確認。
 - [ ] **管理画面の外部到達の見直し**: 時期は決定済み（[ADR-0016](../adr/0016-dmz-placement.md)）。VLAN 導入後、かつ DMZ に公開するもの（ハニーポット、Web サーバー）を置く前（[DMZ と外部公開](../operations/roadmap/07-dmz.md)の Phase 4 の前）に、Tailscale の ACL で整理する。
 - [ ] **通信監視の受信用ホスト**: [ネットワーク通信の収集・可視化](../operations/roadmap/06-network-traffic-analysis.md)のミラーポートを受ける機器。方針は、Proxmox に USB NIC を足さず（差しっぱなしと管理対象の増加を避ける）、NIC が 2 つ以上ある別の小型 PC（受信専用と管理用）を第一候補にする。OPNsense 用や DMZ 専用の機器とは兼用しない。OPNsense 導入後は、OPNsense 側で通信を取る案も別案として検討する（06 の Phase 4）。残る作業は、ミラーポートに使う SG2210P のポート、管理用 NIC を置く VLAN、機種と購入時期（Phase 2 で決める）。
-- [x] **VLAN の数の妥当性**（2026-11-01 決定）: 6 本（Management / Servers / Clients / IoT / Guests / DMZ）のまま進める。DMZ は有線で使うので SSID は増えない。許可表は 6 × 7 になるが、家庭の規模なら許容する。運用してから負荷を見て見直す。
+- [x] **VLAN の数の妥当性**（2026-11-02 に見直し、[ADR-0022](../adr/0022-vlan-set-and-ids.md)）: 7 本（Management / Servers / Trusted / Lab / IoT / Guests / DMZ）で進める。2026-11-01 の「6 本」に Lab を足した。DMZ と Lab は有線で使うので SSID は増えない。許可表は 7 × 8 になるが、家庭の規模なら許容する。運用してから負荷を見て見直す。コンテナ・K8s 用の VLAN（Containers）は、用途が定まっていないので作らない（再検討の条件は ADR-0022）。
 - [x] **IPv6 の扱い**（2026-11-01 決定、[ADR-0017](../adr/0017-ipv6-disabled.md)）: 無効にする。ER605 で IPv6 を有効にせず、各 VLAN にも IPv6 を配らない。上流が IPv6 を配ると、`10.77` の体系の外を通る経路ができ、DMZ や Guests の隔離に穴があくことがあるため。IPv4 だけで設計を完結させる。IPv6 を使うことにしたときは、別に設計して新しい ADR を追加する。
 - [ ] **WAN 側の繋ぎ方**: 現在は二重 NAT（建物の共用ルーター配下）。新ルーターの WAN 設定は、当面は今と同じ（DHCP で上流から受け取る）想定。引っ越し先が分かったら見直す。
-- [ ] **mDNS の中継**: 段階 3 で、ER605 のゲートウェイによる Clients ↔ IoT の中継（有線のテレビ）が動くか。動かなければ、段階 4 まで Clients に置く。Omada コントローラーは、ゲートウェイの mDNS に v5.6 以降、Bonjour サービスの設定に v5.8 以降、AP の VLAN 間 Bonjour に v5.9 以降が必要（公式ドキュメントより。購入前に再確認する）。
-- [ ] **テレビの追加通信**: AirPlay・Cast を実機で試し、IoT → Clients に開ける必要があるポートがあるか。
+- [ ] **mDNS の中継**: 段階 3 で、ER605 のゲートウェイによる Trusted ↔ IoT の中継（有線のテレビ）が動くか。動かなければ、段階 4 まで Trusted に置く。Omada コントローラーは、ゲートウェイの mDNS に v5.6 以降、Bonjour サービスの設定に v5.8 以降、AP の VLAN 間 Bonjour に v5.9 以降が必要（公式ドキュメントより。購入前に再確認する）。
+- [ ] **テレビの追加通信**: AirPlay・Cast を実機で試し、IoT → Trusted に開ける必要があるポートがあるか。
 - [ ] **Wi-Fi の SSID**: VLAN ごとに SSID を分けるか、1 つの SSID で端末ごとに VLAN を割り当てるか。AP の機種と Omada の機能で決まる。
 - [ ] **機種の選定**: ルーターは ER605、スイッチは SG2210P を想定。AP は未定（段階 3 の後に、Wi-Fi 6 の日本での入手性・価格・技適を確認して選ぶ）。Omada の対応表とコントローラーのバージョンの互換性は、購入前に公式ドキュメントで確認する。
 - [x] **ER605 の仕様確認（段階 1 の前）**（2026-10-23 確認）: LAN ポートは足りる、LAN アドレスは採用前に管理画面で変更する、管理画面は HTTP・HTTPS の両方があるが、コントローラー採用後は GUI が使えない。詳細は「段階ごとの内容」の段階 1 を参照。
-- [ ] **コントローラーモードの ACL で LAN→LAN を制限できるか（段階 3 の前に確認）**: 通信ポリシー（Clients → Management の制限、DMZ → 内部の遮断など）が成立するかに直結する。公式の比較ページ（約 2 年前）はコントローラーモードの ACL を LAN→WAN のみと書いているが、ER605 V1 のファームウェア 1.1.1（2021 年）で LAN→LAN の ACL が追加された記録もあり、現行の挙動は確認できていない。段階 1 でコントローラーを立てたあと、現行のコントローラー（ER605 V2 の最新ファームウェアは Omada コントローラー 6.3.0 に対応と記載）で、Gateway ACL に LAN→LAN があるか確認する。使えない場合は、通信ポリシーの実現方法（スイッチの ACL、ルーター側の別の機能など）を見直す。
+- [ ] **コントローラーモードの ACL で LAN→LAN を制限できるか（段階 3 の前に確認）**: 通信ポリシー（Trusted → Management の制限、DMZ → 内部の遮断など）が成立するかに直結する。公式の比較ページ（約 2 年前）はコントローラーモードの ACL を LAN→WAN のみと書いているが、ER605 V1 のファームウェア 1.1.1（2021 年）で LAN→LAN の ACL が追加された記録もあり、現行の挙動は確認できていない。段階 1 でコントローラーを立てたあと、現行のコントローラー（ER605 V2 の最新ファームウェアは Omada コントローラー 6.3.0 に対応と記載）で、Gateway ACL に LAN→LAN があるか確認する。使えない場合は、通信ポリシーの実現方法（スイッチの ACL、ルーター側の別の機能など）を見直す。
 - [ ] **物理設置**: ThinkCentre（Proxmox）、ルーター、スイッチの置き場所。棚か小型ラックか、通気、電源タップ、ケーブルの取り回し。引っ越しを考え、持ち運びしやすい形にする。AP の設置場所は電波の届き方で別に決める。ラックの導入は[大型計画](../operations/roadmap/09-rack.md)で進める（10 インチラックの候補と 3D プリントのマウントは `hardware/rack-10inch/`）。
 - [ ] **Omada コントローラーの置き場所**: VM か LXC か Docker か。
 - [ ] **OPNsense の扱い**: ロードマップにある。TP-Link ルーターでファイアウォールを賄うか、OPNsense を別に立てるか。ルーターは ER605 V2 を先に導入し、OPNsense は段階 3 のあとに、補助的に検証してから ER605 の後継にする方針（[ADR 0009](../adr/0009-router-er605-first.md)、計画は[OPNsense 導入](../operations/roadmap/08-network-opnsense.md)）。
