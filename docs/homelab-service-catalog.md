@@ -165,11 +165,11 @@
 
 | 状況 | ツール | 説明 | 根拠・備考 |
 | --- | --- | --- | --- |
-| 未検討 | nginx/nginx | Web サーバー・リバースプロキシ | — |
-| 未検討 | jc21/nginx-proxy-manager | Nginx の Web UI 管理ツール | — |
-| 導入済み | caddy/caddy | 自動 HTTPS 対応の Web サーバー | [リバースプロキシ・TLS](services/02-reverse-proxy-tls.md) |
+| 見送り | nginx/nginx | Web サーバー・リバースプロキシ | [ADR 0019](adr/0019-caddy-reverse-proxy.md) |
+| 見送り | jc21/nginx-proxy-manager | Nginx の Web UI 管理ツール | [ADR 0019](adr/0019-caddy-reverse-proxy.md) |
+| 導入済み | caddy/caddy | 自動 HTTPS 対応の Web サーバー | [ADR 0019](adr/0019-caddy-reverse-proxy.md)、[リバースプロキシ・TLS](services/02-reverse-proxy-tls.md) |
 | 導入済み | Let's Encrypt | 無料の TLS 証明書（Caddy が DNS-01 で取得。SaaS） | [リバースプロキシ・TLS](services/02-reverse-proxy-tls.md) |
-| 見送り | traefik/traefik | 動的リバースプロキシ・ロードバランサ | [見送り中の項目](operations/roadmap/03-deferred.md#方針のない候補) |
+| 見送り | traefik/traefik | 動的リバースプロキシ・ロードバランサ | [ADR 0019](adr/0019-caddy-reverse-proxy.md) |
 
 ### 4.4 VPN
 
@@ -465,7 +465,7 @@
 | 役割 | 採用 | 他の候補（状況） |
 | --- | --- | --- |
 | ハイパーバイザー | Proxmox VE | XCP-ng、Harvester（未検討） |
-| リバースプロキシ | Caddy | Nginx Proxy Manager、nginx（未検討）、Traefik（見送り） |
+| リバースプロキシ | Caddy（[ADR 0019](adr/0019-caddy-reverse-proxy.md)） | Nginx Proxy Manager、nginx、Traefik（いずれも見送り） |
 | DNS（広告ブロック） | AdGuard Home（+ Unbound、CoreDNS） | Pi-hole（未検討） |
 | リモートアクセス | Tailscale | WireGuard（見送り）、OpenVPN（未検討） |
 | メトリクス監視 | Prometheus + Grafana | Netdata（未検討）、Glances・Telegraf + InfluxDB（見送り） |

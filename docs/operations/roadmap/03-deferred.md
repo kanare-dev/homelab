@@ -62,7 +62,7 @@
 
 理由や設計を詰めていない候補。既存の構成で役割が足りているため、優先度は低い。必要になったら、上の項目のように理由と条件を書いてから着手する。
 
-- Traefik（リバースプロキシは Caddy で足りている）
+- Traefik、nginx、Nginx Proxy Manager（リバースプロキシは Caddy で足りている。理由と再検討の条件は [ADR 0019](../../adr/0019-caddy-reverse-proxy.md)）
 - telegraf + InfluxDB（メトリクスは Prometheus で足りている）
 - Portainer（Docker の状態の可視化）
 - VM テンプレートの Packer 化（テンプレートは Terraform + cloud-init で再現できる）
