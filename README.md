@@ -110,6 +110,8 @@ homelab/
 │   └── playbooks/
 ├── docker/
 │   └── compose/            # dns / freshrss / homeassistant / homepage / monitoring / n8n / reverse-proxy
+├── hardware/
+│   └── rack-10inch/        # 10 インチラックの 3D プリント用データ（models/）と配布元リンク
 ├── tools/
 │   └── check-md-links.py   # Markdown の内部リンク検査
 └── docs/
