@@ -426,6 +426,7 @@
 | 未検討 | searxng/searxng | プライバシー重視のメタ検索エンジン（SearX の後継） | — |
 | 未検討 | sysadminsmedia/homebox | 家庭用の物品・備品の在庫管理 | — |
 | 未検討 | pterodactyl/panel | ゲームサーバーの管理パネル | — |
+| 未検討 | AWS（EC2 / Lightsail） | クラウドの VPS。ハニーポットの受け口（VPS からトンネルで自宅の DMZ へ転送）や外部監視の候補。利用規約でハニーポットが許されるかを確認する（[DMZ と外部公開](operations/roadmap/07-dmz.md)） | — |
 | 未検討 | Oracle Cloud Always Free | Oracle Cloud の無料枠 VPS（外部監視の案 C など、外部ホストの候補。[監視・アラート](services/03-monitoring.md)） | — |
 | 未検討 | AltServer | AltStore 用 AltServer（iOS サイドロード） | — |
 | 未検討 | AirMessage | iMessage を Android で利用 | — |
@@ -455,6 +456,8 @@
 | 計画中 | Cowrie | SSH / Telnet のハニーポット | [DMZ と外部公開](operations/roadmap/07-dmz.md) |
 | 検討中 | T-Pot | 複数のハニーポットを統合したプラットフォーム | [DMZ と外部公開](operations/roadmap/07-dmz.md) |
 | 検討中 | Dionaea | サービスへの攻撃とマルウェアを収集するハニーポット | [DMZ と外部公開](operations/roadmap/07-dmz.md) |
+| 未検討 | Snare / Tanner | Web アプリを模倣するハニーポット（HTTP 系の攻撃を記録） | [DMZ と外部公開](operations/roadmap/07-dmz.md) |
+| 未検討 | OpenCanary | 内部ネットワーク向けの検知用ハニーポット（触られたら通知） | [DMZ と外部公開](operations/roadmap/07-dmz.md) |
 
 根拠: [DMZ と外部公開](operations/roadmap/07-dmz.md)
 
