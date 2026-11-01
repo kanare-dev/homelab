@@ -15,6 +15,7 @@
 
 ## 運用ドキュメント
 
+- 検討と採用の分け方: 案・選択肢・リスクは、採用前は `docs/operations/roadmap/` に「検討中」と明記して書く。設計書と ADR に書くのは、ユーザーが採用を決めたあと（同じ変更で両方に移す）。会話に出ただけの案を設計書・ADR に書かない。詳細は `docs/README.md` の「文書の運用」。
 - 設計書: `docs/architecture/`（方式設計）、`docs/services/`（サービス別の詳細）。構成を変えたら、該当する設計書を同じ変更で更新する。目次は `docs/architecture/README.md`、`docs/README.md`。
 - 設計判断: 重要な判断（方式の選択、リスクの受け入れ、方針の変更）は `docs/adr/` に ADR として残す。書き方は `docs/adr/README.md`。判断を変えるときは新しい ADR を追加し、古い方を「置き換え済み」にする。
 - Runbook: 手順は `docs/operations/runbooks/`。
