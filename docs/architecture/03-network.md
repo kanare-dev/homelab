@@ -7,7 +7,7 @@
 | 範囲 | 用途 | 例 |
 | --- | --- | --- |
 | `192.168.11.1` | ルーター / ゲートウェイ | — |
-| `192.168.11.10–19` | インフラ（Proxmox、基盤 VM） | `.10` Proxmox、`.11` `vm-infra`、`.13` `vm-monitoring` |
+| `192.168.11.10–19` | インフラ（Proxmox、基盤 VM） | `.10` Proxmox、`.11` `vm-infra`、`.12` `vm-omada`、`.13` `vm-monitoring` |
 | `192.168.11.20–59` | サーバー / 検証用 VM | `.20` `vm-apps`、`.21` `vm-dev`、`.22` `vm-code` |
 | `192.168.11.60–99` | DHCP プール | 動的割当 |
 | `192.168.11.100–149` | IoT デバイス | `.100` ESP32 |
@@ -44,7 +44,7 @@ VM の IP は Terraform（`terraform.tfvars`）で固定する。VMID は IP の
 
 判断の記録: [ADR-0005](../adr/0005-tailscale-only-remote-access.md)
 
-- **外部には何も公開しない。** 自宅の外から入る経路は Tailscale だけにする。
+- **外部には何も公開しない。** 自宅の外から入る経路は Tailscale だけにする。**例外**: Omada Cloud（クラウドアクセス）を有効にしているので、Omada コントローラーの管理画面には、TP-Link ID の認証だけで入れる経路が別にある（[外部サービスへの依存](#外部サービスへの依存)）。
 - 公開が必要になるのは、Tailscale を入れていない他人と共有するサービスができたときだけ。その場合も、そのサービスに限って Cloudflare Tunnel を検討する（ロードマップ。現在は保留）。
 - 外部サービスへの依存は最小にし、依存先が止まったときの影響を把握しておく。
 
@@ -84,6 +84,7 @@ VM の IP は Terraform（`terraform.tfvars`）で固定する。VMID は IP の
 | Cloudflare（DNS） | `kanare.dev` のゾーン。Caddy の DNS-01 チャレンジ | API トークン（SOPS） | 証明書の新規取得・更新ができない。既存の証明書は期限まで使える |
 | Let's Encrypt | `*.lab.kanare.dev` 各 FQDN の証明書 | なし | 同上 |
 | Slack | アラート通知（Incoming Webhook） | Webhook URL（SOPS） | 通知が届かない。`AlertmanagerNotificationsFailing` は Slack に出ない |
+| Omada Cloud（クラウドアクセス。試用中で、有効にしている） | `vm-omada` のコントローラーを、クラウド経由で外から開く | TP-Link ID | クラウド経由でコントローラーを開けなくなる。コントローラー自体と LAN の通信には影響しない（機器は設定を持ったまま動く） |
 | Healthchecks.io | 外部 Heartbeat。`Watchdog` の途絶を検知する（[ADR-0010](../adr/0010-external-heartbeat.md)） | ping URL（SOPS） | 監視 VM・ホスト・回線の停止を外から検知できなくなる。サービス自体は影響なし |
 | GitHub | リポジトリ、CI（lint のみ） | 個人アカウント | 構成の取得・push ができない。稼働中のサービスは影響なし |
 | NTP（`ntp.nict.jp`、`time.google.com`） | 時刻同期 | なし | 時刻がずれる。TLS・ログの時刻に影響 |

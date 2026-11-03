@@ -186,7 +186,8 @@
 | 状況 | ツール | 説明 | 根拠・備考 |
 | --- | --- | --- | --- |
 | 未検討 | Ubiquiti UniFi | ネットワーク機器・管理プラットフォーム | — |
-| 計画中 | TP-Link Omada | ネットワーク機器・管理プラットフォーム | [Omada 導入・VLAN 化](operations/roadmap/04-network-omada-vlan.md) |
+| 計画中 | TP-Link Omada | ネットワーク機器・管理プラットフォーム | [Omada 導入・VLAN 化](operations/roadmap/04-network-omada-vlan.md)。コントローラーは `vm-omada` で稼働中（2026-11-03、[インフラ構成](architecture/02-infrastructure.md)）。ER605・SG2210P の本設置はこれから（[移行計画](operations/roadmap/10-er605-sg2210p-migration-plan.md)） |
+| 検討中 | Omada Cloud | Omada コントローラーをクラウド経由で開く機能 | 2026-11-03 から有効にして試用中。最終的に無効にするかもしれない（[検討中の項目](operations/roadmap/01-backlog.md)） |
 | 未検討 | LibreNMS | ネットワーク監視 (SNMP) | — |
 | 廃止 | Scanopy | ネットワーク探索・トポロジー図の自動作成 | [見送り中の項目](operations/roadmap/03-deferred.md#scanopyネットワーク探索トポロジー図) |
 | 未検討 | nmap | ネットワーク・ポートのスキャン | — |
@@ -472,7 +473,7 @@
 | ハイパーバイザー | Proxmox VE | XCP-ng、Harvester（未検討） |
 | リバースプロキシ | Caddy（[ADR 0019](adr/0019-caddy-reverse-proxy.md)） | Nginx Proxy Manager、nginx（見送り）、Traefik（計画中。学習用に併設） |
 | DNS | AdGuard Home + CoreDNS + Unbound（[ADR 0020](adr/0020-dns-three-layer-stack.md)） | Pi-hole、Technitium DNS Server、BIND9（いずれも見送り） |
-| リモートアクセス | Tailscale | WireGuard（見送り）、OpenVPN（未検討） |
+| リモートアクセス | Tailscale | WireGuard（見送り）、OpenVPN（未検討）、Omada Cloud（検討中。Omada コントローラーの管理画面だけ） |
 | メトリクス監視 | Prometheus + Grafana | Netdata（未検討）、Glances・Telegraf + InfluxDB（見送り） |
 | 回線の疎通・遅延の監視 | blackbox-exporter（ICMP）+ Prometheus + Grafana（計画中） | Speedtest 系: speedtest-exporter（見送り）、MySpeed、LibreSpeed（未検討） |
 | 死活監視・ステータスページ | blackbox-exporter + Alertmanager | Uptime Kuma（見送り） |

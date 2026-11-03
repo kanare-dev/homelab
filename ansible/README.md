@@ -22,7 +22,8 @@ ansible/
 │   │   ├── apps/        # vars.yml + secrets.sops.yml（SOPS 暗号化）
 │   │   ├── code/        # 同上
 │   │   ├── infra/       # 同上
-│   │   └── monitoring/  # 同上
+│   │   ├── monitoring/  # 同上
+│   │   └── omada/       # vars.yml（vm-omada の UFW）
 │   └── host_vars/       # ホスト固有変数
 │       ├── pve.yml
 │       ├── vm-code.yml
@@ -41,7 +42,8 @@ ansible/
     ├── infra.yml        # infra VM 用
     ├── monitoring.yml   # monitoring VM 用
     ├── apps.yml         # apps VM 用
-    └── code.yml         # code VM 用
+    ├── code.yml         # code VM 用
+    └── omada.yml        # omada VM 用（Omada コントローラー）
 ```
 
 ## 使い方

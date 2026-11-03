@@ -24,6 +24,7 @@ Proxmox 上に複数 VM を構築し、Terraform + Ansible + Docker Compose で�
 | `vm-infra` | `111` | `192.168.11.11` | 常時起動 | インフラ基盤 | AdGuard Home, Unbound, CoreDNS, Caddy, Tailscale |
 | `vm-monitoring` | `113` | `192.168.11.13` | 常時起動 | 監視 | Prometheus, Alertmanager, Grafana, blackbox-exporter |
 | `vm-apps` | `120` | `192.168.11.20` | 常時起動 | アプリ | Homepage, Home Assistant, n8n, FreshRSS |
+| `vm-omada` | `112` | `192.168.11.12` | 常時起動 | ネットワーク機器の管理 | Omada コントローラー |
 | `vm-code` | `122` | `192.168.11.22` | 常時起動 | 常用リモート開発 | Claude Code, CloudCLI, code-server |
 | `vm-dev` | `121` | `192.168.11.21` | 任意起動 | 開発・実験 | playground |
 
@@ -109,7 +110,7 @@ homelab/
 │   ├── roles/
 │   └── playbooks/
 ├── docker/
-│   └── compose/            # dns / freshrss / homeassistant / homepage / monitoring / n8n / reverse-proxy
+│   └── compose/            # dns / freshrss / homeassistant / homepage / monitoring / n8n / omada / reverse-proxy
 ├── tools/
 │   └── check-md-links.py   # Markdown の内部リンク検査
 └── docs/
