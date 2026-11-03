@@ -114,7 +114,7 @@ VLAN の ID は、信頼度の高い順（内側から外側）に振る。外�
 | `.100–.199` | DHCP プール（DHCP を使う VLAN のみ） |
 | `.200–.254` | 予備（DHCP 予約、将来の拡張） |
 
-- DHCP が配る DNS サーバーは、全 VLAN で `10.77.20.11`（`vm-infra`）。
+- DHCP が配る DNS サーバーは、全 VLAN で `10.77.20.11`（`vm-infra`）。フォールバックは配らない（[ADR-0024](../adr/0024-dhcp-dns-single-no-fallback.md)）。
 - Guests のリース時間は短め（数時間）にする。来客の端末の情報を長く保持しない。
 - Lab は、Terraform で固定 IP を振る VM（`vm-dev` など）と、手で立てる使い捨ての VM が混在する。前者は `.10–.99`、後者は DHCP の `.100–.199` に入れる。
 - Trusted の常用機（Mac など）は DHCP 予約で固定する。
