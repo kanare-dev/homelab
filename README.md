@@ -111,6 +111,7 @@ homelab/
 ├── docker/
 │   └── compose/            # dns / freshrss / homeassistant / homepage / monitoring / n8n / reverse-proxy
 ├── hardware/
+│   ├── thinkcentre-m70q-tiny.md  # ThinkCentre M70q Tiny（Proxmox ホスト）の公式資料へのリンクと仕様（Lenovo PSREF）
 │   ├── sg2210p.md          # SG2210P の公式資料へのリンクと仕様（データシート V5.30）
 │   ├── wsr-1800ax4p.md     # Buffalo WSR-1800AX4P の公式資料へのリンクと仕様、AP モードの扱い
 │   └── rack-10inch/        # 10 インチラックの 3D プリント用データ（models/。他の作者のモデルで、別ライセンス）と配布元リンク
