@@ -93,6 +93,8 @@ def zone(vlan, x, y, w, h, dashed=True):
 
 def icon(path, x, y, w, h, max_px=None, svg=None, rotation=0):
     """アイコンを縮小して埋め込む（SVG が大きくなりすぎないように）。svg を渡すと、その文字列を使う。"""
+    if path and path.lstrip().startswith("<svg"):  # パスの代わりに SVG の文字列が渡された
+        svg, path = path, None
     if svg:
         mime, raw = "svg+xml", svg.encode()
     else:
@@ -130,20 +132,31 @@ def ethernet_svg():
             '@media (prefers-color-scheme:dark){g{stroke:#fff}}</style><g>' + body + '</g></svg>')
 
 
+def dark_svg(path, dark="#ffffff"):
+    """素材の SVG を、ダークテーマ（prefers-color-scheme: dark）では塗りを白（dark）にした SVG にする。
+    公式のダークテーマ用ロゴ（GitHub Mark White、Tailscale の白いロゴ）と同じ見た目。明るいテーマでは、素材のまま。"""
+    raw = (ICONS / path).read_text()
+    css = f"<style>@media (prefers-color-scheme:dark){{path{{fill:{dark}!important}}}}</style>"
+    i = raw.index(">", raw.index("<svg")) + 1
+    return raw[:i] + css + raw[i:]
+
+
 def stencil(shape, x, y, w, h):
     add("", f"verticalLabelPosition=bottom;html=1;verticalAlign=top;align=center;strokeColor=none;fillColor=#00BEF2;"
             f"shape=mxgraph.azure.{shape};pointerEvents=1;strokeWidth=2;opacity=70;", x, y, w, h)
 
 
-def edge(points, arrow=None):
-    """arrow は None（矢印なし）、"end"（終点側）、"start"（始点側）。"""
+def edge(points, arrow=None, width=3, color=None):
+    """arrow は None（矢印なし）、"end"（終点側）、"start"（始点側）。
+    width は線の太さ（trunk は 5、それ以外は 3）。color は線の色（access の線は、その VLAN の色）。"""
     points = [(x, y + OFF[0]) for x, y in points]
     (sx, sy), (tx, ty) = points[0], points[-1]
     mid = "".join(f'<mxPoint x="{x}" y="{y}"/>' for x, y in points[1:-1])
     arr = f'<Array as="points">{mid}</Array>' if mid else ""
     end = {"end": "endArrow=block;endFill=1;", "start": "endArrow=none;endFill=0;startArrow=classic;startFill=1;"}.get(arrow, "endArrow=none;")
+    col = f"strokeColor={color};" if color else ""
     cells.append(
-        f'<mxCell id="{nid("e")}" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;{end}strokeWidth=3;" '
+        f'<mxCell id="{nid("e")}" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;{end}strokeWidth={width};{col}" '
         f'edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="{sx}" y="{sy}" as="sourcePoint"/>'
         f'<mxPoint x="{tx}" y="{ty}" as="targetPoint"/>{arr}</mxGeometry></mxCell>')
 
@@ -204,8 +217,8 @@ def layout():
     add("", "rounded=0;whiteSpace=wrap;html=1;strokeColor=none;fillColor=#FFFFFF80;", 0, 0, 1720, 1670, to=back)
 
     # 凡例（右上。縦一列。上ほど信頼度が高い） ----------------------------------------
-    lx, ly = 1300, 20
-    frame(lx - 10, ly, 410, 222, "#ffffff", "#999999", dashed=False, opacity=100, group=False)
+    lx, ly = 1050, 20
+    frame(1040, ly, 660, 222, "#ffffff", "#999999", dashed=False, opacity=100, group=False)  # 凡例は 1 つの四角（左: VLAN 一覧、右: 線と文字）
     text(f"<b>VLAN 一覧</b>（{ip('10.77.&lt;VLAN&gt;.0/24')}）", lx - 3, ly + 6, 380, 26)
     text("信頼度", lx - 3, ly + 39, 54, 22, align="center")
     edge([(lx + 24, ly + 66), (lx + 24, ly + 200)], arrow="start")  # 矢じりが上。上ほど信頼度が高い
@@ -219,13 +232,23 @@ def layout():
     text("External Services", 40, 30, 300, 30)
     services = [
         ("external/healthchecks.svg", "Healthchecks.io"), ("external/slack.svg", "Slack"), ("external/cloudflare.svg", "Cloudflare"),
-        ("external/letsencrypt.svg", "Let's Encrypt"), ("external/tailscale.svg", "Tailscale"), ("external/github.svg", "GitHub"),
+        ("external/letsencrypt.svg", "Let's Encrypt"), (dark_svg("external/tailscale.svg"), "Tailscale"), (dark_svg("external/github.svg"), "GitHub"),
         ("network/omada.svg", "Omada Cloud"),
     ]
     for k, (ic, label) in enumerate(services):
         col, rowi = divmod(k, 4)
         row(ic, label, 40 + 240 * col, 70 + 40 * rowi, 200)
     edge([(520, 126), (850, 126)])
+
+    # 凡例の右半分: 線と文字の意味（色つきの線は、VLAN の色の意味が左の一覧にあるので、書かない。PoE と VPN の線は、図に現れたら足す）
+    edge([(1440, 30), (1440, 232)], width=1, color="#cccccc")
+    text("<b>線と文字</b>", 1450, 24, 240, 26)
+    for k, (w, label) in enumerate([(3, "Ethernet（上流の WAN）"), (5, "Ethernet（trunk）")]):
+        cy = 63 + 22 * k
+        edge([(1450, cy), (1490, cy)], width=w)
+        text(label, 1500, cy - 11, 190, 22)
+    text("<i>斜体</i>: ホスト名（VM、端末）", 1450, 52 + 22 * 2, 240, 22)
+    text(f"{ip('橙')}: IP アドレス、ポート", 1450, 52 + 22 * 3, 240, 22)
 
     OFF[0] = 80  # ここから下は 80 下げる（凡例と LAN の枠が重ならないように）
 
@@ -235,8 +258,8 @@ def layout():
             "pointerEvents=1;shape=mxgraph.aws4.internet;labelPerimeter=1;", 846, 21, 78, 48)  # 現行の図と同じアイコン
     text("Internet", 938, 34, 100, 30)
     edge([(880, 76), (880, 200)])  # 地球儀の下から ER605 の上まで、1 本で繋ぐ
-    text(f"建物の共用ルーター {ip('172.22.0.1')}（二重 NAT）", 895, 94, 340, 24)
-    text("WAN（DHCP）", 895, 128, 120, 24)
+    text(f"建物の共用ルーター {ip('172.22.0.1')}（二重 NAT）", 520, 94, 350, 24, align="right")
+    text("WAN（DHCP）", 750, 128, 120, 24, align="right")
 
     # LAN 全体の枠 ---------------------------------------------------------
     frame(20, 170, 1680, 1400, "#ffffff", "#666666", dashed=True, opacity=70, to=back, group=False)
@@ -251,7 +274,7 @@ def layout():
 
     icon("hardware/tplink-er605.png", 760, 200, 240, 80, max_px=700)
     text(f"<b>TP-Link ER605 V2</b><br>{ip('10.77.10.1')}（VLAN10）<br>各 VLAN の GW（.1）・DHCP・ACL", 1010, 200, 330, 80)
-    edge([(880, 280), (880, 380)])
+    edge([(880, 280), (880, 380)], width=5)  # p1: trunk（太い線）
     text("p1: trunk（VLAN10/20/30/40/50/60/70 を tag 付き）", 890, 320, 450, 40)
 
     icon("hardware/tplink-sg2210p.png", 760, 380, 240, 80, max_px=700)
@@ -262,7 +285,7 @@ def layout():
     icon("hardware/thinkcentre-m70q-tiny.png", 433.03, 586, 293.94, 97, max_px=700)
     text("Lenovo ThinkCentre M70q Tiny Gen1<br>CPU: Intel Core i5-10400T (6C/12T)<br>RAM: 1 x 8 GB + 1 x 16 GB DDR4-3200<br>"
          "Storage: 1 x 256GB NVMe SSD", 430, 503, 300, 80, align="center")
-    edge([(800, 460), (800, 620)])
+    edge([(800, 460), (800, 620)], width=5)  # p2: trunk（太い線）
     text("p2: trunk（VLAN10/20/40/50/70 を tag 付き）", 440, 468, 350, 24, align="right")
 
     # 右の列（Management / Lab / DMZ）と、Servers の 2 列を先に配置して高さを決める
@@ -273,7 +296,7 @@ def layout():
     A = sy + 50
     h_infra = vm(20, sx + 20, A, "vm-infra", "10.77.20.11", "Ubuntu Server 24.04", [
         ("row", "network/coredns.png", svc("CoreDNS", ":5353")),
-        ("row", "network/tailscale.png", svc("Tailscale", ":41641")),
+        ("row", dark_svg("external/tailscale.svg"), svc("Tailscale", ":41641")),
         ("docker", [("network/adguard.png", svc("AdGuard", ":53, :3000")),
                     ("network/unbound.svg", svc("Unbound", ":5335")),
                     ("network/caddy.png", svc("Caddy", ":80, :443"))]),
@@ -321,7 +344,7 @@ def layout():
     left_bottom = sy + servers_h
     gh = max(left_bottom, y) - gy + 20 + 60
     grp = []
-    frame(gx, gy, 1060, gh, "#dddddd", "#999999", opacity=40, to=grp)
+    frame(gx, gy, 1060, gh, COLOR[10][0], COLOR[10][1], opacity=40, to=grp)  # Proxmox ホストは Management（VLAN10）の色
     back.insert(gi, grp[0])
     icon("platform/proxmox.png", gx + 20, gy + 20, 40, 40, max_px=120)
     text(f"{name_ip('pve', '10.77.10.10')}<br><i>vmbr0.10</i>（VLAN10、tag 付き）<br>Proxmox 9.1（Debian 13 ベース）", gx + 70, gy + 20, 303, 60)
@@ -330,9 +353,9 @@ def layout():
     row(*NODE, gx + 20, gy + gh - 50, 220)
 
     # Buffalo と Trusted / IoT / Guests ------------------------------------------
-    edge([(960, 460), (960, 500), (1410, 500), (1410, 530)])
+    edge([(960, 460), (960, 500), (1410, 500), (1410, 530)], color=COLOR[30][1])  # p3: access VLAN30（VLAN の色）
     text("p3: access VLAN30（untagged）", 1000, 470, 300, 24)
-    edge([(910, 460), (910, 580), (1200, 580), (1200, 640)])  # p4: メインディスプレイ
+    edge([(910, 460), (910, 580), (1200, 580), (1200, 640)], color=COLOR[30][1])  # p4: access VLAN30（VLAN の色）
     text("p4: access VLAN30（untagged）", 920, 550, 260, 24)
     icon("hardware/buffalo-ap.png", 1346.75, 530, 126.5, 115, max_px=600)
     icon("", 1450, 514, 40, 40, svg=wifi_svg(), rotation=45)  # AP が Wi-Fi を出していることを示す
