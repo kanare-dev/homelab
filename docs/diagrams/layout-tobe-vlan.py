@@ -17,7 +17,7 @@ docs/architecture/08-vlan-design.md の VLAN 一覧に合わせる。食い違�
   - VM 枠は幅 300、内側の余白 20。見出しアイコン 40、サービス行は高さ 30（アイコン 30）。
   - VM 直下のサービスと Docker アイコンは VM 枠の左端から 40。Docker 枠の中のサービスは、さらに 20 内側。
   - 行の送りは 40。Docker 枠の高さは「行数 × 40 + 10」。枠どうしの間隔は 20。
-現行の図は枠が全部橙。この図は VLAN ごとに枠の色を変える（右上の凡例）。VLAN 枠・VM 枠・Docker 枠は、その VLAN の色を Opacity 60% で重ねる。
+現行の図は枠が全部橙。この図は VLAN ごとに枠の色を変える（右上の凡例）。VLAN 枠・VM 枠・Docker 枠は、その VLAN の色を Opacity 40% で重ねる。
 """
 import base64
 import html
@@ -89,11 +89,11 @@ def text(value, x, y, w, h, align="left"):
         x, y, w, h)
 
 
-def frame(x, y, w, h, fill, stroke, dashed=True, opacity=60, to=None, arc=16):
-    """枠。opacity（%）は draw.io の Opacity。VLAN 枠・VM 枠・Docker 枠は同じ色を 60% で重ねるので、重なるほど濃くなる。
+def frame(x, y, w, h, fill, stroke, dashed=True, opacity=40, to=None, arc=16, group=True):
+    """枠。opacity（%）は draw.io の Opacity（既定 40%、group=True で Group opacity も付ける）。VLAN 枠・VM 枠・Docker 枠は同じ色を 40% で重ねるので、重なるほど濃くなる。
     枠には文字を入れない（文字は別のセル）。角丸の半径は 16px で統一。"""
     style = (f"rounded=1;whiteSpace=wrap;html=1;fillColor={fill};strokeColor={stroke};strokeWidth=2;opacity={opacity};"
-             f"absoluteArcSize=1;arcSize={arc};" + ("dashed=1;dashPattern=8 8;" if dashed else ""))
+             f"absoluteArcSize=1;arcSize={arc};" + ("dashed=1;dashPattern=8 8;" if dashed else "") + ("opacityGroup=1;" if group else ""))
     add("", style, x, y, w, h, to=to)
 
 
@@ -196,17 +196,17 @@ def layout():
 
     # 凡例（右上。縦一列。上ほど信頼度が高い） ----------------------------------------
     lx, ly = 1300, 20
-    frame(lx - 10, ly, 410, 222, "#ffffff", "#999999", dashed=False, opacity=100)
+    frame(lx - 10, ly, 410, 222, "#ffffff", "#999999", dashed=False, opacity=100, group=False)
     text(f"<b>VLAN 一覧</b>（{ip('10.77.&lt;VLAN&gt;.0/24')}）", lx - 3, ly + 6, 380, 26)
     text("信頼度", lx - 3, ly + 39, 54, 22, align="center")
     edge([(lx + 24, ly + 66), (lx + 24, ly + 200)], arrow="start")  # 矢じりが上。上ほど信頼度が高い
     for k, v in enumerate((10, 20, 30, 40, 50, 60, 70)):
         y = ly + 56 + 22 * k
-        frame(lx + 50, y + 2, 30, 18, COLOR[v][0], COLOR[v][1], dashed=False, arc=4)
+        frame(lx + 50, y + 2, 30, 18, COLOR[v][0], COLOR[v][1], dashed=False, arc=4, opacity=60, group=False)
         text(f"VLAN{v} {NAME[v]}", lx + 90, y, 290, 22)
 
     # 外部サービス（左上。現行の図と同じ 6 つに Omada Cloud を足す） ----------------------------
-    frame(20, 20, 500, 210, "#dae8fc", "#6c8ebf", dashed=False, opacity=70)
+    frame(20, 20, 500, 210, "#dae8fc", "#6c8ebf", dashed=False, opacity=70, group=False)
     text("External Services", 40, 30, 300, 30)
     services = [
         ("external/healthchecks.svg", "Healthchecks.io"), ("external/slack.svg", "Slack"), ("external/cloudflare.svg", "Cloudflare"),
@@ -228,8 +228,8 @@ def layout():
     text("WAN（DHCP）", 895, 128, 120, 24)
 
     # LAN 全体の枠 ---------------------------------------------------------
-    frame(20, 170, 1680, 1400, "#ffffff", "#666666", dashed=True, opacity=70, to=back)
-    frame(40, 180, 200, 40, "#dddddd", "#666666", dashed=False, opacity=70, to=back)
+    frame(20, 170, 1680, 1400, "#ffffff", "#666666", dashed=True, opacity=70, to=back, group=False)
+    frame(40, 180, 200, 40, "#dddddd", "#666666", dashed=False, opacity=70, to=back, group=False)
     text(f"<b>LAN<br>{'10.77.0.0/16'}</b>", 40, 180, 200, 40, align="center")
 
     # 通信ポリシー（LAN の中、ER605 の左） -------------------------------------------
@@ -310,7 +310,7 @@ def layout():
     left_bottom = sy + servers_h
     gh = max(left_bottom, y) - gy + 20 + 60
     grp = []
-    frame(gx, gy, 1060, gh, "#dddddd", "#999999", opacity=50, to=grp)
+    frame(gx, gy, 1060, gh, "#dddddd", "#999999", opacity=40, to=grp)
     back.insert(gi, grp[0])
     icon("platform/proxmox.png", gx + 20, gy + 20, 40, 40, max_px=120)
     text(f"{name_ip('pve', '10.77.10.10')}（VLAN10、untagged）<br>Proxmox 9.1<br>(based on Debian 13)<br>", gx + 70, gy + 20, 303, 60)
