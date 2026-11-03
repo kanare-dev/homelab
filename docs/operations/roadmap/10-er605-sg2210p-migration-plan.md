@@ -10,7 +10,7 @@
 
 | 項目 | 内容 | 確認 |
 | --- | --- | --- |
-| 現在の有線 | Buffalo の LAN ポートに、Proxmox とメインディスプレイ（MacBook や仕事用の Windows ノート PC を接続する）。テレビは無線 | 運用者に確認済み |
+| 現在の有線 | Buffalo の LAN ポートに、Proxmox とメインディスプレイ（Dell U2725QE。MacBook や仕事用の Windows ノート PC を接続する）。テレビは無線 | 運用者に確認済み |
 | 設置場所 | Buffalo はテレビの裏。ER605 と SG2210P は Proxmox のそばに置く | 運用者に確認済み |
 | 上流 | 建物の共用ルーター（`172.22.0.1`）。ER605 の WAN は DHCP で受ける | 設計書より |
 | 購入 | ER605 と SG2210P は同時に購入済み。段階 1 と 2 は、同じ日に続けて行ってよい（[進め方](#段階-1-と段階-2-は同じ日に続けて行う案)） | 運用者に確認済み |
@@ -32,7 +32,7 @@
  └───┬──────────────┬─────────────────────┘
      │ LAN          │ LAN                       Wi-Fi: スマホ、Mac、テレビ（無線）、
      │              │                                   ESP32（現在は未使用）
-     │              └── メインディスプレイ ── MacBook / 仕事用 Windows PC
+     │              └── メインディスプレイ（Dell U2725QE）── MacBook / 仕事用 Windows PC
      │
  ┌───┴──────────────────────────────────────────────┐
  │ Proxmox ThinkCentre M70q（NIC 1 つ、192.168.11.10） │
@@ -53,7 +53,7 @@
  共用ルーター ─ WAN ─ ER605 V2 (192.168.11.1/24)
                       │ LAN               │ LAN
                       │                   └── Buffalo（AP モード、192.168.11.2、テレビの裏）
-                      │                          ├── メインディスプレイ
+                      │                          ├── メインディスプレイ（Dell U2725QE）
                       │                          └── Wi-Fi（SSID は今のまま）
                       └── Proxmox (192.168.11.10)
                            └── vm-omada (192.168.11.12)  ← 新設。ER605 を採用する
@@ -68,7 +68,8 @@ IP は変えない。Buffalo の Wi-Fi 設定は今のままなので、端末�
                       │ LAN
                  SG2210P（VLAN なし。192.168.11.x、DHCP）
                   ├─ p2 ── Proxmox (192.168.11.10) ── vm-omada ほか
-                  └─ p3 ── Buffalo（AP モード）── メインディスプレイ、Wi-Fi
+                  ├─ p3 ── Buffalo（AP モード）── Wi-Fi
+                  └─ p4 ── メインディスプレイ（Dell U2725QE）── MacBook / 仕事用 Windows PC
 ```
 
 ネットワークは 1 つのまま。配線をスイッチ経由にして、段階 3 の作業を減らすのが目的。
@@ -85,9 +86,9 @@ IP は変えない。Buffalo の Wi-Fi 設定は今のままなので、端末�
                   │          ├─ VLAN40 Lab        : vm-dev 10.77.40.21 / vm-windows（DHCP、起動するとき）
                   │          └─ VLAN70 DMZ        : （VLAN とルールだけ。置くものは後）
                   ├─ p3 ── Buffalo（AP モード）［access: VLAN30 Trusted］
-                  │          ├─ メインディスプレイ（Trusted）
                   │          └─ Wi-Fi 全端末（Trusted。段階 4 まで SSID は 1 つ）
-                  ├─ p4–p6 空き（予備、リハーサル用）
+                  ├─ p4 ── メインディスプレイ（Dell U2725QE）［access: VLAN30 Trusted］── MacBook / 仕事用 Windows PC
+                  ├─ p5–p6 空き（予備、リハーサル用）
                   └─ p7–p8 空き（段階 4 の AP 用に PoE を残す）
 ```
 
@@ -103,7 +104,7 @@ AP を SG2210P の p7（PoE）に繋ぎ、SSID を 3 つ（Trusted / IoT / Guest
 
 ## ケーブルと電源
 
-今ある長いケーブル 3 本（A: 壁 → Buffalo の WAN、B: Buffalo → Proxmox、C: Buffalo → ディスプレイ）を使い回す。新しい長いケーブルは要らない。並行稼働はしないので、A と B は付け替えるだけでよい。
+今ある長いケーブル 3 本（A: 壁 → Buffalo の WAN、B: Buffalo → Proxmox、C: Buffalo → ディスプレイ）を使い回す。新しい長いケーブルは要らない。並行稼働はしないので、A・B・C は付け替えるだけでよい。
 
 | 区間 | 段階 | ケーブル | 備考 |
 | --- | --- | --- | --- |
@@ -111,7 +112,7 @@ AP を SG2210P の p7（PoE）に繋ぎ、SSID を 3 つ（Trusted / IoT / Guest
 | ER605 LAN → Buffalo（AP の上流側） | 1 | B を使い回す | B は Buffalo から Proxmox のそばまで届いている。段階 2 では、同じ B を SG2210P p3 に付け替える |
 | ER605 LAN → Proxmox | 1 | 短いケーブルを 1 本買う（0.5〜1m） | 段階 2 で SG2210P p2 に付け替える |
 | ER605 LAN → SG2210P p1 | 2 | 短いケーブルを 1 本買う（0.3〜0.5m） | |
-| メインディスプレイ → Buffalo LAN | — | C のまま | AP モードの Buffalo は有線ハブとして働くので、付け替えない |
+| メインディスプレイ（Dell U2725QE）→ SG2210P p4 | 2 | C を付け替える | 段階 1 のあいだは Buffalo の LAN に繋いだまま。段階 2 で、Buffalo 側の端を外して SG2210P p4 に繋ぐ。ディスプレイは Buffalo より SG2210P のほうが近く、届く（運用者に確認済み）。Buffalo は段階 4 で退役するので、有線を先に外しておく |
 | テレビ → Buffalo LAN | 後で | 運用者がそのうち買う | 有線のテレビは、AP モードの Buffalo のポートでは Trusted になる（[未確認・要判断](#未確認要判断の事項)） |
 | リハーサル用 | 3 | 短いケーブル × 2 | p5・p6 に繋ぐ検証端末用 |
 
@@ -161,7 +162,7 @@ ER605 と SG2210P は同時に購入済みなので、1 回の作業に合わせ
    - 壁の LAN ポート → ER605 の WAN（ケーブル A）
    - ER605 の LAN → Proxmox（短い新しいケーブル）
    - ER605 の LAN → Buffalo（ケーブル B。AP モードの Buffalo の上流側。WAN ポートも LAN として働く場合があるので、取扱説明書で確認する）
-   - メインディスプレイは Buffalo の LAN に繋いだまま
+   - メインディスプレイは Buffalo の LAN に繋いだまま（段階 2 で SG2210P に移す）
 4. ER605 を起動する。まだコントローラーに採用していないので、ER605 の GUI のまま、ルーター・DHCP・NAT として動く。
 5. 確認する（コントローラーに採用する前に）。
    - Mac を取得し直し（DHCP の更新）、インターネットと Proxmox（`192.168.11.10`）に届く。
@@ -204,11 +205,12 @@ VLAN は使わない。止まるのは、Proxmox と Buffalo のケーブルを�
    | p1 | ER605 LAN | アップリンク |
    | p2 | Proxmox | 段階 3 で trunk にする |
    | p3 | Buffalo（AP） | 段階 3 で access VLAN30 にする |
-   | p4–p6 | 空き | 段階 3 のリハーサル用 |
+   | p4 | メインディスプレイ（Dell U2725QE） | 段階 3 で access VLAN30 にする |
+   | p5–p6 | 空き | 段階 3 のリハーサル用 |
    | p7–p8 | 空き | 段階 4 の AP 用に PoE を残す |
    | p9–p10 | SFP（使わない） | |
 
-3. Proxmox のケーブルを ER605 から SG2210P の p2 に、Buffalo のケーブルを ER605 から SG2210P の p3 に付け替える。
+3. Proxmox のケーブルを ER605 から SG2210P の p2 に、Buffalo のケーブル（B）を ER605 から SG2210P の p3 に付け替える。メインディスプレイのケーブル（C）は、Buffalo から外して SG2210P の p4 に繋ぐ。
 4. 付け替えのあと、Proxmox のリンクが戻ることと、`INC-2026-10-25` の NIC 送信停止（e1000e）が再発していないことを確認する。物理コンソール（キーボードとモニター）を繋げられるようにしておく。
 
 ### 段階 2 の確認
@@ -220,7 +222,7 @@ VLAN は使わない。止まるのは、Proxmox と Buffalo のケーブルを�
 
 ### 段階 2 の戻し方
 
-ケーブルを ER605 に繋ぎ直す（段階 1 の状態）。
+ケーブルを ER605 に繋ぎ直し、メインディスプレイのケーブル（C）は Buffalo の LAN に戻す（段階 1 の状態）。
 
 ## 段階 3: VLAN と `10.77.x.x` への一斉切り替え
 
@@ -265,7 +267,7 @@ VLAN は使わない。止まるのは、Proxmox と Buffalo のケーブルを�
 | p1 | ER605 | untagged VLAN1、tagged 10/20/30/40/50/60/70 |
 | p2 | Proxmox | untagged（native）VLAN10、tagged 20/40/50/70 |
 | p3 | Buffalo（AP） | access VLAN30（untagged） |
-| p4 | 空き | 未使用（シャットダウン） |
+| p4 | メインディスプレイ（Dell U2725QE） | access VLAN30（untagged） |
 | p5–p6 | リハーサル | 作業後に未使用にする |
 | p7–p8 | 空き | 段階 4 で AP の trunk にする |
 
@@ -320,7 +322,7 @@ VLAN は使わない。止まるのは、Proxmox と Buffalo のケーブルを�
 | Management の VM の繋ぎ方 | native VLAN10 の untagged で繋ぐ案（3-A）。実機で確かめる |
 | コントローラーの IP 変更 | ER605・SG2210P が追従するか。リハーサルで確かめる |
 | 既定の LAN（VLAN1）の扱い | 消せるか。消せなければ、使わない状態で残す |
-| ディスプレイの接続先 | Buffalo の LAN に付けたまま（案、付け替え不要）。Wi-Fi の通信取得の位置に影響する場合は、[ネットワーク通信の収集・可視化](06-network-traffic-analysis.md)で扱う |
+| ディスプレイの接続先 | **決定（運用者）: SG2210P の p4 に繋ぐ。** Buffalo は段階 4 で退役し、Buffalo が止まると有線のディスプレイも止まるため。ポート単位の VLAN 割り当てやミラーリングもしやすい。ケーブル C は届く |
 | Proxmox の NIC | `INC-2026-10-25` の e1000e の送信停止。ポートを付け替えるたびに、再発していないことを確認する |
 
 ## 採用までの流れ

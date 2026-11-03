@@ -198,8 +198,8 @@ def layout():
     lx, ly = 1300, 20
     frame(lx - 10, ly, 410, 222, "#ffffff", "#999999", dashed=False, opacity=100)
     text(f"<b>VLAN 一覧</b>（{ip('10.77.&lt;VLAN&gt;.0/24')}）", lx - 3, ly + 6, 380, 26)
-    text("信頼度", lx - 3, ly + 32, 54, 22, align="center")
-    edge([(lx + 24, ly + 58), (lx + 24, ly + 192)], arrow="start")  # 矢じりが上。上ほど信頼度が高い
+    text("信頼度", lx - 3, ly + 39, 54, 22, align="center")
+    edge([(lx + 24, ly + 66), (lx + 24, ly + 200)], arrow="start")  # 矢じりが上。上ほど信頼度が高い
     for k, v in enumerate((10, 20, 30, 40, 50, 60, 70)):
         y = ly + 56 + 22 * k
         frame(lx + 50, y + 2, 30, 18, COLOR[v][0], COLOR[v][1], dashed=False, arc=4)
@@ -244,7 +244,7 @@ def layout():
     text("p1: trunk（VLAN10/20/30/40/50/60/70 を tag 付き）", 890, 320, 450, 40)
 
     icon("hardware/tplink-sg2210p.png", 760, 380, 240, 80, max_px=700)
-    text(f"<b>TP-Link SG2210P</b><br>{ip('10.77.10.2')}（VLAN10）<br>p4–p6: 予備　p7–p8: 将来の AP 用（PoE）", 1010, 380, 330, 80)
+    text(f"<b>TP-Link SG2210P</b><br>{ip('10.77.10.2')}（VLAN10）<br>p4: ディスプレイ　p5–p6: 予備<br>p7–p8: 将来の AP 用（PoE）", 1010, 380, 330, 80)
 
     # Proxmox ------------------------------------------------------------
     gx, gy = 40, 640
@@ -252,7 +252,7 @@ def layout():
     text("Lenovo ThinkCentre M70q Tiny Gen1<br>CPU: Intel Core i5-10400T (6C/12T)<br>RAM: 1 x 8 GB + 1 x 16 GB DDR4-3200<br>"
          "Storage: 1 x 256GB NVMe SSD", 430, 503, 300, 80, align="center")
     edge([(800, 460), (800, 620)])
-    text("p2: trunk（native VLAN10、tag 20/40/50/70）", 810, 530, 300, 40)
+    text("p2: trunk（native VLAN10、tag 20/40/50/70）", 480, 468, 310, 24, align="right")
 
     # 右の列（Management / Lab / DMZ）と、Servers の 2 列を先に配置して高さを決める
     gi = len(back)                      # Proxmox の枠は、中の VLAN 枠より前に入れる
@@ -321,6 +321,8 @@ def layout():
     # Buffalo と Trusted / IoT / Guests ------------------------------------------
     edge([(960, 460), (960, 500), (1410, 500), (1410, 530)])
     text("p3: access VLAN30（untagged）", 1000, 470, 300, 24)
+    edge([(910, 460), (910, 580), (1200, 580), (1200, 640)])  # p4: メインディスプレイ
+    text("p4: access VLAN30（untagged）", 920, 550, 260, 24)
     icon("hardware/buffalo-ap.png", 1346.75, 530, 126.5, 115, max_px=600)
     icon("general/wifi.png", 1450, 514, 40, 40, max_px=160, rotation=45)  # AP が Wi-Fi を出していることを示す
     text(f"<b>Buffalo WSR-1800AX4P</b><br>AP モード（管理画面は Trusted 上）", 1470, 550, 230, 60)
@@ -328,14 +330,13 @@ def layout():
     tx, ty = 1140, 640
     zone(30, tx, ty, 540, 300)
     text("<b>VLAN30 Trusted</b>　DHCP .100–.199", tx + 10, ty + 5, 500, 30)
-    text("<i>有線（Buffalo の LAN）</i>", tx + 20, ty + 40, 240, 24)
+    text("<i>有線（Dell U2725QE 経由）</i>", tx + 20, ty + 40, 250, 24)
     device(None, f"<i>canales-macbook-pro-m5</i><br>{ip('DHCP')}<br>MacBook Pro M5", tx + 10, ty + 70, 250, "laptop")
     device(None, f"<i>仕事用 Windows PC</i><br>{ip('DHCP')}<br>会社の VPN", tx + 10, ty + 130, 250, "laptop")
     text("<i>Wi-Fi（SSID 1 つ、全部 Trusted）</i>", tx + 280, ty + 40, 250, 24)
     device(None, f"<i>canales-iphone-14</i><br>{ip('DHCP')}<br>iPhone 14", tx + 270, ty + 70, 260, "mobile", size=(30, 40))
     device("hardware/switchbot.png", f"<i>SwitchBot Hub 2</i><br>{ip('DHCP')}<br>将来 IoT へ移す", tx + 270, ty + 130, 260, size=(40, 40))
     device(None, f"<i>テレビ（無線）</i><br>{ip('DHCP')}<br>将来 IoT へ移す", tx + 270, ty + 190, 260, "computer", size=(40, 40))
-    text("ディスプレイは Buffalo に接続", tx + 20, ty + 200, 240, 60)
 
     iy = ty + 300 + 20
     zone(50, tx, iy, 260, 150)
