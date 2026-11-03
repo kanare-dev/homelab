@@ -80,7 +80,7 @@ IP は変えない。Buffalo の Wi-Fi 設定は今のままなので、端末�
  共用ルーター ─ WAN ─ ER605 V2（VLAN ごとに GW .1、ACL で通信を制限）
                       │ p1: trunk（VLAN 10/20/30/40/50/60/70 を tag 付き）
                  SG2210P (10.77.10.2)
-                  ├─ p2 ── Proxmox ［trunk: native=10、tag=20/40/50/70］
+                  ├─ p2 ── Proxmox ［trunk: tag=10/20/40/50/70。native は未使用の VLAN1］
                   │          ├─ VLAN10 Management : Proxmox 10.77.10.10 / vm-omada 10.77.10.3
                   │          ├─ VLAN20 Servers    : vm-infra .11 / vm-monitoring .13 / vm-apps .20 / vm-code .22
                   │          ├─ VLAN40 Lab        : vm-dev 10.77.40.21 / vm-windows（DHCP、起動するとき）
@@ -241,10 +241,11 @@ VLAN は使わない。止まるのは、Proxmox と Buffalo のケーブルを�
   - 末尾の全拒否が効く。
   - DHCP が VLAN ごとに配る（DNS は `10.77.20.11`）。
 - [ ] **コントローラーの IP 変更への追従**: `vm-omada` が `192.168.11.12` から `10.77.10.3` に変わったとき、ER605 と SG2210P が付いてくるか。付いてこない場合の手順（コントローラーの接続先の再設定、または機器のリセットと再採用）を、リハーサルで確かめて書く。
-- [ ] **Proxmox の準備**: `vmbr0` を VLAN-aware にする（`bridge-vlan-aware yes`）。IP は `192.168.11.10` のまま。SG2210P p2 は VLAN なしのまま。1 つの検証用 VM をタグ付きで繋ぎ、動作を確かめる。
-  - **Management の VM（`vm-omada`）は VLAN ID を指定せず、untagged で繋ぐ（案）。** p2 の native VLAN10 は untagged で出るため、タグ付き VLAN10 の VM にはフレームが届かない。ホスト（Proxmox）と同じ untagged の側に置く。リハーサルで確かめる。
+- [ ] **Proxmox の準備**（[ADR-0023](../../adr/0023-proxmox-trunk-all-tagged.md): 全 VLAN をタグ付き）: `vmbr0` を VLAN-aware にする（`bridge-vlan-aware yes`）。IP は `192.168.11.10`（タグなし）のまま。SG2210P p2 に、tagged 10/20/40/50/70 を足す（untagged VLAN1 はそのまま。今の通信に影響しない）。1 つの検証用 VM をタグ付きで繋ぎ、動作を確かめる。
+  - **ホストの `vmbr0.10` を試す（案）**: ER605 に VLAN10 を作ったうえで、`vmbr0.10` に `10.77.10.10/24` を足し（旧 `192.168.11.10` は残す）、Mac から届くことを確かめる。届かなければ、`vmbr0.10` を外す。
+  - `vm-omada` を含む全 VM は、VLAN ID を指定する（`vm-omada` は `tag=10`）。
   - `bridge-vlan-aware` への変更は、物理コンソールから行う。
-- [ ] **コードの準備**: 別ブランチで Terraform・Ansible・Caddyfile・Prometheus・Homepage・ドキュメントを新アドレスに書き換える（一覧は[設計書](../../architecture/08-vlan-design.md#影響を受けるリポジトリ内の箇所)）。`vlan_id` を Terraform の VM モジュールに追加する。Management の VM は `vlan_id` を null にする。
+- [ ] **コードの準備**: 別ブランチで Terraform・Ansible・Caddyfile・Prometheus・Homepage・ドキュメントを新アドレスに書き換える（一覧は[設計書](../../architecture/08-vlan-design.md#影響を受けるリポジトリ内の箇所)）。`vlan_id` を Terraform の VM モジュールに追加する。**必須（既定値なし）にして、全 VM に指定する**（`vm-omada` は 10）。
 - [ ] **Omada に本番設定を作る（有効にしない）**: VLAN 10/20/30/40/50/60/70、DHCP、ACL、mDNS、スイッチのポートプロファイル。
 - [ ] **バックアップ**: Omada、Proxmox の `/etc/network/interfaces`、`terraform.tfstate`、Buffalo の設定を、Mac 以外にも保存する。
 - [ ] **戻しの手順**（下記）を書き、時刻を決める。
@@ -271,7 +272,7 @@ VLAN は使わない。止まるのは、Proxmox と Buffalo のケーブルを�
 | ポート | 接続先 | 設定 |
 | --- | --- | --- |
 | p1 | ER605 | untagged VLAN1、tagged 10/20/30/40/50/60/70 |
-| p2 | Proxmox | untagged（native）VLAN10、tagged 20/40/50/70 |
+| p2 | Proxmox | untagged VLAN1（未使用）、tagged 10/20/40/50/70 |
 | p3 | Buffalo（AP） | access VLAN30（untagged） |
 | p4 | メインディスプレイ（Dell U2725QE） | access VLAN30（untagged） |
 | p5–p6 | リハーサル | 作業後に未使用にする |
@@ -283,15 +284,15 @@ VLAN は使わない。止まるのは、Proxmox と Buffalo のケーブルを�
 
 | 項目 | 現在 | 切り替え後 |
 | --- | --- | --- |
-| `vmbr0` | VLAN-aware ではない | VLAN-aware |
-| ホストの IP | `192.168.11.10/24`、GW `192.168.11.1` | `10.77.10.10/24`、GW `10.77.10.1` |
-| VM の VLAN | なし | `vm-infra`・`vm-monitoring`・`vm-apps`・`vm-code` は 20、`vm-dev` は 40、`vm-omada` は untagged（Management） |
+| `vmbr0` | VLAN-aware ではない。IP は `192.168.11.10/24` | VLAN-aware。IP は持たない |
+| ホストの IP | `vmbr0`: `192.168.11.10/24`、GW `192.168.11.1` | `vmbr0.10`（タグ付き）: `10.77.10.10/24`、GW `10.77.10.1` |
+| VM の VLAN | なし | `vm-omada` は 10、`vm-infra`・`vm-monitoring`・`vm-apps`・`vm-code` は 20、`vm-dev` は 40（全 VM がタグ付き） |
 
 ### 3-C. 当日の作業
 
 1. 最終のバックアップを取る。`vm-dev`・`vm-windows` を止める。
 2. Omada: 本番の設定を有効にする（VLAN、DHCP、ACL は最初は緩めの全許可）。SG2210P の p1・p3 を新しい設定にする。Buffalo は Trusted に入り、Wi-Fi の端末は `10.77.30.x` を受け取る。
-3. Proxmox（物理コンソールで）: IP を `10.77.10.10` に変え、ネットワークを再起動する。同時に p2 を native VLAN10 にする。
+3. Proxmox（物理コンソールで）: `vmbr0` の IP を外し、タグ付きの `vmbr0.10` に `10.77.10.10/24`（GW `10.77.10.1`）を設定して、ネットワークを再起動する。p2 は 3-A のまま（untagged VLAN1、tagged 10/20/40/50/70）で、スイッチ側の変更は要らない。
 4. `vm-omada` を `10.77.10.3` にする。ER605・SG2210P が追従することを確かめる（3-A の手順）。
 5. `terraform apply` で VM の IP と VLAN を変える。**`vm-infra` を最初にする**（DNS を先に戻す）。
 6. `ansible-playbook` で DNS レコード、UFW、Tailscale の経路、Caddy、Prometheus を反映する。Tailscale の新しい経路は Admin Console で承認し、旧経路を外す。
@@ -325,7 +326,7 @@ VLAN は使わない。止まるのは、Proxmox と Buffalo のケーブルを�
 | --- | --- |
 | テレビが無線 | 設計書は有線を前提にしている。段階 3 で mDNS の中継（有線のテレビ → IoT ポート）を試す計画は成り立たない。テレビは段階 4 の IoT の SSID に移してから確かめる。それまで Trusted で今までどおり動く。有線にするケーブルは運用者がそのうち買う |
 | 仕事用 Windows PC | **決定（運用者）: Trusted のままにする。** 会社の VPN に繋ぐ端末なので、自宅 LAN からの分離は求めない。ディスプレイの LAN 1 本を MacBook と共有するため、分けるにはポートを分ける必要がある（VLAN はポート単位）。分離が必要になったら、USB の有線 LAN アダプターで別ポートに繋ぐか、MAC ベースの VLAN（SG2210P は 12 エントリまで対応。ドック経由で MAC が安定するかは未確認）を検討する |
-| Management の VM の繋ぎ方 | native VLAN10 の untagged で繋ぐ案（3-A）。実機で確かめる |
+| `vmbr0.10` でホストが届くか | 全 VLAN をタグ付きにする判断（[ADR-0023](../../adr/0023-proxmox-trunk-all-tagged.md)）の実機での確認。3-A のリハーサルで確かめる |
 | コントローラーの IP 変更 | ER605・SG2210P が追従するか。リハーサルで確かめる |
 | 既定の LAN（VLAN1）の扱い | 消せるか。消せなければ、使わない状態で残す |
 | ディスプレイの接続先 | **決定（運用者）: SG2210P の p4 に繋ぐ。** Buffalo は段階 4 で退役し、Buffalo が止まると有線のディスプレイも止まるため。ポート単位の VLAN 割り当てやミラーリングもしやすい。ケーブル C は届く |

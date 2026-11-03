@@ -28,6 +28,7 @@
 | [0020](0020-dns-three-layer-stack.md) | DNS は AdGuard Home・CoreDNS・Unbound の3層にする | 採用 | 2026-11-01 |
 | [0021](0021-ubuntu-lts-for-vms.md) | VM の OS は Ubuntu Server LTS にし、LTS の入れ替えは VM の作り直しで行う | 採用 | 2026-11-01 |
 | [0022](0022-vlan-set-and-ids.md) | VLAN を 7 本（Trusted と Lab を含む）にし、ID を信頼度の順に振る | 採用（未適用） | 2026-11-02 |
+| [0023](0023-proxmox-trunk-all-tagged.md) | Proxmox 向けの trunk は、全 VLAN をタグ付きにする | 採用（未適用） | 2026-11-03 |
 
 ## 書き方
 

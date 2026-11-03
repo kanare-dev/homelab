@@ -139,9 +139,9 @@ VLAN の ID は、信頼度の高い順（内側から外側）に振る。外�
 
 ## 配置の方針
 
-- **Proxmox ホストは Management に置く。** 管理面（`:8006`）が VM と同じネットワークに載らない。
+- **Proxmox ホストは Management に置く。** 管理面（`:8006`）が VM と同じネットワークに載らない。ホストの IP は、タグ付きの `vmbr0.10`（`10.77.10.10/24`）に付ける。`vmbr0` は VLAN-aware で、IP を持たない。
 - **VM は VLAN タグ付きで割り当てる。** Proxmox のブリッジ（`vmbr0`）を VLAN-aware にし、VM ごとに VLAN ID を指定する。Terraform の VM モジュールに `vlan_id` を持たせる。
-- **スイッチの Proxmox 向けポートは trunk。** Management を native（untagged）、Servers・Lab・IoT・DMZ など、VM を置く VLAN をタグ付きで通す。
+- **スイッチの Proxmox 向けポートは trunk で、全 VLAN をタグ付きにする**（判断の記録: [ADR-0023](../adr/0023-proxmox-trunk-all-tagged.md)）。Management・Servers・Lab・IoT・DMZ を tagged で通し、native（untagged）は未使用の VLAN1 にする。全 VM は VLAN ID を必ず指定する（Management の `vm-omada` も `tag=10`）。タグなしの通信は、どこの VLAN にも入らない。
 - **Omada コントローラーは Management の VM（または LXC）に置く。** 管理機器と同じ面に置き、Trusted・Servers・Lab から直接触れないようにする。
 - **DMZ の VM は、Proxmox の同じブリッジに載せる場合、ホスト侵害のリスクが VLAN 分離だけでは消えない。** Proxmox の管理面を DMZ に出さず、仮想 NIC とブリッジの設定を確認する。DMZ の置き場所は、まず同じホストで検証し、将来は別の機器（小型 PC やラズパイなど）にする（未決事項）。
 - **`vm-dev` は Lab、`vm-code` と `vm-apps` は Servers に置く。** 開発環境と一時的な検証用 VM は、常時稼働のサーバーと分け、Lab から他の VLAN へは入れないようにする。
@@ -304,7 +304,7 @@ Buffalo WSR-1800AX4P は VLAN に対応していない。AP モードにはで�
 
 1. 旧ネットワークで現在の状態を保存する（Proxmox の VM 設定、各ホストの設定、`terraform state`）。
 2. スイッチの Proxmox 向けポートを trunk にし、ルーターの VLAN インターフェースを有効にする。Buffalo（AP）は Trusted のポートにつなぎ替える。
-3. Proxmox ホストの IP を `10.77.10.10` に変え、`vmbr0` を VLAN-aware にする。必要なら物理コンソールから行う。
+3. Proxmox ホストの IP を、`vmbr0` から外し、タグ付きの `vmbr0.10`（`10.77.10.10/24`）に付ける。`vmbr0` を VLAN-aware にする。必要なら物理コンソールから行う。
 4. VM の IP と VLAN を新アドレスに変える（`terraform apply`）。起動順は `vm-infra` を最初にする（DNS を先に復旧させる）。
 5. Ansible を流し、各ホストの設定（DNS レコード、UFW、Tailscale の `--advertise-routes=10.77.20.0/24,10.77.40.0/24` など）を反映する。Tailscale の新しい経路は Admin Console で承認し、旧経路を外す。
 6. 疎通を確認する: 名前解決、各 VLAN から Servers への接続、Caddy 経由の各サービス、Prometheus の scrape、外出先からの Tailscale 接続、テレビへの AirPlay・Cast。
