@@ -140,7 +140,7 @@ AP を SG2210P の p7（PoE）に繋ぎ、SSID を 3 つ（Trusted / IoT / Guest
   - **適用すると、thin pool の過剰割当が 1.5 を超えてアラートが出る**（2026-11-03 に適用し、1.44 → 1.57）。解消は、[未着手の項目](01-backlog.md)に記録した（`vm-dev` の縮小と `vm-windows` の削除）。
   - 適用する手順: `terraform apply -target='module.vm["vm-omada"]'`（**`-target` を付ける**。付けないと、手動起動の `vm-dev` も `running` にする差分が一緒に適用される）→ `make setup-omada` → 管理画面（初回は `ssh -L 8043:localhost:8043 vm-omada` で `https://localhost:8043`）で初期設定。
   - バックアップの保存先を決める（Mac だけにしない）。コントローラーの自動バックアップは `/opt/omada/data/autobackup` に出る。
-- [ ] `vm-omada` のホスト DNS と、バックアップ、監視（Prometheus の scrape、死活監視）を設計に加える。適用したあと、同じ変更で次を更新する: `terraform.tfvars` の反映に合わせた[インフラ構成](../../architecture/02-infrastructure.md)の表と[起動順序](../runbooks/01-vm-startup-shutdown.md)、Prometheus の scrape 対象（`192.168.11.12:9100`）、Caddy と DNS の `omada.lab.kanare.dev`（段階 1 の「同じ変更で直すもの」）、構成図。
+- [ ] `vm-omada` のホスト DNS と、バックアップ、監視（Prometheus の scrape、死活監視）を設計に加える。適用したあと、同じ変更で次を更新する: `terraform.tfvars` の反映に合わせた[インフラ構成](../../architecture/02-infrastructure.md)の表と[起動順序](../runbooks/01-vm-startup-shutdown.md)、Prometheus の scrape 対象（`192.168.11.12:9100`）、Caddy と DNS の `omada.lab.kanare.dev`（段階 1 の「同じ変更で直すもの」）、構成図。あわせて、**Omada Cloud（コントローラーをクラウド経由で開く外部依存）を、[ネットワーク設計](../../architecture/03-network.md#外部サービスへの依存)の表と構成図の外部サービスに足す**（止まっても、コントローラーと LAN の通信には影響しない見込み。管理画面の外部到達の経路が 1 つ増えるので、[VLAN 設計](../../architecture/08-vlan-design.md#管理画面への外部到達リスクを受け入れる)のリスクの記述にも足す）。
 - [ ] 停止してよい時間帯を決める（段階 1 は 30 分〜1 時間の見込み）。
 
 ## 段階 1 と段階 2 は同じ日に続けて行う（案）
