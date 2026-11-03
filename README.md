@@ -116,7 +116,7 @@ homelab/
 │   └── check-md-links.py   # Markdown の内部リンク検査
 └── docs/
     ├── architecture/       # 方式設計
-    ├── diagrams/           # 構成図（SVG）と整形スクリプト。assets/ はアイコン素材（Git 管理外）
+    ├── diagrams/           # 構成図（SVG: 現行と、VLAN 化後の案）と生成・整形スクリプト。assets/ はアイコン素材（Git 管理外）
     ├── services/           # サービスごとの詳細設計
     ├── operations/         # Runbook、バックアップ、障害記録、ロードマップ
     └── adr/                # 設計判断の記録
