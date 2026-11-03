@@ -16,6 +16,19 @@ ER605 と SG2210P を入れて VLAN に分けたあと（段階 3 の完了時�
 
 ![VLAN 化のあとの構成図](tobe-vlan.drawio.svg)
 
+### stack-diagram で描いた現行の構成（`stack-diagram/`、試作）
+
+[stack-diagram](https://github.com/caru-ini/stack-diagram)（エージェント用のスキル。公式のロゴで構成図を描く）を試した図。内容は現行の構成で、`architecture.drawio.svg` と同じ範囲（外部サービス、Buffalo、Proxmox 上の VM とサービス、LAN の端末）を、日本語で描いた。**正は、これまでの `architecture.drawio.svg` のまま**で、これは比較用の試作。ライト・ダークの PNG と、ロゴと文字を埋め込んだ単体の HTML（ブラウザで開ける）がある。
+
+![stack-diagram で描いた現行の構成図](stack-diagram/homelab.png)
+
+ダーク版は [`homelab-dark.png`](stack-diagram/homelab-dark.png)、HTML は [`homelab.html`](stack-diagram/homelab.html)。
+
+- スキルは、`~/.claude/skills/stack-diagram` に入れた（リポジトリの外。確認した版は、リポジトリ `caru-ini/stack-diagram` の `1ed53e3`）。導入の前に、`SKILL.md` とスクリプトを読んで、危険な呼び出しがないことを確かめた。
+- **スキルの「ギャラリーへの公開」（`share.py`）は使わない。** 図に内部の IP アドレスが入っているため。
+- 生成は [`stack-diagram/make-homelab.py`](stack-diagram/make-homelab.py)（座標を計算して下書きの HTML を作る）。ロゴ（`<icons-dir>`、Git 管理外）は、スキルの `fetch_icons.py` で取得する。取れなかったもの（Caddy、AdGuard Home、Unbound、CoreDNS、FreshRSS、code-server、Windows、Healthchecks.io、Let's Encrypt、Homepage、Omada、SwitchBot、ESP32、CloudCLI）は、`assets/icons/` にある既存の素材を使った。
+- PNG の書き出しには、Playwright と Chromium が要る。
+
 ## ファイル
 
 | ファイル | 内容 |
@@ -24,6 +37,7 @@ ER605 と SG2210P を入れて VLAN に分けたあと（段階 3 の完了時�
 | `layout-architecture.py` | 現行の構成図の座標・文字を、規格どおりに組み直すスクリプト |
 | `tobe-vlan.drawio.svg` | VLAN 化のあとの構成図 |
 | `layout-tobe-vlan.py` | VLAN 化のあとの構成図を作るスクリプト |
+| `stack-diagram/` | stack-diagram で描いた現行の構成図（試作）。`homelab.html`、`homelab.png`、`homelab-dark.png`、生成スクリプト `make-homelab.py` |
 | `assets/` | アイコン素材（**Git 管理外**。無ければ取得する） |
 
 ## 更新の手順
