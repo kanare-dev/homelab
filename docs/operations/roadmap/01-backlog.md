@@ -6,6 +6,7 @@
 
 - 方針: 自分専用アクセスは Tailscale のみで完結させる（[ADR 0005](../../adr/0005-tailscale-only-remote-access.md)）。Cloudflare Tunnel による外部公開は、Tailscale を入れていない他人と共有する具体的なニーズが出たサービスに限る。それまで Cloudflare Tunnel と Split-Horizon DNS には着手しない
 - [ ] **検討中**: Omada Cloud（クラウドアクセス）を使い続けるか、無効にするか。2026-11-03 から、便利そうなので当面は有効にして試している。最終的に無効にするかもしれない。判断の材料は、使い勝手と、リスク（Tailscale と Caddy を通らず、TP-Link ID の認証だけで、コントローラーの管理画面に外から入れる経路が増える。[VLAN 設計](../../architecture/08-vlan-design.md#管理画面への外部到達リスクを受け入れる)）。決めたら ADR に残し、無効にするときは、[外部サービスの表](../../architecture/03-network.md#外部サービスへの依存)・[構成図](../../diagrams/layout-architecture.py)・[システム概要](../../architecture/01-overview.md)の Omada Cloud と、「外から入る経路は Tailscale だけ」の例外の記述（`03-network.md`、`05-security.md`、`01-overview.md`）を消す
+- [ ] **検討中**: Wi-Fi の SSID の名前を変える（2026-11-03、運用者の希望）。今の `Ceci n'est pas un Wi-Fi [2.4]` / `[5]` / `[2.4+]` / `[5+]` の 4 つは、WPA2 の 2 つも残す（[VLAN 設計](../../architecture/08-vlan-design.md)）。時期は、**移行（段階 1〜3）が落ち着いてから**。移行の最中に変えると、不具合の原因が、ネットワークの変更なのか、SSID の変更なのか、切り分けられなくなる。変えると、全端末が繋ぎ直しになる。SwitchBot Hub は、Wi-Fi の設定をアプリでやり直す必要がある可能性が高い（未確認）。段階 4 で Omada の AP を入れるときは、VLAN ごとの SSID（Trusted / IoT / Guest）を作り直すので、**そこで使う名前を今のうちに決めて、Buffalo に先に付けておけば、端末は 1 回の繋ぎ直しで済む**（AP を替えても、SSID とパスワードが同じなら、端末は設定を変えずに繋がる）。名前の案は、Trusted は今の名前の系統、IoT と Guest は空白や記号のない ASCII（IoT は 2.4GHz のみ）。
 - Omada 導入・VLAN 化と OPNsense 導入は、それぞれ大型計画として扱う（下の「大型計画」）
 
 ## インフラ・IaC・運用
