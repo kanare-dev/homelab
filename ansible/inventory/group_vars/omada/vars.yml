@@ -8,6 +8,7 @@ ufw_allowed_ports:
   - { port: 22,            proto: tcp }
   - { port: 9100,          proto: tcp, from: "192.168.11.13" }   # node_exporter (Prometheus on vm-monitoring)
   - { port: 8043,          proto: tcp, from: "192.168.11.11" }   # 管理画面 HTTPS（Caddy on vm-infra: omada.lab.kanare.dev）。初回の設定は SSH のポートフォワード: ssh -L 8043:localhost:8043 vm-omada
+  - { port: 8043,          proto: tcp, from: "192.168.11.0/24" } # 機器がファームウェアのファイルをダウンロードする（HTTPS 管理ポート）。絞ると、機器の更新が「ダウンロードに失敗」で止まる
   - { port: 29810,         proto: udp, from: "192.168.11.0/24" } # 機器の自動検出
   - { port: "29811:29816", proto: tcp, from: "192.168.11.0/24" } # 機器との通信（管理、採用、更新、データ転送、RPC）
 
