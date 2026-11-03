@@ -110,18 +110,18 @@ homelab/
 │   └── playbooks/
 ├── docker/
 │   └── compose/            # dns / freshrss / homeassistant / homepage / monitoring / n8n / reverse-proxy
-├── hardware/
-│   ├── thinkcentre-m70q-tiny.md  # ThinkCentre M70q Tiny（Proxmox ホスト）の公式資料へのリンクと仕様（Lenovo PSREF）
-│   ├── er605.md            # ER605 V2 の公式資料へのリンクと仕様（データシート V2.2）
-│   ├── sg2210p.md          # SG2210P の公式資料へのリンクと仕様（データシート V5.30）
-│   ├── wsr-1800ax4p.md     # Buffalo WSR-1800AX4P の公式資料へのリンクと仕様、AP モードの扱い
-│   └── rack-10inch/        # 10 インチラックの 3D プリント用データ（models/。他の作者のモデルで、別ライセンス）と配布元リンク
 ├── tools/
 │   └── check-md-links.py   # Markdown の内部リンク検査
 └── docs/
     ├── architecture/       # 方式設計
     ├── diagrams/           # 構成図（SVG: 現行と、VLAN 化後の案）と生成・整形スクリプト。assets/ はアイコン素材（Git 管理外）
     ├── services/           # サービスごとの詳細設計
+    ├── hardware/           # 機器の仕様と資料（ER605・SG2210P・Buffalo・ThinkCentre、10 インチラック）
+    │   ├── thinkcentre-m70q-tiny.md  # ThinkCentre M70q Tiny（Proxmox ホスト）の公式資料へのリンクと仕様（Lenovo PSREF）
+    │   ├── er605.md            # ER605 V2 の公式資料へのリンクと仕様（データシート V2.2）
+    │   ├── sg2210p.md          # SG2210P の公式資料へのリンクと仕様（データシート V5.30）
+    │   ├── wsr-1800ax4p.md     # Buffalo WSR-1800AX4P の公式資料へのリンクと仕様、AP モードの扱い
+    │   └── rack-10inch/        # 10 インチラックの 3D プリント用データ（models/。他の作者のモデルで、別ライセンス）と配布元リンク
     ├── operations/         # Runbook、バックアップ、障害記録、ロードマップ
     └── adr/                # 設計判断の記録
 ```

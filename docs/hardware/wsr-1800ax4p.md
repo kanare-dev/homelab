@@ -1,6 +1,6 @@
 # Buffalo WSR-1800AX4P
 
-Wi-Fi 6 対応の家庭用 Wi-Fi ルーター（AirStation）。現在は家のルーターで、移行では ER605 に交換して、AP（ブリッジ）モードの Wi-Fi の入口として使い続ける。公式の資料へのリンクと、製品ページの仕様をまとめる。設定値は[WSR-1800AX4P の設定](../docs/services/11-wsr-1800ax4p.md)（詳細設計）、移行の手順は[ER605・SG2210P の移行計画](../docs/operations/roadmap/10-er605-sg2210p-migration-plan.md)、VLAN の設計は[VLAN 設計](../docs/architecture/08-vlan-design.md)にある。
+Wi-Fi 6 対応の家庭用 Wi-Fi ルーター（AirStation）。現在は家のルーターで、移行では ER605 に交換して、AP（ブリッジ）モードの Wi-Fi の入口として使い続ける。公式の資料へのリンクと、製品ページの仕様をまとめる。設定値は[WSR-1800AX4P の設定](../services/11-wsr-1800ax4p.md)（詳細設計）、移行の手順は[ER605・SG2210P の移行計画](../operations/roadmap/10-er605-sg2210p-migration-plan.md)、VLAN の設計は[VLAN 設計](../architecture/08-vlan-design.md)にある。
 
 > [!NOTE]
 > 確認日は 2026-11-03。仕様は Buffalo の製品ページ（仕様表）による。数値は原文のまま載せている。ファームウェアの版数は確認していない。色違いの型番は WSR-1800AX4P-WH（ホワイト）と WSR-1800AX4P-BK（ブラック）で、仕様は同じ。
@@ -65,7 +65,7 @@ Wi-Fi 6 対応の家庭用 Wi-Fi ルーター（AirStation）。現在は家の�
 ## VLAN とマルチ SSID
 
 - 製品ページの仕様に、**VLAN（タグ VLAN）の記載はない**。SSID の数の記載もない。非対応と明記した資料は見つけていないが、家庭用のルーターなので、SSID に VLAN を割り当てることはできないと見る。AP（ブリッジ）モードでも、繋いだスイッチのポートの VLAN に入る。
-- 計画では、VLAN ごとの SSID は、Omada の AP を導入してから作る（[移行計画](../docs/operations/roadmap/10-er605-sg2210p-migration-plan.md)）。
+- 計画では、VLAN ごとの SSID は、Omada の AP を導入してから作る（[移行計画](../operations/roadmap/10-er605-sg2210p-migration-plan.md)）。
 
 ## AP（ブリッジ）モードでの動作
 
@@ -82,10 +82,10 @@ Wi-Fi 6 対応の家庭用 Wi-Fi ルーター（AirStation）。現在は家の�
 | 論点 | 分かること |
 | --- | --- |
 | ER605 への交換 | 背面のスイッチで AP モードに切り替える。DHCP サーバーと NAT は止まるので、ER605 が担う |
-| SSID と無線設定 | 今の SSID・暗号化を引き継げるか、モード切り替えで設定が残るかは、取扱説明書と実機で確認する（[移行計画](../docs/operations/roadmap/10-er605-sg2210p-migration-plan.md)の段階 1） |
+| SSID と無線設定 | 今の SSID・暗号化を引き継げるか、モード切り替えで設定が残るかは、取扱説明書と実機で確認する（[移行計画](../operations/roadmap/10-er605-sg2210p-migration-plan.md)の段階 1） |
 | ゲストポート | 製品ページに機能の記載はあるが、「一部機能はルーター動作時のみ」という注記もあり、AP モードで使えるかは取扱説明書で確認が要る。使う計画には入れていない |
 | プライバシーセパレーター | 無線の端末どうしの通信を遮断する機能。SSID ごとの設定かどうかは取扱説明書で確認する |
 | 有線ポート | AP モードでは有線のハブとして働く。現在 Buffalo の LAN ポートに繋いでいるメインディスプレイ（Dell U2725QE）は、段階 2 で SG2210P の p4 に移す。Buffalo は Wi-Fi の入口だけにする |
-| 通信の取得 | AP モードにすると、無線の通信もスイッチを通る（[ネットワーク通信の収集・可視化](../docs/operations/roadmap/06-network-traffic-analysis.md)） |
+| 通信の取得 | AP モードにすると、無線の通信もスイッチを通る（[ネットワーク通信の収集・可視化](../operations/roadmap/06-network-traffic-analysis.md)） |
 | 設置 | 屋内限定。動作保証環境は 0〜40℃。壁掛けの金具は別売 |
 | 後継機 | 製品ページに、後継モデルとして WSR-3000AX4L の記載がある |
