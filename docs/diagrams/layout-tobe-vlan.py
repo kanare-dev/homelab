@@ -359,7 +359,7 @@ def layout():
     text("p4: access VLAN30（untagged）", 920, 550, 260, 24)
     icon("hardware/buffalo-ap.png", 1346.75, 530, 126.5, 115, max_px=600)
     icon("", 1450, 514, 40, 40, svg=wifi_svg(), rotation=45)  # AP が Wi-Fi を出していることを示す
-    text(f"<b>Buffalo WSR-1800AX4P</b><br>AP モード（管理画面は Trusted 上）", 1460, 554, 230, 60)
+    text(f"<b>Buffalo WSR-1800AX4P</b><br>{ip('10.77.30.10')}<br>AP モード（管理画面は Trusted 上）", 1460, 554, 230, 60)
 
     tx, ty = 1140, 640
     zone(30, tx, ty, 540, 300)
