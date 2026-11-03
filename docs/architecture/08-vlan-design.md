@@ -12,7 +12,7 @@ TP-Link（ルーター + Managed Switch + AP、Omada 管理）への移行と同
 
 - Proxmox ホスト（Lenovo ThinkCentre M70q Tiny）の物理 NIC は 1 つ。複数の VLAN に VM を置くため、スイッチのポートを trunk にし、Proxmox のブリッジを VLAN-aware にする。
 - DNS（AdGuard Home）、Caddy、Tailscale は `vm-infra` 1 台に載っている。ここが止まると全 VLAN の名前解決が止まる（INC-2026-10-22）。移行後もこの構造は変わらないので、VLAN を増やすほど `vm-infra` への依存が目立つ。
-- 設定の大半は Omada コントローラーの中に入り、Git では管理できない。バックアップが唯一の記録になる。
+- 設定の大半は Omada コントローラーの中に入り、今は Git で管理していない。バックアップが唯一の記録になる。Open API とコミュニティ製の Terraform プロバイダーでコード化できる可能性がある（未検証。[バックログ](../operations/roadmap/01-backlog.md)）。
 - 現在は二重 NAT 環境（集合住宅で、建物の共用ルーターの下に Buffalo を置いている）。外からポート開放ができないため、外出先からのアクセスは Tailscale に頼っている。数年のうちに引っ越す予定があり、新居の上流ネットワークは分からない。
 - 家に AirPlay と Google Cast（Google TV）に対応したテレビがある。現在は有線で接続している。VLAN をまたぐと機器の発見（mDNS）が届かなくなるため、設計に織り込む（後述）。
 - ESP32 は現在使っていない。Wi-Fi 接続で、最終的には使えるようにしたい。
