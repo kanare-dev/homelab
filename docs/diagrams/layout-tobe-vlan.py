@@ -275,7 +275,7 @@ def layout():
     icon("hardware/tplink-er605.png", 760, 200, 240, 80, max_px=700)
     text(f"<b>TP-Link ER605 V2</b><br>{ip('10.77.10.1')}（VLAN10）<br>各 VLAN の GW（.1）・DHCP・ACL", 1010, 200, 330, 80)
     edge([(880, 280), (880, 380)], width=5)  # p1: trunk（太い線）
-    text("p1: trunk（VLAN10/20/30/40/50/60/70 を tag 付き）", 890, 320, 450, 40)
+    text("ER605 p2 ⇔ SG2210P p1: trunk（VLAN10/20/30/40/50/60/70 を tag 付き）", 890, 320, 560, 40)
 
     icon("hardware/tplink-sg2210p.png", 760, 380, 240, 80, max_px=700)
     text(f"<b>TP-Link SG2210P</b><br>{ip('10.77.10.2')}（VLAN10）<br>p1: ER605 / p2: pve / p3: AP1 / p4: Dell U2725QE / p5–p6: 予備 / p7–p8: 将来の AP 用（PoE）", 1010, 380, 707, 80)
