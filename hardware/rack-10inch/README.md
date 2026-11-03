@@ -10,8 +10,8 @@ ThinkCentre M70q Tiny、ER605、SG2210P を 10 インチラックに収めるた
 | 機器 | 役割 | 状況 | 備考 |
 | --- | --- | --- | --- |
 | Lenovo ThinkCentre M70q Tiny | Proxmox ホスト（`192.168.11.10`） | 稼働中 | 下の配布元で「M70q」は推定扱い（`**`）。ただしコメント欄に実機で合ったという報告がある |
-| TP-Link ER605 V2 | ルーター | 未購入 | [Omada・VLAN 化](../../docs/operations/roadmap/04-network-omada-vlan.md)の段階 1 で導入 |
-| TP-Link SG2210P | PoE+ マネージドスイッチ（8 ポート + SFP 2 スロット） | 未購入 | SG2008P から変更（[VLAN 設計](../../docs/architecture/08-vlan-design.md#導入の段階)）。版数の確認が必要 |
+| TP-Link ER605 V2 | ルーター | 購入済み（未導入） | [Omada・VLAN 化](../../docs/operations/roadmap/04-network-omada-vlan.md)の段階 1 で導入 |
+| TP-Link SG2210P | PoE+ マネージドスイッチ（8 ポート + SFP 2 スロット） | 購入済み（未導入） | SG2008P から変更（[VLAN 設計](../../docs/architecture/08-vlan-design.md#導入の段階)）。版は (UN) V5.30（Omada 対応）。寸法は 209 × 126 × 26 mm、設置は据え置き / 壁掛け、動作温度は -5 ℃〜40 ℃。仕様は[SG2210P の資料](../sg2210p.md) |
 
 ## 採用する配布元
 

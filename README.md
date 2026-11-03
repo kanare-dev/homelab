@@ -111,6 +111,7 @@ homelab/
 ├── docker/
 │   └── compose/            # dns / freshrss / homeassistant / homepage / monitoring / n8n / reverse-proxy
 ├── hardware/
+│   ├── sg2210p.md          # SG2210P の公式資料へのリンクと仕様（データシート V5.30）
 │   └── rack-10inch/        # 10 インチラックの 3D プリント用データ（models/。他の作者のモデルで、別ライセンス）と配布元リンク
 ├── tools/
 │   └── check-md-links.py   # Markdown の内部リンク検査
