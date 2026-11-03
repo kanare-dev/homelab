@@ -194,12 +194,6 @@ def layout():
     # 背景 ---------------------------------------------------------------
     add("", "rounded=0;whiteSpace=wrap;html=1;strokeColor=none;fillColor=#FFFFFF80;", 0, 0, 1720, 1670, to=back)
 
-    # 通信ポリシー（左上） ---------------------------------------------------------
-    text("<b>通信ポリシー（要約）</b><br>表にない通信は拒否。Trusted は Servers・Lab・IoT・DMZ へ必要なポートだけ許可。<br>"
-         f"Lab・IoT・Guests・DMZ から内部へは拒否（DNS は <i>vm-infra</i> {ip('10.77.20.11')} だけ）。<br>"
-         f"外出先: Tailscale が {ip('10.77.20.0/24')} と {ip('10.77.40.0/24')} だけを広告（Management には届かない）。",
-         20, 20, 640, 120)
-
     # 凡例（右上。縦一列。上ほど信頼度が高い） ----------------------------------------
     lx, ly = 1300, 20
     frame(lx - 10, ly, 410, 222, "#ffffff", "#999999", dashed=False, opacity=100)
@@ -211,19 +205,38 @@ def layout():
         frame(lx + 50, y + 2, 30, 18, COLOR[v][0], COLOR[v][1], dashed=False, arc=4)
         text(f"VLAN{v} {NAME[v]}", lx + 90, y, 290, 22)
 
+    # 外部サービス（左上。現行の図と同じ 6 つに Omada Cloud を足す） ----------------------------
+    frame(20, 20, 500, 210, "#dae8fc", "#6c8ebf", dashed=False, opacity=70)
+    text("External Services", 40, 30, 300, 30)
+    services = [
+        ("external/healthchecks.svg", "Healthchecks.io"), ("external/slack.svg", "Slack"), ("external/cloudflare.svg", "Cloudflare"),
+        ("external/letsencrypt.svg", "Let's Encrypt"), ("external/tailscale.svg", "Tailscale"), ("external/github.svg", "GitHub"),
+        ("network/omada.svg", "Omada Cloud"),
+    ]
+    for k, (ic, label) in enumerate(services):
+        col, rowi = divmod(k, 4)
+        row(ic, label, 40 + 240 * col, 70 + 40 * rowi, 200)
+    edge([(520, 126), (850, 126)])
+
     OFF[0] = 80  # ここから下は 80 下げる（凡例と LAN の枠が重ならないように）
 
     # インターネット・ルーター・スイッチ ------------------------------------------
     icon(None, 850, 16, 60, 60, svg=GLOBE)
     text("Internet", 920, 31, 100, 30)
-    text(f"建物の共用ルーター {ip('172.22.0.1')}（二重 NAT）", 710, 88, 340, 24, align="center")
-    edge([(880, 114), (880, 200)])
-    text("WAN（DHCP）", 890, 130, 120, 24)
+    edge([(880, 76), (880, 200)])  # 地球儀の下から ER605 の上まで、1 本で繋ぐ
+    text(f"建物の共用ルーター {ip('172.22.0.1')}（二重 NAT）", 895, 94, 340, 24)
+    text("WAN（DHCP）", 895, 128, 120, 24)
 
     # LAN 全体の枠 ---------------------------------------------------------
     frame(20, 170, 1680, 1400, "#ffffff", "#666666", dashed=True, opacity=70, to=back)
     frame(40, 180, 200, 40, "#dddddd", "#666666", dashed=False, opacity=70, to=back)
     text(f"<b>LAN<br>{'10.77.0.0/16'}</b>", 40, 180, 200, 40, align="center")
+
+    # 通信ポリシー（LAN の中、ER605 の左） -------------------------------------------
+    text("<b>通信ポリシー（要約）</b><br>表にない通信は拒否。Trusted は Servers・Lab・IoT・DMZ へ必要なポートだけ許可。<br>"
+         f"Lab・IoT・Guests・DMZ から内部へは拒否（DNS は <i>vm-infra</i> {ip('10.77.20.11')} だけ）。<br>"
+         f"外出先: Tailscale が {ip('10.77.20.0/24')} と {ip('10.77.40.0/24')} だけを広告（Management には届かない）。",
+         40, 250, 560, 140)
 
     icon("hardware/tplink-er605.png", 760, 200, 240, 80, max_px=700)
     text(f"<b>TP-Link ER605 V2</b><br>{ip('10.77.10.1')}（VLAN10）<br>各 VLAN の GW（.1）・DHCP・ACL", 1010, 200, 330, 80)
@@ -276,7 +289,7 @@ def layout():
 
     y = sy
     # Management
-    h = vm(10, rx + 20, y + 50, "vm-omada", "10.77.10.3", "Ubuntu Server 24.04", [("row", "general/ethernet.png", "Omada Controller")])
+    h = vm(10, rx + 20, y + 50, "vm-omada", "10.77.10.3", "Ubuntu Server 24.04", [("row", "network/omada-controller.png", "Omada Controller")])
     mgmt_h = 50 + h + 20
     zone(10, rx, y, 340, mgmt_h)
     text("<b>VLAN10 Management</b>", rx + 10, y + 5, 320, 30)
