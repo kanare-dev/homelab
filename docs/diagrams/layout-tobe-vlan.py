@@ -283,8 +283,8 @@ def layout():
     # Proxmox ------------------------------------------------------------
     gx, gy = 40, 640
     icon("hardware/thinkcentre-m70q-tiny.png", 433.03, 586, 293.94, 97, max_px=700)
-    text("Lenovo ThinkCentre M70q Tiny Gen1<br>CPU: Intel Core i5-10400T (6C/12T)<br>RAM: 1 x 8 GB + 1 x 16 GB DDR4-3200<br>"
-         "Storage: 1 x 256GB NVMe SSD", 430, 503, 300, 80, align="center")
+    text("<b>Lenovo ThinkCentre M70q Tiny Gen1<br></b>CPU: Intel Core i5-10400T (6C/12T)<br>RAM: 1 x 8 GB + 1 x 16 GB DDR4-3200<br>"
+         "Storage: 1 x 256GB NVMe SSD", 430, 519, 300, 80, align="center")
     edge([(800, 460), (800, 620)], width=5)  # p2: trunk（太い線）
     text("p2: trunk（VLAN10/20/40/50/70 を tag 付き）", 440, 468, 350, 24, align="right")
 
@@ -359,7 +359,7 @@ def layout():
     text("p4: access VLAN30（untagged）", 920, 550, 260, 24)
     icon("hardware/buffalo-ap.png", 1346.75, 530, 126.5, 115, max_px=600)
     icon("", 1450, 514, 40, 40, svg=wifi_svg(), rotation=45)  # AP が Wi-Fi を出していることを示す
-    text(f"<b>Buffalo WSR-1800AX4P</b><br>AP モード（管理画面は Trusted 上）", 1470, 550, 230, 60)
+    text(f"<b>Buffalo WSR-1800AX4P</b><br>AP モード（管理画面は Trusted 上）", 1460, 554, 230, 60)
 
     tx, ty = 1140, 640
     zone(30, tx, ty, 540, 300)
