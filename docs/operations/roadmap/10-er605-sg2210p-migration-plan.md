@@ -143,10 +143,10 @@ AP を SG2210P の p7（PoE）に繋ぎ、SSID を 3 つ（Trusted / IoT / Guest
   - コントローラーは、mDNS の中継に v5.9 以降が要る（設計書より）。ER605 V2 の最新ファームウェアが動作確認されているのは 6.3.0（[ER605 の資料](../../hardware/er605.md)）。SG2210P V5.30 との対応は、公式の対応表で確認する。
   - **適用すると、thin pool の過剰割当が 1.5 を超えてアラートが出る**（2026-11-03 に適用し、1.44 → 1.57）。解消は、[未着手の項目](01-backlog.md)に記録した（`vm-dev` の縮小と `vm-windows` の削除）。
   - 適用する手順: `terraform apply -target='module.vm["vm-omada"]'`（**`-target` を付ける**。付けないと、手動起動の `vm-dev` も `running` にする差分が一緒に適用される）→ `make setup-omada` → 管理画面（初回は `ssh -L 8043:localhost:8043 vm-omada` で `https://localhost:8043`）で初期設定。
-  - バックアップの保存先を決める（Mac だけにしない）。コントローラーの自動バックアップは `/opt/omada/data/autobackup` に出る。
+  - バックアップの保存先: **当面は Mac（決定 2026-11-03）**。コントローラーの自動バックアップは `/opt/omada/data/autobackup`（VM のローカルディスク）に出るので、そこから Mac に取り出して置く。Mac 以外（S3 など）にするかは検討中（[バックログ](01-backlog.md)）。Mac だけだと、Mac と `vm-omada` が同時に失われたときに戻せない。この間は、Mac と同時に壊れにくい別の場所への写しは、まだ無い。
 - [ ] `vm-omada` のホスト DNS と、バックアップ、監視（Prometheus の scrape、死活監視）を設計に加える。**文書と構成図の反映は済み（2026-11-03）**: [インフラ構成](../../architecture/02-infrastructure.md)の表と割当、[起動順序](../runbooks/01-vm-startup-shutdown.md)、[信頼性](../../architecture/04-reliability.md)、[システム概要](../../architecture/01-overview.md)の図、README、[ネットワーク設計](../../architecture/03-network.md)の IP 表と外部サービス（Omada Cloud）、[VLAN 設計](../../architecture/08-vlan-design.md)のリスク、構成図（SVG）。Prometheus の scrape 対象（`192.168.11.12:9100`）は、**2026-11-03 に追加して反映した**（`TargetDown` の対象。Omada の画面の外形監視は、`omada.lab.kanare.dev` を足したあと。[バックログ](01-backlog.md)）。**残り**: Caddy と DNS の `omada.lab.kanare.dev`、バックアップの保存先、ホスト DNS。反映の対象は次のとおり: `terraform.tfvars` の反映に合わせた[インフラ構成](../../architecture/02-infrastructure.md)の表と[起動順序](../runbooks/01-vm-startup-shutdown.md)、Prometheus の scrape 対象（`192.168.11.12:9100`）、Caddy と DNS の `omada.lab.kanare.dev`（段階 1 の「同じ変更で直すもの」）、構成図。あわせて、**Omada Cloud（コントローラーをクラウド経由で開く外部依存）を、[ネットワーク設計](../../architecture/03-network.md#外部サービスへの依存)の表と構成図の外部サービスに足す**（止まっても、コントローラーと LAN の通信には影響しない見込み。管理画面の外部到達の経路が 1 つ増えるので、[VLAN 設計](../../architecture/08-vlan-design.md#管理画面への外部到達リスクを受け入れる)のリスクの記述にも足す）。
 - [x] ケーブルを用意する（**2026-11-03 に用意済み**。ER605 と Proxmox 用、ER605 と SG2210P p1 用の短いケーブル）。
-- [ ] 停止してよい時間帯を決める（段階 1 は 30 分〜1 時間の見込み）。
+- [x] 停止してよい時間帯を決める → **決めない（決定 2026-11-03）**。決まった時間帯は設けず、作業できるタイミングで行う。段階 1 は 30 分〜1 時間の見込みなので、その時間を続けて取れるときにする。開始する前に、「ここまでに終わらなければ戻す」という時刻だけ決める（[段階 1](#段階-1-er605-に交換buffalo-は-ap)の戻し手順）。
 
 ## 段階 1 と段階 2 は同じ日に続けて行う（案）
 
@@ -156,7 +156,7 @@ ER605 と SG2210P は同時に購入済みなので、1 回の作業に合わせ
 - 区切りを残す理由: ルーター、スイッチ、Buffalo の AP 化、NIC のリンク変化を一度に入れると、インターネットに出られないとき、原因がどれか分からない。ルーターだけの状態で確認できていれば、不具合はスイッチ側に絞れる。戻す先も明確になる。
 - 順序: (1) ER605 の WAN と Buffalo（AP）、Proxmox を繋ぎ、段階 1 の確認を終える。(2) SG2210P をコントローラーで採用する。(3) Proxmox と Buffalo のケーブルを SG2210P に付け替える（止まるのは数十秒）。(4) 段階 2 の確認をする。
 - 戻し方は段階ごとに分けて残す。(3) で不具合が出たら、ケーブルを ER605 に戻すだけで (1) の状態に戻る。
-- 作業時間の目安は 1〜2 時間。停止してよい時間帯は、その分を確保する。
+- 作業時間の目安は 1〜2 時間。固定の時間帯は決めず、その分を続けて取れるときに行う。開始前に、戻すと判断する時刻を決める。
 
 ## 段階 1: ER605 に交換、Buffalo は AP
 
@@ -177,7 +177,7 @@ ER605 と SG2210P は同時に購入済みなので、1 回の作業に合わせ
    - Wi-Fi の端末が、今の SSID のまま繋がる。
    - 外出先（Tailscale）から入れる。
 6. `vm-omada` から ER605 を採用する（同じ `192.168.11.0/24` なので自動で見つかる）。**採用すると、ER605 の GUI は使えなくなる。** 採用後にファームウェア、時刻（NTP）、管理者アカウントを設定する。
-7. Omada コントローラーのバックアップを取り、Mac 以外にも保存する。
+7. Omada コントローラーのバックアップを取り、Mac に保存する（当面。Mac 以外は検討中、[バックログ](01-backlog.md)）。
 
 ### 同じ変更で直すもの
 
@@ -249,7 +249,7 @@ VLAN は使わない。止まるのは、Proxmox と Buffalo のケーブルを�
   - `bridge-vlan-aware` への変更は、物理コンソールから行う。
 - [ ] **コードの準備**: 別ブランチで Terraform・Ansible・Caddyfile・Prometheus・Homepage・ドキュメントを新アドレスに書き換える（一覧は[設計書](../../architecture/08-vlan-design.md#影響を受けるリポジトリ内の箇所)）。`vlan_id` を Terraform の VM モジュールに追加する。**必須（既定値なし）にして、全 VM に指定する**（`vm-omada` は 10）。
 - [ ] **Omada に本番設定を作る（有効にしない）**: VLAN 10/20/30/40/50/60/70、DHCP、ACL、mDNS、スイッチのポートプロファイル。
-- [ ] **バックアップ**: Omada、Proxmox の `/etc/network/interfaces`、`terraform.tfstate`、Buffalo の設定を、Mac 以外にも保存する。
+- [ ] **バックアップ**: Omada、Proxmox の `/etc/network/interfaces`、`terraform.tfstate`、Buffalo の設定を、Mac 以外にも保存する（Omada は当面 Mac だけ。[バックログ](01-backlog.md)）。
 - [ ] **戻しの手順**（下記）を書き、時刻を決める。
 - [ ] Tailscale の ACL・経路の承認の手順を確認する（`--advertise-routes=10.77.20.0/24,10.77.40.0/24`）。
 
