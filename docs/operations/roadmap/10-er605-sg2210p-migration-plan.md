@@ -123,12 +123,15 @@ AP を SG2210P の p7（PoE）に繋ぎ、SSID を 3 つ（Trusted / IoT / Guest
 
 ネットワークを止めない作業。
 
-- [ ] ER605 の版を本体の表示で確認する（V2 であること）。（SG2210P は V5.30 で確認済み。）
+- [x] ER605 の版を確認する（**ER605(UN) V2.30**、2026-11-03 に運用者が確認。SG2210P は V5.30 で確認済み）。V2.30 は 2.4.10 のリリースノートの適用機種に入っている。出荷時のファームウェアは **2.2.8 Build 20260128 Rel.11283**（2026-11-03 に確認）。版数は更新条件（2.3.2 Build 20251029 Rel.12727 以降）より小さいが、ビルドの日付は新しい。まず 2.4.10 へ直接の更新を試し、拒否されたら 2.3.3 を経由する（ファームウェアの更新の項を参照）。
 - [ ] 現在の Buffalo の設定を控える。設定値は[WSR-1800AX4P の設定](../../services/11-wsr-1800ax4p.md)に記録済み（2026-11-03）。**本体のバックアップ（`wsr-1800ax4p-bk-YYYYMMDD.bin`、暗号化）は、設定を変える前に取る（2026-11-03 に取得済み）。** 秘密の値と MAC アドレスは `private/secrets-inventory.md` の側に置き、リポジトリには書かない。
   - 設定のバックアップファイル（管理画面の「設定保存」）
   - DHCP のプール、固定割り当て（予約）の一覧、DHCP が配る DNS サーバー
   - WAN の取得方法、SSID 名、暗号化方式（パスフレーズは台帳へ）
 - [ ] ER605 のファームウェアを更新する。先に更新し、LAN の IP は後で変える。
+  - 更新の順序: 出荷時の 2.2.8 から、**2.4.10 Build 20260916 へ直接**更新する。ER605 の画面が互換性の理由で拒否した場合は、先に 2.3.3 Build 20251029（V2.30 向けのファイル）を入れてから 2.4.10 に更新する。2.3.3 以降の更新は、元に戻せない（リリースノートの記載）。
+  - ファイルは、公式のサポートページから運用者がダウンロードする（ZIP の中の `.bin`）。
+  - **結果（2026-11-03）**: 本体の管理画面からも、コントローラー経由（ダウンロードは成功）でも、検証で拒否された。試した内容、見立て、サポートへの問い合わせ文面は[ER605 の資料](../../../hardware/er605.md#出荷時のファームウェアからの更新未解決)にある。更新できないまま、段階 1 に進むかは、サポートの回答のあとに決める。
   - 初期の LAN は `192.168.0.1`。Buffalo の `192.168.11.0/24` とも上流の `172.22.x.x` とも被らない。
   - ER605 の WAN を Buffalo の空き LAN ポートに繋ぎ（一時的な二重ルーター）、Mac を ER605 の LAN に繋いで更新する。
   - **ER605 の LAN を `192.168.11.1` に変えるのは、WAN を外してから。** WAN 側（Buffalo の LAN）と同じ範囲になると、ルーターが正しく動かない。
@@ -137,6 +140,7 @@ AP を SG2210P の p7（PoE）に繋ぎ、SSID を 3 つ（Trusted / IoT / Guest
   - **下書きを書いた（2026-11-03、未適用）**: `terraform/proxmox/terraform.tfvars`（`vm-omada`: 2 vCPU、メモリ 3GB、ディスク 20G）、`ansible/playbooks/omada.yml`、`ansible/inventory/group_vars/omada/vars.yml`、`docker/compose/omada/docker-compose.yml`。
   - 案: Ubuntu VM + Docker Compose で Omada コントローラーを動かす（イメージ `mbentley/omada-controller:6.3.0.111`、host ネットワーク）。VM か LXC か Docker かは VLAN 設計の未決事項で、ここで決める。
   - コントローラーは、mDNS の中継に v5.9 以降が要る（設計書より）。ER605 V2 の最新ファームウェアが動作確認されているのは 6.3.0（[ER605 の資料](../../../hardware/er605.md)）。SG2210P V5.30 との対応は、公式の対応表で確認する。
+  - **適用すると、thin pool の過剰割当が 1.5 を超えてアラートが出る**（2026-11-03 に適用し、1.44 → 1.57）。解消は、[未着手の項目](01-backlog.md)に記録した（`vm-dev` の縮小と `vm-windows` の削除）。
   - 適用する手順: `terraform apply -target='module.vm["vm-omada"]'`（**`-target` を付ける**。付けないと、手動起動の `vm-dev` も `running` にする差分が一緒に適用される）→ `make setup-omada` → 管理画面（初回は `ssh -L 8043:localhost:8043 vm-omada` で `https://localhost:8043`）で初期設定。
   - バックアップの保存先を決める（Mac だけにしない）。コントローラーの自動バックアップは `/opt/omada/data/autobackup` に出る。
 - [ ] `vm-omada` のホスト DNS と、バックアップ、監視（Prometheus の scrape、死活監視）を設計に加える。適用したあと、同じ変更で次を更新する: `terraform.tfvars` の反映に合わせた[インフラ構成](../../architecture/02-infrastructure.md)の表と[起動順序](../runbooks/01-vm-startup-shutdown.md)、Prometheus の scrape 対象（`192.168.11.12:9100`）、Caddy と DNS の `omada.lab.kanare.dev`（段階 1 の「同じ変更で直すもの」）、構成図。
