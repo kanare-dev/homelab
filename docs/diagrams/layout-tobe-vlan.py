@@ -132,6 +132,15 @@ def wifi_svg():
             '@media (prefers-color-scheme:dark){g{fill:#fff;stroke:#fff}}</style><g>' + arcs + dot + '</g></svg>')
 
 
+def ethernet_svg():
+    """Ethernet ポートのアイコン。ダークテーマ（prefers-color-scheme: dark）では白くなる SVG。"""
+    body = ('<rect x="15" y="45" width="482" height="420" rx="45"/>'
+            '<path d="M77 105H435V285H405V345H345V405H167V345H107V285H77Z"/>'
+            '<path d="M135 165V245M195 165V245M255 165V245M315 165V245M375 165V245M77 405H105M407 405H435"/>')
+    return ('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><style>g{fill:none;stroke:#000;stroke-width:30;stroke-linecap:round;stroke-linejoin:round}'
+            '@media (prefers-color-scheme:dark){g{stroke:#fff}}</style><g>' + body + '</g></svg>')
+
+
 def stencil(shape, x, y, w, h):
     add("", f"verticalLabelPosition=bottom;html=1;verticalAlign=top;align=center;strokeColor=none;fillColor=#00BEF2;"
             f"shape=mxgraph.azure.{shape};pointerEvents=1;strokeWidth=2;opacity=70;", x, y, w, h)
@@ -325,7 +334,7 @@ def layout():
     back.insert(gi, grp[0])
     icon("platform/proxmox.png", gx + 20, gy + 20, 40, 40, max_px=120)
     text(f"{name_ip('pve', '10.77.10.10')}（VLAN10、untagged）<br>Proxmox 9.1<br>(based on Debian 13)<br>", gx + 70, gy + 20, 303, 60)
-    icon("general/ethernet.png", 780, 620, 40, 40, max_px=120)
+    icon("", 780, 620, 40, 40, svg=ethernet_svg())
     text("nic0", 830, 635, 60, 20)
     row(*NODE, gx + 20, gy + gh - 50, 220)
 
