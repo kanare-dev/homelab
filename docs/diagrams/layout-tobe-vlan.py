@@ -121,6 +121,17 @@ def icon(path, x, y, w, h, max_px=None, svg=None, rotation=0):
             f"image=data:image/{mime},{base64.b64encode(raw).decode()};" + (f"rotation={rotation};" if rotation else ""), x, y, w, h)
 
 
+def wifi_svg():
+    """Wi-Fi の電波アイコン。ダークテーマ（prefers-color-scheme: dark）では白くなる SVG。"""
+    cx, cy, k = 200, 340, 0.70710678
+    arcs = "".join(
+        f'<path d="M{cx - r * k:.1f} {cy - r * k:.1f} A{r} {r} 0 0 1 {cx + r * k:.1f} {cy - r * k:.1f}" fill="none" stroke-width="32"/>'
+        for r in (95, 150, 205))
+    dot = f'<path d="M{cx} {cy} L{cx - 52 * k:.1f} {cy - 52 * k:.1f} A52 52 0 0 1 {cx + 52 * k:.1f} {cy - 52 * k:.1f} Z" stroke="none"/>'
+    return ('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400"><style>g{fill:#000;stroke:#000}'
+            '@media (prefers-color-scheme:dark){g{fill:#fff;stroke:#fff}}</style><g>' + arcs + dot + '</g></svg>')
+
+
 def stencil(shape, x, y, w, h):
     add("", f"verticalLabelPosition=bottom;html=1;verticalAlign=top;align=center;strokeColor=none;fillColor=#00BEF2;"
             f"shape=mxgraph.azure.{shape};pointerEvents=1;strokeWidth=2;opacity=70;", x, y, w, h)
@@ -177,13 +188,13 @@ def vm(vlan, x, y, name, addr, os_text, items, head_icon="platform/ubuntu.png"):
     return h
 
 
-def device(ic, label, x, y, w, stencil_shape=None, size=(40, 30)):
+def device(ic, label, x, y, w, stencil_shape=None, size=(40, 30), svg=None):
     """端末の行（高さ 60）。アイコンの中心とテキストの中心を同じ高さに置く。"""
     iw, ih = size
     if stencil_shape:
         stencil(stencil_shape, x + 10 + (40 - iw) / 2, y + (60 - ih) / 2, iw, ih)
     else:
-        icon(ic, x + 10 + (40 - iw) / 2, y + (60 - ih) / 2, iw, ih, max_px=160)
+        icon(ic, x + 10 + (40 - iw) / 2, y + (60 - ih) / 2, iw, ih, max_px=160, svg=svg)
     text(label, x + 60, y, w - 60, 60)
 
 
@@ -324,7 +335,7 @@ def layout():
     edge([(910, 460), (910, 580), (1200, 580), (1200, 640)])  # p4: メインディスプレイ
     text("p4: access VLAN30（untagged）", 920, 550, 260, 24)
     icon("hardware/buffalo-ap.png", 1346.75, 530, 126.5, 115, max_px=600)
-    icon("general/wifi.png", 1450, 514, 40, 40, max_px=160, rotation=45)  # AP が Wi-Fi を出していることを示す
+    icon("", 1450, 514, 40, 40, svg=wifi_svg(), rotation=45)  # AP が Wi-Fi を出していることを示す
     text(f"<b>Buffalo WSR-1800AX4P</b><br>AP モード（管理画面は Trusted 上）", 1470, 550, 230, 60)
 
     tx, ty = 1140, 640
@@ -345,7 +356,7 @@ def layout():
     text("AP 追加後に使う。2.4GHz のみ、端末間は隔離", tx + 10, iy + 110, 240, 24)
     zone(60, tx + 280, iy, 260, 150)
     text("<b>VLAN60 Guests</b>（将来）", tx + 290, iy + 5, 240, 30)
-    device("general/wifi.png", f"来客の端末<br>{ip('DHCP')}", tx + 290, iy + 50, 250, size=(40, 40))
+    device("", f"来客の端末<br>{ip('DHCP')}", tx + 290, iy + 50, 250, size=(40, 40), svg=wifi_svg())
     text("AP 追加後に使う。端末間は隔離、LAN へは全遮断", tx + 290, iy + 110, 240, 24)
 
 
