@@ -117,6 +117,7 @@ AP を SG2210P の p7（PoE）に繋ぎ、SSID を 3 つ（Trusted / IoT / Guest
 | リハーサル用 | 3 | 短いケーブル × 2 | p5・p6 に繋ぐ検証端末用 |
 
 - 電源は ER605（DC アダプター）、SG2210P、Buffalo、ThinkCentre。電源タップの空きと、停電時の扱い（UPS なし）を確認する。
+- **2026-11-03: ER605 と SG2210P の電源の確保と、Proxmox のそばへの配置を済ませた。** まだ配線はしていない（WAN・LAN とも未接続）。配線は段階 1・2 で行う。
 - ケーブルは CAT6 以上。ラベルを両端に貼る（`ER605-LAN1` など）。
 
 ## 段階 0: 事前準備
@@ -124,7 +125,7 @@ AP を SG2210P の p7（PoE）に繋ぎ、SSID を 3 つ（Trusted / IoT / Guest
 ネットワークを止めない作業。
 
 - [x] ER605 の版を確認する（**ER605 V2.30**。底面のラベルは `UN` / `2.30` だが、出荷時のファームウェアは **JP 版の 2.2.8 Build 20260128 Rel.11283**。2026-11-03 に確認。SG2210P は V5.30 で確認済み）。更新に使えるのは JP 版のファイルだけ。
-- [ ] 現在の Buffalo の設定を控える。設定値は[WSR-1800AX4P の設定](../../services/11-wsr-1800ax4p.md)に記録済み（2026-11-03）。**本体のバックアップ（`wsr-1800ax4p-bk-YYYYMMDD.bin`、暗号化）は、設定を変える前に取る（2026-11-03 に取得済み）。** 秘密の値と MAC アドレスは `private/secrets-inventory.md` の側に置き、リポジトリには書かない。
+- [x] 現在の Buffalo の設定を控える（2026-11-03 に完了）。設定値は[WSR-1800AX4P の設定](../../services/11-wsr-1800ax4p.md)に記録済み（2026-11-03）。**本体のバックアップ（`wsr-1800ax4p-bk-YYYYMMDD.bin`、暗号化）は、設定を変える前に取る（2026-11-03 に取得済み）。** 秘密の値と MAC アドレスは `private/secrets-inventory.md` の側に置き、リポジトリには書かない。
   - 設定のバックアップファイル（管理画面の「設定保存」）
   - DHCP のプール、固定割り当て（予約）の一覧、DHCP が配る DNS サーバー
   - WAN の取得方法、SSID 名、暗号化方式（パスフレーズは台帳へ）
@@ -132,18 +133,19 @@ AP を SG2210P の p7（PoE）に繋ぎ、SSID を 3 つ（Trusted / IoT / Guest
   - 管理画面からの更新は、UN 版のファイルで拒否されていた。**JP 版のファイルを、コントローラー（`vm-omada`）の手動更新で入れて成功した**。詳細は[ER605 の資料](../../hardware/er605.md#ファームウェアの更新解決済み)にある。
   - 更新には、先に `vm-omada` を立てて、ER605 を採用しておく必要があった（管理画面からの更新は、JP 版のファイルでも未確認）。
   - ER605 の WAN を Buffalo の LAN に繋いで、ER605 のコントローラー設定（`192.168.11.12`）で L3 の採用をした（LAN は初期値の `192.168.0.1/24` のまま。Buffalo の LAN には繋がない）。
-- [ ] ER605 を、本設置の前に、**標準の状態に戻して、スタンドアロンで LAN と DHCP を設定する**（2026-11-03 に、ER605 は一時的な配線で採用と更新を済ませ、取り外した）。
+- [x] ER605 を、本設置の前に、**標準の状態に戻して、スタンドアロンで LAN と DHCP を設定する**（2026-11-03 に、ER605 は一時的な配線で採用と更新を済ませ、取り外した。**同日、設定を完了した**）。
   - ER605 は今コントローラーに採用済みで、本体の画面に入れない。ER605 の WAN が `192.168.11.x` の間は、コントローラーからも LAN を `192.168.11.1/24` にできない（同じサブネットになり拒否される）。そのため、**採用の前に、本体の画面で設定する**元の手順に戻す。
   - 手順: (1) 背面のリセットボタンを 10 秒以上押して、工場出荷時の設定に戻す（ファームウェアの JP 版 2.4.2 は、そのまま残る）。(2) コントローラーの Devices にある古い ER605 の項目を「Forget」する。(3) **WAN を外した状態**で、Mac を ER605 の LAN に繋ぎ、`http://192.168.0.1` で、管理者のパスワードを決める（Keychain の `homelab / er605 admin` を新しい値に更新する）。(4) LAN を `192.168.11.1/24`、DHCP を `.60`〜`.99`・リース 48 時間・DNS は **`192.168.11.11`（`vm-infra`）だけ**にする（**決定 2026-11-03、[ADR-0024](../../adr/0024-dhcp-dns-single-no-fallback.md)**: Buffalo が配っている `1.1.1.1` の併記はやめる。併記すると、広告ブロックと `lab.kanare.dev` の名前解決が、たまに外れるため。`vm-infra` が止まったときの扱いは、[障害時切り分け](../runbooks/11-troubleshooting.md#vm-infra-の停止で名前解決が止まったとき仕事用-pc)を参照。VLAN 化のあとは `10.77.20.11`）にする。
   - そのあと、段階 1 で Buffalo と入れ替える。ER605 は、同じ `192.168.11.0/24` の中に `vm-omada` がいるので、コントローラーから自動で見つかり、採用できる。
-- [ ] `vm-omada` を立てる（Terraform の `vms` に追加。IP は `192.168.11.12`、VMID は `112`）。
-  - **下書きを書いた（2026-11-03、未適用）**: `terraform/proxmox/terraform.tfvars`（`vm-omada`: 2 vCPU、メモリ 3GB、ディスク 20G）、`ansible/playbooks/omada.yml`、`ansible/inventory/group_vars/omada/vars.yml`、`docker/compose/omada/docker-compose.yml`。
+- [x] `vm-omada` を立てる（Terraform の `vms` に追加。IP は `192.168.11.12`、VMID は `112`。**2026-11-03 に適用済み**）。
+  - **書いた・適用した（2026-11-03）**: `terraform/proxmox/terraform.tfvars`（`vm-omada`: 2 vCPU、メモリ 3GB、ディスク 20G）、`ansible/playbooks/omada.yml`、`ansible/inventory/group_vars/omada/vars.yml`、`docker/compose/omada/docker-compose.yml`。
   - 案: Ubuntu VM + Docker Compose で Omada コントローラーを動かす（イメージ `mbentley/omada-controller:6.3.0.111`、host ネットワーク）。VM か LXC か Docker かは VLAN 設計の未決事項で、ここで決める。
   - コントローラーは、mDNS の中継に v5.9 以降が要る（設計書より）。ER605 V2 の最新ファームウェアが動作確認されているのは 6.3.0（[ER605 の資料](../../hardware/er605.md)）。SG2210P V5.30 との対応は、公式の対応表で確認する。
   - **適用すると、thin pool の過剰割当が 1.5 を超えてアラートが出る**（2026-11-03 に適用し、1.44 → 1.57）。解消は、[未着手の項目](01-backlog.md)に記録した（`vm-dev` の縮小と `vm-windows` の削除）。
   - 適用する手順: `terraform apply -target='module.vm["vm-omada"]'`（**`-target` を付ける**。付けないと、手動起動の `vm-dev` も `running` にする差分が一緒に適用される）→ `make setup-omada` → 管理画面（初回は `ssh -L 8043:localhost:8043 vm-omada` で `https://localhost:8043`）で初期設定。
   - バックアップの保存先を決める（Mac だけにしない）。コントローラーの自動バックアップは `/opt/omada/data/autobackup` に出る。
-- [ ] `vm-omada` のホスト DNS と、バックアップ、監視（Prometheus の scrape、死活監視）を設計に加える。適用したあと、同じ変更で次を更新する: `terraform.tfvars` の反映に合わせた[インフラ構成](../../architecture/02-infrastructure.md)の表と[起動順序](../runbooks/01-vm-startup-shutdown.md)、Prometheus の scrape 対象（`192.168.11.12:9100`）、Caddy と DNS の `omada.lab.kanare.dev`（段階 1 の「同じ変更で直すもの」）、構成図。あわせて、**Omada Cloud（コントローラーをクラウド経由で開く外部依存）を、[ネットワーク設計](../../architecture/03-network.md#外部サービスへの依存)の表と構成図の外部サービスに足す**（止まっても、コントローラーと LAN の通信には影響しない見込み。管理画面の外部到達の経路が 1 つ増えるので、[VLAN 設計](../../architecture/08-vlan-design.md#管理画面への外部到達リスクを受け入れる)のリスクの記述にも足す）。
+- [ ] `vm-omada` のホスト DNS と、バックアップ、監視（Prometheus の scrape、死活監視）を設計に加える。**文書と構成図の反映は済み（2026-11-03）**: [インフラ構成](../../architecture/02-infrastructure.md)の表と割当、[起動順序](../runbooks/01-vm-startup-shutdown.md)、[信頼性](../../architecture/04-reliability.md)、[システム概要](../../architecture/01-overview.md)の図、README、[ネットワーク設計](../../architecture/03-network.md)の IP 表と外部サービス（Omada Cloud）、[VLAN 設計](../../architecture/08-vlan-design.md)のリスク、構成図（SVG）。**残り**: Prometheus の scrape 対象（`192.168.11.12:9100`）と死活監視（[バックログ](01-backlog.md)に記録。[監視・アラート](../../services/03-monitoring.md)に未監視と明記した）、Caddy と DNS の `omada.lab.kanare.dev`、バックアップの保存先、ホスト DNS。反映の対象は次のとおり: `terraform.tfvars` の反映に合わせた[インフラ構成](../../architecture/02-infrastructure.md)の表と[起動順序](../runbooks/01-vm-startup-shutdown.md)、Prometheus の scrape 対象（`192.168.11.12:9100`）、Caddy と DNS の `omada.lab.kanare.dev`（段階 1 の「同じ変更で直すもの」）、構成図。あわせて、**Omada Cloud（コントローラーをクラウド経由で開く外部依存）を、[ネットワーク設計](../../architecture/03-network.md#外部サービスへの依存)の表と構成図の外部サービスに足す**（止まっても、コントローラーと LAN の通信には影響しない見込み。管理画面の外部到達の経路が 1 つ増えるので、[VLAN 設計](../../architecture/08-vlan-design.md#管理画面への外部到達リスクを受け入れる)のリスクの記述にも足す）。
+- [x] ケーブルを用意する（**2026-11-03 に用意済み**。ER605 と Proxmox 用、ER605 と SG2210P p1 用の短いケーブル）。
 - [ ] 停止してよい時間帯を決める（段階 1 は 30 分〜1 時間の見込み）。
 
 ## 段階 1 と段階 2 は同じ日に続けて行う（案）
