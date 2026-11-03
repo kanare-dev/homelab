@@ -1,6 +1,6 @@
 # Buffalo WSR-1800AX4P
 
-Wi-Fi 6 対応の家庭用 Wi-Fi ルーター（AirStation）。現在は家のルーターで、移行では ER605 に交換して、AP（ブリッジ）モードの Wi-Fi の入口として使い続ける。公式の資料へのリンクと、製品ページの仕様をまとめる。移行の手順は[ER605・SG2210P の移行計画](../docs/operations/roadmap/10-er605-sg2210p-migration-plan.md)、VLAN の設計は[VLAN 設計](../docs/architecture/08-vlan-design.md)にある。
+Wi-Fi 6 対応の家庭用 Wi-Fi ルーター（AirStation）。現在は家のルーターで、移行では ER605 に交換して、AP（ブリッジ）モードの Wi-Fi の入口として使い続ける。公式の資料へのリンクと、製品ページの仕様をまとめる。設定値は[WSR-1800AX4P の設定](../docs/services/11-wsr-1800ax4p.md)（詳細設計）、移行の手順は[ER605・SG2210P の移行計画](../docs/operations/roadmap/10-er605-sg2210p-migration-plan.md)、VLAN の設計は[VLAN 設計](../docs/architecture/08-vlan-design.md)にある。
 
 > [!NOTE]
 > 確認日は 2026-11-03。仕様は Buffalo の製品ページ（仕様表）による。数値は原文のまま載せている。ファームウェアの版数は確認していない。色違いの型番は WSR-1800AX4P-WH（ホワイト）と WSR-1800AX4P-BK（ブラック）で、仕様は同じ。

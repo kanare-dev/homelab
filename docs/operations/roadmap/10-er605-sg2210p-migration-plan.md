@@ -124,7 +124,7 @@ AP を SG2210P の p7（PoE）に繋ぎ、SSID を 3 つ（Trusted / IoT / Guest
 ネットワークを止めない作業。
 
 - [ ] ER605 の版を本体の表示で確認する（V2 であること）。（SG2210P は V5.30 で確認済み。）
-- [ ] 現在の Buffalo の設定を控える。値は `private/secrets-inventory.md` の側に置き、リポジトリには書かない。
+- [ ] 現在の Buffalo の設定を控える。設定値は[WSR-1800AX4P の設定](../../services/11-wsr-1800ax4p.md)に記録済み（2026-11-03）。**本体のバックアップ（`wsr-1800ax4p-bk-YYYYMMDD.dat`、暗号化）は、設定を変える前に取る。** 秘密の値と MAC アドレスは `private/secrets-inventory.md` の側に置き、リポジトリには書かない。
   - 設定のバックアップファイル（管理画面の「設定保存」）
   - DHCP のプール、固定割り当て（予約）の一覧、DHCP が配る DNS サーバー
   - WAN の取得方法、SSID 名、暗号化方式（パスフレーズは台帳へ）

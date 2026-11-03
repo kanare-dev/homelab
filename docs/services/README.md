@@ -16,6 +16,7 @@
 | 07 | [CI/CD](07-cicd.md) | Terraform + Ansible のフローと CI の方針 |
 | 08 | [vm-code](08-vm-code.md) | 常用リモート開発環境 |
 | 10 | [MOTD](10-motd.md) | SSH ログイン時の表示（ホスト名のバナーとシステム情報） |
+| 11 | [WSR-1800AX4P](11-wsr-1800ax4p.md) | Buffalo Wi-Fi ルーターの設定値（詳細設計）。AP モードでの扱い、見直し項目、バックアップの運用 |
 
 ## 運用
 
