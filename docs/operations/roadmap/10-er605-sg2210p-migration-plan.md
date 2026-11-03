@@ -82,7 +82,7 @@ IP は変えない。Buffalo の Wi-Fi 設定は今のままなので、端末�
                   ├─ p2 ── Proxmox ［trunk: native=10、tag=20/40/50/70］
                   │          ├─ VLAN10 Management : Proxmox 10.77.10.10 / vm-omada 10.77.10.3
                   │          ├─ VLAN20 Servers    : vm-infra .11 / vm-monitoring .13 / vm-apps .20 / vm-code .22
-                  │          ├─ VLAN40 Lab        : vm-dev 10.77.40.21 ほか
+                  │          ├─ VLAN40 Lab        : vm-dev 10.77.40.21 / vm-windows（DHCP、起動するとき）
                   │          └─ VLAN70 DMZ        : （VLAN とルールだけ。置くものは後）
                   ├─ p3 ── Buffalo（AP モード）［access: VLAN30 Trusted］
                   │          ├─ メインディスプレイ（Trusted）
@@ -90,6 +90,10 @@ IP は変えない。Buffalo の Wi-Fi 設定は今のままなので、端末�
                   ├─ p4–p6 空き（予備、リハーサル用）
                   └─ p7–p8 空き（段階 4 の AP 用に PoE を残す）
 ```
+
+![段階 3 の後の構成図](../../diagrams/tobe-vlan.drawio.svg)
+
+図は `docs/diagrams/layout-tobe-vlan.py` で生成する（draw.io で開いて編集もできる）。計画を直したら、この ASCII 図とスクリプトを合わせて直す。
 
 `vm-omada` の `10.77.10.3` と SG2210P の `10.77.10.2` は案（[VLAN 設計](../../architecture/08-vlan-design.md#固定アドレス)の採番は機器購入後に確定とされている）。
 
