@@ -357,20 +357,21 @@ def layout():
     text("p3: access VLAN30（untagged）", 1000, 470, 300, 24)
     edge([(910, 460), (910, 580), (1200, 580), (1200, 640)], color=COLOR[30][1])  # p4: access VLAN30（VLAN の色）
     text("p4: access VLAN30（untagged）", 920, 550, 260, 24)
-    icon("hardware/buffalo-ap.png", 1346.75, 530, 126.5, 115, max_px=600)
-    icon("", 1450, 514, 40, 40, svg=wifi_svg(), rotation=45)  # AP が Wi-Fi を出していることを示す
-    text(f"<b>Buffalo WSR-1800AX4P</b><br>{ip('10.77.30.10')}<br>AP モード（管理画面は Trusted 上）", 1460, 554, 230, 60)
+    icon("hardware/buffalo-ap.png", 1348, 517, 126.5, 115, max_px=600)
+    icon("", 1448, 494, 40, 40, svg=wifi_svg(), rotation=45)  # AP が Wi-Fi を出していることを示す
+    text(f"<b>Buffalo WSR-1800AX4P</b><br>{ip('10.77.30.10')}<br>AP モード（管理画面は Trusted 上）", 1461.25, 541, 230, 60)
 
     tx, ty = 1140, 640
-    zone(30, tx, ty, 540, 300)
-    text("<b>VLAN30 Trusted</b>　DHCP .100–.199", tx + 10, ty + 5, 500, 30)
+    zone(30, tx, ty, 260, 300)                        # 有線（draw.io で 2 つに分けた）
+    text("<b>VLAN30 Trusted</b>　DHCP .100–.199", tx + 10, ty + 5, 240, 30)
+    zone(30, tx + 280, ty, 260, 300)                  # Wi-Fi
+    text("<b>VLAN30 Trusted</b> Wi-Fi接続", tx + 287, ty + 5, 240, 30)
     text("<i>有線（Dell U2725QE 経由）</i>", tx + 20, ty + 40, 250, 24)
     device(None, f"<i>canales-macbook-pro-m5</i><br>{ip('DHCP')}<br>MacBook Pro M5", tx + 10, ty + 70, 250, "laptop")
     device(None, f"<i>仕事用 Windows PC</i><br>{ip('DHCP')}<br>会社の VPN", tx + 10, ty + 130, 250, "laptop")
-    text("<i>Wi-Fi（SSID 1 つ、全部 Trusted）</i>", tx + 280, ty + 40, 250, 24)
-    device(None, f"<i>canales-iphone-14</i><br>{ip('DHCP')}<br>iPhone 14", tx + 270, ty + 70, 260, "mobile", size=(30, 40))
-    device("hardware/switchbot.png", f"<i>SwitchBot Hub 2</i><br>{ip('DHCP')}<br>将来 IoT へ移す", tx + 270, ty + 130, 260, size=(40, 40))
-    device(None, f"<i>テレビ（無線）</i><br>{ip('DHCP')}<br>将来 IoT へ移す", tx + 270, ty + 190, 260, "computer", size=(40, 40))
+    device(None, f"<i>canales-iphone-14</i><br>{ip('DHCP')}<br>iPhone 14", tx + 290, ty + 64, 230, "mobile", size=(30, 40))
+    device("hardware/switchbot.png", f"<i>SwitchBot Hub 2</i><br>{ip('DHCP')}<br>将来 IoT へ移す", tx + 290, ty + 124, 230, size=(40, 40))
+    device(None, f"<i>テレビ（無線）</i><br>{ip('DHCP')}<br>将来 IoT へ移す", tx + 290, ty + 184, 230, "computer", size=(40, 40))
 
     iy = ty + 300 + 20
     zone(50, tx, iy, 260, 150)
