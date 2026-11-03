@@ -10,7 +10,7 @@ homelab の監視とアラート通知の仕組み。2026-10-22 の障害（[INC
   └─ pve-storage-metrics.timer (1分毎)│  thin pool Data%/Meta%, VM 稼働状態, io-error
        -> /var/lib/node_exporter/textfile/pve_storage.prom
                                       │
- vm-infra / vm-apps / vm-dev / vm-code / vm-monitoring（vm-omada は未登録。下の注記）
+ vm-infra / vm-apps / vm-dev / vm-code / vm-monitoring / vm-omada
   └─ node_exporter :9100 ─────────────┤
                                       v
                        vm-monitoring (192.168.11.13)
@@ -48,7 +48,7 @@ homelab の監視とアラート通知の仕組み。2026-10-22 の障害（[INC
 | Grafana ダッシュボード「Storage / Thin Pool」 | pool とVM ディスク別の割当、増加ペース、VM 稼働状態 | `docker/compose/monitoring/grafana/dashboards/storage.json`（`/d/homelab-storage`） |
 | デプロイ | | `ansible/playbooks/monitoring.yml`（vm-monitoring）、`ansible/playbooks/proxmox.yml`（pve） |
 
-> **`vm-omada` は、まだ監視していない**（2026-11-03 時点）。`node_exporter` は常駐しているが、`prometheus.yml` の scrape 対象（`192.168.11.12:9100`）と、死活監視に入れていない。入れるまでは `TargetDown` が出ないので、`vm-omada` の停止に気づけない。入れる作業は[バックログ](../operations/roadmap/01-backlog.md)に記録している（[移行計画](../operations/roadmap/10-er605-sg2210p-migration-plan.md)の段階 0 にも残っている）。
+> `vm-omada` の Omada コントローラーの画面（HTTPS）の外形監視は、まだ入れていない。`omada.lab.kanare.dev` を Caddy と DNS に足したあとに、blackbox の HTTPS に加える（[バックログ](../operations/roadmap/01-backlog.md)）。`vm-omada` の OS の死活は、`node_exporter` の scrape と `TargetDown` で見ている（2026-11-03 から）。
 
 ## 監視している項目
 

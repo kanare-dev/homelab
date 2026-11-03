@@ -31,6 +31,11 @@ scrape_configs:
           env: "homelab"
           host: "vm-infra"
           role: "infra"
+      - targets: ["192.168.11.12:9100"]   # vm-omada
+        labels:
+          env: "homelab"
+          host: "vm-omada"
+          role: "omada"
       - targets: ["192.168.11.13:9100"]   # vm-monitoring
         labels:
           env: "homelab"

@@ -40,7 +40,7 @@ homelab の全体像。最新の構成図、目的、構成の理由、前提と
 
 外部サービス（Healthchecks.io、Slack、Cloudflare、Let's Encrypt、Tailscale、GitHub、Omada Cloud）は、図の上部にまとめて描いている。いずれも LAN から外向きに接続するだけ。外部から入る経路は Tailscale と、Omada Cloud 経由の Omada コントローラーの管理画面（[外部接続](03-network.md#外部サービスへの依存)）。
 
-`node_exporter` は全 VM（`vm-infra` / `vm-monitoring` / `vm-apps` / `vm-dev` / `vm-code` / `vm-omada`）と Proxmox ホストに常駐する。`vm-monitoring` の Prometheus がスクレイプしているのは、`vm-omada` を除くすべて。`vm-omada` は、まだ scrape 対象に入れていない（[監視・アラート](../services/03-monitoring.md)）。
+`node_exporter` は全 VM（`vm-infra` / `vm-monitoring` / `vm-apps` / `vm-dev` / `vm-code` / `vm-omada`）と Proxmox ホストに常駐し、`vm-monitoring` の Prometheus がまとめてスクレイプする。
 
 `vm-omada` の Omada コントローラーは、ER605・SG2210P を管理する（2026-11-03 に稼働）。機器の本設置はこれからで、今はどの機器も管理していない（Buffalo は管理対象外）。止まっても、機器は設定を持ったまま動く。
 
