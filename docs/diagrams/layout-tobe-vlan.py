@@ -272,7 +272,7 @@ def layout():
     text("Lenovo ThinkCentre M70q Tiny Gen1<br>CPU: Intel Core i5-10400T (6C/12T)<br>RAM: 1 x 8 GB + 1 x 16 GB DDR4-3200<br>"
          "Storage: 1 x 256GB NVMe SSD", 430, 503, 300, 80, align="center")
     edge([(800, 460), (800, 620)])
-    text("p2: trunk（native VLAN10、tag 20/40/50/70）", 480, 468, 310, 24, align="right")
+    text("p2: trunk（VLAN10/20/40/50/70 を tag 付き）", 440, 468, 350, 24, align="right")
 
     # 右の列（Management / Lab / DMZ）と、Servers の 2 列を先に配置して高さを決める
     gi = len(back)                      # Proxmox の枠は、中の VLAN 枠より前に入れる
@@ -333,7 +333,7 @@ def layout():
     frame(gx, gy, 1060, gh, "#dddddd", "#999999", opacity=40, to=grp)
     back.insert(gi, grp[0])
     icon("platform/proxmox.png", gx + 20, gy + 20, 40, 40, max_px=120)
-    text(f"{name_ip('pve', '10.77.10.10')}（VLAN10、untagged）<br>Proxmox 9.1<br>(based on Debian 13)<br>", gx + 70, gy + 20, 303, 60)
+    text(f"{name_ip('pve', '10.77.10.10')}<br><i>vmbr0.10</i>（VLAN10、tag 付き）<br>Proxmox 9.1（Debian 13 ベース）", gx + 70, gy + 20, 303, 60)
     icon("", 780, 620, 40, 40, svg=ethernet_svg())
     text("nic0", 830, 635, 60, 20)
     row(*NODE, gx + 20, gy + gh - 50, 220)
