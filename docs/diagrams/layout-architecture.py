@@ -167,7 +167,7 @@ def layout(m):
     # 文字 ---------------------------------------------------------------
     m.value("8", "Buffalo WSR-1800AX4P<br>" + ORANGE % "192.168.11.1")
     m.value("13", "Internet")
-    m.value("15", "Lenovo ThinkCentre M70q Tiny<br>CPU: Intel Core i5-10400T (6C/12T)<br>"
+    m.value("15", "Lenovo ThinkCentre M70q Tiny Gen1<br>CPU: Intel Core i5-10400T (6C/12T)<br>"
                   "RAM: 1 x 8 GB + 1 x 16 GB DDR4-3200<br>Storage: 1 x 256GB NVMe SSD")
     m.value("24", "<b>LAN<br>192.168.11.0/24</b>")
     m.value("27", "<i>pve</i> " + ORANGE % "192.168.11.10" + "<br>Proxmox 9.1<br>(based on Debian 13)")
@@ -204,15 +204,30 @@ def layout(m):
     m.value("vmcode-codeserver-text", svc("code-server", ":8080"))
     m.value("vmcode-nodeexp-text", svc("node_exporter", ":9100"))
     ext = (("healthchecks", "Healthchecks.io"), ("slack", "Slack"), ("cloudflare", "Cloudflare"),
-           ("letsencrypt", "Let's Encrypt"), ("tailscale", "Tailscale"), ("github", "GitHub"))
+           ("letsencrypt", "Let's Encrypt"), ("tailscale", "Tailscale"), ("github", "GitHub"),
+           ("omada", "Omada Cloud"))
     m.clone("89", "ext-frame")
     m.restyle("ext-frame", "fillColor=#dae8fc;strokeColor=#6c8ebf;dashed=0;dashPattern=")  # LAN・VM の橙の破線と区別する
     m.clone("24", "ext-label")
     m.value("ext-label", "<b>External Services</b>")
     for n, label in ext:
-        m.clone("92", f"ext-{n}-icon", icon=f"external/{n}.svg")
+        m.clone("92", f"ext-{n}-icon", icon="network/omada.svg" if n == "omada" else f"external/{n}.svg")
         m.clone("93", f"ext-{n}-text")
         m.value(f"ext-{n}-text", label)
+    m.clone("35", "vmomada-frame")
+    m.clone("36", "vmomada-icon")
+    m.clone("37", "vmomada-text")
+    m.value("vmomada-text", vm_head("vm-omada", "192.168.11.12"))
+    m.clone("67", "vmomada-dbox")
+    m.clone("61", "vmomada-docker-icon")
+    m.clone("62", "vmomada-docker-text")
+    m.value("vmomada-docker-text", "Docker containers")
+    m.clone("64", "vmomada-omada-icon", icon="network/omada.svg")
+    m.clone("66", "vmomada-omada-text")
+    m.value("vmomada-omada-text", svc("Omada Controller", ":8043"))
+    m.clone("94", "vmomada-nodeexp-icon")
+    m.clone("95", "vmomada-nodeexp-text")
+    m.value("vmomada-nodeexp-text", svc("node_exporter", ":9100"))
     m.value("59", "<i>canales-macbook-pro-m5</i><br>" + ORANGE % "DHCP" + "<br>MacBook Pro M5")
     m.value("60", "<i>canales-iphone-14</i><br>" + ORANGE % "DHCP" + "<br>iPhone 14")
     m.value("57", ORANGE % "DHCP" + "<br>SwitchBot Hub 2")
@@ -226,14 +241,14 @@ def layout(m):
     m.clone("90", "vmwin-icon", icon="platform/windows-11.svg")
     m.clone("91", "vmwin-text")
     m.value("vmwin-text", "<i>vm-windows</i> " + ORANGE % "DHCP" + "<br>Windows 11")
-    m.geo("77", 0, 0, 1380, 1070)                      # 背景（キャンバス）。外周の余白は 40
+    m.geo("77", 0, 0, 1380, 1170)                      # 背景（キャンバス）。外周の余白は 40
     m.geo("28", 40, 40, 140, 40)
     m.geo("24", 40, 40, 140, 40)
 
     cx = 940                                          # Internet・ルーター・nic0 を通す縦線
     m.geo("Hu1WL4VJLdPnrhCaS11O-103", cx - 38.19, 46.5, 76.38, 47)  # インターネットのアイコン（差し替え済み）
     m.geo("13", cx + 40, 55, 80, 30)
-    m.geo("103", cx - 60, 160, 120, 80)
+    m.geo("ejPAYOGr_7ZoUszG3WJD-105", cx - 54.17, 148, 108.33, 99)  # ルーターの画像（draw.io で差し替え済み）
     m.geo("8", cx + 70, 170, 220, 40)
     m.geo("38", cx - 20, 320, 40, 50)
     m.edge("11", cx, 93.5, cx, 160)
@@ -243,16 +258,16 @@ def layout(m):
     for cid in ("vmmon-speedtest-icon", "vmmon-speedtest-text"):  # 廃止した speedtest-exporter（ADR 0018）
         m.remove(cid)
 
-    m.geo("ext-frame", 220, 40, 640, 150)             # 外部サービス（Internet の左）。VM 枠と同じ見た目
+    m.geo("ext-frame", 220, 40, 640, 190)             # 外部サービス（Internet の左）。VM 枠と同じ見た目
     m.geo("ext-label", 240, 50, 200, 30)
     for k, (n, _) in enumerate(ext):
         m.row(f"ext-{n}-icon", f"ext-{n}-text", 240 + 210 * (k % 3), 100 + 40 * (k // 3), 190)
     m.add_edge("ext-edge", 860, 70, cx - 38.19, 70)
 
-    m.geo("12", 530 - 25.05, 340 - 52)                # 90 度回転した画像。見た目の中心は (530, 340)
-    m.geo("15", 380, 225, 300, 80)
+    m.geo("ejPAYOGr_7ZoUszG3WJD-104", 420, 301.67, 220, 73.33)  # ThinkCentre の画像（draw.io で差し替え済み）
+    m.geo("15", 380, 240, 300, 60)
 
-    m.geo("14", 40, 340, 980, 690)                    # PVE 枠
+    m.geo("14", 40, 340, 980, 790)                    # PVE 枠
     m.head("26", "27", 60, 360, 300)
     m.geo("27", 110, 360, 260, 60)
 
@@ -276,20 +291,25 @@ def layout(m):
     m.dbox("96", [("97", "98"), ("92", "93"), ("vmapps-ha-icon", "vmapps-ha-text"),
                     ("vmapps-n8n-icon", "vmapps-n8n-text"), ("vmapps-freshrss-icon", "vmapps-freshrss-text")], c3, top + 70)
     m.row("94", "95", c3 + 40, top + 290, 220)
-    m.vm("vmwin-frame", "vmwin-icon", "vmwin-text", c3, top + 360, 80)   # vm-windows（手動起動。node_exporter 未導入）
-    m.geo("vmwin-icon", c3 + 25, top + 385, 30, 30)    # 余白のないロゴなので、他の見出しアイコンと大きさが合うよう小さくする
+    m.vm("vmomada-frame", "vmomada-icon", "vmomada-text", c3, top + 360, 220)   # vm-omada
+    m.dbox("vmomada-dbox", [("vmomada-docker-icon", "vmomada-docker-text"), ("vmomada-omada-icon", "vmomada-omada-text")],
+           c3, top + 430)
+    m.row("vmomada-nodeexp-icon", "vmomada-nodeexp-text", c3 + 40, top + 530, 220)
 
-    m.row("87", "88", 80, 980, 220)                   # Proxmox ホスト自身の node_exporter（PVE 枠の左下）
+    m.vm("vmwin-frame", "vmwin-icon", "vmwin-text", c1, top + 540, 80)   # vm-windows（手動起動。node_exporter 未導入）
+    m.geo("vmwin-icon", c1 + 25, top + 565, 30, 30)    # 余白のないロゴなので、他の見出しアイコンと大きさが合うよう小さくする
+
+    m.row("87", "88", 80, 1080, 220)                  # Proxmox ホスト自身の node_exporter（PVE 枠の左下）
 
     rx, rw = 1060, 280                                # LAN / IoT の枠。上端・下端は PVE 枠に合わせる
     m.head("30", "43", rx + 20, 290, rw - 20)
     m.geo("44", rx, 340, rw, 180)
     m.device("52", "59", rx, 360, 40, 30, rw)
     m.device("51", "60", rx, 440, 30, 40, rw)
-    m.head("70", "53", rx + 20, 800, rw - 20)
-    m.geo("54", rx, 850, rw, 180)
-    m.device("55", "57", rx, 870, 40, 40, rw)
-    m.device("56", "58", rx, 950, 40, 40, rw)
+    m.head("70", "53", rx + 20, 900, rw - 20)
+    m.geo("54", rx, 950, rw, 180)
+    m.device("55", "57", rx, 970, 40, 40, rw)
+    m.device("56", "58", rx, 1050, 40, 40, rw)
 
 
 def main():
