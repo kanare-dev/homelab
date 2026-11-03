@@ -42,17 +42,6 @@ COLOR = {
 }
 NAME = {10: "Management", 20: "Servers", 30: "Trusted", 40: "Lab", 50: "IoT", 60: "Guests", 70: "DMZ"}
 
-# インターネットの地球儀（自作。外部の素材は使わない）
-GLOBE = (
-    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><defs>'
-    '<radialGradient id="g" cx="35%" cy="30%" r="75%"><stop offset="0" stop-color="#9ad8ff"/>'
-    '<stop offset="1" stop-color="#1c6bb5"/></radialGradient></defs>'
-    '<circle cx="32" cy="32" r="29" fill="url(#g)" stroke="#12508a" stroke-width="2"/>'
-    '<g fill="none" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round" opacity=".9">'
-    '<ellipse cx="32" cy="32" rx="12" ry="29"/><path d="M32 3v58M3 32h58"/>'
-    '<path d="M7 19c16 6 34 6 50 0M7 45c16-6 34-6 50 0"/></g></svg>'
-)
-
 cells = []  # 前面（VM、文字、線）
 back = []   # 背面（背景、LAN の枠、VLAN の枠）。cells より先に描く
 _tmp = tempfile.TemporaryDirectory()
@@ -241,8 +230,10 @@ def layout():
     OFF[0] = 80  # ここから下は 80 下げる（凡例と LAN の枠が重ならないように）
 
     # インターネット・ルーター・スイッチ ------------------------------------------
-    icon(None, 850, 16, 60, 60, svg=GLOBE)
-    text("Internet", 920, 31, 100, 30)
+    add("", "sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#232F3D;strokeColor=none;dashed=0;"
+            "verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;"
+            "pointerEvents=1;shape=mxgraph.aws4.internet;labelPerimeter=1;", 846, 21, 78, 48)  # 現行の図と同じアイコン
+    text("Internet", 938, 34, 100, 30)
     edge([(880, 76), (880, 200)])  # 地球儀の下から ER605 の上まで、1 本で繋ぐ
     text(f"建物の共用ルーター {ip('172.22.0.1')}（二重 NAT）", 895, 94, 340, 24)
     text("WAN（DHCP）", 895, 128, 120, 24)
@@ -264,7 +255,7 @@ def layout():
     text("p1: trunk（VLAN10/20/30/40/50/60/70 を tag 付き）", 890, 320, 450, 40)
 
     icon("hardware/tplink-sg2210p.png", 760, 380, 240, 80, max_px=700)
-    text(f"<b>TP-Link SG2210P</b><br>{ip('10.77.10.2')}（VLAN10）<br>p4: ディスプレイ　p5–p6: 予備<br>p7–p8: 将来の AP 用（PoE）", 1010, 380, 330, 80)
+    text(f"<b>TP-Link SG2210P</b><br>{ip('10.77.10.2')}（VLAN10）<br>p1: ER605 / p2: pve / p3: AP1 / p4: Dell U2725QE / p5–p6: 予備 / p7–p8: 将来の AP 用（PoE）", 1010, 380, 707, 80)
 
     # Proxmox ------------------------------------------------------------
     gx, gy = 40, 640
