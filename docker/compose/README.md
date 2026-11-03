@@ -29,6 +29,8 @@ docker/compose/
 │   ├── docker-compose.yml
 │   ├── config/              # configuration.yaml と、画面で編集される YAML（make ha-config-pull で取り込む）
 │   └── storage/http         # .storage/http の初期値（Caddy を信頼する設定）
+├── omada/                   # vm-omada 上で実行: Omada コントローラー（下書き。Ansible の omada.yml がデプロイ）
+│   └── docker-compose.yml
 ├── freshrss/                # vm-apps 上で実行（Ansible の apps.yml がデプロイ）
 │   └── docker-compose.yml
 ├── n8n/                     # vm-apps 上で実行（Ansible の apps.yml がデプロイ）

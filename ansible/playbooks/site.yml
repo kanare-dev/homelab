@@ -1,7 +1,7 @@
 ---
 # 全 VM の一括セットアップ
 - name: Setup all VMs
-  hosts: infra:monitoring:apps:dev:code
+  hosts: infra:monitoring:apps:dev:code:omada
   roles:
     - common
     - docker
@@ -17,3 +17,5 @@
   ansible.builtin.import_playbook: apps.yml
 - name: Setup code VM
   ansible.builtin.import_playbook: code.yml
+- name: Setup Omada VM
+  ansible.builtin.import_playbook: omada.yml

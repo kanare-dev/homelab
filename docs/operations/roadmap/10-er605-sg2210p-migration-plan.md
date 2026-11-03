@@ -124,7 +124,7 @@ AP を SG2210P の p7（PoE）に繋ぎ、SSID を 3 つ（Trusted / IoT / Guest
 ネットワークを止めない作業。
 
 - [ ] ER605 の版を本体の表示で確認する（V2 であること）。（SG2210P は V5.30 で確認済み。）
-- [ ] 現在の Buffalo の設定を控える。設定値は[WSR-1800AX4P の設定](../../services/11-wsr-1800ax4p.md)に記録済み（2026-11-03）。**本体のバックアップ（`wsr-1800ax4p-bk-YYYYMMDD.dat`、暗号化）は、設定を変える前に取る。** 秘密の値と MAC アドレスは `private/secrets-inventory.md` の側に置き、リポジトリには書かない。
+- [ ] 現在の Buffalo の設定を控える。設定値は[WSR-1800AX4P の設定](../../services/11-wsr-1800ax4p.md)に記録済み（2026-11-03）。**本体のバックアップ（`wsr-1800ax4p-bk-YYYYMMDD.bin`、暗号化）は、設定を変える前に取る（2026-11-03 に取得済み）。** 秘密の値と MAC アドレスは `private/secrets-inventory.md` の側に置き、リポジトリには書かない。
   - 設定のバックアップファイル（管理画面の「設定保存」）
   - DHCP のプール、固定割り当て（予約）の一覧、DHCP が配る DNS サーバー
   - WAN の取得方法、SSID 名、暗号化方式（パスフレーズは台帳へ）
@@ -134,10 +134,12 @@ AP を SG2210P の p7（PoE）に繋ぎ、SSID を 3 つ（Trusted / IoT / Guest
   - **ER605 の LAN を `192.168.11.1` に変えるのは、WAN を外してから。** WAN 側（Buffalo の LAN）と同じ範囲になると、ルーターが正しく動かない。
 - [ ] ER605 の LAN を `192.168.11.1/24` に変え、DHCP プールと配る DNS を Buffalo の今の値に合わせる。管理画面のパスワードを変える（台帳へ）。
 - [ ] `vm-omada` を立てる（Terraform の `vms` に追加。IP は `192.168.11.12`、VMID は `112`）。
-  - 案: Ubuntu VM + Docker Compose で Omada コントローラーを動かす。VM か LXC か Docker かは VLAN 設計の未決事項で、ここで決める。
-  - コントローラーは、mDNS の中継に v5.9 以降が要る（設計書より）。ER605 V2 と SG2210P の対応を公式の対応表で確認してから版を選ぶ。
-  - バックアップの保存先を決める（Mac だけにしない）。
-- [ ] `vm-omada` のホスト DNS と、バックアップ、監視（Prometheus の scrape、死活監視）を設計に加える。
+  - **下書きを書いた（2026-11-03、未適用）**: `terraform/proxmox/terraform.tfvars`（`vm-omada`: 2 vCPU、メモリ 3GB、ディスク 20G）、`ansible/playbooks/omada.yml`、`ansible/inventory/group_vars/omada/vars.yml`、`docker/compose/omada/docker-compose.yml`。
+  - 案: Ubuntu VM + Docker Compose で Omada コントローラーを動かす（イメージ `mbentley/omada-controller:6.3.0.111`、host ネットワーク）。VM か LXC か Docker かは VLAN 設計の未決事項で、ここで決める。
+  - コントローラーは、mDNS の中継に v5.9 以降が要る（設計書より）。ER605 V2 の最新ファームウェアが動作確認されているのは 6.3.0（[ER605 の資料](../../../hardware/er605.md)）。SG2210P V5.30 との対応は、公式の対応表で確認する。
+  - 適用する手順: `terraform apply -target='module.vm["vm-omada"]'`（**`-target` を付ける**。付けないと、手動起動の `vm-dev` も `running` にする差分が一緒に適用される）→ `make setup-omada` → 管理画面（初回は `ssh -L 8043:localhost:8043 vm-omada` で `https://localhost:8043`）で初期設定。
+  - バックアップの保存先を決める（Mac だけにしない）。コントローラーの自動バックアップは `/opt/omada/data/autobackup` に出る。
+- [ ] `vm-omada` のホスト DNS と、バックアップ、監視（Prometheus の scrape、死活監視）を設計に加える。適用したあと、同じ変更で次を更新する: `terraform.tfvars` の反映に合わせた[インフラ構成](../../architecture/02-infrastructure.md)の表と[起動順序](../runbooks/01-vm-startup-shutdown.md)、Prometheus の scrape 対象（`192.168.11.12:9100`）、Caddy と DNS の `omada.lab.kanare.dev`（段階 1 の「同じ変更で直すもの」）、構成図。
 - [ ] 停止してよい時間帯を決める（段階 1 は 30 分〜1 時間の見込み）。
 
 ## 段階 1 と段階 2 は同じ日に続けて行う（案）

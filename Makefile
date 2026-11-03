@@ -39,6 +39,9 @@ deploy-apps: ## Deploy one vm-apps app only. Usage: make deploy-apps APP=homepag
 setup-code: ## Run Ansible for code VM only
 	cd ansible && ansible-playbook playbooks/code.yml
 
+setup-omada: ## Run Ansible for Omada VM only
+	cd ansible && ansible-playbook playbooks/omada.yml
+
 ha-config-pull: ## Pull UI-edited Home Assistant YAML (automations/scripts/scenes) from vm-apps into Git (adds the trailing newline HA omits)
 	@for f in automations scripts scenes; do \
 		ssh -o BatchMode=yes -i ~/.ssh/id_ed25519_homelab ubuntu@192.168.11.20 "sudo cat /opt/homeassistant/config/$$f.yaml" | awk 1 > docker/compose/homeassistant/config/$$f.yaml.tmp \

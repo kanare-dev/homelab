@@ -1,0 +1,50 @@
+# INC-2026-10-22: コンテナログがディスクを圧迫しないよう上限を設ける
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
+# Omada コントローラー（ER605・SG2210P・将来の AP を一元管理する）。
+# イメージは MongoDB を含む。MongoDB 5 以降は AVX が要る（vm-omada の CPU は host 指定なので使える）。
+services:
+  omada:
+    # ER605 V2 の最新ファームウェア（2.4.10）が動作確認されているのは Omada コントローラー 6.3.0。
+    # mDNS の中継（ゲートウェイは v5.6 以降）にも足りる。上げるときは、先に設定のバックアップを取る
+    image: mbentley/omada-controller:6.3.0.111
+    container_name: omada
+    logging: *default-logging
+    restart: unless-stopped
+    # 機器の自動検出（UDP 29810）が L2 のブロードキャストに頼るので、host ネットワークで動かす。
+    # 公開ポートは ufw（group_vars/omada）で絞る
+    network_mode: host
+    # MongoDB が正常に止まるまで待つ
+    stop_grace_period: 60s
+    ulimits:
+      nofile:
+        soft: 4096
+        hard: 8192
+    environment:
+      - TZ=Asia/Tokyo
+      # データのディレクトリの所有者（ansible_user = ubuntu）
+      - PUID=1000
+      - PGID=1000
+      - MANAGE_HTTP_PORT=8088
+      - MANAGE_HTTPS_PORT=8043
+      - PORTAL_HTTP_PORT=8088
+      - PORTAL_HTTPS_PORT=8843
+      - PORT_APP_DISCOVERY=27001
+      - PORT_DISCOVERY=29810
+      - PORT_MANAGER_V1=29811
+      - PORT_ADOPT_V1=29812
+      - PORT_UPGRADE_V1=29813
+      - PORT_MANAGER_V2=29814
+      - PORT_TRANSFER_V2=29815
+      - PORT_RPC_V2=29816
+      - SHOW_SERVER_LOGS=true
+      - SHOW_MONGODB_LOGS=false
+    volumes:
+      - /opt/omada/data:/opt/tplink/EAPController/data
+      - /opt/omada/logs:/opt/tplink/EAPController/logs
+
+networks: {}
