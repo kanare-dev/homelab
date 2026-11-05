@@ -275,7 +275,7 @@ def layout():
     icon("hardware/tplink-er605.png", 760, 200, 240, 80, max_px=700)
     text(f"<b>TP-Link ER605 V2</b><br>{ip('10.77.10.1')}（VLAN10）<br>各 VLAN の GW（.1）・DHCP・ACL", 1010, 200, 330, 80)
     edge([(880, 280), (880, 380)], width=5)  # p1: trunk（太い線）
-    text("ER605 p2 ⇔ SG2210P p1: trunk（VLAN10/20/30/40/50/60/70 を tag 付き）", 890, 320, 560, 40)
+    text("ER605 p2 ⇔ SG2210P p1: trunk（tagged: VLAN10/20/30/40/50/60/70）", 890, 320, 560, 40)
 
     icon("hardware/tplink-sg2210p.png", 760, 380, 240, 80, max_px=700)
     text(f"<b>TP-Link SG2210P</b><br>{ip('10.77.10.2')}（VLAN10）<br>p1: ER605 / p2: pve / p3: AP1 / p4: Dell U2725QE / p5–p6: 予備 / p7–p8: 将来の AP 用（PoE）", 1010, 380, 707, 80)
@@ -286,7 +286,7 @@ def layout():
     text("<b>Lenovo ThinkCentre M70q Tiny Gen1<br></b>CPU: Intel Core i5-10400T (6C/12T)<br>RAM: 1 x 8 GB + 1 x 16 GB DDR4-3200<br>"
          "Storage: 1 x 256GB NVMe SSD", 430, 519, 300, 80, align="center")
     edge([(800, 460), (800, 620)], width=5)  # p2: trunk（太い線）
-    text("p2: trunk（VLAN10/20/40/50/70 を tag 付き）", 440, 468, 350, 24, align="right")
+    text("p2: trunk（tagged: VLAN10/20/40/50/70）", 440, 468, 350, 24, align="right")
 
     # 右の列（Management / Lab / DMZ）と、Servers の 2 列を先に配置して高さを決める
     gi = len(back)                      # Proxmox の枠は、中の VLAN 枠より前に入れる
@@ -346,16 +346,16 @@ def layout():
     frame(gx, gy, 1060, gh, COLOR[10][0], COLOR[10][1], opacity=40, to=grp)  # Proxmox ホストは Management（VLAN10）の色
     back.insert(gi, grp[0])
     icon("platform/proxmox.png", gx + 20, gy + 20, 40, 40, max_px=120)
-    text(f"{name_ip('pve', '10.77.10.10')}<br><i>vmbr0.10</i>（VLAN10、tag 付き）<br>Proxmox 9.1（Debian 13 ベース）", gx + 70, gy + 20, 303, 60)
+    text(f"{name_ip('pve', '10.77.10.10')}<br><i>vmbr0.10</i>（tagged: VLAN10）<br>Proxmox 9.1（Debian 13 ベース）", gx + 70, gy + 20, 303, 60)
     icon("", 780, 620, 40, 40, svg=ethernet_svg())
     text("nic0", 830, 635, 60, 20)
     row(*NODE, gx + 20, gy + gh - 50, 220)
 
     # Buffalo と Trusted / IoT / Guests ------------------------------------------
     edge([(960, 460), (960, 500), (1410, 500), (1410, 530)], color=COLOR[30][1])  # p3: access VLAN30（VLAN の色）
-    text("p3: access VLAN30（untagged）", 1000, 470, 300, 24)
+    text("p3: access（untagged: VLAN30）", 1000, 470, 300, 24)
     edge([(910, 460), (910, 580), (1200, 580), (1200, 640)], color=COLOR[30][1])  # p4: access VLAN30（VLAN の色）
-    text("p4: access VLAN30（untagged）", 920, 550, 260, 24)
+    text("p4: access（untagged: VLAN30）", 920, 550, 260, 24)
     icon("hardware/buffalo-ap.png", 1348, 517, 126.5, 115, max_px=600)
     icon("", 1448, 494, 40, 40, svg=wifi_svg(), rotation=45)  # AP が Wi-Fi を出していることを示す
     text(f"<b>Buffalo WSR-1800AX4P</b><br>{ip('10.77.30.50')}<br>AP モード（管理画面は Trusted 上）", 1461.25, 541, 230, 60)
