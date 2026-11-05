@@ -237,10 +237,6 @@ def layout(m):
     m.clone("94", "vmdev-nodeexp-icon")
     m.clone("95", "vmdev-nodeexp-text")
     m.value("vmdev-nodeexp-text", svc("node_exporter", ":9100"))
-    m.clone("89", "vmwin-frame")
-    m.clone("90", "vmwin-icon", icon="platform/windows-11.svg")
-    m.clone("91", "vmwin-text")
-    m.value("vmwin-text", "<i>vm-windows</i> " + ORANGE % "DHCP" + "<br>Windows 11")
     m.geo("77", 0, 0, 1380, 1170)                      # 背景（キャンバス）。外周の余白は 40
     m.geo("28", 40, 40, 140, 40)
     m.geo("24", 40, 40, 140, 40)
@@ -256,6 +252,8 @@ def layout(m):
     for cid in ("42", "68", "69"):
         m.drop(cid)
     for cid in ("vmmon-speedtest-icon", "vmmon-speedtest-text"):  # 廃止した speedtest-exporter（ADR 0018）
+        m.remove(cid)
+    for cid in ("vmwin-frame", "vmwin-icon", "vmwin-text"):  # 削除した vm-windows（2026-11-05）
         m.remove(cid)
 
     m.geo("ext-frame", 220, 40, 640, 190)             # 外部サービス（Internet の左）。VM 枠と同じ見た目
@@ -295,9 +293,6 @@ def layout(m):
     m.dbox("vmomada-dbox", [("vmomada-docker-icon", "vmomada-docker-text"), ("vmomada-omada-icon", "vmomada-omada-text")],
            c3, top + 430)
     m.row("vmomada-nodeexp-icon", "vmomada-nodeexp-text", c3 + 40, top + 530, 220)
-
-    m.vm("vmwin-frame", "vmwin-icon", "vmwin-text", c1, top + 540, 80)   # vm-windows（手動起動。node_exporter 未導入）
-    m.geo("vmwin-icon", c1 + 25, top + 565, 30, 30)    # 余白のないロゴなので、他の見出しアイコンと大きさが合うよう小さくする
 
     m.row("87", "88", 80, 1080, 220)                  # Proxmox ホスト自身の node_exporter（PVE 枠の左下）
 
