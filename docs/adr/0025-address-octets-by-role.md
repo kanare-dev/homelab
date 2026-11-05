@@ -43,7 +43,7 @@
 ## 影響と再検討の条件
 
 - 段階 3 まで、設計書に「現在」（`192.168.11.x`）と「移行後」の 2 つの値が並ぶ。段階 1・2 の IP と DHCP（`192.168.11.60–.99`）は変えない。
-- 書き換えの対象: VLAN 設計、移行計画、構成図（`tobe-vlan.drawio.svg`）。段階 3 の前に、Ansible・Terraform・Caddy・Prometheus・Tailscale の IP を、新しい値で用意する。
+- 書き換えの対象: VLAN 設計、移行計画、構成図（`docs/diagrams/tobe-html/`）。段階 3 の前に、Ansible・Terraform・Caddy・Prometheus・Tailscale の IP を、新しい値で用意する。
 - Management に、自動でアドレスを得られる口ができる。Management に出せるのは SG2210P の物理ポートだけなので、使わないポートは Management にしない。
 - 実機の確認で、緊急用プールが不要と分かったら、新しい ADR で外す。
 
