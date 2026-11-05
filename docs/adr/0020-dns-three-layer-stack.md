@@ -5,7 +5,7 @@
 
 ## 背景
 
-`vm-infra` で、LAN の DNS を AdGuard Home（入口）、CoreDNS（`lab.kanare.dev` の権威）、Unbound（外部の再帰解決）の3層で動かしている（[DNS 構成](../services/01-dns.md)）。Pi-hole、Technitium DNS Server、BIND9 などと比べた記録や、3層に分けた理由の記録は残っていなかったため、現在の要件に照らして理由を明文化する。導入当時の検討記録は無い。
+`vm-infra` で、LAN の DNS を AdGuard Home（入口）、CoreDNS（`lab.kanare.dev` の権威）、Unbound（外部の再帰解決）の3層で動かしている（[DNS 構成](../services/network/dns.md)）。Pi-hole、Technitium DNS Server、BIND9 などと比べた記録や、3層に分けた理由の記録は残っていなかったため、現在の要件に照らして理由を明文化する。導入当時の検討記録は無い。
 
 要件は次のとおり。
 
@@ -44,11 +44,11 @@
 ## 影響と再検討の条件
 
 - DNS の3層がすべて `vm-infra` 1台に載る。`vm-infra` が止まると名前解決が止まる。そのため VM のホスト DNS はルーターを向ける（[ADR 0007](0007-vm-host-dns-is-router.md)）。
-- 障害時の切り分けが、3層ぶん増える（[監視](../services/03-monitoring.md)の `dns-lab` と `dns-external` で層を分けて検知する）。
+- 障害時の切り分けが、3層ぶん増える（[監視](../services/platform/monitoring.md)の `dns-lab` と `dns-external` で層を分けて検知する）。
 - 次のいずれかになったら、再検討する（新しい ADR を追加して、この ADR を置き換える）。
   - 内部名が少なく、運用が重いと感じ、CoreDNS を DNS rewrite に畳みたくなった。
   - [VLAN 化](../operations/roadmap/04-network-omada-vlan.md)や DMZ で、DNS の置き場所や参照先を変える必要が出た（DMZ の DNS は未決事項）。
   - Cloudflare Tunnel による外部公開で、Split-Horizon DNS が必要になった（[ADR 0005](0005-tailscale-only-remote-access.md)）。
   - `vm-infra` の単一障害点を解消するため、DNS を冗長化したくなった。
 
-詳細: [DNS 構成](../services/01-dns.md)
+詳細: [DNS 構成](../services/network/dns.md)

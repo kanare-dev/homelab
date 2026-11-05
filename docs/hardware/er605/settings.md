@@ -1,6 +1,6 @@
 # ER605（TP-Link ルーター）
 
-TP-Link ER605 V2 の設定値（詳細設計）。段階 1・2 で Buffalo と入れ替える。**この文書を、設定値の正とする。** 製品の仕様とファームウェアは[ER605 の資料](spec.md)、コントローラーは[Omada コントローラー](../../services/12-omada-controller.md)、VLAN 化のあとの設定は[VLAN 設計](../../architecture/08-vlan-design.md)、移行の手順は[移行計画](../../operations/roadmap/10-er605-sg2210p-migration-plan.md)にある。
+TP-Link ER605 V2 の設定値（詳細設計）。段階 1・2 で Buffalo と入れ替える。**この文書を、設定値の正とする。** 製品の仕様とファームウェアは[ER605 の資料](spec.md)、コントローラーは[Omada コントローラー](../../services/network/omada-controller.md)、VLAN 化のあとの設定は[VLAN 設計](../../architecture/08-vlan-design.md)、移行の手順は[移行計画](../../operations/roadmap/10-er605-sg2210p-migration-plan.md)にある。
 
 > [!NOTE]
 > 作成日は 2026-11-03。**秘密の値（管理者のパスワード）と、機器の MAC アドレスは書かない**（リポジトリは公開）。
@@ -15,8 +15,8 @@ TP-Link ER605 V2 の設定値（詳細設計）。段階 1・2 で Buffalo と�
 
 ## 運用
 
-- 設定を変えたら、**同じ変更でこの文書を更新**し、[変更履歴](#変更履歴)に 1 行足す。コントローラー側の変更は、[Omada コントローラー](../../services/12-omada-controller.md)の変更履歴にも書く。
-- 設定を変えたあとは、コントローラーのバックアップを取る（[手順](../../services/12-omada-controller.md#運用)）。
+- 設定を変えたら、**同じ変更でこの文書を更新**し、[変更履歴](#変更履歴)に 1 行足す。コントローラー側の変更は、[Omada コントローラー](../../services/network/omada-controller.md)の変更履歴にも書く。
+- 設定を変えたあとは、コントローラーのバックアップを取る（[手順](../../services/network/omada-controller.md#運用)）。
 
 ## 設定値
 

@@ -91,7 +91,7 @@ F-11 は HTTPS で URL のパス、検索キーワード、ページ本文が暗
 ### Phase 3: 監視・分析の高度化
 
 - [ ] 必要に応じて Zeek、Arkime、Suricata、Grafana を追加し、履歴の検索、異常検知、通知を実装する
-- [ ] 通信統計と PCAP の保存期間と容量を決め、[監視](../../services/03-monitoring.md)の「容量の上限設定」に追記する
+- [ ] 通信統計と PCAP の保存期間と容量を決め、[監視](../../services/platform/monitoring.md)の「容量の上限設定」に追記する
 
 ### Phase 4: OPNsense との統合
 

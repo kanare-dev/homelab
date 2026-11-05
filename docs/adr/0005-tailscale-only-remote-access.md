@@ -30,4 +30,4 @@
 - Tailscale の ACL は既定のまま（管理画面の除外は未実施）。
 - 他人と共有したいサービスが出たら、そのサービスだけ Cloudflare Tunnel を検討する。
 
-詳細: [ネットワーク設計](../architecture/03-network.md)、[DNS 構成](../services/01-dns.md#tailscale-との連携)
+詳細: [ネットワーク設計](../architecture/03-network.md)、[DNS 構成](../services/network/dns.md#tailscale-との連携)

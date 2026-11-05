@@ -1,6 +1,6 @@
 # SG2210P（TP-Link スイッチ）
 
-TP-Link SG2210P V5.30 の設定値（詳細設計）。段階 1・2 で ER605 の下に入れ、段階 3 で VLAN の trunk と access を設定する。**この文書を、設定値の正とする。** 製品の仕様は[SG2210P の資料](spec.md)、コントローラーは[Omada コントローラー](../../services/12-omada-controller.md)、VLAN のポートの割り当ては[VLAN 設計](../../architecture/08-vlan-design.md)、移行の手順は[移行計画](../../operations/roadmap/10-er605-sg2210p-migration-plan.md)にある。
+TP-Link SG2210P V5.30 の設定値（詳細設計）。段階 1・2 で ER605 の下に入れ、段階 3 で VLAN の trunk と access を設定する。**この文書を、設定値の正とする。** 製品の仕様は[SG2210P の資料](spec.md)、コントローラーは[Omada コントローラー](../../services/network/omada-controller.md)、VLAN のポートの割り当ては[VLAN 設計](../../architecture/08-vlan-design.md)、移行の手順は[移行計画](../../operations/roadmap/10-er605-sg2210p-migration-plan.md)にある。
 
 > [!NOTE]
 > 作成日は 2026-11-03。**秘密の値と、機器の MAC アドレスは書かない**（リポジトリは公開）。
@@ -15,7 +15,7 @@ TP-Link SG2210P V5.30 の設定値（詳細設計）。段階 1・2 で ER605 �
 
 ## 運用
 
-- 設定を変えたら、**同じ変更でこの文書を更新**し、[変更履歴](#変更履歴)に 1 行足す。変更したあとは、コントローラーのバックアップを取る（[手順](../../services/12-omada-controller.md#運用)）。
+- 設定を変えたら、**同じ変更でこの文書を更新**し、[変更履歴](#変更履歴)に 1 行足す。変更したあとは、コントローラーのバックアップを取る（[手順](../../services/network/omada-controller.md#運用)）。
 
 ## 設定値
 

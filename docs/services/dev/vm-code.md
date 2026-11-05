@@ -23,4 +23,4 @@ CLI・ブラウザ・モバイルの 3 経路をカバーする。
 | モバイル | CloudCLI（`cloudcli.lab.kanare.dev`）、iOS の Moshi アプリ |
 
 - iOS の Moshi アプリからは、専用鍵（`code_extra_authorized_keys`）と直接 DNS レコード（`vm-code.lab.kanare.dev`）で SSH / mosh 接続する。`moshi-hook` を systemd --user サービスとして常駐させて連携する（ペアリングのみ手動）
-- アクセスは Tailscale 経由に限定する。UFW で該当ポートを、LAN / Tailscale サブネットルート経由の `192.168.11.0/24` からのみ許可する。Cloudflare Tunnel 等での外部公開はしない（[ADR 0005](../adr/0005-tailscale-only-remote-access.md)）
+- アクセスは Tailscale 経由に限定する。UFW で該当ポートを、LAN / Tailscale サブネットルート経由の `192.168.11.0/24` からのみ許可する。Cloudflare Tunnel 等での外部公開はしない（[ADR 0005](../../adr/0005-tailscale-only-remote-access.md)）

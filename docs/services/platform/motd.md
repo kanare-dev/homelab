@@ -26,11 +26,11 @@
 | 更新 | 更新可能なパッケージがあるときだけ「N updates available → apt upgrade」を赤で表示 |
 | 再起動 | 再起動が必要なときだけ「System restart required」を黄で表示 |
 
-ログイン履歴（Last login）は表示しない。Ubuntu 26.04 では `last` の仕組みが変わり、壊れても気づきにくいため、載せないことにした（[VM の OS を Ubuntu 26.04 に移行する計画](../adr/0021-ubuntu-lts-for-vms.md)）。sshd の `PrintLastLog` も `no` にしているので、OpenSSH 標準の「Last login」行も出ない。
+ログイン履歴（Last login）は表示しない。Ubuntu 26.04 では `last` の仕組みが変わり、壊れても気づきにくいため、載せないことにした（[VM の OS を Ubuntu 26.04 に移行する計画](../../adr/0021-ubuntu-lts-for-vms.md)）。sshd の `PrintLastLog` も `no` にしているので、OpenSSH 標準の「Last login」行も出ない。
 
 ### バーの色
 
-色の基準は、[Prometheus のアラート](03-monitoring.md)に合わせている。黄がアラートの warning、赤が critical に当たる。
+色の基準は、[Prometheus のアラート](monitoring.md)に合わせている。黄がアラートの warning、赤が critical に当たる。
 
 | 項目 | 黄（これを超える） | 赤（これを超える） | 対応するアラート |
 | --- | --- | --- | --- |

@@ -14,7 +14,7 @@
 機器ではないものは、次に置く。
 
 - [future/](future/rack-10inch/README.md): 導入前の機器・用品。今は 10 インチラック（機器を収める 3D プリント用マウント）だけ。導入して設定を持つようになったら、機器ごとのディレクトリ（`<型番>/`）に移す。
-- Omada コントローラー: `vm-omada` 上のソフトウェアなので、[services/](../services/12-omada-controller.md) に置く。ネットワーク機器（ER605・SG2210P）の設定の入口でもある。
+- Omada コントローラー: `vm-omada` 上のソフトウェアなので、[services/network/](../services/network/omada-controller.md) に置く。ネットワーク機器（ER605・SG2210P）の設定の入口でもある。
 
 ## 置き方の決まり
 

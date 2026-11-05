@@ -1,6 +1,6 @@
 # 運用 Runbook
 
-日常の運用・障害対応の手順書。設計の背景は [architecture/](../../architecture/01-overview.md)、サービスごとの詳細は [services/](../../services/01-dns.md) を参照。
+日常の運用・障害対応の手順書。設計の背景は [architecture/](../../architecture/01-overview.md)、サービスごとの詳細は [services/](../../services/README.md) を参照。
 
 番号は種類を表す。01〜09 は日常の運用、11〜19 は障害対応。新しい手順は、該当する範囲の次の番号を振り、この表に追加する。
 

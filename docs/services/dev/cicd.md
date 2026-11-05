@@ -31,7 +31,7 @@ flowchart LR
 
 ## 方針
 
-判断の記録: [ADR-0006](../adr/0006-ci-lint-only.md)
+判断の記録: [ADR-0006](../../adr/0006-ci-lint-only.md)
 
 | 対象 | 自動化 | 理由 |
 | --- | --- | --- |

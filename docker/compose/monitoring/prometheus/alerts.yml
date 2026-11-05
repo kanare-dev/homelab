@@ -240,7 +240,7 @@ groups:
           severity: warning
         annotations:
           summary: "{{ $labels.instance }} の証明書の残りが {{ $value | printf \"%.0f\" }} 日"
-          description: "Let's Encrypt は残り 30 日で更新されるはずなので、自動更新が失敗している。`docker logs caddy` を確認する（02-reverse-proxy-tls.md）。"
+          description: "Let's Encrypt は残り 30 日で更新されるはずなので、自動更新が失敗している。`docker logs caddy` を確認する（reverse-proxy-tls.md）。"
 
       - alert: TlsCertExpiryCritical
         expr: (probe_ssl_earliest_cert_expiry{job="blackbox_http"} - time()) / 86400 < 3

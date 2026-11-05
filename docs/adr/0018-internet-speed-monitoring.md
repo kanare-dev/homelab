@@ -6,7 +6,7 @@
 ## 背景
 
 家のインターネット回線が落ちた時と、建物側のネットワークが遅くなった時に気づけるようにしたい。推移も見たい。
-既存の監視（[監視・アラート](../services/03-monitoring.md)）は、VM・ストレージ・HTTPS・DNS が対象で、回線の状態は見ていない。外形監視（blackbox）は LAN 内のサービスと、AdGuard 経由の名前解決だけで、回線断や遅延は分からない。
+既存の監視（[監視・アラート](../services/platform/monitoring.md)）は、VM・ストレージ・HTTPS・DNS が対象で、回線の状態は見ていない。外形監視（blackbox）は LAN 内のサービスと、AdGuard 経由の名前解決だけで、回線断や遅延は分からない。
 
 当初は、速度の定期測定（Ookla Speedtest を `speedtest-exporter` で 30 分毎）と、ping の併用を考えた。検討の途中で、日中は在宅で仕事をしているため、測定のたびに回線を使い切られるのは困る、という制約が出た。
 
@@ -17,7 +17,7 @@
 - 遅延: `1.1.1.1` への RTT（10 分平均）が、7 日間の中央値の 2 倍かつ 50ms 超で 10 分続いたら `InternetLatencyHigh`。パケットロス（10 分で 10% 超）も通知する。
 - 推移は Grafana「Internet Connectivity」で見る。通知は既存の Alertmanager から Slack へ送る。
 - **Speedtest による速度の定期測定は見送る**。理由と再検討の条件は [見送り中の項目](../operations/roadmap/03-deferred.md#回線速度の定期測定speedtest)。
-- 家庭内 LAN（iperf3）と Wi-Fi 経由の測定は、将来の拡張とし、手順を文書に残す（[Wi-Fi 経由の測定](../services/03-monitoring.md#wi-fi-経由の測定未実装)、[家庭内 LAN への拡張](../services/03-monitoring.md#家庭内-lan-への拡張未実装)）。
+- 家庭内 LAN（iperf3）と Wi-Fi 経由の測定は、将来の拡張とし、手順を文書に残す（[Wi-Fi 経由の測定](../services/platform/monitoring.md#wi-fi-経由の測定未実装)、[家庭内 LAN への拡張](../services/platform/monitoring.md#家庭内-lan-への拡張未実装)）。
 
 ## 理由
 

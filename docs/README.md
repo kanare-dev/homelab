@@ -3,7 +3,7 @@
 | ディレクトリ | 内容 |
 | --- | --- |
 | [architecture/](architecture/README.md) | 方式設計。構成図、インフラ、ネットワーク、可用性・信頼性、セキュリティ、移行性、災害対策 |
-| [services/](services/README.md) | サービスごとの詳細設計。DNS、リバースプロキシと TLS、監視・アラート、Homepage、Home Assistant、n8n、CI/CD、vm-code、FreshRSS、MOTD、Omada コントローラーの設定 |
+| [services/](services/README.md) | サービスごとの詳細設計。役割ごとのフォルダ（`network/`: DNS・リバースプロキシと TLS・Omada コントローラー、`platform/`: 監視・アラート・MOTD、`apps/`: Homepage・Home Assistant・n8n・FreshRSS、`dev/`: CI/CD・vm-code） |
 | [operations/](operations/runbooks/README.md) | 運用。[Runbook](operations/runbooks/README.md)、[バックアップの手順](operations/runbooks/06-backup-restore.md)、[障害記録](operations/incidents/README.md)、[ロードマップ](operations/roadmap/README.md)（[Omada・VLAN](operations/roadmap/04-network-omada-vlan.md)、[OPNsense](operations/roadmap/08-network-opnsense.md)、[GPU 搭載 PC](operations/roadmap/05-gpu-pc.md)、[通信の収集・可視化](operations/roadmap/06-network-traffic-analysis.md)、[DMZ と外部公開](operations/roadmap/07-dmz.md)、[ラック](operations/roadmap/09-rack.md)、[ER605・SG2210P の移行計画](operations/roadmap/10-er605-sg2210p-migration-plan.md)、[構成レビューの改善案](operations/roadmap/11-design-review-ideas.md)、[IP 割り当てと DHCP の見直し](operations/roadmap/12-ip-address-and-dhcp-review.md)、[見送り中の項目](operations/roadmap/03-deferred.md)） |
 | [diagrams/](diagrams/README.md) | 構成図（現行は draw.io の SVG、VLAN 化のあとと物理構成図は HTML と PNG）と、生成・整形スクリプト、更新の手順 |
 | [adr/](adr/README.md) | 設計判断の記録（ADR） |

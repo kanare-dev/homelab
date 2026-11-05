@@ -2,7 +2,7 @@
 
 ## 概要
 
-vm-infra (192.168.11.11) 上で3層の DNS スタックを運用する。3層にした理由と他の候補との比較は [ADR 0020](../adr/0020-dns-three-layer-stack.md)。
+vm-infra (192.168.11.11) 上で3層の DNS スタックを運用する。3層にした理由と他の候補との比較は [ADR 0020](../../adr/0020-dns-three-layer-stack.md)。
 
 ```text
 client
@@ -51,7 +51,7 @@ client
 
 ### fallback DNS の限界
 
-AdGuard の fallback DNS が使われるのは、upstream に**接続できない**とき（タイムアウトなど）だけ。Unbound が `SERVFAIL` を返した場合は、その応答がそのまま利用者に返り、fallback は働かない。Unbound の失敗は `UnboundProbeFailing`（[03-monitoring.md](03-monitoring.md)）で検知する。
+AdGuard の fallback DNS が使われるのは、upstream に**接続できない**とき（タイムアウトなど）だけ。Unbound が `SERVFAIL` を返した場合は、その応答がそのまま利用者に返り、fallback は働かない。Unbound の失敗は `UnboundProbeFailing`（[monitoring.md](../platform/monitoring.md)）で検知する。
 
 ## DNS レコード (lab.kanare.dev)
 
@@ -84,14 +84,14 @@ AdGuard の fallback DNS が使われるのは、upstream に**接続できな�
 | 項目 | 内容 |
 | --- | --- |
 | ゾーン | `kanare.dev`（Cloudflare DNS） |
-| 用途 | Caddy が Let's Encrypt の DNS-01 チャレンジで、`_acme-challenge` の TXT を一時的に作成・削除する（[リバースプロキシと TLS](02-reverse-proxy-tls.md)） |
-| 認証 | API トークン `cloudflare_api_token`（SOPS 管理。[シークレット](../operations/runbooks/03-secrets.md)） |
+| 用途 | Caddy が Let's Encrypt の DNS-01 チャレンジで、`_acme-challenge` の TXT を一時的に作成・削除する（[リバースプロキシと TLS](reverse-proxy-tls.md)） |
+| 認証 | API トークン `cloudflare_api_token`（SOPS 管理。[シークレット](../../operations/runbooks/03-secrets.md)） |
 | 管理方法 | ダッシュボードで手動管理。Terraform などのコードにはしていない |
 | 常設レコード | このリポジトリには一覧を持たない。`kanare.dev` 本体のレコードは、Cloudflare のダッシュボードが正 |
 
 ## VM のホスト DNS
 
-全 VM のホスト DNS は、AdGuard ではなくルーター（`192.168.11.1`）を指している。そのため VM 内のホストから `*.lab.kanare.dev` は引けない。AdGuard の障害時にも、Slack 通知・apt・`docker pull` が使えるようにするため。判断の記録: [ADR 0007](../adr/0007-vm-host-dns-is-router.md)。
+全 VM のホスト DNS は、AdGuard ではなくルーター（`192.168.11.1`）を指している。そのため VM 内のホストから `*.lab.kanare.dev` は引けない。AdGuard の障害時にも、Slack 通知・apt・`docker pull` が使えるようにするため。判断の記録: [ADR 0007](../../adr/0007-vm-host-dns-is-router.md)。
 
 AdGuard を使いたいコンテナは `docker-compose.yml` の `dns:` で個別に指定する（例: blackbox-exporter、n8n、FreshRSS）。
 

@@ -20,7 +20,7 @@
 | 6 | Tailscale の Grants（ユーザー・端末・宛先・ポート単位）を設計する | 中 | 未実施。Tailscale の ACL は既定のまま。[ADR-0016](../../adr/0016-dmz-placement.md) で、VLAN 導入後、DMZ の前に整理する時期を決定済み | VLAN 化のあとに、管理機器は Mac だけが届くようにするなど、最小の権限で設計する | 検討中（時期は決定済み） |
 | 7 | 同じ VLAN の中の VM 間の通信（横方向）を、Proxmox Firewall や UFW で制御する | 中 | UFW は、全 VM に入れていて、許可元を絞っている。Proxmox Firewall は未使用 | VM ごとの UFW の許可元が、Servers の中の必要な相手だけになっているか、見直す。Proxmox Firewall の導入は、必要が出てから | 検討中 |
 | 8 | IoT 機器と Home Assistant の通信、mDNS などの要件を整理する | 中 | 08 の未決事項（mDNS の中継、テレビの追加通信）と、バックログの「Home Assistant の機器の検出と VLAN」にある | ESP32 やテレビを IoT に移す時期（段階 4）に、実機で要件を確定する | 検討中（時期は決まっている） |
-| 9 | 監視の役割を整理する（Uptime Kuma、Blackbox Exporter、Prometheus） | 中 | Prometheus、Blackbox Exporter は導入済み（[監視](../../services/03-monitoring.md)）。Uptime Kuma は未導入 | 今の構成で足りているか確認する。Uptime Kuma は、必要が出てから（サービスカタログで検討） | 検討中（優先度は低い） |
+| 9 | 監視の役割を整理する（Uptime Kuma、Blackbox Exporter、Prometheus） | 中 | Prometheus、Blackbox Exporter は導入済み（[監視](../../services/platform/monitoring.md)）。Uptime Kuma は未導入 | 今の構成で足りているか確認する。Uptime Kuma は、必要が出てから（サービスカタログで検討） | 検討中（優先度は低い） |
 | 10 | DNS・ルーター・スイッチ・Proxmox が止まったときの復旧手順を用意する | 中 | DNS の停止は、[障害時切り分け](../runbooks/11-troubleshooting.md)に書いた。**ルーター・スイッチ・Proxmox 単体の停止の手順は無い** | ER605 と SG2210P の導入後に、Runbook を足す（戻し手順の知見を使える）。IP で管理画面に入れるように、機器の IP の一覧も載せる | 検討中 |
 | 11 | 構成図を、物理構成図・論理構成図・通信許可マトリクスに分ける | 低 | 今は、論理と物理の一部を 1 枚にしている（[構成図](../../diagrams/main-diagram/make-main-diagram.py)）。**一枚図は残す**（運用者の方針） | 一枚図に加えて、論理構成図と物理構成図を作る（[下の案](#構成図を-3-枚にする案)）。通信許可マトリクスは #3 と同じ | 検討中 |
 | 12 | DMZ は、公開するサービスが決まってから具体化する | 低 | [DMZ と外部公開](07-dmz.md)の大型計画がある | なし | 計画済み |

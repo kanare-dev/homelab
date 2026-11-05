@@ -1,6 +1,6 @@
 # ThinkCentre M70q Tiny の設定
 
-Proxmox ホスト（`pve`）の、ホスト単体の設定値（詳細設計）。**この文書を、ホストの設定値の正とする。** 機器の仕様と公式資料は [spec.md](spec.md)。VM ごとの割当と、ホストの資源の収支は[インフラ構成](../../architecture/02-infrastructure.md)、VLAN のブリッジとポートは [VLAN 設計](../../architecture/08-vlan-design.md)、監視は[監視・アラート](../../services/03-monitoring.md)にある。
+Proxmox ホスト（`pve`）の、ホスト単体の設定値（詳細設計）。**この文書を、ホストの設定値の正とする。** 機器の仕様と公式資料は [spec.md](spec.md)。VM ごとの割当と、ホストの資源の収支は[インフラ構成](../../architecture/02-infrastructure.md)、VLAN のブリッジとポートは [VLAN 設計](../../architecture/08-vlan-design.md)、監視は[監視・アラート](../../services/platform/monitoring.md)にある。
 
 - 設定を変えたら、**同じ変更でこの文書を更新**し、[変更履歴](#変更履歴)に 1 行足す。
 - ホストの設定は Ansible（`ansible/roles/proxmox/`）と、手で入れた設定（`/etc/network/interfaces` など）に分かれる。Ansible にあるものは、その旨を「管理」の列に書く。
@@ -16,7 +16,7 @@ Proxmox ホスト（`pve`）の、ホスト単体の設定値（詳細設計）�
 | NIC のオフロード | `nic0` の TSO・GSO・GRO を無効にする（`e1000e` の送信停止への対処。[INC-2026-10-25](../../operations/incidents/2026-10-25-nic-hardware-unit-hang.md)）。`/etc/network/interfaces` の `post-up` と、実行中の NIC への適用の両方 | 同じ | Ansible（`ansible/roles/proxmox`） |
 | Web UI | `https://pve.lab.kanare.dev`（Caddy → `192.168.11.10:8006`）。サブスクリプションの警告ポップアップを除去している（[INC-2026-10-22-b](../../operations/incidents/2026-10-22-pve-webui-broken-by-ansible-patch.md)。パッケージ更新で戻ったら、Ansible を再実行する） | `10.77.10.10:8006`（Management。VM と同じネットワークには載らない） | Ansible |
 | ストレージ | 256GB NVMe。`local-lvm`（thin pool `pve/data`）約 155GiB を、全 VM のディスクが共有する。割当は pool の約 1.05 倍（2026-11-05） | 同じ | 割当の正は `terraform/proxmox/terraform.tfvars`。経緯は [INC-2026-10-22](../../operations/incidents/2026-10-22-lvm-thin-exhaustion.md) |
-| ストレージの監視 | thin pool の使用率と、VM の io-error を、1 分ごとに node_exporter のテキストファイル（`pve-storage-metrics.timer`）で出す。アラートは `LvmThinPoolData*`、`LvmThinPoolMetadata*`、`LvmThinPoolOverprovisioned`（閾値 1.5）など | 同じ | Ansible。アラートは[監視・アラート](../../services/03-monitoring.md) |
+| ストレージの監視 | thin pool の使用率と、VM の io-error を、1 分ごとに node_exporter のテキストファイル（`pve-storage-metrics.timer`）で出す。アラートは `LvmThinPoolData*`、`LvmThinPoolMetadata*`、`LvmThinPoolOverprovisioned`（閾値 1.5）など | 同じ | Ansible。アラートは[監視・アラート](../../services/platform/monitoring.md) |
 | メモリ | 24GB。ホスト用に約 2GB を確保して、VM の割当を決める | 同じ | [インフラ構成](../../architecture/02-infrastructure.md#配分) |
 | VM の自動起動・停止 | VM ごとの `onboot` と `startup`（起動順序と待機秒数）を設定している | 同じ | Terraform。手順は [VM 自動起動・停止](../../operations/runbooks/01-vm-startup-shutdown.md) |
 | 電源 | UPS なし。1 台に全 VM が載る単一障害点 | 同じ | [可用性・信頼性](../../architecture/04-reliability.md) |

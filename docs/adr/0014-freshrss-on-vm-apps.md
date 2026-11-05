@@ -35,7 +35,7 @@ RSS で情報を集める手段を、他社のサービスに依存せず自宅�
 
 ## 影響と再検討の条件
 
-- **失うもの**: VM を失うと、ユーザー、既読、スター、記事、設定が消える。購読リストは、最後に `make freshrss-opml-pull` した時点まで戻せる。既読とスターは戻らない。手順は [FreshRSS](../services/09-freshrss.md#復旧)。
+- **失うもの**: VM を失うと、ユーザー、既読、スター、記事、設定が消える。購読リストは、最後に `make freshrss-opml-pull` した時点まで戻せる。既読とスターは戻らない。手順は [FreshRSS](../services/apps/freshrss.md#復旧)。
 - **設定の運用**: フィードを足したら、`make freshrss-opml-pull` で退避しないと守られない。
 - **認証**: FreshRSS 自身のログインのみ。Authelia は使わない（[ADR-0008](0008-no-authelia.md)）。外出先は Tailscale 経由（[ADR-0005](0005-tailscale-only-remote-access.md)）。
 - **同居のリスク**: Homepage、Home Assistant、n8n と同じ VM を共有する。
@@ -45,4 +45,4 @@ RSS で情報を集める手段を、他社のサービスに依存せず自宅�
   - フィード数や記事数が増え、SQLite では遅くなった。
   - `vm-apps` のメモリが逼迫した。
 
-関連: [FreshRSS](../services/09-freshrss.md)、[ADR-0001](0001-no-vm-backup.md)、[ADR-0012](0012-n8n-on-vm-apps.md)
+関連: [FreshRSS](../services/apps/freshrss.md)、[ADR-0001](0001-no-vm-backup.md)、[ADR-0012](0012-n8n-on-vm-apps.md)

@@ -15,7 +15,7 @@
 | IP・ゲートウェイ・DNS | `192.168.11.0/24`、`gateway`、`dns_server` | `ansible/inventory/group_vars/all/vars.yml`、`terraform/proxmox/variables.tf` / `terraform.tfvars`、`hosts.yml` |
 | ドメイン | `lab.kanare.dev`（`domain`） | `group_vars/all/vars.yml`、`dns_records`、Caddyfile |
 | Proxmox | ノード名 `pve`、テンプレート `ubuntu-cloud`（VMID 9000）、ストレージ `local-lvm` | `terraform.tfvars`、`terraform/proxmox/README.md` |
-| ルーターの IP | 構成表、管理画面のリンク、Caddy の転送先 | [DNS 構成](../services/01-dns.md#ルーターを付け替えるとき) の表 |
+| ルーターの IP | 構成表、管理画面のリンク、Caddy の転送先 | [DNS 構成](../services/network/dns.md#ルーターを付け替えるとき) の表 |
 | 外部サービスのアカウント | Cloudflare、Tailscale、Slack | SOPS（値）と各サービスの管理画面（設定） |
 
 ## コードに入っていないデータ
@@ -52,7 +52,7 @@
 
 - 全ホストのアドレスを `10.77.<VLAN>.0/24` に変える。一斉切り替えとし、事前準備と切り戻し手順を用意する。
 - 影響を受ける箇所の一覧は [VLAN 設計: 影響を受けるリポジトリ内の箇所](08-vlan-design.md#影響を受けるリポジトリ内の箇所)。
-- ルーター単体の付け替え（IP が変わる場合）は [DNS 構成](../services/01-dns.md#ルーターを付け替えるとき)。
+- ルーター単体の付け替え（IP が変わる場合）は [DNS 構成](../services/network/dns.md#ルーターを付け替えるとき)。
 
 ### C. 引っ越し（上流ネットワークが変わる）
 

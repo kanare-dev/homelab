@@ -168,7 +168,7 @@ ER605 と SG2210P は同時に購入済みで、すでに繋いである（ER605
 見直しで見つかった抜けを、ここに集めた（2026-11-03）。
 
 - [x] **EasyMesh を無効にして、Wi-Fi の SSID が今のとおり効くか確認する（確認済み、バックアップも取得済み。2026-11-03）**（Buffalo はルーターモードのまま）。EasyMesh が有効だと、画面に「SSID1 と SSID2 の設定は反映されません」と出る（[WSR-1800AX4P の設定](../../hardware/wsr-1800ax4p/settings.md)）。AP モードに替えてから原因を探すと、切り分けが難しい。**2026-11-03 に無効にした。** 残りは、SSID が今のとおり効くかの確認と、本体のバックアップの取り直し（[Buffalo の設定](../../hardware/wsr-1800ax4p/settings.md)の変更履歴にも記録する）。
-- [x] **固定リース（`192.168.11.60`）は、ER605 に移さない（決定 2026-11-03）。** Buffalo の固定割り当ては 1 件ある。MAC の先頭（メーカーを示す部分）は Espressif で、今も無線で繋がっている。正体は、SwitchBot Hub 2 の可能性がある（未確認）。固定した理由は、運用者も覚えていない。Home Assistant は SwitchBot Cloud で繋いでいて、IP に依存しない（[Home Assistant](../../services/05-home-assistant.md)）。**段階 1 のあと、この端末は DHCP の動的割り当てで、別のアドレスになる。** 固定が必要だと分かったら、VLAN 化のあとの新しいアドレス体系で、改めて固定する。
+- [x] **固定リース（`192.168.11.60`）は、ER605 に移さない（決定 2026-11-03）。** Buffalo の固定割り当ては 1 件ある。MAC の先頭（メーカーを示す部分）は Espressif で、今も無線で繋がっている。正体は、SwitchBot Hub 2 の可能性がある（未確認）。固定した理由は、運用者も覚えていない。Home Assistant は SwitchBot Cloud で繋いでいて、IP に依存しない（[Home Assistant](../../services/apps/home-assistant.md)）。**段階 1 のあと、この端末は DHCP の動的割り当てで、別のアドレスになる。** 固定が必要だと分かったら、VLAN 化のあとの新しいアドレス体系で、改めて固定する。
 - [x] **Buffalo の WAN 側の MAC アドレスは、事前には控えない（決定 2026-11-03）。** 建物の共用ルーターが、壁の LAN ポートに繋がった機器の MAC アドレスを接続の条件にしていると、MAC が違う ER605 は IP を取れない（集合住宅の共用ネットワークで、最初に繋いだ機器の MAC を覚える例がある）。Buffalo は自分で買ったもので、可能性は低いと見る。**ER605 が IP を取れなかったときだけ**、ER605 の WAN の MAC の設定に、Buffalo の WAN の MAC を入れる（ER605 を Buffalo だと思わせるため）。そのとき MAC が分からなければ、Buffalo の画面か、本体のラベルで見る（Buffalo は手元に残るので、後からでも見られる。事前の準備は要らない）。
 - [x] **Buffalo の AP モードでの設定画面の入り方を決める（決定 2026-11-03）。** Buffalo の公式 FAQ の「エアステーション設定ツール」の手順は Windows だけで、Mac の手順は見つからなかった（[FAQ](https://www.buffalo.jp/support/faq/detail/129.html)）。Mac では、**ER605 の DHCP の貸出一覧（コントローラーのクライアント一覧）で Buffalo の IP を見て、ブラウザで開く**。AP モードの既定の IP は公式には書かれていない（第三者の記事では `192.168.11.100`。未確認）。
 - [x] **コントローラーの LAN の設定を、ER605 の今の設定に合わせる（2026-11-03 に実施済み。運用者の報告で、値は未確認）**（公式の手順: [How to add an Omada Gateway to the network? (Controller 4.4.3 or above)](https://support.omadanetworks.com/eg/document/13067/)）。公式の順序は、(1) コントローラーの Settings > Wired Networks > LAN で、LAN のゲートウェイ／サブネットを目的のものに変える（「Update DHCP range」を押して保存）、(2) ER605 をスタンドアロンで同じサブネットにする、(3) ルーターを入れ替える、(4) コントローラーで採用する。**(2) は済んでいるので、(1) が残っている。** 合わせる値は、LAN `192.168.11.1/24`、DHCP `.60`〜`.99`、リース 48 時間、DNS は `192.168.11.11` だけ。合わないと、採用が失敗する、または採用の直後に届かなくなる。採用前は LAN の編集ができないという報告がある（未確認）。編集できなかったときは、その画面の状態を記録して、手順を決め直す。採用には、**スタンドアロンで決めた管理者のアカウント**（Keychain の `homelab / er605 admin`）が要る。
@@ -209,7 +209,7 @@ ER605 と SG2210P は同時に購入済みで、すでに繋いである（ER605
 
 ### 同じ変更で直すもの
 
-[DNS 構成の「ルーターを付け替えるとき」](../../services/01-dns.md#ルーターを付け替えるとき)に従う。
+[DNS 構成の「ルーターを付け替えるとき」](../../services/network/dns.md#ルーターを付け替えるとき)に従う。
 
 - `docker/compose/reverse-proxy/Caddyfile`: `router.lab.kanare.dev` の転送先を、Omada コントローラーの管理画面（HTTPS、`tls_insecure_skip_verify`）に変える。名前を `omada.lab.kanare.dev` に変えるか、`router` を残すかを決める。
 - Homepage の Router タイルと `siteMonitor`、`docs/architecture/02-infrastructure.md` の機器表、`README.md`、`docs/architecture/01-overview.md` の構成図（ASCII と SVG）。

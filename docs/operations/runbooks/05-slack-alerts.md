@@ -12,7 +12,7 @@ pve (pve-storage-metrics.timer, 1分毎)
                                                           それ以外: warning 用チャンネル（24 時間毎に再通知）
 ```
 
-通知先は重要度で分ける。再通知の間隔など、詳細は [03-monitoring.md](../../services/03-monitoring.md#通知の挙動) にある。
+通知先は重要度で分ける。再通知の間隔など、詳細は [monitoring.md](../../services/platform/monitoring.md#通知の挙動) にある。
 
 ## Webhook URL の登録
 
@@ -55,4 +55,4 @@ curl -XPOST https://alertmanager.lab.kanare.dev/api/v2/alerts -H 'Content-Type: 
 ## 既知の限界
 
 監視 VM (vm-monitoring) は同じ Proxmox ストレージ上にある。ストレージや NIC の障害時は Alertmanager も停止し、Slack に通知が届かない。
-外部 Heartbeat で補う（[03-monitoring.md](../../services/03-monitoring.md#外部-heartbeat)、[ADR-0010](../../adr/0010-external-heartbeat.md)）。
+外部 Heartbeat で補う（[monitoring.md](../../services/platform/monitoring.md#外部-heartbeat)、[ADR-0010](../../adr/0010-external-heartbeat.md)）。
