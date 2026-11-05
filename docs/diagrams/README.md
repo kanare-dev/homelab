@@ -20,7 +20,7 @@ ER605 と SG2210P を入れて VLAN に分けたあと（段階 3 の完了時�
 
 - 見た目は、背景の方眼（20px）、フォント（Geist と JetBrains Mono。日本語は Hiragino / Noto Sans JP）、ライト・ダークの切り替え、線のラベルの縁取り。VLAN ごとの枠の色、VM・Docker の入れ子、サービスの行（白いタイルにロゴ）、凡例は、現行の図の形を引き継いだ。細かい寸法は、スクリプトの冒頭に書いてある。
 - 以前は draw.io の SVG（`tobe-vlan.drawio.svg`）だったが、書き出す SVG に方眼を入れられず、フォントも埋め込めないため、HTML に移した（2026-11-06）。draw.io での手直しは、できなくなった。直すときは、スクリプトの「配置」を直す。
-- フォントは [`tobe-html/fonts/`](tobe-html/fonts/)（OFL。`OFL-*.txt` が各ライセンス）を、HTML に埋め込む。
+- フォントは [`fonts/`](fonts/)（OFL。`OFL-*.txt` が各ライセンス）を、HTML に埋め込む。
 
 ### stack-diagram で描いた現行の構成（`stack-diagram/`、試作）
 
@@ -41,7 +41,8 @@ ER605 と SG2210P を入れて VLAN に分けたあと（段階 3 の完了時�
 | --- | --- |
 | `architecture.drawio.svg` | 現行の構成図 |
 | `layout-architecture.py` | 現行の構成図の座標・文字を、規格どおりに組み直すスクリプト |
-| `tobe-html/` | VLAN 化のあとの構成図。生成スクリプト `make-tobe-vlan.py`（本体）、書き出した `tobe-vlan.html`・`tobe-vlan.png`・`tobe-vlan-dark.png`、フォント `fonts/` |
+| `tobe-html/` | VLAN 化のあとの構成図。生成スクリプト `make-tobe-vlan.py`（本体）、書き出した `tobe-vlan.html`・`tobe-vlan.png`・`tobe-vlan-dark.png` |
+| `fonts/` | VLAN 化のあとの図が埋め込むフォント（Geist、JetBrains Mono。OFL） |
 | `stack-diagram/` | stack-diagram で描いた現行の構成図（試作）。`homelab.html`、`homelab.png`、`homelab-dark.png`、生成スクリプト `make-homelab.py` |
 | `assets/` | アイコン素材（**Git 管理外**。無ければ取得する） |
 

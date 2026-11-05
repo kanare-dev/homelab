@@ -9,7 +9,7 @@ Markdown から参照する PNG（tobe-vlan.png、ダーク版は tobe-vlan-dark
     python3 docs/diagrams/tobe-html/make-tobe-vlan.py --png    # さらに Chrome で tobe-vlan.png / tobe-vlan-dark.png を書き出す
 
 必要なもの: macOS の `sips`（アイコンの縮小）、--png には Google Chrome（ヘッドレスで撮る。Playwright は要らない）。
-フォントは fonts/（Geist と JetBrains Mono。OFL）を HTML に埋め込む。
+フォントは ../fonts/（Geist と JetBrains Mono。OFL。物理構成図と共通）を HTML に埋め込む。
 アイコン素材 `docs/diagrams/assets/icons/` は Git 管理外。無ければ取得する（layout-architecture.py と同じ）。
 内容は docs/operations/roadmap/10-er605-sg2210p-migration-plan.md の「段階 3 の後」と
 docs/architecture/08-vlan-design.md の VLAN 一覧に合わせる。食い違ったら、文書のほうが正。
@@ -32,7 +32,7 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 OUT = HERE / "tobe-vlan.html"
 ICONS = HERE.parent / "assets/icons"
-FONTS = HERE / "fonts"
+FONTS = HERE.parent / "fonts"
 CHROME = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
 W, H = 1720, 1690
 
