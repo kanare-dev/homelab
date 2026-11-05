@@ -1,6 +1,6 @@
 # Lenovo ThinkCentre M70q Tiny
 
-Proxmox ホスト（`pve`、`192.168.11.10`）のミニ PC。全 VM がこの 1 台に載る。公式の資料へのリンクと、Lenovo の仕様書（PSREF）の仕様をまとめる。このホストの使い方は[インフラ構成](../../architecture/02-infrastructure.md)、ネットワークの接続は[VLAN 設計](../../architecture/08-vlan-design.md)、ラックへの収納は[10 インチラック](../rack-10inch/README.md)にある。
+Proxmox ホスト（`pve`、`192.168.11.10`）のミニ PC。全 VM がこの 1 台に載る。公式の資料へのリンクと、Lenovo の仕様書（PSREF）の仕様をまとめる。このホストの設定値は [settings.md](settings.md)、使い方は[インフラ構成](../../architecture/02-infrastructure.md)、ネットワークの接続は[VLAN 設計](../../architecture/08-vlan-design.md)、ラックへの収納は[10 インチラック](../rack-10inch/README.md)にある。
 
 > [!NOTE]
 > 確認日は 2026-11-03。仕様は Lenovo PSREF の ThinkCentre M70q（2023-09-27 版）による。PSREF は M70q のすべての構成をまとめた資料で、搭載できる部品の候補を載せている。**この機体の構成は、下の「この機体」にまとめた。** マシンタイプは 11DU（SKU は `SG6P00`）。PSREF は、構成ごとの違いをマシンタイプ別には載せていないので、この機体の部品は PSREF の表と突き合わせていない。
