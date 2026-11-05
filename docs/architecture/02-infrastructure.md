@@ -65,7 +65,7 @@ VM ごとの vCPU・メモリ・ディスクは [論理構成](#論理構成) �
 | `vm-omada` | 約 1.5〜2GB（見込み） | MongoDB を含む Java アプリ。機器を採用したあとに実測して直す |
 | `vm-code` / `vm-dev` | — | `vm-dev` は手動起動 |
 
-- 常時起動の VM の割当メモリ合計は 14.5GB（`vm-omada` の 3GB を含む）。`vm-dev` を加えて 15.5GB、ホストの確保分（約 2GB）を足すと 17.5GB で、24GB に収まる。`vm-windows` は 2026-11-05 に削除した（8GB を使うため、起動すると 24GB を超えていた。退避と復元は [バックアップの手順](../operations/runbooks/06-backup-restore.md#vm-windows-の退避2026-11-05)）
+- 常時起動の VM の割当メモリ合計は 14.5GB（`vm-omada` の 3GB を含む）。`vm-dev` を加えて 15.5GB、ホストの確保分（約 2GB）を足すと 17.5GB で、24GB に収まる。`vm-windows` は 2026-11-05 に削除した（8GB を使うため、起動すると 24GB を超えていた。作り直す手順は [バックアップの手順](../operations/runbooks/06-backup-restore.md#vm-windows-の削除と作り直し2026-11-05)）
 - vCPU は物理スレッドに対して過剰割当（常時起動分で 10 vCPU、全 VM で 16 vCPU）。常時高負荷の VM がないことを前提にしている。
 - `vm-apps` は Home Assistant、n8n、FreshRSS を載せても割当に余裕がある。
 

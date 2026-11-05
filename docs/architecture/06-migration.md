@@ -31,7 +31,6 @@
 | AdGuard の手作業の設定 | `vm-infra` | `playbooks/infra.yml` が設定する範囲を超える手作業は、移行前に確認する |
 | Caddy の証明書 | `vm-infra` のボリューム | 新環境で再取得される |
 | `vm-code` の未 push の作業 | `vm-code` | 置かない運用。移行前に push する |
-| `vm-windows` の vzdump | Proxmox ホストの `/var/lib/vz/dump/` | 2026-11-05 に VM を削除して退避した 1 つだけ。必要なら新環境へ手で移す（[手順書](../operations/runbooks/06-backup-restore.md#vm-windows-の退避2026-11-05)） |
 
 ## 移行シナリオ
 

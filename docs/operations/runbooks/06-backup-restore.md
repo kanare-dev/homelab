@@ -45,23 +45,12 @@ age 秘密鍵は iCloud Keychain に退避する（[秘密情報の管理](03-se
 vzdump <vmid> --storage local --compress zstd --mode snapshot
 ```
 
-## vm-windows の退避（2026-11-05）
+## vm-windows の削除と作り直し（2026-11-05）
 
-thin pool の過剰割当（`LvmThinPoolOverprovisioned`）を解消するため、`vm-windows`（VMID 130、60G。Windows 11 のセットアップ済み）を削除した。削除の前に、1 回だけ vzdump を取った。定期バックアップではない（[ADR-0001](../../adr/0001-no-vm-backup.md)）。
+thin pool の過剰割当（`LvmThinPoolOverprovisioned`）を解消するため、`vm-windows`（VMID 130、60G。Windows 11 のセットアップ済み）を削除した。削除の前に vzdump を 1 回だけ取ったが（24GB）、**復元しない方針にして、2026-11-06 に消した**（Mac などへの写しも取っていない）。バックアップは残っていない。
 
-| 項目 | 内容 |
-| --- | --- |
-| 場所 | `pve:/var/lib/vz/dump/vzdump-qemu-130-2026_11_05-23_49_17.vma.zst`（`local`。24GB。`zstd -t` で確認済み） |
-| 取り方 | `vzdump 130 --storage local --compress zstd --mode stop` |
-| 制約 | pool と同じ NVMe にあり、ディスク故障には備えにならない。`local` の空きを 24GB 使う |
+必要になったら、ISO から作り直す。
 
-復元するとき:
-
-```bash
-# 復元する前に、割当の合計を確認する（復元すると 60G とメモリ 8GB が戻る）。
-# 比率は約 1.05 → 約 1.5 になり、しきい値に近い。`vm-dev` を縮めるなどして空けてから戻す
-qmrestore /var/lib/vz/dump/vzdump-qemu-130-2026_11_05-23_49_17.vma.zst 130 --storage local-lvm
-```
-
-- 復元した VM は、Terraform の管理外になる（`windows.tf` は削除した）。使い続けるなら、`windows.tf` を戻して `terraform import` するか、手動管理のままにする。
-- 復元する予定がなくなったら、ファイルを消して `local` を空ける。
+- ISO は Proxmox の `local` に残してある: `Win11_25H2_Japanese_x64_v2.iso`、`virtio-win-0.1.285.iso`。
+- Terraform の定義は Git の履歴にある: `git show 3a7199c^:terraform/proxmox/windows.tf`。`terraform/proxmox/` に戻して `terraform apply -target=proxmox_vm_qemu.windows` する（`-target` を付けないと、他の VM も一緒に適用される）。EFI ディスクは、Terraform では作れないので、`windows.tf` のコメントのとおり Proxmox の画面で足す。
+- **作る前に、割当を確認する。** 60G とメモリ 8GB が戻るので、割当の比率は約 1.05 → 約 1.5 になる（しきい値は 1.5）。`vm-dev` を縮める、または不要な VM を消して、空けてから作る。メモリは、`vm-dev` を止めて起動する（合計が 24GB を超える）。

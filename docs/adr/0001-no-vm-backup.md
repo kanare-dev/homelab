@@ -15,7 +15,7 @@ VM 全体のバックアップは当面取らない。守る対象は **VM の�
 
 - VM は Terraform / Ansible で再現できる。
 - `vm-code`・`vm-dev` は Git 管理のリポジトリだけを扱う（未 push の作業を置かない運用）。
-- `vm-windows` は検証用で、重要データがなかった（2026-11-05 に削除。下の「例外」）。
+- `vm-windows` は検証用で、重要データがなかった（2026-11-05 に削除。下記）。
 - 保存先が `local`（PVE と同じ NVMe、空き約 48GiB）しかなく、ディスク故障に備えにならない。
 
 ## 代替案
@@ -29,7 +29,7 @@ VM 全体のバックアップは当面取らない。守る対象は **VM の�
 
 - 例外: Home Assistant の設定の YAML と n8n のワークフローの JSON は Git で守る（[ADR-0011](0011-home-assistant-on-vm-apps.md)、[ADR-0012](0012-n8n-on-vm-apps.md)）。VM のバックアップではない。
 - ホストやディスクを失うと、VM は再構築になる（[災害対策](../architecture/07-disaster-recovery.md)）。
-- 例外（一度きり）: `vm-windows` は、削除する前に vzdump を 1 回だけ取った（2026-11-05。定期バックアップではない。[手順書](../operations/runbooks/06-backup-restore.md#vm-windows-の退避2026-11-05)）。
-- 次のいずれかになったら再検討する: NAS や外部ストレージを追加した、VM に再現できないデータを置くようになった、`vm-windows` を復元して実用に使い始めた。
+- `vm-windows` は、2026-11-05 に削除した（バックアップは残していない。必要になったら ISO から作り直す。[手順書](../operations/runbooks/06-backup-restore.md#vm-windows-の削除と作り直し2026-11-05)）。
+- 次のいずれかになったら再検討する: NAS や外部ストレージを追加した、VM に再現できないデータを置くようになった、`vm-windows` を作り直して実用に使い始めた。
 
 何を守り、何を守らないか: [災害対策](../architecture/07-disaster-recovery.md#バックアップの状況)。手順: [バックアップの手順](../operations/runbooks/06-backup-restore.md)
