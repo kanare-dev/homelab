@@ -144,14 +144,15 @@ def edge(points, arrow=None, width=3, color=None):
 # 部品（draw.io 版と同じ寸法） -------------------------------------------------
 def row(ic, label, x, y, w):
     """サービス行。アイコン 30、文字は 10 右。"""
+    out.append(f'<div class="tile" style="{pos(x, y, 30, 30)}"></div>')  # 白いタイル（ロゴは白地用なので、ダークでも白）
     if isinstance(ic, tuple):
-        icon(None, x, y, 30, 30, svg=ic)
+        icon(None, x + 4, y + 4, 22, 22, svg=ic[0])  # ライト用の版
     else:
-        icon(ic, x, y, 30, 30, max_px=120)
+        icon(ic, x + 4, y + 4, 22, 22, max_px=120)
     text(label, x + 40, y, w - 40, 30, cls="nw")
 
 
-def vm(vlan, x, y, name, addr, os_text, items, head_icon="platform/ubuntu.png"):
+def vm(vlan, x, y, name, addr, os_text, items):
     """VM 枠（幅 300）。items は ("row", アイコン, 文字) か ("docker", [(アイコン, 文字), ...])。高さを返す。"""
     cur = y + 70
     parts = []
@@ -160,21 +161,22 @@ def vm(vlan, x, y, name, addr, os_text, items, head_icon="platform/ubuntu.png"):
             parts.append(("row", rest[0], rest[1], cur))
             cur += 40
         else:
-            rows = [("platform/docker.png", "Docker containers")] + rest[0]
+            rows = [(None, "Docker containers")] + rest[0]
             parts.append(("docker", rows, None, cur))
             cur += 40 * len(rows) + 10 + 20
     h = (cur - y) if items else 80
     frame(x, y, 300, h, f"z z{vlan}")
-    icon(head_icon, x + 20, y + 20, 40, 40, max_px=160)
-    text(f"{name_ip(name, addr)}<br>{os_text}", x + 70, y + 20, 210, 40)
+    text(f"{name_ip(name, addr)}<br>{os_text}", x + 20, y + 20, 260, 40)
     for kind, a, b, cy in parts:
         if kind == "row":
             row(a, b, x + 40, cy, 220)
         else:
             frame(x + 20, cy, 260, 40 * len(a) + 10, f"z z{vlan}")
             for k, (ic, label) in enumerate(a):
-                indent = 0 if k == 0 else 20  # 中のサービスは Docker アイコンより内側
-                row(ic, label, x + 40 + indent, cy + 10 + 40 * k, 220 - indent)
+                if ic is None:  # 見出し（アイコンなし）
+                    text(f"<b>{label}</b>", x + 40, cy + 10, 220, 30)
+                else:
+                    row(ic, label, x + 60, cy + 10 + 40 * k, 200)
     return h
 
 
@@ -246,7 +248,7 @@ def layout():
     icon("hardware/tplink-er605.png", 760, 200, 240, 80, max_px=700)
     text(f"<b>TP-Link ER605 V2</b><br>{ip('10.77.10.1')}（VLAN10）<br>各 VLAN の GW（.1）・DHCP・ACL", 1010, 200, 330, 80)
     edge([(880, 280), (880, 380)], width=5)  # p1: trunk（太い線）
-    text("ER605 p2 ⇔ SG2210P p1: trunk（VLAN10/20/30/40/50/60/70 を tag 付き）", 890, 320, 560, 40, cls="el")
+    text("ER605 p2 ⇔ SG2210P p1: trunk（tagged: VLAN10/20/30/40/50/60/70）", 890, 320, 560, 40, cls="el")
 
     icon("hardware/tplink-sg2210p.png", 760, 380, 240, 80, max_px=700)
     text(f"<b>TP-Link SG2210P</b><br>{ip('10.77.10.2')}（VLAN10）<br>p1: ER605 / p2: pve / p3: AP1 / p4: Dell U2725QE / p5–p6: 予備 / p7–p8: 将来の AP 用（PoE）", 1010, 380, 690, 80)
@@ -257,7 +259,7 @@ def layout():
     text("<b>Lenovo ThinkCentre M70q Tiny Gen1</b><br>CPU: Intel Core i5-10400T (6C/12T)<br>RAM: 1 x 8 GB + 1 x 16 GB DDR4-3200<br>"
          "Storage: 1 x 256GB NVMe SSD", 430, 519, 300, 80, align="center")
     edge([(800, 460), (800, 620)], width=5)  # p2: trunk（太い線）
-    text("p2: trunk（VLAN10/20/40/50/70 を tag 付き）", 440, 468, 350, 24, align="right", cls="el")
+    text("p2: trunk（tagged: VLAN10/20/40/50/70）", 440, 468, 350, 24, align="right", cls="el")
 
     # 右の列（Management / Lab / DMZ）と、Servers の 2 列を先に配置して高さを決める
     gi = len(back)                      # Proxmox の枠は、中の VLAN 枠より前に入れる
@@ -300,7 +302,7 @@ def layout():
     y += mgmt_h + 20
     # Lab
     h1 = vm(40, rx + 20, y + 50, "vm-dev", "10.77.40.10", "Ubuntu Server 24.04", [("row", *NODE)])
-    h2 = vm(40, rx + 20, y + 50 + h1 + 20, "vm-windows", "DHCP", "Windows 11（任意起動）", [], head_icon="platform/windows-11.svg")
+    h2 = vm(40, rx + 20, y + 50 + h1 + 20, "vm-windows", "DHCP", "Windows 11（任意起動）", [])
     lab_h = 50 + h1 + 20 + h2 + 20
     zone(40, rx, y, 340, lab_h)
     text("<b>VLAN40 Lab</b>　DHCP .100–.199", rx + 10, y + 5, 320, 30)
@@ -316,17 +318,16 @@ def layout():
     grp = []
     frame(gx, gy, 1060, gh, "z z10", to=grp)  # Proxmox ホストは Management（VLAN10）の色
     back.insert(gi, grp[0])
-    icon("platform/proxmox.png", gx + 20, gy + 20, 40, 40, max_px=120)
-    text(f"{name_ip('pve', '10.77.10.10')}<br><i>vmbr0.10</i>（VLAN10、tag 付き）<br>Proxmox 9.1（Debian 13 ベース）", gx + 70, gy + 20, 303, 60)
+    text(f"{name_ip('pve', '10.77.10.10')}<br><i>vmbr0.10</i>（tagged: VLAN10）<br>Proxmox 9.1（Debian 13 ベース）", gx + 20, gy + 20, 353, 60)
     icon(None, 780, 620, 40, 40, svg=mono_pair(ethernet_svg))
     text("nic0", 830, 635, 60, 20)
     row(*NODE, gx + 20, gy + gh - 50, 220)
 
     # Buffalo と Trusted / IoT / Guests -------------------------------------------------
     edge([(960, 460), (960, 500), (1410, 500), (1410, 530)], color="var(--l30)")  # p3: access VLAN30（VLAN の色）
-    text("p3: access VLAN30（untagged）", 1000, 470, 300, 24, cls="el")
+    text("p3: access（untagged: VLAN30）", 1000, 470, 300, 24, cls="el")
     edge([(910, 460), (910, 580), (1200, 580), (1200, 640)], color="var(--l30)")  # p4: access VLAN30（VLAN の色）
-    text("p4: access VLAN30（untagged）", 920, 550, 260, 24, cls="el")
+    text("p4: access（untagged: VLAN30）", 920, 550, 260, 24, cls="el")
     icon("hardware/buffalo-ap.png", 1348, 517, 126.5, 115, max_px=600)
     icon(None, 1448, 494, 40, 40, svg=mono_pair(wifi_svg), rotation=45)  # AP が Wi-Fi を出していることを示す
     text(f"<b>Buffalo WSR-1800AX4P</b><br>{ip('10.77.30.50')}<br>AP モード（管理画面は Trusted 上）", 1461.25, 541, 230, 60)
@@ -399,6 +400,7 @@ i{{font-style:italic}}
   text-shadow:0 0 2px var(--paper),0 0 2px var(--paper),0 0 4px var(--paper),0 0 6px var(--paper)}}
 .el .ip{{font-size:12px}}
 .i{{object-fit:contain}}
+.tile{{position:absolute;background:#fff;border:1px solid var(--rule2);border-radius:8px;box-shadow:0 1px 2px oklch(24% .02 258 / .08)}}
 .dk{{display:none}}
 :root[data-theme=dark] .lt{{display:none}}:root[data-theme=dark] .dk{{display:block}}
 @media (prefers-color-scheme:dark){{:root:not([data-theme=light]) .lt{{display:none}}:root:not([data-theme=light]) .dk{{display:block}}}}
