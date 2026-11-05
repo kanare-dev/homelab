@@ -1,6 +1,6 @@
 # Omada コントローラー（vm-omada）
 
-Omada コントローラーの詳細設計。ER605・SG2210P・将来の AP を一元管理する。設定の大半はコントローラーの中にあり、Git では管理しない（Open API でのコード化は[検討中](../operations/roadmap/01-backlog.md)）。**この文書を、設定値の正とする。** 製品の仕様は[ER605](../hardware/er605.md)・[SG2210P](../hardware/sg2210p.md)の資料、機器ごとの設定は[ER605 の設定](13-er605.md)・[SG2210P の設定](14-sg2210p.md)、移行の手順は[移行計画](../operations/roadmap/10-er605-sg2210p-migration-plan.md)にある。
+Omada コントローラーの詳細設計。ER605・SG2210P・将来の AP を一元管理する。設定の大半はコントローラーの中にあり、Git では管理しない（Open API でのコード化は[検討中](../operations/roadmap/01-backlog.md)）。**この文書を、設定値の正とする。** 製品の仕様は[ER605](../hardware/er605/spec.md)・[SG2210P](../hardware/sg2210p/spec.md)の資料、機器ごとの設定は[ER605 の設定](../hardware/er605/settings.md)・[SG2210P の設定](../hardware/sg2210p/settings.md)、移行の手順は[移行計画](../operations/roadmap/10-er605-sg2210p-migration-plan.md)にある。
 
 > [!NOTE]
 > 作成日は 2026-11-03。**秘密の値（管理者のパスワード、バックアップの暗号化の鍵、TP-Link ID のパスワード）と、機器の MAC アドレスは書かない**（リポジトリは公開）。Keychain の名前は `private/secrets-inventory.md`（台帳）にある。

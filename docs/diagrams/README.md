@@ -24,15 +24,15 @@ ER605 と SG2210P を入れて VLAN に分けたあと（段階 3 の完了時�
 
 ### 物理構成図（`physical/`）
 
-どの機器のどのポートを、どの機器のどのポートに繋ぐかを、一目で見るための図。段階 3 の完了後の、有線の最終形。機器は四角、ポートは四角（WAN・trunk・access VLAN30・未使用を色で区別）、ケーブルは線（太さと色で種類を区別）で描く。ケーブルの種類（今ある長いケーブル A・B・C と、買い足す短いケーブル）と、ポートごとの VLAN（tagged / untagged）も載せた。VM・サービス・IP は、上の論理側の図に任せる。内容は、[移行計画](../operations/roadmap/10-er605-sg2210p-migration-plan.md)の「段階 3 の後」「ケーブルと電源」と、[ER605](../services/13-er605.md)・[SG2210P](../services/14-sg2210p.md) のポート表による。**本体は、生成スクリプト [`physical/make-physical.py`](physical/make-physical.py)**。
+どの機器のどのポートを、どの機器のどのポートに繋ぐかを、一目で見るための図。段階 3 の完了後の、有線の最終形。機器は四角、ポートは四角（WAN・trunk・access VLAN30・未使用を色で区別）、ケーブルは線（太さと色で種類を区別）で描く。ケーブルの種類（今ある長いケーブル A・B・C と、買い足す短いケーブル）と、ポートごとの VLAN（tagged / untagged）も載せた。VM・サービス・IP は、上の論理側の図に任せる。内容は、[移行計画](../operations/roadmap/10-er605-sg2210p-migration-plan.md)の「段階 3 の後」「ケーブルと電源」と、[ER605](../hardware/er605/settings.md)・[SG2210P](../hardware/sg2210p/settings.md) のポート表による。**本体は、生成スクリプト [`physical/make-physical.py`](physical/make-physical.py)**。
 
 ![物理構成図](physical/physical.png)
 
 ダーク版は [`physical-dark.png`](physical/physical-dark.png)、単体の HTML は [`physical.html`](physical/physical.html)。
 
 - スタイル（方眼、フォント、ライト・ダーク、線のラベルの縁取り）は、VLAN 化のあとの図と同じ。フォントは [`fonts/`](fonts/)（共通）を使う。
-- **Buffalo のポート**: 図は INTERNET ポートで描き、「INTERNET※」と注記した。取扱説明書（2026-11-06 に確認）に、AP モードの接続ポートの指定はなく、公式 FAQ では、ブリッジモードで INTERNET も LAN として動くとある（[Buffalo の資料](../hardware/wsr-1800ax4p.md)）。
-- ER605 のポートの種類（p1 が WAN、p2・p3 が WAN/LAN、p4・p5 が LAN）は、運用者が本体で確認した値。[ER605 の資料](../hardware/er605.md)と、[ER605 の設定](../services/13-er605.md#ポート)にも書いた。
+- **Buffalo のポート**: 図は INTERNET ポートで描き、「INTERNET※」と注記した。取扱説明書（2026-11-06 に確認）に、AP モードの接続ポートの指定はなく、公式 FAQ では、ブリッジモードで INTERNET も LAN として動くとある（[Buffalo の資料](../hardware/wsr-1800ax4p/spec.md)）。
+- ER605 のポートの種類（p1 が WAN、p2・p3 が WAN/LAN、p4・p5 が LAN）は、運用者が本体で確認した値。[ER605 の資料](../hardware/er605/spec.md)と、[ER605 の設定](../hardware/er605/settings.md#ポート)にも書いた。
 - 配線を変えたら（ポートの割り当て、ケーブルの付け替え）、同じ変更で、スクリプトの「配置」と、移行計画・設計書のポート表を直す。
 
 ### stack-diagram で描いた現行の構成（`stack-diagram/`、試作）

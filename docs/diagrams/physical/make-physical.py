@@ -14,7 +14,7 @@ PNG（physical.png、ダーク版は physical-dark.png）も書き出す。何�
 必要なもの: --png には Google Chrome（ヘッドレスで撮る。Playwright は要らない）。
 フォントは ../fonts/（Geist と JetBrains Mono。OFL。VLAN 化のあとの図と共通）を HTML に埋め込む。
 内容は docs/operations/roadmap/10-er605-sg2210p-migration-plan.md の「段階 3 の後」「ケーブルと電源」、
-docs/services/13-er605.md・14-sg2210p.md のポート表、docs/architecture/08-vlan-design.md に合わせる。
+docs/hardware/er605/settings.md・docs/hardware/sg2210p/settings.md のポート表、docs/architecture/08-vlan-design.md に合わせる。
 食い違ったら、docs/ の文書のほうが正。
 
 見た目の決まり（座標は 10px グリッド。背景の方眼は 20px。スタイルは ../tobe-html/make-tobe-vlan.py と同じ）:

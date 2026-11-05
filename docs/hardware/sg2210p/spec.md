@@ -1,6 +1,6 @@
 # TP-Link SG2210P
 
-ネットワークの PoE+ スイッチ。公式の資料へのリンクと、データシートの仕様をまとめる。使い方の計画は[ER605・SG2210P の移行計画](../operations/roadmap/10-er605-sg2210p-migration-plan.md)、VLAN の設計は[VLAN 設計](../architecture/08-vlan-design.md)にある。
+ネットワークの PoE+ スイッチ。公式の資料へのリンクと、データシートの仕様をまとめる。使い方の計画は[ER605・SG2210P の移行計画](../../operations/roadmap/10-er605-sg2210p-migration-plan.md)、VLAN の設計は[VLAN 設計](../../architecture/08-vlan-design.md)にある。
 
 > [!NOTE]
 > 確認日は 2026-11-03。購入した版は **SG2210P (UN) V5.30**（運用者が本体で確認。Omada に対応する版）。仕様は V5.30 のデータシート（2026-01 版）による。数値は、書き写し間違いを避けるため、原文のまま載せている。
@@ -69,14 +69,14 @@
 
 | 論点 | データシートから分かること |
 | --- | --- |
-| trunk / access / native VLAN | 802.1Q のタグ VLAN に対応。[移行計画](../operations/roadmap/10-er605-sg2210p-migration-plan.md)のポート割り当て（p1 trunk、p2 trunk（全 VLAN をタグ付き。native は未使用の VLAN1）、p3 access）は実現できる |
-| 通信の複製（ntopng） | 多対 1、入力・出力・両方向のポートミラーリングに対応。[ネットワーク通信の収集・可視化](../operations/roadmap/06-network-traffic-analysis.md)の Phase 2 で使える |
-| VLAN 間の通信の制限 | 計画は ER605 のゲートウェイ ACL に頼る。ER605 で足りなければ、SG2210P の ACL（230 エントリ）を使う道がある（[VLAN 設計](../architecture/08-vlan-design.md)の未決事項） |
+| trunk / access / native VLAN | 802.1Q のタグ VLAN に対応。[移行計画](../../operations/roadmap/10-er605-sg2210p-migration-plan.md)のポート割り当て（p1 trunk、p2 trunk（全 VLAN をタグ付き。native は未使用の VLAN1）、p3 access）は実現できる |
+| 通信の複製（ntopng） | 多対 1、入力・出力・両方向のポートミラーリングに対応。[ネットワーク通信の収集・可視化](../../operations/roadmap/06-network-traffic-analysis.md)の Phase 2 で使える |
+| VLAN 間の通信の制限 | 計画は ER605 のゲートウェイ ACL に頼る。ER605 で足りなければ、SG2210P の ACL（230 エントリ）を使う道がある（[VLAN 設計](../../architecture/08-vlan-design.md)の未決事項） |
 | 仕事用 PC を別の VLAN に分ける案 | MAC VLAN（12 エントリ）に対応。ドック経由で MAC が安定するかは、実機で確認する |
 | AP への給電（段階 4） | PoE+ は 8 ポート、1 ポート 30 W まで、合計 61 W。AP の消費電力の合計が 61 W に収まる台数にする |
-| 設置場所 | ファンレスで、動作温度は 40 ℃ まで。ラックや棚に入れるときは、熱がこもらないようにする。ラックマウントの金具は付属しない（[10 インチラック](rack-10inch/README.md)の 3D プリントの金具を使う案） |
+| 設置場所 | ファンレスで、動作温度は 40 ℃ まで。ラックや棚に入れるときは、熱がこもらないようにする。ラックマウントの金具は付属しない（[10 インチラック](../rack-10inch/README.md)の 3D プリントの金具を使う案） |
 | ルーター機能・DHCP サーバー | 本機にもあるが使わない。ゲートウェイと DHCP は ER605 に一本化する |
-| IPv6 | 本機は対応するが、家では IPv6 を無効にする方針（[ADR-0017](../adr/0017-ipv6-disabled.md)） |
+| IPv6 | 本機は対応するが、家では IPv6 を無効にする方針（[ADR-0017](../../adr/0017-ipv6-disabled.md)） |
 
 ## 資料の食い違い
 

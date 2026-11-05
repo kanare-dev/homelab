@@ -16,10 +16,10 @@
 | 07 | [CI/CD](07-cicd.md) | Terraform + Ansible のフローと CI の方針 |
 | 08 | [vm-code](08-vm-code.md) | 常用リモート開発環境 |
 | 10 | [MOTD](10-motd.md) | SSH ログイン時の表示（ホスト名のバナーとシステム情報） |
-| 11 | [WSR-1800AX4P](11-wsr-1800ax4p.md) | Buffalo Wi-Fi ルーターの設定値（詳細設計）。AP モードでの扱い、見直し項目、バックアップの運用 |
+| 11 | [WSR-1800AX4P](../hardware/wsr-1800ax4p/settings.md) | Buffalo Wi-Fi ルーターの設定値（詳細設計）。AP モードでの扱い、見直し項目、バックアップの運用 |
 | 12 | [Omada コントローラー](12-omada-controller.md) | `vm-omada` の構成、サイトの設定値、バックアップの運用、Omada Cloud |
-| 13 | [ER605](13-er605.md) | TP-Link ルーターの設定値（詳細設計）。ポート、WAN、LAN と DHCP |
-| 14 | [SG2210P](14-sg2210p.md) | TP-Link スイッチの設定値（詳細設計）。ポートの割り当て、管理 |
+| 13 | [ER605](../hardware/er605/settings.md) | TP-Link ルーターの設定値（詳細設計）。ポート、WAN、LAN と DHCP |
+| 14 | [SG2210P](../hardware/sg2210p/settings.md) | TP-Link スイッチの設定値（詳細設計）。ポートの割り当て、管理 |
 
 ## 運用
 

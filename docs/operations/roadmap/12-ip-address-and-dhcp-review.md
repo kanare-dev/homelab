@@ -100,7 +100,7 @@ Management に、`.240–.250` の小さなプールを置く。平時は使わ�
 1. [VLAN 設計](../../architecture/08-vlan-design.md)の「VLAN 一覧」「アドレス帯の区切り」「固定アドレス」と、Tailscale・Ansible・UFW の IP の記述を更新する。
 2. [ADR-0015](../../adr/0015-vlan-address-scheme-10-77.md) の方針（第 4 オクテットの引き継ぎ）を置き換える新しい ADR を足し、古い方を「置き換え済み」にする。ADR-0024 の DNS アドレスを直す。
 3. [ER605・SG2210P の移行計画](10-er605-sg2210p-migration-plan.md)の TO-BE の IP（`vm-omada`、Buffalo、各 VM）、[ネットワーク設計](../../architecture/03-network.md)の IP 表、構成図（`tobe-html/make-tobe-vlan.py` の「配置」を直して再生成する）を更新する。
-4. [Omada コントローラー](../../services/12-omada-controller.md)・[ER605](../../services/13-er605.md) の設定値のうち、段階 3 の DHCP の記述を更新し、変更履歴に 1 行足す。
+4. [Omada コントローラー](../../services/12-omada-controller.md)・[ER605](../../hardware/er605/settings.md) の設定値のうち、段階 3 の DHCP の記述を更新し、変更履歴に 1 行足す。
 5. [サービスカタログ](../../homelab-service-catalog.md)に影響は無い見込み（ツールの採否は変わらない）。
 
 ## 未確認
