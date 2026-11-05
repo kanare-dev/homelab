@@ -41,6 +41,8 @@ services:
     command:
       - "--config.file=/etc/alertmanager/alertmanager.yml"
       - "--storage.path=/alertmanager"
+      # Slack 通知のタイトルのリンク先（既定ではコンテナ ID のホスト名になり、ブラウザから開けない）
+      - "--web.external-url=https://alertmanager.lab.kanare.dev"
     logging: *default-logging
     networks:
       - monitoring

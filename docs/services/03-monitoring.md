@@ -149,6 +149,7 @@ Ookla Speedtest は測定のたびに 30〜60 秒、回線を使い切る（1Gbp
 
   過剰割当の解消待ちのように、すぐには直せない warning が続いても、再通知は 1 日 1 通で、critical のチャンネルには出ない。Slack のスレッドにまとめることは、Alertmanager 標準の Slack 通知が対応していないため見送った（自作の中継が要り、保守が重い）。
 - 解消時は `[RESOLVED]` を送る。
+- Slack のタイトル（`[SEVERITY] アラート名`）のリンクは、Alertmanager の画面（`https://alertmanager.lab.kanare.dev`）へ飛ぶ。起動オプション `--web.external-url` で決まる（未指定だとコンテナ ID のホスト名になり、開けない）。
 
 ## 容量の上限設定
 
