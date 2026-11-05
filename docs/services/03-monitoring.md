@@ -43,7 +43,7 @@ homelab の監視とアラート通知の仕組み。2026-10-22 の障害（[INC
 | Alertmanager | 通知のグルーピング・送信 | `docker/compose/monitoring/alertmanager/alertmanager.yml` |
 | 外部 Heartbeat | `Watchdog` を Healthchecks.io へ 5 分毎に送る。途絶えたら外部から通知（[ADR-0010](../adr/0010-external-heartbeat.md)） | `alertmanager.yml`（`heartbeat` receiver）、`ansible/playbooks/monitoring.yml` |
 | Heartbeat ping URL | 秘密情報 | `ansible/inventory/group_vars/monitoring/secrets.sops.yml`（`heartbeat_ping_url`、SOPS 暗号化） |
-| Slack Webhook URL | 秘密情報 | `ansible/inventory/group_vars/monitoring/secrets.sops.yml`（`slack_webhook_url`、SOPS 暗号化） |
+| Slack Webhook URL（critical 用 / warning 用） | 秘密情報 | `ansible/inventory/group_vars/monitoring/secrets.sops.yml`（`slack_webhook_url` / `slack_webhook_url_warning`、SOPS 暗号化） |
 | Grafana ダッシュボード「Internet Connectivity」 | ping の遅延（ルーター・建物の共用ルーター・インターネット）、疎通、通知しきい値 | `docker/compose/monitoring/grafana/dashboards/internet-connectivity.json`（`/d/homelab-internet-connectivity`） |
 | Grafana ダッシュボード「Storage / Thin Pool」 | pool とVM ディスク別の割当、増加ペース、VM 稼働状態 | `docker/compose/monitoring/grafana/dashboards/storage.json`（`/d/homelab-storage`） |
 | デプロイ | | `ansible/playbooks/monitoring.yml`（vm-monitoring）、`ansible/playbooks/proxmox.yml`（pve） |
@@ -140,7 +140,14 @@ Ookla Speedtest は測定のたびに 30〜60 秒、回線を使い切る（1Gbp
 ### 通知の挙動
 
 - 同じ `alertname` + `instance` を 1 通にまとめる。最初の通知まで 30 秒待つ。
-- 未解消なら critical は 1 時間毎、それ以外は 4 時間毎に再通知する。
+- 通知先と再通知の間隔は、アラート名ではなく重要度（`severity`）で一律に決める。
+
+  | 重要度 | 通知先 | 未解消のときの再通知 |
+  | --- | --- | --- |
+  | critical | critical 用チャンネル（receiver `slack-critical`） | 1 時間毎 |
+  | それ以外（warning など） | warning 用チャンネル（receiver `slack-warning`） | 24 時間毎 |
+
+  過剰割当の解消待ちのように、すぐには直せない warning が続いても、再通知は 1 日 1 通で、critical のチャンネルには出ない。Slack のスレッドにまとめることは、Alertmanager 標準の Slack 通知が対応していないため見送った（自作の中継が要り、保守が重い）。
 - 解消時は `[RESOLVED]` を送る。
 
 ## 容量の上限設定
@@ -295,7 +302,7 @@ curl -XPOST https://alertmanager.lab.kanare.dev/api/v2/alerts -H 'Content-Type: 
 
 ### Webhook URL の再発行・変更
 
-Slack App の「Incoming Webhooks」で再発行し、`sops ansible/inventory/group_vars/monitoring/secrets.sops.yml` で `slack_webhook_url` を更新して `monitoring.yml` を再実行する。漏えいが疑われる場合は Slack 側で旧 URL を先に削除する。
+Slack App の「Incoming Webhooks」で再発行し、`sops ansible/inventory/group_vars/monitoring/secrets.sops.yml` で `slack_webhook_url`（critical 用）または `slack_webhook_url_warning`（warning 用）を更新して `monitoring.yml` を再実行する。漏えいが疑われる場合は Slack 側で旧 URL を先に削除する。
 
 ## アラート発報時の対応
 
