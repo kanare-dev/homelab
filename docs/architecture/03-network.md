@@ -38,7 +38,7 @@ VM の IP は Terraform（`terraform.tfvars`）で固定する。VMID は IP の
 | `vm-apps.lab.kanare.dev` | `192.168.11.20` | 同左 | `vm-apps` への直接アクセス |
 | `vm-code.lab.kanare.dev` | `192.168.11.22` | 同左 | SSH / mosh の直接アクセス（Moshi など） |
 
-`vm-dev` と `vm-windows` には DNS レコードを置いていない（手動起動のため）。Caddy 経由の FQDN には、証明書を FQDN ごとに取得する（[リバースプロキシと TLS](../services/02-reverse-proxy-tls.md)）。
+`vm-dev` には DNS レコードを置いていない（手動起動のため）。Caddy 経由の FQDN には、証明書を FQDN ごとに取得する（[リバースプロキシと TLS](../services/02-reverse-proxy-tls.md)）。
 
 ## 外部接続の方針
 

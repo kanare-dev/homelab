@@ -37,7 +37,7 @@
  ┌───┴──────────────────────────────────────────────┐
  │ Proxmox ThinkCentre M70q（NIC 1 つ、192.168.11.10） │
  │  vm-infra .11 / vm-monitoring .13 / vm-apps .20     │
- │  vm-code .22 / vm-dev .21 / vm-windows              │
+ │  vm-code .22 / vm-dev .21                           │
  └─────────────────────────────────────────────────────┘
 ```
 
@@ -83,7 +83,7 @@ IP は変えない。Buffalo の Wi-Fi 設定は今のままなので、端末�
                   ├─ p2 ── Proxmox ［trunk: tag=10/20/40/50/70。native は未使用の VLAN1］
                   │          ├─ VLAN10 Management : Proxmox 10.77.10.10 / vm-omada 10.77.10.3
                   │          ├─ VLAN20 Servers    : vm-infra .11 / vm-monitoring .13 / vm-apps .20 / vm-code .22
-                  │          ├─ VLAN40 Lab        : vm-dev 10.77.40.10 / vm-windows（DHCP、起動するとき）
+                  │          ├─ VLAN40 Lab        : vm-dev 10.77.40.10
                   │          └─ VLAN70 DMZ        : （VLAN とルールだけ。置くものは後）
                   ├─ p3 ── Buffalo（AP モード）［access: VLAN30 Trusted］
                   │          └─ Wi-Fi 全端末（Trusted。段階 4 まで SSID は 1 つ）
@@ -144,7 +144,7 @@ AP を SG2210P の p7（PoE）に繋ぎ、SSID を 3 つ（Trusted / IoT / Guest
   - **書いた・適用した（2026-11-03）**: `terraform/proxmox/terraform.tfvars`（`vm-omada`: 2 vCPU、メモリ 3GB、ディスク 20G）、`ansible/playbooks/omada.yml`、`ansible/inventory/group_vars/omada/vars.yml`、`docker/compose/omada/docker-compose.yml`。
   - 案: Ubuntu VM + Docker Compose で Omada コントローラーを動かす（イメージ `mbentley/omada-controller:6.3.0.111`、host ネットワーク）。VM か LXC か Docker かは VLAN 設計の未決事項で、ここで決める。
   - コントローラーは、mDNS の中継に v5.9 以降が要る（設計書より）。ER605 V2 の最新ファームウェアが動作確認されているのは 6.3.0（[ER605 の資料](../../hardware/er605.md)）。SG2210P V5.30 との対応は、公式の対応表で確認する。
-  - **適用すると、thin pool の過剰割当が 1.5 を超えてアラートが出る**（2026-11-03 に適用し、1.44 → 1.57）。解消は、[未着手の項目](01-backlog.md)に記録した（`vm-dev` の縮小と `vm-windows` の削除）。
+  - **適用すると、thin pool の過剰割当が 1.5 を超えてアラートが出た**（2026-11-03 に適用し、1.44 → 1.57）。2026-11-05 に、`vm-dev` の縮小と `vm-windows` の削除で解消した（約 1.05。[未着手の項目](01-backlog.md)）。
   - 適用する手順: `terraform apply -target='module.vm["vm-omada"]'`（**`-target` を付ける**。付けないと、手動起動の `vm-dev` も `running` にする差分が一緒に適用される）→ `make setup-omada` → 管理画面（初回は `ssh -L 8043:localhost:8043 vm-omada` で `https://localhost:8043`）で初期設定。
   - バックアップの保存先: **当面は Mac と iCloud Drive（決定 2026-11-03）**。暗号化はしない（運用者が、今の段階では厳密さを求めないと判断。バックアップには、コントローラーの設定と認証情報が入る）。コントローラーの自動バックアップは `/opt/omada/data/autobackup`（VM のローカルディスク）に出るので、そこから Mac に取り出して置く。Mac 以外（S3 など）にするかは検討中（[バックログ](01-backlog.md)）。Mac だけだと、Mac と `vm-omada` が同時に失われたときに戻せない。この間は、Mac と同時に壊れにくい別の場所への写しは、まだ無い。
 - [ ] `vm-omada` のホスト DNS と、バックアップ、監視（Prometheus の scrape、死活監視）を設計に加える。**文書と構成図の反映は済み（2026-11-03）**: [インフラ構成](../../architecture/02-infrastructure.md)の表と割当、[起動順序](../runbooks/01-vm-startup-shutdown.md)、[信頼性](../../architecture/04-reliability.md)、[システム概要](../../architecture/01-overview.md)の図、README、[ネットワーク設計](../../architecture/03-network.md)の IP 表と外部サービス（Omada Cloud）、[VLAN 設計](../../architecture/08-vlan-design.md)のリスク、構成図（SVG）。Prometheus の scrape 対象（`192.168.11.12:9100`）は、**2026-11-03 に追加して反映した**（`TargetDown` の対象。Omada の画面の外形監視は、`omada.lab.kanare.dev` を足したあと。[バックログ](01-backlog.md)）。**残り**: Caddy と DNS の `omada.lab.kanare.dev`、バックアップの保存先、ホスト DNS。反映の対象は次のとおり: `terraform.tfvars` の反映に合わせた[インフラ構成](../../architecture/02-infrastructure.md)の表と[起動順序](../runbooks/01-vm-startup-shutdown.md)、Prometheus の scrape 対象（`192.168.11.12:9100`）、Caddy と DNS の `omada.lab.kanare.dev`（段階 1 の「同じ変更で直すもの」）、構成図。あわせて、**Omada Cloud（コントローラーをクラウド経由で開く外部依存）を、[ネットワーク設計](../../architecture/03-network.md#外部サービスへの依存)の表と構成図の外部サービスに足す**（止まっても、コントローラーと LAN の通信には影響しない見込み。管理画面の外部到達の経路が 1 つ増えるので、[VLAN 設計](../../architecture/08-vlan-design.md#管理画面への外部到達リスクを受け入れる)のリスクの記述にも足す）。
@@ -293,7 +293,7 @@ ER605 と SG2210P は同時に購入済みで、すでに繋いである（ER605
 
 ### 3-C. 当日の作業
 
-1. 最終のバックアップを取る。`vm-dev`・`vm-windows` を止める。
+1. 最終のバックアップを取る。`vm-dev` を止める。
 2. Omada: 本番の設定を有効にする（VLAN、DHCP、ACL は最初は緩めの全許可）。SG2210P の p1・p3 を新しい設定にする。Buffalo は Trusted に入り、Wi-Fi の端末は `10.77.30.x` を受け取る。**Buffalo の IP は `192.168.11.2` のまま残るので、管理画面には Trusted から届かなくなる**（Wi-Fi の中継は、IP と関係なく動く）。落ち着いてから、Mac を Buffalo の LAN ポートに直接繋ぎ、Mac に `192.168.11.x` の固定 IP を一時的に振って画面を開き、Buffalo の IP を `10.77.30.50/24`（ゲートウェイ `10.77.30.1`、DNS `10.77.20.10`）に変える（案。未確認）。
 3. Proxmox（物理コンソールで）: `vmbr0` の IP を外し、タグ付きの `vmbr0.10` に `10.77.10.10/24`（GW `10.77.10.1`）を設定して、ネットワークを再起動する。p2 は 3-A のまま（untagged VLAN1、tagged 10/20/40/50/70）で、スイッチ側の変更は要らない。
 4. `vm-omada` を `10.77.10.3` にする。ER605・SG2210P が追従することを確かめる（3-A の手順）。

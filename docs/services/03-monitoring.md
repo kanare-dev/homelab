@@ -57,7 +57,7 @@ homelab の監視とアラート通知の仕組み。2026-10-22 の障害（[INC
 | LvmThinPoolDataHigh | thin pool Data% > 75% | 5m | warning | ストレージ枯渇の予兆 |
 | LvmThinPoolDataCritical | thin pool Data% > 90% | 2m | critical | 枯渇間近（今回の障害の原因） |
 | LvmThinPoolMetadataHigh / Critical | thin pool Meta% > 75% / 90% | 5m / 2m | warning / critical | メタデータ枯渇 |
-| LvmThinPoolOverprovisioned | 仮想ディスク合計 ÷ pool サイズ > 1.5 | 1h | warning | 過剰割当（障害時は約 1.6、現在 1.44）。全 VM が使い切れば枯渇する |
+| LvmThinPoolOverprovisioned | 仮想ディスク合計 ÷ pool サイズ > 1.5 | 1h | warning | 過剰割当（障害時は約 1.6、現在 約 1.05）。全 VM が使い切れば枯渇する |
 | AlertmanagerNotificationsFailing | Alertmanager → Slack の送信失敗が 10 分間に増加 | 5m | warning | Webhook 失効や Slack 障害。**Slack には届かない**ため、Alertmanager / Prometheus の画面でのみ確認できる |
 | PveVmIoError | VM が `io-error` | 1m | critical | ストレージ枯渇による VM 一時停止 |
 | PveVmStopped | `onboot=1` の VM が running でない | 3m | critical | VM のシャットダウン・クラッシュ・手動停止（vm-infra / vm-apps / vm-monitoring / vm-code が対象） |
@@ -196,7 +196,6 @@ VM 停止の検知は、`TargetDown`（VM 内 OS の応答なし）が 3 分、`
 | --- | --- |
 | vm-dev の TargetDown | `onboot=false` で手動起動のため。停止しても通知しない |
 | ESP32 (`192.168.11.100`) | 現在意図的に停止中。`prometheus.yml` の `esp32` ジョブをコメントアウト済み。再開時はコメントを外す |
-| vm-windows の停止・OS 内部 | `onboot=0` のため停止しても通知しない。node_exporter も未導入。io-error は PVE 側のメトリクスで検知できる |
 | ubuntu-cloud (9000) | テンプレート VM |
 
 ## 限界（既知の弱点）

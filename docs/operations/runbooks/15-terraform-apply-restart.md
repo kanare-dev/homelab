@@ -4,4 +4,3 @@
 
 - apply の前に `terraform plan` で、変更が VM の再起動を伴うか確認する。
 - 再起動を伴う場合は、`-target='module.vm["<名前>"]'` で 1 台ずつ apply する。DNS の `vm-infra` は最後にする。
-- `vm-windows` は `vm_state = "stopped"` を指定している。起動したまま apply すると停止される。

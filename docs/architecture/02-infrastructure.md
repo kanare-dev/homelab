@@ -23,12 +23,11 @@ Proxmox VE 上に Terraform で VM を作り、Ansible で設定し、各 VM で
 | `vm-omada` | 112 | `192.168.11.12` | 2 | 3GB | 20G | 自動（順序 6） | ネットワーク機器の管理 | Omada コントローラー（Docker。ER605・SG2210P を管理） |
 | `vm-monitoring` | 113 | `192.168.11.13` | 2 | 2GB | 40G | 自動（順序 2） | 監視 | Prometheus, Alertmanager, Grafana, blackbox-exporter |
 | `vm-apps` | 120 | `192.168.11.20` | 2 | 4GB | 40G | 自動（順序 3） | アプリ | Homepage, Home Assistant, n8n, FreshRSS |
-| `vm-dev` | 121 | `192.168.11.21` | 2 | 1GB | 30G | 手動 | 破壊検証 | playground |
+| `vm-dev` | 121 | `192.168.11.21` | 2 | 1GB | 10G | 手動 | 破壊検証 | playground |
 | `vm-code` | 122 | `192.168.11.22` | 2 | 4GB | 30G | 自動（順序 5） | 常用リモート開発 | Claude Code, CloudCLI, code-server, gh, git, mosh, moshi-hook |
-| `vm-windows` | 130 | — | 4 | 8GB | 60G | 手動（停止） | 検証用 | Windows 11 |
 | `ubuntu-cloud` | 9000 | — | — | — | — | — | VM テンプレート | cloud-init 付き Ubuntu |
 
-正の定義は `terraform/proxmox/terraform.tfvars`（`vm-windows` は `windows.tf`）。起動順序と待機秒数は [運用 Runbook](../operations/runbooks/01-vm-startup-shutdown.md#vm-自動起動停止) を参照。
+正の定義は `terraform/proxmox/terraform.tfvars`。起動順序と待機秒数は [運用 Runbook](../operations/runbooks/01-vm-startup-shutdown.md#vm-自動起動停止) を参照。
 
 ## ソフトウェア構成
 
@@ -65,15 +64,14 @@ VM ごとの vCPU・メモリ・ディスクは [論理構成](#論理構成) �
 | `vm-apps` | 約 1.6GB | OS と Homepage（約 100MB）、Home Assistant（約 620MB）、n8n（約 360MB）、FreshRSS（待機時で約 20MB）を含む（2026-10-30。FreshRSS は 2026-11-01 に追加）。割当（4GB）には余裕がある |
 | `vm-omada` | 約 1.5〜2GB（見込み） | MongoDB を含む Java アプリ。機器を採用したあとに実測して直す |
 | `vm-code` / `vm-dev` | — | `vm-dev` は手動起動 |
-| `vm-windows` | — | 手動起動（通常は停止） |
 
-- 常時起動の VM の割当メモリ合計は 14.5GB（`vm-omada` の 3GB を含む）。`vm-dev` を加えて 15.5GB、`vm-windows` も起動すると 23.5GB になる。ホストの確保分（約 2GB）を足すと 25.5GB で、**24GB を約 1.5GB 超える**。**`vm-windows` は、他の VM の負荷に注意するだけでなく、`vm-dev` を止めるなどして割当の合計を減らしてから起動する。** `vm-windows` の扱いは、[ER605・SG2210P の移行計画](../operations/roadmap/10-er605-sg2210p-migration-plan.md)のバックログに記録している
+- 常時起動の VM の割当メモリ合計は 14.5GB（`vm-omada` の 3GB を含む）。`vm-dev` を加えて 15.5GB、ホストの確保分（約 2GB）を足すと 17.5GB で、24GB に収まる。`vm-windows` は 2026-11-05 に削除した（8GB を使うため、起動すると 24GB を超えていた。退避と復元は [バックアップの手順](../operations/runbooks/06-backup-restore.md#vm-windows-の退避2026-11-05)）
 - vCPU は物理スレッドに対して過剰割当（常時起動分で 10 vCPU、全 VM で 16 vCPU）。常時高負荷の VM がないことを前提にしている。
 - `vm-apps` は Home Assistant、n8n、FreshRSS を載せても割当に余裕がある。
 
 ## ストレージの設計
 
-- thin provisioning で過剰割当している。割当の合計は pool の約 1.57 倍で、`LvmThinPoolOverprovisioned` の閾値（1.5）を超えている（`vm-omada` を追加した 2026-11-03 から。1.44 → 1.57）。解消は `vm-dev` の縮小と `vm-windows` の削除で、[バックログ](../operations/roadmap/01-backlog.md)に記録している。
+- thin provisioning で過剰割当している。割当の合計は 163.5G で、pool（155.6G）の約 1.05 倍（2026-11-05 時点。`vm-windows` の削除と `vm-dev` の 30G → 10G で、1.57 から下げた。`LvmThinPoolOverprovisioned` の閾値は 1.5）。`vm-omada` を追加した 2026-11-03 は、1.44 → 1.57 でアラートが出ていた。
 - 仮想ディスクはすべて `discard` を有効にし、毎週 `fstrim` で未使用ブロックを pool に返す。
 - 使用率は `LvmThinPoolDataHigh`（75%）と `Critical`（90%）で見る。メタデータも同様。
 - VG に未割当の余りは、pool 拡張の余地として使える（`lvextend`）。余りがなければ、ディスク追加か VM ディスクの縮小になる。
