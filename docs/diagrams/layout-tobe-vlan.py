@@ -268,7 +268,7 @@ def layout():
 
     # 通信ポリシー（LAN の中、ER605 の左） -------------------------------------------
     text("<b>通信ポリシー（要約）</b><br>表にない通信は拒否。Trusted は Servers・Lab・IoT・DMZ へ必要なポートだけ許可。<br>"
-         f"Lab・IoT・Guests・DMZ から内部へは拒否（DNS は <i>vm-infra</i> {ip('10.77.20.11')} だけ）。<br>"
+         f"Lab・IoT・Guests・DMZ から内部へは拒否（DNS は <i>vm-infra</i> {ip('10.77.20.10')} だけ）。<br>"
          f"外出先: Tailscale が {ip('10.77.20.0/24')} と {ip('10.77.40.0/24')} だけを広告（Management には届かない）。",
          40, 250, 560, 140)
 
@@ -294,24 +294,24 @@ def layout():
     rx = sx + 660 + 20                  # 右の列
     hosts = {}
     A = sy + 50
-    h_infra = vm(20, sx + 20, A, "vm-infra", "10.77.20.11", "Ubuntu Server 24.04", [
+    h_infra = vm(20, sx + 20, A, "vm-infra", "10.77.20.10", "Ubuntu Server 24.04", [
         ("row", "network/coredns.png", svc("CoreDNS", ":5353")),
         ("row", dark_svg("external/tailscale.svg"), svc("Tailscale", ":41641")),
         ("docker", [("network/adguard.png", svc("AdGuard", ":53, :3000")),
                     ("network/unbound.svg", svc("Unbound", ":5335")),
                     ("network/caddy.png", svc("Caddy", ":80, :443"))]),
         ("row", *NODE)])
-    h_code = vm(20, sx + 20, A + h_infra + 20, "vm-code", "10.77.20.22", "Ubuntu Server 24.04", [
+    h_code = vm(20, sx + 20, A + h_infra + 20, "vm-code", "10.77.20.13", "Ubuntu Server 24.04", [
         ("row", "dev/claude-code.svg", "Claude Code"),
         ("row", "dev/cloudcli.svg", svc("CloudCLI", ":3001")),
         ("row", "dev/code-server.png", svc("code-server", ":8080")),
         ("row", *NODE)])
-    h_mon = vm(20, sx + 340, A, "vm-monitoring", "10.77.20.13", "Ubuntu Server 24.04", [
+    h_mon = vm(20, sx + 340, A, "vm-monitoring", "10.77.20.11", "Ubuntu Server 24.04", [
         ("docker", [("monitoring/grafana.svg", svc("Grafana", ":3000")),
                     ("monitoring/prometheus.png", svc("Prometheus", ":9090")),
                     ("monitoring/prometheus.png", svc("blackbox-exporter", ":9115"))]),
         ("row", *NODE)])
-    h_apps = vm(20, sx + 340, A + h_mon + 20, "vm-apps", "10.77.20.20", "Ubuntu Server 24.04", [
+    h_apps = vm(20, sx + 340, A + h_mon + 20, "vm-apps", "10.77.20.12", "Ubuntu Server 24.04", [
         ("docker", [("apps/homepage.png", svc("Homepage", ":3001")),
                     ("apps/home-assistant.svg", svc("Home Assistant", ":8123")),
                     ("apps/n8n.svg", svc("n8n", ":5678")),
@@ -329,7 +329,7 @@ def layout():
     text("<b>VLAN10 Management</b>", rx + 10, y + 5, 320, 30)
     y += mgmt_h + 20
     # Lab
-    h1 = vm(40, rx + 20, y + 50, "vm-dev", "10.77.40.21", "Ubuntu Server 24.04", [("row", *NODE)])
+    h1 = vm(40, rx + 20, y + 50, "vm-dev", "10.77.40.10", "Ubuntu Server 24.04", [("row", *NODE)])
     h2 = vm(40, rx + 20, y + 50 + h1 + 20, "vm-windows", "DHCP", "Windows 11（任意起動）", [], head_icon="platform/windows-11.svg")
     lab_h = 50 + h1 + 20 + h2 + 20
     zone(40, rx, y, 340, lab_h)
@@ -359,7 +359,7 @@ def layout():
     text("p4: access VLAN30（untagged）", 920, 550, 260, 24)
     icon("hardware/buffalo-ap.png", 1348, 517, 126.5, 115, max_px=600)
     icon("", 1448, 494, 40, 40, svg=wifi_svg(), rotation=45)  # AP が Wi-Fi を出していることを示す
-    text(f"<b>Buffalo WSR-1800AX4P</b><br>{ip('10.77.30.10')}<br>AP モード（管理画面は Trusted 上）", 1461.25, 541, 230, 60)
+    text(f"<b>Buffalo WSR-1800AX4P</b><br>{ip('10.77.30.50')}<br>AP モード（管理画面は Trusted 上）", 1461.25, 541, 230, 60)
 
     tx, ty = 1140, 640
     zone(30, tx, ty, 260, 300)                        # 有線（draw.io で 2 つに分けた）
@@ -376,7 +376,7 @@ def layout():
     iy = ty + 300 + 20
     zone(50, tx, iy, 260, 150)
     text("<b>VLAN50 IoT</b>（将来）", tx + 10, iy + 5, 240, 30)
-    device("hardware/esp32.svg", f"<i>ESP32 + BME280</i><br>{ip('10.77.50.100')}<br>現在は未使用", tx + 10, iy + 50, 250, size=(40, 40))
+    device("hardware/esp32.svg", f"<i>ESP32 + BME280</i><br>{ip('10.77.50.50')}<br>現在は未使用", tx + 10, iy + 50, 250, size=(40, 40))
     text("AP 追加後に使う。2.4GHz のみ、端末間は隔離", tx + 10, iy + 110, 240, 24)
     zone(60, tx + 280, iy, 260, 150)
     text("<b>VLAN60 Guests</b>（将来）", tx + 290, iy + 5, 240, 30)
