@@ -51,7 +51,7 @@ vm(1, 612, 350, "vm-apps · 192.168.11.20")
 vm(2, 378, 350, "vm-monitoring · 192.168.11.13")
 vm(2, 752, 350, "vm-code · 192.168.11.22")
 vm(3, 378, 490, "vm-infra · 192.168.11.11")
-vm(3, 892, 210, "vm-dev .21 / vm-windows（手動起動）")
+vm(3, 892, 210, "vm-dev .21（手動起動）")
 
 # col1
 N(node(304, 438, "omadactl", "Omada Controller", "ネットワーク機器の管理"))
@@ -74,7 +74,6 @@ N(node(862, 578, "adguard", "AdGuard Home", "DNS・広告ブロック"))
 N(node(1012, 578, "unbound", "Unbound", "再帰リゾルバ"))
 N(node(862, 718, "coredns", "CoreDNS", "内部ゾーン"))
 N(node(862, 952, "vmdev", "vm-dev", "検証用"))
-N(node(1012, 952, "windows", "vm-windows", "Windows 11"))
 
 # LAN の端末（右の列）
 G(group("gb", 1210, 378, 180, 630, "LAN の端末"))
