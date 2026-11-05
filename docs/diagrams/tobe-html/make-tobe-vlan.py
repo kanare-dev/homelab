@@ -188,10 +188,16 @@ def vm(vlan, x, y, name, addr, os_text, items):
     return h
 
 
-def device(ic, label, x, y, w, size=(40, 30), svg=None):
-    """端末の行（高さ 60）。アイコンの中心とテキストの中心を同じ高さに置く。"""
-    iw, ih = size
-    icon(ic, x + 10 + (40 - iw) / 2, y + (60 - ih) / 2, iw, ih, max_px=160, svg=svg)
+def device(ic, label, x, y, w, size=(40, 30), svg=None, tile=False):
+    """端末の行（高さ 60）。アイコンの中心とテキストの中心を同じ高さに置く。
+    tile=True は、サービスのロゴ（SwitchBot、ESP32）。サービスの行と同じ、白いタイル 36 にアイコン 28。"""
+    cx, cy = x + 30, y + 30  # アイコンの中心
+    if tile:
+        out.append(f'<div class="tile" style="{pos(cx - 18, cy - 18, 36, 36)}"></div>')
+        icon(ic, cx - 14, cy - 14, 28, 28, max_px=160, svg=svg)
+    else:
+        iw, ih = size
+        icon(ic, cx - iw / 2, cy - ih / 2, iw, ih, max_px=160, svg=svg)
     text(label, x + 60, y, w - 60, 60)
 
 
@@ -350,18 +356,18 @@ def layout():
     device("hardware/clients/macbook.png", f"<i>canales-macbook-pro-m5</i><br>{ip('DHCP')}<br>MacBook Pro M5", tx + 10, ty + 70, 250, size=(52, 52))
     device("hardware/clients/windows-laptop.png", f"<i>仕事用 Windows PC</i><br>{ip('DHCP')}<br>会社の VPN", tx + 10, ty + 130, 250, size=(52, 52))
     device("hardware/clients/iphone.png", f"<i>canales-iphone-14</i><br>{ip('DHCP')}<br>iPhone 14", tx + 290, ty + 64, 230, size=(52, 52))
-    device("hardware/clients/switchbot.png", f"<i>SwitchBot Hub 2</i><br>{ip('DHCP')}<br>将来 IoT へ移す", tx + 290, ty + 124, 230, size=(52, 52))
+    device("hardware/clients/switchbot.png", f"<i>SwitchBot Hub 2</i><br>{ip('DHCP')}<br>将来 IoT へ移す", tx + 290, ty + 124, 230, size=(52, 52), tile=True)
     device("hardware/clients/tv.png", f"<i>テレビ（無線）</i><br>{ip('DHCP')}<br>将来 IoT へ移す", tx + 290, ty + 184, 230, size=(52, 52))
 
     iy = ty + 300 + 20
-    zone(50, tx, iy, 260, 150)
+    zone(50, tx, iy, 260, 170)
     text("<b>VLAN50 IoT</b>（将来）", tx + 10, iy + 5, 240, 30)
-    device("hardware/clients/esp32.svg", f"<i>ESP32 + BME280</i><br>{ip('10.77.50.50')}<br>現在は未使用", tx + 10, iy + 50, 250, size=(52, 52))
-    text("AP 追加後に使う。2.4GHz のみ、端末間は隔離", tx + 10, iy + 110, 240, 24)
-    zone(60, tx + 280, iy, 260, 150)
+    device("hardware/clients/esp32.svg", f"<i>ESP32 + BME280</i><br>{ip('10.77.50.50')}<br>現在は未使用", tx + 10, iy + 50, 250, size=(52, 52), tile=True)
+    text("AP 追加後に使う。2.4GHz のみ、端末間は隔離", tx + 10, iy + 120, 240, 40)
+    zone(60, tx + 280, iy, 260, 170)
     text("<b>VLAN60 Guests</b>（将来）", tx + 290, iy + 5, 240, 30)
     device("", f"来客の端末<br>{ip('DHCP')}", tx + 290, iy + 50, 250, size=(40, 40), svg=mono_pair(wifi_svg))
-    text("AP 追加後に使う。端末間は隔離、LAN へは全遮断", tx + 290, iy + 110, 240, 24)
+    text("AP 追加後に使う。端末間は隔離、LAN へは全遮断", tx + 290, iy + 120, 240, 40)
 
 
 mono_pair_dark = dark_pair
