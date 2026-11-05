@@ -144,11 +144,11 @@ def edge(points, arrow=None, width=3, color=None):
 # 部品（draw.io 版と同じ寸法） -------------------------------------------------
 def row(ic, label, x, y, w):
     """サービス行。アイコン 30、文字は 10 右。"""
-    out.append(f'<div class="tile" style="{pos(x, y, 30, 30)}"></div>')  # 白いタイル（ロゴは白地用なので、ダークでも白）
+    out.append(f'<div class="tile" style="{pos(x - 3, y - 3, 36, 36)}"></div>')  # 白いタイル（ロゴは白地用なので、ダークでも白）
     if isinstance(ic, tuple):
-        icon(None, x + 4, y + 4, 22, 22, svg=ic[0])  # ライト用の版
+        icon(None, x + 1, y + 1, 28, 28, svg=ic[0])  # ライト用の版
     else:
-        icon(ic, x + 4, y + 4, 22, 22, max_px=120)
+        icon(ic, x + 1, y + 1, 28, 28, max_px=120)
     text(label, x + 40, y, w - 40, 30, cls="nw")
 
 
@@ -161,21 +161,23 @@ def vm(vlan, x, y, name, addr, os_text, items):
             parts.append(("row", rest[0], rest[1], cur))
             cur += 40
         else:
-            rows = [(None, "Docker containers")] + rest[0]
+            rows = [("platform/docker.png", "Docker containers")] + rest[0]
             parts.append(("docker", rows, None, cur))
             cur += 40 * len(rows) + 10 + 20
     h = (cur - y) if items else 80
     frame(x, y, 300, h, f"z z{vlan}")
-    text(f"{name_ip(name, addr)}<br>{os_text}", x + 20, y + 20, 260, 40)
+    icon("platform/ubuntu.png", x + 20, y + 20, 40, 40, max_px=160)
+    text(f"{name_ip(name, addr)}<br>{os_text}", x + 70, y + 20, 210, 40)
     for kind, a, b, cy in parts:
         if kind == "row":
             row(a, b, x + 40, cy, 220)
         else:
             frame(x + 20, cy, 260, 40 * len(a) + 10, f"z z{vlan}")
             for k, (ic, label) in enumerate(a):
-                if ic is None:  # 見出し（アイコンなし）
-                    text(f"<b>{label}</b>", x + 40, cy + 10, 220, 30)
-                else:
+                if k == 0:  # 見出し（Docker アイコンはタイルに入れない）
+                    icon(ic, x + 40, cy + 10, 30, 30, max_px=120)
+                    text(label, x + 80, cy + 10, 180, 30)
+                else:  # 中のサービスは Docker アイコンより内側
                     row(ic, label, x + 60, cy + 10 + 40 * k, 200)
     return h
 
@@ -213,7 +215,7 @@ def layout():
     for k, (ic, label) in enumerate(services):
         col, rowi = divmod(k, 4)
         row(ic, label, 40 + 240 * col, 70 + 40 * rowi, 200)
-    edge([(520, 126), (850, 126)])
+    edge([(520, 125), (852, 125)])
 
     # 凡例の右半分: 線と文字の意味
     edge([(1440, 30), (1440, 232)], width=1, color="var(--rule2)")
@@ -228,9 +230,10 @@ def layout():
     OFF[0] = 80  # ここから下は 80 下げる（凡例と LAN の枠が重ならないように）
 
     # インターネット・ルーター・スイッチ ------------------------------------------------
-    icon(None, 846, 21, 78, 48, svg=INTERNET)
-    text("Internet", 938, 34, 100, 30)
-    edge([(880, 76), (880, 200)])  # 地球儀の下から ER605 の上まで、1 本で繋ぐ
+    out.append(f'<div class="tile" style="{pos(852, 17, 56, 56)}"></div>')
+    icon(None, 860, 25, 40, 40, svg=INTERNET[0])
+    text("Internet", 920, 30, 100, 30)
+    edge([(880, 73), (880, 200)])  # タイルの下から ER605 の上まで、1 本で繋ぐ
     text(f"建物の共用ルーター {ip('172.22.0.1')}（二重 NAT）", 520, 94, 350, 24, align="right", cls="el")
     text("WAN（DHCP）", 750, 128, 120, 24, align="right", cls="el")
 
@@ -302,8 +305,7 @@ def layout():
     y += mgmt_h + 20
     # Lab
     h1 = vm(40, rx + 20, y + 50, "vm-dev", "10.77.40.10", "Ubuntu Server 24.04", [("row", *NODE)])
-    h2 = vm(40, rx + 20, y + 50 + h1 + 20, "vm-windows", "DHCP", "Windows 11（任意起動）", [])
-    lab_h = 50 + h1 + 20 + h2 + 20
+    lab_h = 50 + h1 + 20
     zone(40, rx, y, 340, lab_h)
     text("<b>VLAN40 Lab</b>　DHCP .100–.199", rx + 10, y + 5, 320, 30)
     y += lab_h + 20
@@ -318,7 +320,8 @@ def layout():
     grp = []
     frame(gx, gy, 1060, gh, "z z10", to=grp)  # Proxmox ホストは Management（VLAN10）の色
     back.insert(gi, grp[0])
-    text(f"{name_ip('pve', '10.77.10.10')}<br><i>vmbr0.10</i>（tagged: VLAN10）<br>Proxmox 9.1（Debian 13 ベース）", gx + 20, gy + 20, 353, 60)
+    icon("platform/proxmox.png", gx + 20, gy + 20, 40, 40, max_px=120)
+    text(f"{name_ip('pve', '10.77.10.10')}<br><i>vmbr0.10</i>（tagged: VLAN10）<br>Proxmox 9.1（Debian 13 ベース）", gx + 70, gy + 20, 303, 60)
     icon(None, 780, 620, 40, 40, svg=mono_pair(ethernet_svg))
     text("nic0", 830, 635, 60, 20)
     row(*NODE, gx + 20, gy + gh - 50, 220)
@@ -366,12 +369,12 @@ def css():
   --paper:oklch(98.5% 0.004 250);--paper2:oklch(96.5% 0.005 252);--card:oklch(100% 0 0 / .85);
   --rule:oklch(93% 0.007 255);--rule2:oklch(83% 0.011 255);--muted:oklch(56% 0.013 255);
   --neutral:oklch(46% 0.015 255);--ink:oklch(24% 0.020 258);--ink2:oklch(34% 0.018 257);
-  --orange:oklch(60% 0.17 52);--veil:oklch(98.5% 0.004 250 / .85);--zfill:40%;{vl}"""
+  --orange:oklch(60% 0.17 52);--veil:oklch(98.5% 0.004 250 / .85);--zfill:40%;--zline:40%;{vl}"""
     dark = f"""
   --paper:oklch(18% 0.012 255);--paper2:oklch(22% 0.014 255);--card:oklch(22% 0.014 255 / .85);
   --rule:oklch(24% 0.013 255);--rule2:oklch(38% 0.018 255);--muted:oklch(65% 0.014 255);
   --neutral:oklch(72% 0.012 255);--ink:oklch(94% 0.008 255);--ink2:oklch(85% 0.010 255);
-  --orange:oklch(76% 0.14 60);--veil:oklch(18% 0.012 255 / .85);--zfill:16%;"""
+  --orange:oklch(76% 0.14 60);--veil:oklch(18% 0.012 255 / .85);--zfill:16%;--zline:60%;"""
     fonts = "".join(
         f'@font-face{{font-family:"{fam}";font-style:normal;font-weight:{wt};font-display:swap;'
         f'src:url(data:font/woff2;base64,{base64.b64encode((FONTS / fn).read_bytes()).decode()}) format("woff2")}}\n'
@@ -406,18 +409,18 @@ i{{font-style:italic}}
 @media (prefers-color-scheme:dark){{:root:not([data-theme=light]) .lt{{display:none}}:root:not([data-theme=light]) .dk{{display:block}}}}
 /* VLAN の枠。VLAN 枠・VM 枠・Docker 枠は同じ色を重ねるので、入れ子ほど濃くなる */
 {zc}
-.z{{border-radius:16px;border:2px dashed color-mix(in srgb,var(--l) 85%,transparent);
+.z{{border-radius:16px;border:2px dashed color-mix(in srgb,var(--l) var(--zline),transparent);
   background:color-mix(in srgb,var(--f) var(--zfill),transparent)}}
 :root[data-theme=dark] .z{{background:color-mix(in srgb,var(--l) var(--zfill),transparent)}}
 @media (prefers-color-scheme:dark){{:root:not([data-theme=light]) .z{{background:color-mix(in srgb,var(--l) var(--zfill),transparent)}}}}
 .sw{{border-style:solid;border-radius:4px;border-width:1.5px;background:color-mix(in srgb,var(--f) 85%,transparent)}}
 :root[data-theme=dark] .sw{{background:color-mix(in srgb,var(--l) 35%,transparent)}}
 @media (prefers-color-scheme:dark){{:root:not([data-theme=light]) .sw{{background:color-mix(in srgb,var(--l) 35%,transparent)}}}}
-.ext{{border-radius:16px;border:2px solid #6c8ebf;background:color-mix(in srgb,#dae8fc 70%,transparent)}}
+.ext{{border-radius:16px;border:2px solid color-mix(in srgb,#6c8ebf 70%,transparent);background:color-mix(in srgb,#dae8fc 70%,transparent)}}
 :root[data-theme=dark] .ext{{background:color-mix(in srgb,#6c8ebf 22%,transparent)}}
 @media (prefers-color-scheme:dark){{:root:not([data-theme=light]) .ext{{background:color-mix(in srgb,#6c8ebf 22%,transparent)}}}}
-.lan{{border-radius:16px;border:2px dashed var(--muted);background:color-mix(in srgb,var(--paper) 70%,transparent)}}
-.lanlabel{{border-radius:16px;border:2px solid var(--muted);background:var(--paper2)}}
+.lan{{border-radius:16px;border:2px dashed color-mix(in srgb,var(--muted) 70%,transparent);background:color-mix(in srgb,var(--paper) 70%,transparent)}}
+.lanlabel{{border-radius:16px;border:2px solid color-mix(in srgb,var(--muted) 70%,transparent);background:var(--paper2)}}
 .legend{{border-radius:10px;border:1px solid var(--rule2);background:var(--card)}}
 """
 
