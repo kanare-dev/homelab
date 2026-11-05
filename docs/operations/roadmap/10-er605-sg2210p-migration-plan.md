@@ -109,7 +109,7 @@ AP を SG2210P の p7（PoE）に繋ぎ、SSID を 3 つ（Trusted / IoT / Guest
 | 区間 | 段階 | ケーブル | 備考 |
 | --- | --- | --- | --- |
 | 壁の LAN ポート → ER605 WAN | 1 | A を使い回す | ER605 は Proxmox のそばに置く。運用者の見込みでは届く。置いたときに届かなければ、短い延長で補う |
-| ER605 LAN → Buffalo（AP の上流側） | 1 | B を使い回す | B は Buffalo から Proxmox のそばまで届いている。段階 2 では、同じ B を SG2210P p3 に付け替える |
+| ER605 LAN → Buffalo（AP の上流側） | 1 | B を使い回す | B は Buffalo から Proxmox のそばまで届いている。段階 2 では、同じ B を SG2210P p3 に付け替える。Buffalo 側は INTERNET ポート。取扱説明書にポートの指定はなく、公式 FAQ では AP（ブリッジ）モードで INTERNET も LAN として動く（[Buffalo の資料](../../hardware/wsr-1800ax4p.md)） |
 | ER605 LAN → Proxmox | 1 | 短いケーブルを 1 本買う（0.5〜1m） | 段階 2 で SG2210P p2 に付け替える |
 | ER605 LAN → SG2210P p1 | 2 | 短いケーブルを 1 本買う（0.3〜0.5m） | |
 | メインディスプレイ（Dell U2725QE）→ SG2210P p4 | 2 | C を付け替える | 段階 1 のあいだは Buffalo の LAN に繋いだまま。段階 2 で、Buffalo 側の端を外して SG2210P p4 に繋ぐ。ディスプレイは Buffalo より SG2210P のほうが近く、届く（運用者に確認済み）。Buffalo は段階 4 で退役するので、有線を先に外しておく |

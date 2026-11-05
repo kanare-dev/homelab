@@ -73,7 +73,7 @@ Wi-Fi 6 対応の家庭用 Wi-Fi ルーター（AirStation）。現在は家の�
 | --- | --- |
 | 切り替え | 背面の AUTO/MANUAL スイッチを MANUAL にし、ROUTER/AP/WB スイッチを AP にする。前面の ROUTER ランプが消灯する。AUTO のままだと、ルーター機能の入り切りはスイッチに関係なく自動で決まる |
 | 使えなくなる機能 | DHCP サーバー、静的 IP マスカレード（アドレス変換）、パケットフィルタ、PPPoE マルチセッション、IP Unnumbered（FAQ の記載。機種ごとの違いに注意） |
-| 上流のケーブル | FAQ には、INTERNET ポートに差したケーブルは、モードを切り替えたあともそのままにする（他の LAN ポートへ差し替えなくてよい）とある。WSR-1800AX4P で同じか、取扱説明書で確認する |
+| 上流のケーブル | FAQ には、INTERNET ポートに差したケーブルは、モードを切り替えたあともそのままにする（他の LAN ポートへ差し替えなくてよい）とある。WSR-1800AX4P で同じか、取扱説明書で確認する。**2026-11-06 に、[ユーザーマニュアル](https://www.buffalo.jp/s3/guide/wsr-1800ax4p/99/ja/index.html)を確認した**: AP モードの手順（ルーター機能の停止）に、接続するポートの指定は無い。端子の説明は、LAN 端子が「パソコンやハブなどを接続」、INTERNET 端子が「プロバイダーから提供された機器（光回線終端装置やモデムなど）を接続」。機種を限定しない公式 FAQ（[ブリッジモードのポート](https://www.buffalo.jp/support/faq/detail/985.html)）には、ブリッジモードでは INTERNET ポートを含めてすべてのポートが LAN ポートとして動くとある。この機種に限った記述は無い。[物理構成図](../diagrams/physical/physical.png)は、INTERNET ポートで描いた |
 | 設定画面 | ブリッジモードの設定画面を開くには、公式は「エアステーション設定ツール」を勧めている（[ダウンロード](https://www.buffalo.jp/support/other/airset.html)、[表示方法](https://www.buffalo.jp/support/faq/detail/129.html)） |
 | 設定画面の IP アドレス | このモードでの IP アドレスの割り当て（DHCP か固定か、既定値）は、FAQ に書かれていない。取扱説明書で確認する |
 
