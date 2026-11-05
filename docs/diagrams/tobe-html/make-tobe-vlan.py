@@ -1,20 +1,27 @@
 #!/usr/bin/env python3
-"""VLAN 化のあとの構成図（試作）を、単体の HTML で作る。
+"""ER605・SG2210P を導入して VLAN に分けた後（段階 3 の完了時点）の構成図を、単体の HTML で作る。
 
-`../layout-tobe-vlan.py`（draw.io 版。こちらが正）と同じ内容・同じ座標で、見た目だけを変える試作:
-  - 背景は stack-diagram の方眼（20px。座標の 10px グリッドに合わせた）。
-  - 文字は Geist（見出し・本文）と JetBrains Mono（IP・ポート・線のラベル）。日本語は Hiragino / Noto Sans JP。
-  - 中身の組み方（VLAN ごとの色の枠、VM・Docker の入れ子、アイコンと文字の行、凡例）は draw.io 版のまま。
-    stack-diagram のスキルの「白いタイルにロゴ」「ノードごとの箱」は使わない（現行の図の密度を保つため）。
-  - ライト・ダークの両方に対応（`<html data-theme="dark">`、または OS の設定）。
+この図の本体はこのスクリプト。下の「配置」の座標と文字から HTML（tobe-vlan.html。ロゴとフォントを埋め込む）を組み、
+Markdown から参照する PNG（tobe-vlan.png、ダーク版は tobe-vlan-dark.png）も書き出す。何度実行しても結果は同じ。
+計画が変わったら、下の「配置」を直して実行する。
 
     python3 docs/diagrams/tobe-html/make-tobe-vlan.py          # tobe-vlan.html を書き出す
     python3 docs/diagrams/tobe-html/make-tobe-vlan.py --png    # さらに Chrome で tobe-vlan.png / tobe-vlan-dark.png を書き出す
 
-必要なもの: macOS の `sips`（アイコンの縮小）、--png には Google Chrome。フォントは stack-diagram スキル
-（~/.claude/skills/stack-diagram/assets/fonts。OFL）のものを HTML に埋め込む。
+必要なもの: macOS の `sips`（アイコンの縮小）、--png には Google Chrome（ヘッドレスで撮る。Playwright は要らない）。
+フォントは fonts/（Geist と JetBrains Mono。OFL）を HTML に埋め込む。
 アイコン素材 `docs/diagrams/assets/icons/` は Git 管理外。無ければ取得する（layout-architecture.py と同じ）。
-内容が食い違ったら、docs/ の文書（移行計画・VLAN 設計）が正。draw.io 版を直したら、こちらも合わせる。
+内容は docs/operations/roadmap/10-er605-sg2210p-migration-plan.md の「段階 3 の後」と
+docs/architecture/08-vlan-design.md の VLAN 一覧に合わせる。食い違ったら、文書のほうが正。
+
+見た目の決まり（座標は 10px グリッド。背景の方眼は 20px）:
+  - 背景は方眼。文字は Geist（日本語は Hiragino / Noto Sans JP）、IP・ポート・線のラベルは JetBrains Mono。ライト・ダーク両対応。
+  - 文字は 14px。ポート・IP は橙、ホスト名（VM、端末）は斜体、見出しは太字。
+  - VLAN ごとに枠の色を変える（右上の凡例）。VLAN 枠・VM 枠・Docker 枠は、その VLAN の色を 40% で重ねる（入れ子ほど濃い）。
+  - VM 枠は幅 300、内側の余白 20。見出しアイコン 40（枠なし）。サービスの行は高さ 30、アイコン 28 を白いタイル 36 に入れる。
+  - VM 直下のサービスと Docker アイコンは VM 枠の左端から 40。Docker 枠の中のサービスは、さらに 20 内側。
+  - 行の送りは 40。Docker 枠の高さは「行数 × 40 + 10」。枠どうしの間隔は 20。
+  - ポートの VLAN の書き方は `tagged: VLAN…` / `untagged: VLAN…` に統一する。
 """
 import base64
 import subprocess
@@ -25,12 +32,11 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 OUT = HERE / "tobe-vlan.html"
 ICONS = HERE.parent / "assets/icons"
-FONTS = Path.home() / ".claude/skills/stack-diagram/assets/fonts"
-GENERIC = Path.home() / ".claude/skills/stack-diagram/assets/generic"
+FONTS = HERE / "fonts"
 CHROME = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
 W, H = 1720, 1690
 
-# VLAN ごとの色（塗り, 線）。draw.io 版と同じ
+# VLAN ごとの色（塗り, 線）
 COLOR = {
     10: ("#dae8fc", "#6c8ebf"),
     20: ("#ffe6cc", "#d79b00"),
@@ -141,7 +147,7 @@ def edge(points, arrow=None, width=3, color=None):
                f'<path d="{d}" fill="none" stroke="{col}" stroke-width="{width}"{mk}/></svg>')
 
 
-# 部品（draw.io 版と同じ寸法） -------------------------------------------------
+# 部品 -------------------------------------------------
 def row(ic, label, x, y, w):
     """サービス行。アイコン 30、文字は 10 右。"""
     out.append(f'<div class="tile" style="{pos(x - 3, y - 3, 36, 36)}"></div>')  # 白いタイル（ロゴは白地用なので、ダークでも白）
@@ -360,6 +366,10 @@ def layout():
 
 mono_pair_dark = dark_pair
 INTERNET = None
+# Internet の地球儀（Lucide の globe。線画）
+GLOBE = ('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="COLOR" stroke-width="1.6" '
+         'stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/>'
+         '<path d="M3 12h18M12 3c2.8 2.6 4.2 5.6 4.2 9S14.8 18.4 12 21c-2.8-2.6-4.2-5.6-4.2-9S9.2 5.6 12 3z"/></svg>')
 
 
 def css():
@@ -427,8 +437,7 @@ i{{font-style:italic}}
 
 def build():
     global INTERNET
-    raw = (GENERIC / "internet.svg").read_text()  # スキルの線画の地球儀。線の色をテーマに合わせる
-    INTERNET = tuple(raw.replace("#3d4660", c) for c in ("#2b3140", "#e4e7ee"))
+    INTERNET = tuple(GLOBE.replace("COLOR", c) for c in ("#2b3140", "#e4e7ee"))  # 線の色をテーマに合わせる
     layout()
     marker = ('<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>'
               '<marker id="ar" viewBox="0 0 10 10" refX="8" refY="5" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="14" '
