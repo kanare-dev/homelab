@@ -117,7 +117,7 @@ homelab/
     ├── architecture/       # 方式設計
     ├── diagrams/           # 構成図（現行は draw.io の SVG、VLAN 化後と物理構成図は HTML と PNG）と生成・整形スクリプト、README（更新の手順）。assets/ はアイコン素材（Git 管理外）
     ├── services/           # サービスごとの詳細設計
-    ├── hardware/           # 機器の仕様と資料（ER605・SG2210P・Buffalo・ThinkCentre、10 インチラック）
+    ├── hardware/           # 機器ごとの仕様・資料と設定値（ER605・SG2210P・Buffalo・ThinkCentre。`<機器>/spec.md` と `settings.md`）、10 インチラック
     │   ├── thinkcentre-m70q-tiny.md  # ThinkCentre M70q Tiny（Proxmox ホスト）の公式資料へのリンクと仕様（Lenovo PSREF）
     │   ├── er605.md            # ER605 V2 の公式資料へのリンクと仕様（データシート V2.2）
     │   ├── sg2210p.md          # SG2210P の公式資料へのリンクと仕様（データシート V5.30）

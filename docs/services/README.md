@@ -16,12 +16,11 @@
 | 07 | [CI/CD](07-cicd.md) | Terraform + Ansible のフローと CI の方針 |
 | 08 | [vm-code](08-vm-code.md) | 常用リモート開発環境 |
 | 10 | [MOTD](10-motd.md) | SSH ログイン時の表示（ホスト名のバナーとシステム情報） |
-| 11 | [WSR-1800AX4P](../hardware/wsr-1800ax4p/settings.md) | Buffalo Wi-Fi ルーターの設定値（詳細設計）。AP モードでの扱い、見直し項目、バックアップの運用 |
 | 12 | [Omada コントローラー](12-omada-controller.md) | `vm-omada` の構成、サイトの設定値、バックアップの運用、Omada Cloud |
-| 13 | [ER605](../hardware/er605/settings.md) | TP-Link ルーターの設定値（詳細設計）。ポート、WAN、LAN と DHCP |
-| 14 | [SG2210P](../hardware/sg2210p/settings.md) | TP-Link スイッチの設定値（詳細設計）。ポートの割り当て、管理 |
+
+機器の設定値（Buffalo WSR-1800AX4P、ER605、SG2210P。旧 11・13・14）は、[hardware/](../hardware/README.md) に移した（2026-11-06）。番号は振り直さず、11・13・14 は欠番にする。
 
 ## 運用
 
-- 新しいサービスを追加したら、次の番号を振り、この表と `docs/README.md` を更新する
+- 新しいサービスを追加したら、15 から番号を振り、この表と `docs/README.md` を更新する
 - 構成を変えたら、該当する文書を同じ変更で更新する
