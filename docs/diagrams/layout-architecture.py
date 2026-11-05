@@ -113,6 +113,15 @@ class Model:
             cell = re.sub(r"image=[^;\"]*", "image=data:image/svg+xml," + data, cell, count=1)
         self.xml = self.xml.replace("</root>", cell + "</root>")
 
+    def set_icon(self, cid, icon):
+        """既存のセルの画像を、素材の SVG に差し替える。"""
+        m = re.search(r'<mxCell id="%s"(?:(?!</mxCell>).)*?</mxCell>' % re.escape(cid), self.xml, re.S)
+        if not m:
+            raise KeyError(cid)
+        data = base64.b64encode((ICONS / icon).read_bytes()).decode()
+        cell = re.sub(r"image=[^;\"]*", "image=data:image/svg+xml," + data, m.group(0), count=1)
+        self.xml = self.xml[:m.start()] + cell + self.xml[m.end():]
+
     def normalize_styles(self):
         def fix(m):
             s = m.group(0)
@@ -214,6 +223,7 @@ def layout(m):
         m.clone("92", f"ext-{n}-icon", icon="network/omada.svg" if n == "omada" else f"external/{n}.svg")
         m.clone("93", f"ext-{n}-text")
         m.value(f"ext-{n}-text", label)
+    m.set_icon("ext-healthchecks-icon", "external/healthchecks.svg")  # 公式の、背景つきのマーク（白地でも見える）
     m.clone("35", "vmomada-frame")
     m.clone("36", "vmomada-icon")
     m.clone("37", "vmomada-text")
