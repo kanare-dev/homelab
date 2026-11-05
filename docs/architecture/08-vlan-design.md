@@ -290,7 +290,7 @@ Buffalo WSR-1800AX4P は VLAN に対応していない。AP モードにはで�
 | リバースプロキシ | `docker/compose/reverse-proxy/Caddyfile` | 各サービスの転送先 |
 | 監視 | `docker/compose/monitoring/prometheus/`（`prometheus.yml`、`alerts.yml`） | scrape 対象、アラート内の IP |
 | Homepage | `docker/compose/homepage/` | ウィジェットの URL、`dns:` |
-| ドキュメント | `README.md`、`docs/services/01-dns.md`、`docs/services/03-monitoring.md`、`docs/operations/runbooks/README.md`、`docs/services/07-cicd.md`、`docs/diagrams/architecture.drawio.svg` | IP の記載、構成図 |
+| ドキュメント | `README.md`、`docs/services/01-dns.md`、`docs/services/03-monitoring.md`、`docs/operations/runbooks/README.md`、`docs/services/07-cicd.md`、`docs/diagrams/pre-migration-diagram/architecture.drawio.svg` | IP の記載、構成図 |
 
 `README.md` の「IP アドレス規約」は、この設計に合わせて書き換える。
 
@@ -320,7 +320,7 @@ Buffalo WSR-1800AX4P は VLAN に対応していない。AP モードにはで�
 ### 切り替え後
 
 - Prometheus の scrape 対象、アラート、`docs/services/03-monitoring.md` を更新し、Omada コントローラーの死活監視を追加する。
-- ドキュメントを更新し、旧アドレスを残さない。構成図（`architecture.drawio.svg`）も直す。
+- ドキュメントを更新し、旧アドレスを残さない。構成図も直す（メインの構成図 `main-diagram/` を確認し、移行前の構成図 `pre-migration-diagram/` は削除する）。
 - Buffalo は段階 4（AP の導入）まで AP として使い続ける。
 
 ## 未決事項

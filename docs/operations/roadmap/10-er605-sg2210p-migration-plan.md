@@ -92,9 +92,9 @@ IP は変えない。Buffalo の Wi-Fi 設定は今のままなので、端末�
                   └─ p7–p8 空き（段階 4 の AP 用に PoE を残す）
 ```
 
-![段階 3 の後の構成図](../../diagrams/tobe-html/tobe-vlan.png)
+![段階 3 の後の構成図](../../diagrams/main-diagram/main-diagram.png)
 
-図は `docs/diagrams/tobe-html/make-tobe-vlan.py` で生成する（HTML と PNG。ダーク版と単体の HTML は、同じディレクトリにある）。計画を直したら、この ASCII 図とスクリプトを合わせて直す。
+図は `docs/diagrams/main-diagram/make-main-diagram.py` で生成する（HTML と PNG。ダーク版と単体の HTML は、同じディレクトリにある）。計画を直したら、この ASCII 図とスクリプトを合わせて直す。
 
 各ホストの IP は、[VLAN 設計](../../architecture/08-vlan-design.md#固定アドレス)と [ADR-0025](../../adr/0025-address-octets-by-role.md) のとおり（役割ベース。2026-11-05 に決定）。
 
@@ -104,7 +104,7 @@ AP を SG2210P の p7（PoE）に繋ぎ、SSID を 3 つ（Trusted / IoT / Guest
 
 ## ケーブルと電源
 
-今ある長いケーブル 3 本（A: 壁 → Buffalo の WAN、B: Buffalo → Proxmox、C: Buffalo → ディスプレイ）を使い回す。新しい長いケーブルは要らない。並行稼働はしないので、A・B・C は付け替えるだけでよい。最終形の配線は、[物理構成図](../../diagrams/physical/physical.png)で一目で見られる。
+今ある長いケーブル 3 本（A: 壁 → Buffalo の WAN、B: Buffalo → Proxmox、C: Buffalo → ディスプレイ）を使い回す。新しい長いケーブルは要らない。並行稼働はしないので、A・B・C は付け替えるだけでよい。最終形の配線は、[物理構成図](../../diagrams/physical-diagram/physical-diagram.png)で一目で見られる。
 
 | 区間 | 段階 | ケーブル | 備考 |
 | --- | --- | --- | --- |

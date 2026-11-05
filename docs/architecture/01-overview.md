@@ -4,7 +4,7 @@ homelab の全体像。最新の構成図、目的、構成の理由、前提と
 
 ## 構成図
 
-> 構成を変えたら、この図（ASCII）と下の表を同じ変更で更新する。SVG は `docs/diagrams/layout-architecture.py` で生成し直して同じ変更で更新する。食い違っていたら、この ASCII 図が正。
+> 構成を変えたら、この図（ASCII）と下の表を同じ変更で更新する。SVG（移行前の構成図。移行の完了後に削除する）は `docs/diagrams/pre-migration-diagram/layout-architecture.py` で生成し直して同じ変更で更新する。食い違っていたら、この ASCII 図が正。
 
 ```text
  External: Healthchecks.io / Slack / Cloudflare / Let's Encrypt / Tailscale / GitHub
@@ -44,7 +44,7 @@ homelab の全体像。最新の構成図、目的、構成の理由、前提と
 
 `vm-omada` の Omada コントローラーは、ER605・SG2210P を管理する（2026-11-03 に稼働）。機器の本設置はこれからで、今はどの機器も管理していない（Buffalo は管理対象外）。止まっても、機器は設定を持ったまま動く。
 
-![構成図](../diagrams/architecture.drawio.svg)
+![構成図（移行前）](../diagrams/pre-migration-diagram/architecture.drawio.svg)
 
 ## 目的と位置づけ
 

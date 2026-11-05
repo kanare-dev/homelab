@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
-"""構成図 docs/diagrams/architecture.drawio.svg の座標・文字・余白を規格どおりに組み直す。
+"""移行前の構成図 docs/diagrams/pre-migration-diagram/architecture.drawio.svg の座標・文字・余白を規格どおりに組み直す。
+
+ER605・SG2210P への移行が完了したら、この図とスクリプトは削除する（メインの構成図は ../main-diagram/）。
 
 SVG に埋め込まれた draw.io の XML を読み、全セルの位置を決め直して、draw.io CLI で SVG に書き出す。
 何度実行しても結果は同じ。VM やサービスを足したら、下の「配置」を直して実行する。
 
-    python3 docs/diagrams/layout-architecture.py
+    python3 docs/diagrams/pre-migration-diagram/layout-architecture.py
 
 必要なもの: draw.io デスクトップ版（`brew install --cask drawio`）。
 
@@ -26,7 +28,7 @@ import zlib
 from pathlib import Path
 
 SVG = Path(__file__).resolve().parent / "architecture.drawio.svg"
-ICONS = SVG.parent / "assets/icons"  # Git 管理外。新しいアイコンを初めて取り込むときだけ読む
+ICONS = SVG.parent.parent / "assets/icons"  # Git 管理外。新しいアイコンを初めて取り込むときだけ読む
 K = "Ka6-sXaiJ_n7gUF576qm-"  # draw.io が付けた ID の接頭辞（vm-code の枠）
 ORANGE = '<font color="#ff8000">%s</font>'
 

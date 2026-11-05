@@ -1,6 +1,6 @@
 # hardware
 
-機器ごとの、仕様・公式資料と、この家での設定値。全体の方式は [architecture/](../architecture/README.md)、サービスの設計は [services/](../services/README.md)、配線の全体像は[物理構成図](../diagrams/physical/physical.png)にある。
+機器ごとの、仕様・公式資料と、この家での設定値。全体の方式は [architecture/](../architecture/README.md)、サービスの設計は [services/](../services/README.md)、配線の全体像は[物理構成図](../diagrams/physical-diagram/physical-diagram.png)にある。
 
 ## 機器
 

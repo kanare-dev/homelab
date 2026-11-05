@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
-"""ER605・SG2210P を導入して VLAN に分けた後（段階 3 の完了時点）の構成図を、単体の HTML で作る。
+"""ER605・SG2210P を導入して VLAN に分けた後（段階 3 の完了時点）の構成図（メインの構成図）を、単体の HTML で作る。移行前の構成図（`pre-migration-diagram/`、削除予定）に替わる。
 
-この図の本体はこのスクリプト。下の「配置」の座標と文字から HTML（tobe-vlan.html。ロゴとフォントを埋め込む）を組み、
-Markdown から参照する PNG（tobe-vlan.png、ダーク版は tobe-vlan-dark.png）も書き出す。何度実行しても結果は同じ。
+この図の本体はこのスクリプト。下の「配置」の座標と文字から HTML（main-diagram.html。ロゴとフォントを埋め込む）を組み、
+Markdown から参照する PNG（main-diagram.png、ダーク版は main-diagram-dark.png）も書き出す。何度実行しても結果は同じ。
 計画が変わったら、下の「配置」を直して実行する。
 
-    python3 docs/diagrams/tobe-html/make-tobe-vlan.py          # tobe-vlan.html を書き出す
-    python3 docs/diagrams/tobe-html/make-tobe-vlan.py --png    # さらに Chrome で tobe-vlan.png / tobe-vlan-dark.png を書き出す
+    python3 docs/diagrams/main-diagram/make-main-diagram.py          # main-diagram.html を書き出す
+    python3 docs/diagrams/main-diagram/make-main-diagram.py --png    # さらに Chrome で main-diagram.png / main-diagram-dark.png を書き出す
 
 必要なもの: macOS の `sips`（アイコンの縮小）、--png には Google Chrome（ヘッドレスで撮る。Playwright は要らない）。
 フォントは ../fonts/（Geist と JetBrains Mono。OFL。物理構成図と共通）を HTML に埋め込む。
-アイコン素材 `docs/diagrams/assets/icons/` は Git 管理外。無ければ取得する（layout-architecture.py と同じ）。
+アイコン素材 `docs/diagrams/assets/icons/` は Git 管理外。無ければ取得する（pre-migration-diagram/layout-architecture.py と同じ）。
 内容は docs/operations/roadmap/10-er605-sg2210p-migration-plan.md の「段階 3 の後」と
 docs/architecture/08-vlan-design.md の VLAN 一覧に合わせる。食い違ったら、文書のほうが正。
 
@@ -30,7 +30,7 @@ import tempfile
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
-OUT = HERE / "tobe-vlan.html"
+OUT = HERE / "main-diagram.html"
 ICONS = HERE.parent / "assets/icons"
 FONTS = HERE.parent / "fonts"
 CHROME = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
@@ -460,7 +460,7 @@ def build():
 
 def render():
     for suffix, frag in (("", "#light"), ("-dark", "#dark")):
-        png = HERE / f"tobe-vlan{suffix}.png"
+        png = HERE / f"main-diagram{suffix}.png"
         subprocess.run([CHROME, "--headless=new", "--disable-gpu", "--hide-scrollbars", "--force-device-scale-factor=2",
                         f"--window-size={W},{H}", "--virtual-time-budget=3000", f"--screenshot={png}", OUT.as_uri() + frag],
                        check=True, capture_output=True)
