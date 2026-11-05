@@ -117,12 +117,13 @@ homelab/
     ├── architecture/       # 方式設計
     ├── diagrams/           # 構成図（現行は draw.io の SVG、VLAN 化後と物理構成図は HTML と PNG）と生成・整形スクリプト、README（更新の手順）。assets/ はアイコン素材（Git 管理外）
     ├── services/           # サービスごとの詳細設計
-    ├── hardware/           # 機器ごとの仕様・資料と設定値（ER605・SG2210P・Buffalo・ThinkCentre。`<機器>/spec.md` と `settings.md`）、10 インチラック
-    │   ├── thinkcentre-m70q-tiny.md  # ThinkCentre M70q Tiny（Proxmox ホスト）の公式資料へのリンクと仕様（Lenovo PSREF）
-    │   ├── er605.md            # ER605 V2 の公式資料へのリンクと仕様（データシート V2.2）
-    │   ├── sg2210p.md          # SG2210P の公式資料へのリンクと仕様（データシート V5.30）
-    │   ├── wsr-1800ax4p.md     # Buffalo WSR-1800AX4P の公式資料へのリンクと仕様、AP モードの扱い
-    │   └── rack-10inch/        # 10 インチラックの 3D プリント用データ（models/。他の作者のモデルで、別ライセンス）と配布元リンク
+    ├── hardware/           # 機器ごとの仕様・資料と設定値（置き方の決まりは README）
+    │   ├── thinkcentre-m70q-tiny/  # ThinkCentre M70q Tiny（Proxmox ホスト）。spec.md（公式資料と仕様。Lenovo PSREF）、settings.md（設定値）
+    │   ├── er605/              # ER605 V2。spec.md（データシート V2.2）、settings.md
+    │   ├── sg2210p/            # SG2210P。spec.md（データシート V5.30）、settings.md
+    │   ├── wsr-1800ax4p/       # Buffalo WSR-1800AX4P。spec.md（AP モードの扱いを含む）、settings.md
+    │   └── future/             # 導入前の機器・用品
+    │       └── rack-10inch/    # 10 インチラックの 3D プリント用データ（models/。他の作者のモデルで、別ライセンス）と配布元リンク
     ├── operations/         # Runbook、バックアップ、障害記録、ロードマップ
     └── adr/                # 設計判断の記録
 ```

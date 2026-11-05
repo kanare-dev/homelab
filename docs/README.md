@@ -7,7 +7,7 @@
 | [operations/](operations/runbooks/README.md) | 運用。[Runbook](operations/runbooks/README.md)、[バックアップの手順](operations/runbooks/06-backup-restore.md)、[障害記録](operations/incidents/README.md)、[ロードマップ](operations/roadmap/README.md)（[Omada・VLAN](operations/roadmap/04-network-omada-vlan.md)、[OPNsense](operations/roadmap/08-network-opnsense.md)、[GPU 搭載 PC](operations/roadmap/05-gpu-pc.md)、[通信の収集・可視化](operations/roadmap/06-network-traffic-analysis.md)、[DMZ と外部公開](operations/roadmap/07-dmz.md)、[ラック](operations/roadmap/09-rack.md)、[ER605・SG2210P の移行計画](operations/roadmap/10-er605-sg2210p-migration-plan.md)、[構成レビューの改善案](operations/roadmap/11-design-review-ideas.md)、[IP 割り当てと DHCP の見直し](operations/roadmap/12-ip-address-and-dhcp-review.md)、[見送り中の項目](operations/roadmap/03-deferred.md)） |
 | [diagrams/](diagrams/README.md) | 構成図（現行は draw.io の SVG、VLAN 化のあとと物理構成図は HTML と PNG）と、生成・整形スクリプト、更新の手順 |
 | [adr/](adr/README.md) | 設計判断の記録（ADR） |
-| [hardware/](hardware/README.md) | 機器ごとの仕様・公式資料と設定値（ThinkCentre M70q Tiny、ER605、SG2210P、Buffalo WSR-1800AX4P。設定値は `settings.md`）、10 インチラックの 3D プリント用データ（[rack-10inch/](hardware/rack-10inch/README.md)） |
+| [hardware/](hardware/README.md) | 機器ごとの仕様・公式資料と設定値（ThinkCentre M70q Tiny、ER605、SG2210P、Buffalo WSR-1800AX4P。設定値は `settings.md`）、導入前の 10 インチラックの 3D プリント用データ（[future/rack-10inch/](hardware/future/rack-10inch/README.md)） |
 | [homelab-service-catalog.md](homelab-service-catalog.md) | ホームラボで使えるツールのカタログ（候補集。導入済み・計画中・見送りなどの状況つき。このリポジトリの構成ではない） |
 | screenshots/ | README・監視文書で使う画像 |
 
