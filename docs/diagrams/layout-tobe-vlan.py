@@ -330,8 +330,7 @@ def layout():
     y += mgmt_h + 20
     # Lab
     h1 = vm(40, rx + 20, y + 50, "vm-dev", "10.77.40.10", "Ubuntu Server 24.04", [("row", *NODE)])
-    h2 = vm(40, rx + 20, y + 50 + h1 + 20, "vm-windows", "DHCP", "Windows 11（任意起動）", [], head_icon="platform/windows-11.svg")
-    lab_h = 50 + h1 + 20 + h2 + 20
+    lab_h = 50 + h1 + 20
     zone(40, rx, y, 340, lab_h)
     text("<b>VLAN40 Lab</b>　DHCP .100–.199", rx + 10, y + 5, 320, 30)
     y += lab_h + 20
