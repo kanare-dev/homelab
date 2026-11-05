@@ -104,7 +104,7 @@ AP を SG2210P の p7（PoE）に繋ぎ、SSID を 3 つ（Trusted / IoT / Guest
 
 ## ケーブルと電源
 
-今ある長いケーブル 3 本（A: 壁 → Buffalo の WAN、B: Buffalo → Proxmox、C: Buffalo → ディスプレイ）を使い回す。新しい長いケーブルは要らない。並行稼働はしないので、A・B・C は付け替えるだけでよい。
+今ある長いケーブル 3 本（A: 壁 → Buffalo の WAN、B: Buffalo → Proxmox、C: Buffalo → ディスプレイ）を使い回す。新しい長いケーブルは要らない。並行稼働はしないので、A・B・C は付け替えるだけでよい。最終形の配線は、[物理構成図](../../diagrams/physical/physical.png)で一目で見られる。
 
 | 区間 | 段階 | ケーブル | 備考 |
 | --- | --- | --- | --- |

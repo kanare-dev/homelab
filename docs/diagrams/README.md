@@ -20,7 +20,18 @@ ER605 と SG2210P を入れて VLAN に分けたあと（段階 3 の完了時�
 
 - 見た目は、背景の方眼（20px）、フォント（Geist と JetBrains Mono。日本語は Hiragino / Noto Sans JP）、ライト・ダークの切り替え、線のラベルの縁取り。VLAN ごとの枠の色、VM・Docker の入れ子、サービスの行（白いタイルにロゴ）、凡例は、現行の図の形を引き継いだ。細かい寸法は、スクリプトの冒頭に書いてある。
 - 以前は draw.io の SVG（`tobe-vlan.drawio.svg`）だったが、書き出す SVG に方眼を入れられず、フォントも埋め込めないため、HTML に移した（2026-11-06）。draw.io での手直しは、できなくなった。直すときは、スクリプトの「配置」を直す。
-- フォントは [`fonts/`](fonts/)（OFL。`OFL-*.txt` が各ライセンス）を、HTML に埋め込む。
+- フォントは [`fonts/`](fonts/)（OFL。`OFL-*.txt` が各ライセンス。物理構成図と共通）を、HTML に埋め込む。
+
+### 物理構成図（`physical/`）
+
+どの機器のどのポートを、どの機器のどのポートに繋ぐかを、一目で見るための図。段階 3 の完了後の、有線の最終形。機器は四角、ポートは四角（WAN・trunk・access VLAN30・未使用を色で区別）、ケーブルは線（太さと色で種類を区別）で描く。ケーブルの種類（今ある長いケーブル A・B・C と、買い足す短いケーブル）と、ポートごとの VLAN（tagged / untagged）も載せた。VM・サービス・IP は、上の論理側の図に任せる。内容は、[移行計画](../operations/roadmap/10-er605-sg2210p-migration-plan.md)の「段階 3 の後」「ケーブルと電源」と、[ER605](../services/13-er605.md)・[SG2210P](../services/14-sg2210p.md) のポート表による。**本体は、生成スクリプト [`physical/make-physical.py`](physical/make-physical.py)**。
+
+![物理構成図](physical/physical.png)
+
+ダーク版は [`physical-dark.png`](physical/physical-dark.png)、単体の HTML は [`physical.html`](physical/physical.html)。
+
+- スタイル（方眼、フォント、ライト・ダーク、線のラベルの縁取り）は、VLAN 化のあとの図と同じ。フォントは [`fonts/`](fonts/)（共通）を使う。
+- 配線を変えたら（ポートの割り当て、ケーブルの付け替え）、同じ変更で、スクリプトの「配置」と、移行計画・設計書のポート表を直す。
 
 ### stack-diagram で描いた現行の構成（`stack-diagram/`、試作）
 
@@ -42,7 +53,8 @@ ER605 と SG2210P を入れて VLAN に分けたあと（段階 3 の完了時�
 | `architecture.drawio.svg` | 現行の構成図 |
 | `layout-architecture.py` | 現行の構成図の座標・文字を、規格どおりに組み直すスクリプト |
 | `tobe-html/` | VLAN 化のあとの構成図。生成スクリプト `make-tobe-vlan.py`（本体）、書き出した `tobe-vlan.html`・`tobe-vlan.png`・`tobe-vlan-dark.png` |
-| `fonts/` | VLAN 化のあとの図が埋め込むフォント（Geist、JetBrains Mono。OFL） |
+| `fonts/` | 2 つの HTML 図が埋め込むフォント（Geist、JetBrains Mono。OFL） |
+| `physical/` | 物理構成図（段階 3 の完了後の配線）。生成スクリプト `make-physical.py`（本体）、書き出した `physical.html`・`physical.png`・`physical-dark.png` |
 | `stack-diagram/` | stack-diagram で描いた現行の構成図（試作）。`homelab.html`、`homelab.png`、`homelab-dark.png`、生成スクリプト `make-homelab.py` |
 | `assets/` | アイコン素材（**Git 管理外**。無ければ取得する） |
 
@@ -56,10 +68,11 @@ ER605 と SG2210P を入れて VLAN に分けたあと（段階 3 の完了時�
    ```bash
    python3 docs/diagrams/layout-architecture.py            # 現行（draw.io のデスクトップ版が要る。`brew install --cask drawio`）
    python3 docs/diagrams/tobe-html/make-tobe-vlan.py --png # VLAN 化のあと（HTML と PNG。macOS の `sips` と Google Chrome が要る）
+   python3 docs/diagrams/physical/make-physical.py --png   # 物理構成図（HTML と PNG。Google Chrome が要る）
    ```
 
-3. 書き出した図を目で見て、崩れていないか確かめる。現行は `drawio -x -f png -b 20 -o <出力先>.png architecture.drawio.svg`、VLAN 化のあとは `tobe-vlan.png`（ライト）と `tobe-vlan-dark.png`（ダーク）。
-4. スクリプトと、書き出したファイル（現行は SVG、VLAN 化のあとは HTML と PNG 2 枚）を、**一緒に**コミットする。
+3. 書き出した図を目で見て、崩れていないか確かめる。現行は `drawio -x -f png -b 20 -o <出力先>.png architecture.drawio.svg`、VLAN 化のあとは `tobe-vlan.png`（ライト）と `tobe-vlan-dark.png`（ダーク）、物理構成図は `physical.png` と `physical-dark.png`。
+4. スクリプトと、書き出したファイル（現行は SVG、VLAN 化のあとと物理構成図は、それぞれ HTML と PNG 2 枚）を、**一緒に**コミットする。
 5. 実行で出る `docs/diagrams/__pycache__/` は消す。
 
 ## draw.io での手直しがあるとき（現行の図）

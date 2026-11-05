@@ -115,7 +115,7 @@ homelab/
 │   └── check-md-links.py   # Markdown の内部リンク検査
 └── docs/
     ├── architecture/       # 方式設計
-    ├── diagrams/           # 構成図（現行は draw.io の SVG、VLAN 化後は HTML と PNG）と生成・整形スクリプト、README（更新の手順）。assets/ はアイコン素材（Git 管理外）
+    ├── diagrams/           # 構成図（現行は draw.io の SVG、VLAN 化後と物理構成図は HTML と PNG）と生成・整形スクリプト、README（更新の手順）。assets/ はアイコン素材（Git 管理外）
     ├── services/           # サービスごとの詳細設計
     ├── hardware/           # 機器の仕様と資料（ER605・SG2210P・Buffalo・ThinkCentre、10 インチラック）
     │   ├── thinkcentre-m70q-tiny.md  # ThinkCentre M70q Tiny（Proxmox ホスト）の公式資料へのリンクと仕様（Lenovo PSREF）
