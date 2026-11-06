@@ -76,7 +76,7 @@ Proxmox 上に複数 VM を構築し、Terraform + Ansible + Docker Compose で�
 
 | サービス | ドメイン | 備考 |
 | --- | --- | --- |
-| ルーター | [https://router.lab.kanare.dev](https://router.lab.kanare.dev) | ルーター設定画面（ドメインは Caddy 経由。[DNS 構成](docs/services/network/dns.md#ルーター管理画面)） |
+| Omada | [https://omada.lab.kanare.dev](https://omada.lab.kanare.dev) | Omada コントローラー（ER605・SG2210P の管理。ドメインは Caddy 経由。[DNS 構成](docs/services/network/dns.md#管理画面omada-コントローラー)） |
 | Proxmox | [https://pve.lab.kanare.dev](https://pve.lab.kanare.dev) | Proxmox VE 管理画面 |
 | Homepage | [https://home.lab.kanare.dev](https://home.lab.kanare.dev) | ランディングダッシュボード（[詳細](docs/services/apps/homepage.md)） |
 | Home Assistant | [https://ha.lab.kanare.dev](https://ha.lab.kanare.dev) | スマートホーム（[詳細](docs/services/apps/home-assistant.md)） |

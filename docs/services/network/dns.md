@@ -73,7 +73,7 @@ AdGuard の fallback DNS が使われるのは、upstream に**接続できな�
 | `code` | 192.168.11.11 | Caddy 経由（code-server） |
 | `cloudcli` | 192.168.11.11 | Caddy 経由（CloudCLI） |
 | `vm-code` | 192.168.11.22 | vm-code（SSH / mosh の直接アクセス用） |
-| `router` | 192.168.11.11 | Caddy 経由（ルーター管理画面）。ルーター本体は `192.168.11.1`（[ルーター管理画面](#ルーター管理画面)） |
+| `omada` | 192.168.11.11 | Caddy 経由（Omada コントローラーの管理画面。[管理画面](#管理画面omada-コントローラー)）。旧 `router` は廃止 |
 
 レコードの追加・変更は `ansible/inventory/group_vars/infra/vars.yml` の `dns_records` を編集し、`ansible-playbook playbooks/infra.yml` を実行する。
 
@@ -95,32 +95,32 @@ AdGuard の fallback DNS が使われるのは、upstream に**接続できな�
 
 AdGuard を使いたいコンテナは `docker-compose.yml` の `dns:` で個別に指定する（例: blackbox-exporter、n8n、FreshRSS）。
 
-## ルーター管理画面
+## 管理画面（Omada コントローラー）
 
-`https://router.lab.kanare.dev` でルーターの設定画面を開ける。`router` の DNS レコードはルーター本体ではなく Caddy（vm-infra）を指す。
+`https://omada.lab.kanare.dev` で、Omada コントローラー（ER605・SG2210P の管理画面）を開ける。`omada` の DNS レコードは `vm-omada` ではなく Caddy（vm-infra）を指す。
 
 ```text
-ブラウザ ─► router.lab.kanare.dev (192.168.11.11, Caddy が HTTPS で受ける)
-              └─► Caddy ─► 192.168.11.1:80 (ルーター本体、HTTP)
+ブラウザ ─► omada.lab.kanare.dev (192.168.11.11, Caddy が HTTPS で受ける)
+              └─► Caddy ─► https://192.168.11.12:8043 (vm-omada、HTTPS。自己署名証明書)
 ```
 
-- `.dev` は TLD ごと HSTS プリロードされており、ブラウザは `http://` を `https://` に書き換える。ルーターは 443 で待ち受けないため、DNS を直接ルーターに向けるとブラウザから開けない。Caddy で HTTPS 化している。
-- Caddy からルーターまでの通信は平文の HTTP（LAN 内のみ）。
-- IP 直打ちの `http://192.168.11.1` でも開ける。
-- Homepage の Router タイルは `https://router.lab.kanare.dev` を監視している。
-- 外出先（Tailscale）からも名前を引ける。Tailscale の subnet route が `192.168.11.0/24` を通すため、ルーターの IP にも届く。遮断するには Tailscale の ACL で `192.168.11.1` を除外する（未実施）。
+- 以前は `router.lab.kanare.dev` が Buffalo の管理画面を向いていた。ER605 をコントローラーに採用すると、本体の画面が使えなくなるため、2026-11-06 に `omada.lab.kanare.dev` に付け替え、`router` は廃止した（決定: 運用者）。
+- Caddy から `vm-omada` までは HTTPS。自己署名証明書のため、`tls_insecure_skip_verify` を付ける（`pve` と同じ形）。`vm-omada` の UFW は、8043 を Caddy（`vm-infra`）から許可している（`ansible/inventory/group_vars/omada/vars.yml`）。
+- Buffalo（AP モード）の画面は、`http://192.168.11.2` を直接開く（Caddy は通さない）。
+- Homepage の Omada タイルは `https://omada.lab.kanare.dev` を監視している。
+- 外出先（Tailscale）からも名前を引ける。Tailscale の subnet route が `192.168.11.0/24` を通すため、機器の IP にも届く。遮断するには Tailscale の ACL で管理画面を除外する（未実施）。
 
 ### ルーターを付け替えるとき
 
-IP が変わる場合、直す場所は次のとおり。`dns_records` の `router`（Caddy を指す）と Homepage のリンクは変えない。
+IP が変わる場合、直す場所は次のとおり。`dns_records` の `omada`（Caddy を指す）と Homepage のリンクは変えない。
 
 | 場所 | 内容 |
 | --- | --- |
-| `docker/compose/reverse-proxy/Caddyfile` | `router.lab.kanare.dev` の `reverse_proxy` の転送先 |
+| `docker/compose/reverse-proxy/Caddyfile` | `omada.lab.kanare.dev` の `reverse_proxy` の転送先（`vm-omada` の IP） |
 | `ansible/inventory/group_vars/all/vars.yml` | `gateway`（DNS 障害時に経路が壊れないよう、名前ではなく IP のまま） |
 | `terraform/proxmox/variables.tf` / `terraform.tfvars` | `gateway` |
 | `README.md` | ルーターの IP（構成表） |
-| `docker/compose/homepage/config/services.yaml` | Router の `description`（機種名） |
+| `docker/compose/homepage/config/services.yaml` | Omada の `description` |
 
 Caddyfile を直したら `ansible-playbook playbooks/infra.yml` で反映する。ルーター側が HTTPS 専用になった場合は、転送先を `https://...` にして `tls_insecure_skip_verify` を付ける（`pve` と同じ形）。
 

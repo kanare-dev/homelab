@@ -22,7 +22,7 @@ dns_records:
   - { name: "code",        ip: "192.168.11.11" }   # Caddy 経由
   - { name: "cloudcli",    ip: "192.168.11.11" }   # Caddy 経由
   - { name: "vm-code",     ip: "192.168.11.22" }   # SSH/mosh 直接アクセス用
-  - { name: "router",      ip: "192.168.11.11" }   # Caddy 経由（ルーター管理画面）
+  - { name: "omada",       ip: "192.168.11.11" }   # Caddy 経由（Omada コントローラーの管理画面。ER605・SG2210P を管理）
 
 # UFW
 ufw_allowed_ports:

@@ -155,11 +155,11 @@
                 suffix: "%"
 
 - Network:
-    - Router:
-        href: https://router.lab.kanare.dev
-        description: Buffalo WSR-1800AX4P
+    - Omada:
+        href: https://omada.lab.kanare.dev
+        description: ER605・SG2210P の管理（Omada コントローラー）
         icon: router.png
-        siteMonitor: https://router.lab.kanare.dev
+        siteMonitor: https://omada.lab.kanare.dev
     - AdGuard Home:
         href: https://adguard.lab.kanare.dev
         description: DNS Filtering

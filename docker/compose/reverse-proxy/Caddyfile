@@ -94,8 +94,12 @@ cloudcli.lab.kanare.dev {
 	}
 }
 
-router.lab.kanare.dev {
-	reverse_proxy 192.168.11.1:80
+omada.lab.kanare.dev {
+	reverse_proxy https://192.168.11.12:8043 {
+		transport http {
+			tls_insecure_skip_verify
+		}
+	}
 	tls {
 		dns cloudflare {env.CLOUDFLARE_API_TOKEN}
 		resolvers 1.1.1.1

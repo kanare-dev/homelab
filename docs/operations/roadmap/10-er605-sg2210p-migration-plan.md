@@ -211,7 +211,7 @@ ER605 と SG2210P は同時に購入済みで、すでに繋いである（ER605
 
 [DNS 構成の「ルーターを付け替えるとき」](../../services/network/dns.md#ルーターを付け替えるとき)に従う。
 
-- `docker/compose/reverse-proxy/Caddyfile`: `router.lab.kanare.dev` の転送先を、Omada コントローラーの管理画面（HTTPS、`tls_insecure_skip_verify`）に変える。名前を `omada.lab.kanare.dev` に変えるか、`router` を残すかを決める。
+- `docker/compose/reverse-proxy/Caddyfile`: `router.lab.kanare.dev` を廃止し、`omada.lab.kanare.dev`（Omada コントローラーの管理画面。HTTPS、`tls_insecure_skip_verify`）を新設する（決定 2026-11-06）。
 - Homepage の Router タイルと `siteMonitor`、`docs/architecture/02-infrastructure.md` の機器表、`README.md`、`docs/architecture/01-overview.md` の構成図（ASCII と SVG）。
 - Prometheus の `blackbox_icmp`（`192.168.11.1` は ER605 の IP になるだけで、そのまま動く）。
 - [ネットワーク設計](../../architecture/03-network.md)の IP 表: `192.168.11.2` を Buffalo（AP モード、固定）として足す。
