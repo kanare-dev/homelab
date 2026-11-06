@@ -31,5 +31,6 @@
 | --- | --- |
 | ER605・SG2210P の導入（段階 1・2）の当日 | [段階 1・2 の当日の作業](20-network-cutover-stage-1-2.md) |
 | VLAN と `10.77.x.x` への一斉切り替え（段階 3）の当日 | [段階 3 の当日の作業](21-network-cutover-stage-3.md) |
+| 段階 3 の前の、実機でのリハーサル | [段階 3 のリハーサル](22-network-stage-3-rehearsal.md) |
 
 障害の記録は [incidents/](../incidents/README.md)。

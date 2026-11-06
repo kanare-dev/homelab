@@ -239,6 +239,8 @@ ER605 と SG2210P は同時に購入済みで、すでに繋いである（ER605
 
 ### 3-A. 準備（アドレスを変えない）
 
+実機で確かめる項目（リハーサル）の手順は、[Runbook](../runbooks/22-network-stage-3-rehearsal.md)にある。
+
 - [ ] **リハーサル**: 検証端末を SG2210P の p5（VLAN30 の access）と p6（VLAN50 の access）に繋ぎ、本番の VLAN と同じ設定で次を確かめる。ホストは動かさない。
   - Gateway ACL（LAN → LAN）で、Trusted → IoT は通り、IoT → Trusted は拒否される。ルールの評価が上から順で、戻りの通信が通る。
   - 末尾の全拒否が効く。
