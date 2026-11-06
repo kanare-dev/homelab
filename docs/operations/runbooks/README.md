@@ -2,7 +2,7 @@
 
 日常の運用・障害対応の手順書。設計の背景は [architecture/](../../architecture/01-overview.md)、サービスごとの詳細は [services/](../../services/README.md) を参照。
 
-番号は種類を表す。01〜09 は日常の運用、11〜19 は障害対応。新しい手順は、該当する範囲の次の番号を振り、この表に追加する。
+番号は種類を表す。01〜09 は日常の運用、11〜19 は障害対応、20〜29 は一度きりの作業（移行など）。新しい手順は、該当する範囲の次の番号を振り、この表に追加する。
 
 ## 日常の運用
 
@@ -24,5 +24,11 @@
 | PVE の管理画面が開かない | [PVE 管理画面の復旧](13-pve-webui-recovery.md) |
 | VM のコンソールが接続と切断を繰り返す | [コンソールの再接続](14-vm-console-reconnect.md) |
 | `terraform apply` で VM が再起動する | [apply による再起動](15-terraform-apply-restart.md) |
+
+## 一度きりの作業
+
+| 作業 | 手順 |
+| --- | --- |
+| ER605・SG2210P の導入（段階 1・2）の当日 | [段階 1・2 の当日の作業](20-network-cutover-stage-1-2.md) |
 
 障害の記録は [incidents/](../incidents/README.md)。
