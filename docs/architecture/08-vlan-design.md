@@ -146,6 +146,41 @@ AirPlay も Google Cast も、機器の発見に mDNS を使う。mDNS の呼び
 - **インターネット → DMZ**: Tunnel（`cloudflared`）の外向き接続で届く通信が基本。ポート転送で受ける場合は、公開するポートだけ許可する（[DMZ と外部公開](../operations/roadmap/07-dmz.md)）。
 - **Lab・Guests・IoT・DMZ の隔離**: 他の VLAN のプライベートアドレス（`10.0.0.0/8`、`172.16.0.0/12`、`192.168.0.0/16`）への通信は、DNS と上記の例外を除きすべて拒否する。
 
+### ACL の名前と説明の付け方
+
+Omada のゲートウェイの ACL（LAN → LAN）に作るルールの、名前と説明の決まり。**リハーサル（[Runbook](../operations/runbooks/22-network-stage-3-rehearsal.md)）でも、本番（[段階 3 の Runbook](../operations/runbooks/21-network-cutover-stage-3.md)）でも、同じ書き方にする。**
+
+- **評価は上から順**。順序が分かるように、**名前の頭に番号を付ける**（間を空けて振り、あとで間に足せるようにする）。
+  - `1xx`: 個別の許可（許可表の「許可」「のみ」の行）
+  - `9xx`: 末尾の拒否（**必ず最後**。**VLAN ごとに 1 件**。番号は 9 + VLAN ID の十の位: `910`〜`970`）。隔離（Lab・Guests・IoT・DMZ から他の VLAN 宛を拒否）も、これで実現する
+- **名前**: `<番号>-<送信元>-to-<宛先>[-<内容>]`。英小文字、数字、ハイフンだけにする（例: `150-trusted-to-servers`）。
+- **説明**: `送信元 → 宛先 : 動作（内容）（根拠）` を 1 行にする。**何のためのルールか**と、**根拠の文書**（この「通信ポリシー」など）を添える。
+- **検証用のルール**（リハーサル）は、名前の頭に `rh-`、説明の頭に `[リハーサル]` を付ける（例: `rh-010-trusted-to-lan`）。リハーサルのあとに、一覧から探して、無効にする。本番のルールには、この印を付けない。
+- **種類に「すべて（Any）」の選択肢はなく、宛先は、送信元に選んだネットワーク以外からしか選べない**（Controller モード。公式の資料にも「すべて」は無い）。「ネットワーク」は選んだネットワークに一致し、「!ネットワーク」は選んだネットワーク**以外のすべて**に一致する。**末尾の拒否（`9xx`）は、VLAN ごとに 1 件**作る。送信元 = ネットワーク（その VLAN）、宛先 = !ネットワーク（その VLAN）。新しい VLAN を足しても、既存の `9xx` に自動で含まれ、足す VLAN の `9xx` を 1 件作ればよい。ルールに一致しない通信は、暗黙の許可（permit）になる。インターネット宛が拒否されないことは、リハーサルで確かめる。
+- 秘密の値と、機器の MAC アドレスは書かない。
+- 入力できる文字数と、日本語が使えるかは、Omada 6.3 で未確認。保存して、表示を見て確かめる。切れるなら、短くする。
+
+本番のルールの例（許可表の行ごとに、同じ形で作る）:
+
+| 名前 | 説明 |
+| --- | --- |
+| `110-mgmt-to-servers-dns` | `Management → Servers : DNS(53)、NTP のみ許可（通信ポリシー）` |
+| `130-servers-to-mgmt-caddy` | `Servers → Management : vm-infra から Omada・Proxmox の管理画面のみ許可（個別の許可）` |
+| `131-servers-to-mgmt-metrics` | `Servers → Management : vm-monitoring から node_exporter(9100) のみ許可（個別の許可）` |
+| `140-servers-to-lab-ssh` | `Servers → Lab : vm-infra から SSH/mosh/Web を許可。Tailscale 経由の vm-dev 用（個別の許可）` |
+| `150-trusted-to-servers` | `Trusted → Servers : Web/SSH/mosh/DNS のみ許可（通信ポリシー）` |
+| `151-trusted-to-mgmt` | `Trusted → Management : 管理ポート(80/443/8006/22)のみ許可（通信ポリシー）` |
+| `160-trusted-to-iot` | `Trusted → IoT : 許可。AirPlay・Cast の制御用（通信ポリシー）` |
+| `170-lab-to-servers-dns` | `Lab → Servers : DNS(53) を vm-infra へのみ許可（個別の許可）` |
+| `171-iot-to-servers-dns` | `IoT → Servers : DNS(53) を vm-infra へのみ許可（個別の許可）` |
+| `910-deny-from-mgmt` | `Management → 他 VLAN : 拒否（末尾。許可は 1xx で先に通す）（通信ポリシー）` |
+| `920-deny-from-servers` | `Servers → 他 VLAN : 拒否（末尾）（通信ポリシー）` |
+| `930-deny-from-trusted` | `Trusted → 他 VLAN : 拒否（末尾）（通信ポリシー）` |
+| `940-deny-from-lab` | `Lab → 他 VLAN : 拒否（隔離。DNS などの許可は 1xx で先に通す）（通信ポリシー）` |
+| `950-deny-from-iot` | `IoT → 他 VLAN : 拒否（隔離）（通信ポリシー）` |
+| `960-deny-from-guests` | `Guests → 他 VLAN : 拒否（隔離）（通信ポリシー）` |
+| `970-deny-from-dmz` | `DMZ → 他 VLAN : 拒否（隔離）（通信ポリシー）` |
+
 ## 外出先からのアクセス（Tailscale）
 
 - `vm-infra` が subnet router として広告するのは **Servers（`10.77.20.0/24`）と Lab（`10.77.40.0/24`）のみ**。Lab を広告するのは、外出先から `vm-dev` に入るため。Management は広告しない。ルーター・スイッチ・AP・Proxmox の管理面には外から届かない。

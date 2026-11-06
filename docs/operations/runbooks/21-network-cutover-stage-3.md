@@ -119,7 +119,7 @@ p2 のスイッチ側の設定は、準備（手順 0）のまま（untagged VLA
 
 ## 8. ACL を絞る
 
-ACL を、[通信ポリシー](../../architecture/08-vlan-design.md#通信ポリシー)の許可表の内容に絞る。**ログを見ながら、1 つずつ絞る**。絞るたびに、手順 7 の主な項目を確かめる。
+ACL を、[通信ポリシー](../../architecture/08-vlan-design.md#通信ポリシー)の許可表の内容に絞る。**ログを見ながら、1 つずつ絞る**。絞るたびに、手順 7 の主な項目を確かめる。ルールの名前と説明は、[ACL の名前と説明の付け方](../../architecture/08-vlan-design.md#acl-の名前と説明の付け方)に従う（リハーサルの `rh-` のルールは、ここで無効にし、本番のルールを作る）。
 
 - [ ] 拒否すべき通信が拒否される（Lab・Guests・IoT・DMZ から内部へ。IoT → Trusted。Trusted → Guests）
 - [ ] 許可すべき通信が通る（Trusted → Servers、Servers → Management の Caddy と node_exporter、Tailscale 経由の Lab）
