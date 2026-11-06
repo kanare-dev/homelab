@@ -27,7 +27,7 @@ Proxmox VE 上に Terraform で VM を作り、Ansible で設定し、各 VM で
 | `vm-code` | 122 | `192.168.11.22` | 2 | 4GB | 30G | 自動（順序 5） | 常用リモート開発 | Claude Code, CloudCLI, code-server, gh, git, mosh, moshi-hook |
 | `ubuntu-cloud` | 9000 | — | — | — | — | — | VM テンプレート | cloud-init 付き Ubuntu |
 
-正の定義は `terraform/proxmox/terraform.tfvars`。起動順序と待機秒数は [運用 Runbook](../operations/runbooks/01-vm-startup-shutdown.md#vm-自動起動停止) を参照。
+正の定義は `terraform/proxmox/terraform.tfvars`。IP アドレスの一覧（現在と移行後）は [IP アドレス一覧](09-ip-addresses.md)。起動順序と待機秒数は [運用 Runbook](../operations/runbooks/01-vm-startup-shutdown.md#vm-自動起動停止) を参照。
 
 ## ソフトウェア構成
 

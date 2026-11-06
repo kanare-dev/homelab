@@ -19,7 +19,7 @@
 
 1. 第 4 オクテットを、役割で決める。区切りは全 VLAN 共通。
    - `.1` ゲートウェイ、`.2–.9` ネットワーク機器（Management のみ）、`.10–.49` 固定、`.50–.99` DHCP 予約、`.100–.149` または `.100–.199` DHCP プール、`.200–.254` 予備。
-   - ホストの割り当ては [VLAN 設計](../architecture/08-vlan-design.md#固定アドレス)の表のとおり。`vm-infra` は `10.77.20.10`、`vm-monitoring` は `.11`、`vm-apps` は `.12`、`vm-code` は `.13`、`vm-dev` は `10.77.40.10`、Buffalo は `10.77.30.50`。
+   - ホストの割り当ては [IP アドレス一覧](../architecture/09-ip-addresses.md#ホスト別の-ip)の表のとおり。`vm-infra` は `10.77.20.10`、`vm-monitoring` は `.11`、`vm-apps` は `.12`、`vm-code` は `.13`、`vm-dev` は `10.77.40.10`、Buffalo は `10.77.30.50`。
 2. DHCP が配る DNS は `10.77.20.10`（`vm-infra`）になる（[ADR 0024](0024-dhcp-dns-single-no-fallback.md) の判断は変わらず、アドレスだけ変わる）。
 3. DHCP の範囲とリースを、VLAN ごとに決める。
    - Management: `.240–.250`（緊急用、リース 1 時間）。Trusted: `.100–.199`（24〜48 時間）。Lab と IoT: `.100–.149`（24 時間）。Guests: `.100–.199`（4 時間）。Servers・DMZ: なし。

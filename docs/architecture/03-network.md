@@ -1,44 +1,18 @@
 # ネットワーク設計
 
-アドレス・命名規約と、外部との接続をまとめる。個別のサービスは [DNS 構成](../services/network/dns.md)、[リバースプロキシと TLS](../services/network/reverse-proxy-tls.md)。次期構成は [VLAN 設計](08-vlan-design.md)（未適用）。
+ドメインの命名規約と、外部との接続をまとめる。アドレスの一覧は [IP アドレス一覧](09-ip-addresses.md)。個別のサービスは [DNS 構成](../services/network/dns.md)、[リバースプロキシと TLS](../services/network/reverse-proxy-tls.md)。次期構成は [VLAN 設計](08-vlan-design.md)（未適用）。
 
-## IP アドレス規約（`192.168.11.0/24`）
+## IP アドレス
 
-| 範囲 | 用途 | 例 |
-| --- | --- | --- |
-| `192.168.11.1` | ルーター / ゲートウェイ | — |
-| `192.168.11.10–19` | インフラ（Proxmox、基盤 VM） | `.10` Proxmox、`.11` `vm-infra`、`.12` `vm-omada`、`.13` `vm-monitoring` |
-| `192.168.11.20–59` | サーバー / 検証用 VM | `.20` `vm-apps`、`.21` `vm-dev`、`.22` `vm-code` |
-| `192.168.11.60–99` | DHCP プール | 動的割当 |
-| `192.168.11.100–149` | IoT デバイス | `.100` ESP32 |
-| `192.168.11.150–254` | 予約 / 実験用 | — |
-
-VM の IP は Terraform（`terraform.tfvars`）で固定する。VMID は IP の末尾オクテットに 100 を足した値。
+IP アドレスの一覧（アドレスの範囲、VLAN、ホスト、FQDN の宛先。現在と移行後）は、[IP アドレス一覧](09-ip-addresses.md)にまとめた。
 
 ## ドメイン命名規約
 
 内部 DNS は `lab.kanare.dev` ゾーン（CoreDNS が権威。[DNS 構成](../services/network/dns.md)）。サービスは `<サービス名>.lab.kanare.dev`、VM は `<VM 名>.lab.kanare.dev` で引く。
 
-| FQDN | DNS の解決先 | 実際の宛先 | 用途 |
-| --- | --- | --- | --- |
-| `alertmanager.lab.kanare.dev` | `192.168.11.11`（Caddy） | `192.168.11.13:9093` | Alertmanager |
-| `pve.lab.kanare.dev` | `192.168.11.11`（Caddy） | `192.168.11.10:8006` | Proxmox Web UI |
-| `home.lab.kanare.dev` | `192.168.11.11`（Caddy） | `192.168.11.20:3001` | Homepage |
-| `ha.lab.kanare.dev` | `192.168.11.11`（Caddy） | `192.168.11.20:8123` | Home Assistant（[詳細](../services/apps/home-assistant.md)） |
-| `n8n.lab.kanare.dev` | `192.168.11.11`（Caddy） | `192.168.11.20:5678` | n8n（[詳細](../services/apps/n8n.md)） |
-| `rss.lab.kanare.dev` | `192.168.11.11`（Caddy） | `192.168.11.20:8081` | FreshRSS（[詳細](../services/apps/freshrss.md)） |
-| `grafana.lab.kanare.dev` | `192.168.11.11`（Caddy） | `192.168.11.13:3000` | Grafana |
-| `prometheus.lab.kanare.dev` | `192.168.11.11`（Caddy） | `192.168.11.13:9090` | Prometheus |
-| `adguard.lab.kanare.dev` | `192.168.11.11`（Caddy） | `192.168.11.11:3000` | AdGuard Home Web UI |
-| `code.lab.kanare.dev` | `192.168.11.11`（Caddy） | `192.168.11.22:8080` | code-server |
-| `cloudcli.lab.kanare.dev` | `192.168.11.11`（Caddy） | `192.168.11.22:3001` | CloudCLI |
-| `router.lab.kanare.dev` | `192.168.11.11`（Caddy） | `192.168.11.1:80` | ルーター管理画面（[DNS 構成](../services/network/dns.md#ルーター管理画面)） |
-| `infra.lab.kanare.dev` / `vm-infra.lab.kanare.dev` | `192.168.11.11` | 同左 | `vm-infra` への直接アクセス |
-| `vm-monitoring.lab.kanare.dev` | `192.168.11.13` | 同左 | `vm-monitoring` への直接アクセス |
-| `vm-apps.lab.kanare.dev` | `192.168.11.20` | 同左 | `vm-apps` への直接アクセス |
-| `vm-code.lab.kanare.dev` | `192.168.11.22` | 同左 | SSH / mosh の直接アクセス（Moshi など） |
+FQDN ごとの宛先（IP とポート。現在と移行後）は、[IP アドレス一覧](09-ip-addresses.md#fqdn-の宛先)にある。
 
-`vm-dev` には DNS レコードを置いていない（手動起動のため）。Caddy 経由の FQDN には、証明書を FQDN ごとに取得する（[リバースプロキシと TLS](../services/network/reverse-proxy-tls.md)）。
+Caddy 経由の FQDN には、証明書を FQDN ごとに取得する（[リバースプロキシと TLS](../services/network/reverse-proxy-tls.md)）。
 
 ## 外部接続の方針
 

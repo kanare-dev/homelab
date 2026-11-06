@@ -96,7 +96,7 @@ IP は変えない。Buffalo の Wi-Fi 設定は今のままなので、端末�
 
 図は `docs/diagrams/main-diagram/make-main-diagram.py` で生成する（HTML と PNG。ダーク版と単体の HTML は、同じディレクトリにある）。計画を直したら、この ASCII 図とスクリプトを合わせて直す。
 
-各ホストの IP は、[VLAN 設計](../../architecture/08-vlan-design.md#固定アドレス)と [ADR-0025](../../adr/0025-address-octets-by-role.md) のとおり（役割ベース。2026-11-05 に決定）。
+各ホストの IP は、[IP アドレス一覧](../../architecture/09-ip-addresses.md#ホスト別の-ip)と [ADR-0025](../../adr/0025-address-octets-by-role.md) のとおり（役割ベース。2026-11-05 に決定）。
 
 ### 段階 4 の後
 

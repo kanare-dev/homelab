@@ -30,7 +30,7 @@ client ─► https://<name>.lab.kanare.dev (192.168.11.11:443, Caddy)
 
 ## 転送先
 
-FQDN と転送先の対応は [アドレス・命名規約](../../architecture/03-network.md#ドメイン命名規約)、定義は `Caddyfile` が正。
+FQDN と転送先の対応は [IP アドレス一覧](../../architecture/09-ip-addresses.md#fqdn-の宛先)、定義は `Caddyfile` が正。
 
 ## 依存と影響
 
