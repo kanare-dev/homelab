@@ -9,7 +9,7 @@ homelab の全体像。最新の構成図、目的、構成の理由、前提と
 ```text
  External: Healthchecks.io / Slack / Cloudflare / Let's Encrypt / Tailscale / GitHub
      │
- Internet ── Buffalo router (.1)
+ Internet ── ER605 router (.1) ── SG2210P switch ── Buffalo AP (.2) / Proxmox / Display
      │
 ┌─────────────────────────────────────────────────────────────────────────────────────┐
 │  LAN: 192.168.11.0/24                  GW: 192.168.11.1          Tailscale (外出先)  │
@@ -42,7 +42,7 @@ homelab の全体像。最新の構成図、目的、構成の理由、前提と
 
 `node_exporter` は全 VM（`vm-infra` / `vm-monitoring` / `vm-apps` / `vm-dev` / `vm-code` / `vm-omada`）と Proxmox ホストに常駐し、`vm-monitoring` の Prometheus がまとめてスクレイプする。
 
-`vm-omada` の Omada コントローラーは、ER605・SG2210P を管理する（2026-11-03 に稼働）。機器の本設置はこれからで、今はどの機器も管理していない（Buffalo は管理対象外）。止まっても、機器は設定を持ったまま動く。
+`vm-omada` の Omada コントローラーは、ER605・SG2210P を管理する（2026-11-03 に稼働。2026-11-06 に、ER605・SG2210P を採用した）。Buffalo は AP モードで、管理対象外。止まっても、機器は設定を持ったまま動く。
 
 ![構成図（移行前）](../diagrams/pre-migration-diagram/architecture.drawio.svg)
 

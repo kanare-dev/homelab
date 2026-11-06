@@ -65,10 +65,10 @@ SG2210P、Proxmox、Buffalo を繋ぐ**前**に、ER605 単体で動くことを
 2. Mac を、ER605 の p3 に有線で直接繋ぐ（今 Mac が繋がっているケーブルを、一時的に挿し替える）。
 3. ER605 を起動する（まだコントローラーに採用していないので、本体の画面のまま、ルーター・DHCP・NAT として動く）。
 4. 次を確かめる。
-   - [ ] ER605 の WAN が、上流（`172.22.0.0/21`）から IP を取れている（画面は `http://192.168.11.1`）
-   - [ ] Mac が DHCP を取り直せて（Wi-Fi は切っておく）、インターネットに届く
-   - [ ] Mac に配られた DNS が `192.168.11.11` **だけ**（`scutil --dns`）
-   - [ ] ER605 の画面の Network > Interface で、**p2 が LAN として動いている**
+   - [x] ER605 の WAN が、上流（`172.22.0.0/21`）から IP を取れている（画面は `http://192.168.11.1`）
+   - [x] Mac が DHCP を取り直せて（Wi-Fi は切っておく）、**IP でインターネットに届く**（`ping -c 3 1.1.1.1`）。この時点では、DNS の `vm-infra` が ER605 に繋がっていないので、名前（`google.com` など）は引けない（異常ではない）
+   - [x] Mac に配られた DNS が `192.168.11.11` **だけ**（`scutil --dns | grep nameserver`）
+   - [x] ER605 の画面の Network > Interface で、**p2 が LAN として動いている**
 5. **WAN が IP を取れないとき**: 建物の共用ルーターが、最初に繋いだ機器の MAC を覚えている可能性がある。ER605 の WAN の MAC アドレスの設定に、Buffalo の WAN の MAC（Buffalo の画面か、本体のラベル）を入れて、取り直す。
 
 ## 4. 本配線にする
@@ -89,19 +89,19 @@ Mac を p3 から外し、次の順で付け替える。ケーブルの両端に
 
 ## 5. 配線の確認（ER605 の画面のまま、SG2210P も未採用）
 
-- [ ] **Proxmox のリンクが戻った**。物理コンソールで、`nic0` が up で、e1000e の送信停止（`INC-2026-10-25`）が再発していない（`dmesg` に `Hardware Unit Hang` が出ていない）
-- [ ] Mac から、Proxmox（`192.168.11.10`）、全 VM、`vm-omada`（`192.168.11.12`）に届く。インターネットに出られる
-- [ ] Wi-Fi の端末が、`Onda` で繋がる
-- [ ] 外出先（Tailscale）から入れる（スマホを Wi-Fi から外して確認する）
+- [x] **Proxmox のリンクが戻った**。物理コンソールで、`nic0` が up で、e1000e の送信停止（`INC-2026-10-25`）が再発していない（`dmesg` に `Hardware Unit Hang` が出ていない）
+- [x] Mac から、Proxmox（`192.168.11.10`）、全 VM、`vm-omada`（`192.168.11.12`）に届く。インターネットに出られる
+- [x] Wi-Fi の端末が、`Onda` で繋がる
+- [x] 外出先（Tailscale）から入れる（スマホを Wi-Fi から外して確認する）
 
 **不具合が出たとき**: SG2210P を疑う。Proxmox と Buffalo を SG2210P から外し、ER605 の p3、p4 に直接挿す。直れば SG2210P が原因（結果を記録する）。直らなければ、[戻し方](#戻し方)。
 
 ## 6. Buffalo の IP を固定する
 
-ER605 の貸出一覧で、Buffalo の IP を調べて、ブラウザで開く。AP モードの既定の IP は、公式には書かれていない（「エアステーション設定ツール」の手順も、Mac 用は公式に見つかっていない）。
+Buffalo の IP を調べて、ブラウザで開く。AP モードにすると、IP は ER605 の DHCP から受け取る（2026-11-06 の実績: `192.168.11.62`）。調べ方は、ER605 の貸出一覧、または採用後なら**コントローラーのクライアント一覧**。AP モードの既定の IP は、公式には書かれていない（「エアステーション設定ツール」の手順も、Mac 用は公式に見つかっていない）。
 
-- [ ] 「詳細設定」→「LAN」→「LAN」で、IP を **`192.168.11.2`** の固定にする。取扱説明書には、AP モードでは、デフォルトゲートウェイと DNS サーバーアドレスに、ルーターの IP と同じ値を設定するとある。ルーターは ER605（`192.168.11.1`）。
-- [ ] Wi-Fi の設定（SSID、バンドステアリング Lite）が残っている
+- [x] 「詳細設定」→「LAN」→「LAN」で、IP を **`192.168.11.2`** の固定にする。取扱説明書には、AP モードでは、デフォルトゲートウェイと DNS サーバーアドレスに、ルーターの IP と同じ値を設定するとある。ルーターは ER605（`192.168.11.1`）。
+- [x] Wi-Fi の設定（SSID、バンドステアリング Lite）が残っている
 
 ## 7. ER605 を採用する
 
@@ -109,14 +109,17 @@ ER605 の貸出一覧で、Buffalo の IP を調べて、ブラウザで開く�
 
 1. コントローラーの Devices で、ER605 を採用する。**SG2210P も候補に出るが、まだ採用しない。**
 2. **採用の直後に確認する**:
-   - [ ] LAN が `192.168.11.1/24` のまま
-   - [ ] DHCP の設定（プール `.60`〜`.99`、リース 48 時間、DNS `192.168.11.11`）が変わっていない
+   - [x] LAN が `192.168.11.1/24` のまま
+   - [x] DHCP の設定（プール `.60`〜`.99`、リース 48 時間、DNS `192.168.11.11`）が変わっていない
 3. LAN が `192.168.0.1/24` に変わって届かなくなったときは、**無理に直さず**、[戻し方](#戻し方)に戻す。
-4. ファームウェア、時刻（NTP）、管理者アカウントを設定する。
+4. 採用後の設定を確認する。**疎通には関係しないので、手順 8〜9 のあとに回してよい。**
+   - ファームウェア: 版が JP 版 2.4.2 のままか見る（更新はしない）。
+   - 時刻（NTP）: サイトの地域（タイムゾーン）が日本で、時刻が合っている。
+   - 管理者アカウント: コントローラーが機器に入るためのアカウント（サイトの設定の、機器のアカウント）が、初期値のままではない。値は Keychain に保存し、文書には書かない。
 
 ## 8. SG2210P を採用する
 
-1. コントローラーで、SG2210P を採用する。ファームウェアを更新する。
+1. コントローラーで、SG2210P を採用する。**ファームウェアの更新は、手順 9 の確認が通ってからにする**（再起動で全ポートが一時的に止まり、Proxmox のリンクも切れる。ファイルの地域は、コントローラーに表示される今の版に合わせる。ER605 では、地域の違う UN 版が拒否された）。更新したら、Proxmox のリンクと e1000e を物理コンソールで確認し、版を [SG2210P の設定](../../hardware/sg2210p/settings.md)に書く。
 2. ポートの割り当てを設定する（VLAN なしなので、全ポートが既定の VLAN）。
 
    | ポート | 接続先 | 備考 |
@@ -133,21 +136,21 @@ ER605 の貸出一覧で、Buffalo の IP を調べて、ブラウザで開く�
 
 ## 9. 完了の確認
 
-- [ ] インターネット、DNS（`*.lab.kanare.dev`）、Caddy 経由の各サービス
-- [ ] 新しく DHCP を取った端末の DNS が `192.168.11.11` だけ
-- [ ] Proxmox、全 VM、`vm-omada` に Mac から届く。Proxmox のリンクが戻り、e1000e の送信停止が再発していない
-- [ ] 採用のあとも、ER605 の LAN が `192.168.11.1/24`、DHCP のプールとリースが変わっていない
-- [ ] コントローラーの管理画面で、ER605 と SG2210P が接続済みに見える
-- [ ] Prometheus の全ターゲットが `up`、`GatewayUnreachable` が出ていない
-- [ ] Healthchecks.io の heartbeat が途切れていない
-- [ ] 外出先から Tailscale 経由で入れる
-- [ ] Wi-Fi の端末（`Onda`）とメインディスプレイが繋がる。テレビ（無線）の AirPlay・Cast が、今までどおり動く
+- [x] インターネット、DNS（`*.lab.kanare.dev`）、Caddy 経由の各サービス
+- [x] 新しく DHCP を取った端末の DNS が `192.168.11.11` だけ
+- [x] Proxmox、全 VM、`vm-omada` に Mac から届く。Proxmox のリンクが戻り、e1000e の送信停止が再発していない
+- [x] 採用のあとも、ER605 の LAN が `192.168.11.1/24`、DHCP のプールとリースが変わっていない
+- [x] コントローラーの管理画面で、ER605 と SG2210P が接続済みに見える
+- [x] Prometheus の全ターゲットが `up`、`GatewayUnreachable` が出ていない
+- [x] Healthchecks.io の heartbeat が途切れていない
+- [x] 外出先から Tailscale 経由で入れる
+- [x] Wi-Fi の端末（`Onda`）とメインディスプレイが繋がる。テレビ（無線）の AirPlay・Cast が、今までどおり動く
 
 ## 10. 作業の後始末
 
 1. **コントローラーのバックアップを取る**。画面の Settings > Maintenance の「Backup & Restore」で保存して、iCloud Drive の `homelab/` に置く（`omada-bk-YYYYMMDD.cfg`）。
 2. **同じ変更で直す**（[DNS 構成の「ルーターを付け替えるとき」](../../services/network/dns.md#ルーターを付け替えるとき)）:
-   - `docker/compose/reverse-proxy/Caddyfile`: `router.lab.kanare.dev` の転送先を、Omada コントローラーの管理画面（HTTPS、`tls_insecure_skip_verify`）に変える。名前を `omada.lab.kanare.dev` に変えるか、`router` を残すかを決める。`ansible-playbook playbooks/infra.yml` で反映する。
+   - `docker/compose/reverse-proxy/Caddyfile`: `router.lab.kanare.dev` を廃止し、`omada.lab.kanare.dev`（Omada コントローラーの管理画面。HTTPS、`tls_insecure_skip_verify`）を新設する（決定 2026-11-06）。DNS のレコード（`ansible/inventory/group_vars/infra/vars.yml` の `dns_records`）も、`router` を `omada` に変える。`ansible-playbook playbooks/infra.yml` で反映する。
    - Homepage の Router タイルと `siteMonitor`（`docker/compose/homepage/config/services.yaml`）。
    - `docs/architecture/02-infrastructure.md` の機器表、`README.md`、`docs/architecture/01-overview.md` の構成図（ASCII と SVG）。
    - [IP アドレス一覧](../../architecture/09-ip-addresses.md): `192.168.11.2` を Buffalo（AP モード、固定）として確認する。

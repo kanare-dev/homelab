@@ -7,11 +7,13 @@
 | 機器 | モデル | スペック | IP | 備考 |
 | --- | --- | --- | --- | --- |
 | サーバー | Lenovo ThinkCentre M70q Tiny | i5-10400T / 24GB RAM / 256GB NVMe | `192.168.11.10` | Proxmox VE ホスト。物理 NIC は 1 つ |
-| ルーター | Buffalo WSR-1800AX4P | — | `192.168.11.1` | 集合住宅の共用ルーターの下に置く（二重 NAT） |
+| ルーター | TP-Link ER605 V2 | — | `192.168.11.1` | 集合住宅の共用ルーターの下に置く（二重 NAT）。2026-11-06 に、Buffalo から交換した。Omada コントローラー（`vm-omada`）が管理する |
+| スイッチ | TP-Link SG2210P | — | DHCP（ER605 から） | PoE+ スイッチ。ER605 の p2 に繋ぎ、Proxmox・Buffalo・ディスプレイを収める。Omada コントローラーが管理する |
+| AP | Buffalo WSR-1800AX4P | — | `192.168.11.2`（固定） | AP（ブリッジ）モード。Wi-Fi の入口だけを担う（段階 4 で退役予定） |
 | IoT | ESP32 | — | `192.168.11.100` | 現在停止中 |
 
 - 電源は UPS なし。ホスト 1 台に全 VM が載る単一障害点の構成（[可用性](04-reliability.md)）。
-- 次期構成（TP-Link + Managed Switch + AP、VLAN 分割）は [VLAN 設計](08-vlan-design.md)。未適用。
+- 次期構成（VLAN 分割）は [VLAN 設計](08-vlan-design.md)。ER605・SG2210P の導入（段階 1・2）は、2026-11-06 に適用した。VLAN 化（段階 3）は未適用。
 
 ## 論理構成
 
