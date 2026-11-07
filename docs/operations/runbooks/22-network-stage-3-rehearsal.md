@@ -115,15 +115,15 @@ p6（VLAN50）の Mac で:
 
 手順:
 
-1. [ ] `/etc/network/interfaces` を退避する（例: `cp /etc/network/interfaces /root/interfaces.bak-YYYYMMDD`）。Mac 以外にも、写しを置く。
-2. [ ] **自動復旧のタイマーを仕掛ける**（タイマーの動作は、2026-11-08 に確認した。実際の復旧（設定の書き戻しと `ifreload`）は未検証）。たとえば、10 分後に退避を書き戻す一時タイマー:
+1. [x] `/etc/network/interfaces` を退避する（例: `cp /etc/network/interfaces /root/interfaces.bak-YYYYMMDD`）。Mac 以外にも、写しを置く。
+2. [x] **自動復旧のタイマーを仕掛ける**（タイマーの動作は、2026-11-08 に確認した。実際の復旧（設定の書き戻しと `ifreload`）は未検証）。たとえば、10 分後に退避を書き戻す一時タイマー:
 
    ```bash
    systemd-run --unit=netrevert --on-active=10m /bin/sh -c 'cp /root/interfaces.bak-YYYYMMDD /etc/network/interfaces && ifreload -a'
    ```
 
    成功したら、`systemctl stop netrevert.timer` で止める。
-3. [ ] `vmbr0` のブロックに、次の 2 行を**足す**（ほかは、変えない）。IP は `192.168.11.10`・タグなしのまま。設定を反映する（`ifreload -a`。Proxmox の画面の Node → System → Network → 「Apply Configuration」でもよい）。
+3. [x] `vmbr0` のブロックに、次の 2 行を**足す**（ほかは、変えない）。IP は `192.168.11.10`・タグなしのまま。設定を反映する（`ifreload -a`。Proxmox の画面の Node → System → Network → 「Apply Configuration」でもよい）。
 
    ```text
    auto vmbr0
@@ -138,10 +138,24 @@ p6（VLAN50）の Mac で:
    ```
 
    反映の前に、`ifreload -a -n`（実行せず、表示だけ）で、エラーが出ないことを見る（今の設定では、エラーなく終わった）。
-4. [ ] 確認する: Proxmox に届く（`ssh`、Web UI）。VM が動き続けている（`qm list`。`vm-infra`、`vm-omada`、`vm-monitoring`、`vm-apps`、`vm-code` が running）。`ip -d link show vmbr0 | grep -o "vlan_filtering [0-9]"` が `1`。`bridge vlan show` で、`nic0` に VLAN 2〜4094 が増え、各 `tap` は、VLAN 1（PVID・untagged）のまま。`nic0` が up で、e1000e の送信停止（`INC-2026-10-25`）が出ていない（`dmesg` に `Hardware Unit Hang` が無い）。
-5. [ ] **タイマーを止める**（成功したとき）。
-6. [ ] SG2210P の p2 に、tagged 10/20/40/50/70 を足す（untagged VLAN1 は、そのまま。今の通信に影響しない）。
-7. [ ] 1 つの検証用 VM（`vm-dev`）を、タグ付き（VLAN40 など）で繋いで、動作を確かめる。使い終えたら、元の設定に戻す（`vm-dev` は、止めたままにしておく）。
+4. [x] 確認する（結果。2026-11-08: `vlan_filtering` が 1、各 `tap` は VLAN 1 のまま、VM が running、`dmesg` は基準どおり、SSH と Web UI が届く、Slack にアラートなし。`nic0` に VLAN 2〜4094 が出ている（`bridge vlan show dev nic0`。1 行ずつ出るので長い。`| wc -l` で行数を見るとよい。`grep nic0` だと、2 行目以降が出ない）。タイマーは止めた）: Proxmox に届く（`ssh`、Web UI）。VM が動き続けている（`qm list`。`vm-infra`、`vm-omada`、`vm-monitoring`、`vm-apps`、`vm-code` が running）。`ip -d link show vmbr0 | grep -o "vlan_filtering [0-9]"` が `1`。`bridge vlan show` で、`nic0` に VLAN 2〜4094 が増え、各 `tap` は、VLAN 1（PVID・untagged）のまま。`nic0` が up で、e1000e の送信停止（`INC-2026-10-25`）が出ていない（`dmesg` に `Hardware Unit Hang` が無い）。
+5. [x] **タイマーを止める**（成功したとき）。
+6. [ ] SG2210P の p2 に、tagged 10/20/40/50/70 が入っていることを確認する（untagged VLAN1 は、そのまま。今の通信に影響しない）。**ポートの tagged は、コントローラーに作ったネットワークからしか選べない**ので、**先に、そのネットワーク（VLAN）を作る**。p2 のプロファイルが、作ったネットワークをすべて tagged にする設定なら、作ると自動で入る（VLAN30・50 で確認済み）。VLAN10 は、C-1 の 1 で作る。VLAN20・40・70 は、本番の設定を作るとき（段階 3 の準備）に作る。
+7. [ ] 1 つの検証用 VM（`vm-dev`）を、タグ付きで繋いで、動作を確かめる。**今あるネットワークは Trusted（30）と IoT（50）なので、VLAN30（`tag=30`）にする**（VLAN40 は、まだ作っていない）。**この VM は、保留中のルール 4（IoT → Trusted の拒否）の確認にも使える。**
+
+   1. Proxmox の画面で、`vm-dev`（VMID 121）→ Hardware → Network Device → Edit → **VLAN Tag を `30`**（ブリッジは `vmbr0` のまま）。
+   2. `vm-dev` を起動し、画面のコンソールを開く。`vm-dev` は固定 IP（`192.168.11.21`）の設定なので、そのままでは VLAN30 に繋がらない。**試験の間だけ**、手で IP を付ける（再起動で消える）。インターフェース名は `ip -br a` で調べる:
+
+      ```bash
+      sudo ip addr flush dev <インターフェース>
+      sudo ip addr add 10.77.30.20/24 dev <インターフェース>
+      sudo ip route add default via 10.77.30.1
+      ```
+
+      `10.77.30.20` は、固定アドレスの帯（`.10`〜`.49`）で、DHCP のプール（`.100`〜）と重ならない。
+   3. [ ] 確認する: `ping -c 3 10.77.30.1`、`ping -c 3 1.1.1.1`（検証用の ACL は、無効のままで）。
+   4. [ ] **ルール 4 の確認**: 検証用の ACL（`rh-` の 7 件）を**有効**にする。p6（VLAN50）の Mac から `ping 10.77.30.20`。**届かない**ことを確かめる（ルール 4、5c）。さらに、`vm-dev` から p6 の Mac の IP（`10.77.50.x`）に ping して、**届く**ことを確かめる（ルール 2。Mac のファイアウォールが ping を止めていないとき）。結果: ______
+   5. [ ] **後片づけ**: 検証用の ACL を、**無効**に戻す。`vm-dev` を停止する。Proxmox の画面で、**VLAN Tag を、空に戻す**（Terraform の設定とずれたままにしない）。`vm-dev` は、止めたままにしておく。
 
 ## C. 一時的な変更（変更して、確かめて、戻す）
 
