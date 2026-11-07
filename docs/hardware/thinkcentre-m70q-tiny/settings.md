@@ -11,7 +11,7 @@ Proxmox ホスト（`pve`）の、ホスト単体の設定値（詳細設計）�
 | --- | --- | --- | --- |
 | ホスト名 | `pve` | 同じ | |
 | IP | `192.168.11.10`（`vmbr0`） | `10.77.10.10/24`（タグ付きの `vmbr0.10`。VLAN10 Management）。`vmbr0` は VLAN-aware にして、IP を持たせない | `/etc/network/interfaces`（手動）。切り替えの手順は [VLAN 設計](../../architecture/08-vlan-design.md) |
-| OS | Proxmox VE 9.x（Debian 13 ベース） | 同じ | |
+| OS | Proxmox VE 9.1.7（Debian 13 ベース。カーネル 6.17.2-1-pve。2026-11-08 に確認） | 同じ | |
 | 物理 NIC | `nic0`（Intel I219、ドライバ `e1000e`）1 つ。スイッチへのポートは、段階 2 以降は SG2210P の p2 | trunk（VLAN10/20/40/50/70 を tagged） | [SG2210P の設定](../sg2210p/settings.md) |
 | NIC のオフロード | `nic0` の TSO・GSO・GRO を無効にする（`e1000e` の送信停止への対処。[INC-2026-10-25](../../operations/incidents/2026-10-25-nic-hardware-unit-hang.md)）。`/etc/network/interfaces` の `post-up` と、実行中の NIC への適用の両方 | 同じ | Ansible（`ansible/roles/proxmox`） |
 | Web UI | `https://pve.lab.kanare.dev`（Caddy → `192.168.11.10:8006`）。サブスクリプションの警告ポップアップを除去している（[INC-2026-10-22-b](../../operations/incidents/2026-10-22-pve-webui-broken-by-ansible-patch.md)。パッケージ更新で戻ったら、Ansible を再実行する） | `10.77.10.10:8006`（Management。VM と同じネットワークには載らない） | Ansible |

@@ -104,18 +104,41 @@ p6（VLAN50）の Mac で:
 1. **物理コンソール**（キーボードとモニター）を、すぐ繋げられる状態にする。成功すれば、使わない。
 2. **自動で元に戻るタイマー**を仕掛ける（下）。接続が切れても、決めた時間に、自動で元に戻る。
 
+今の状態（2026-11-08 に確認。変更前の基準）: Proxmox VE 9.1.7（カーネル 6.17.2-1-pve）、`ifupdown2` 3.3.0 が入っている（`ifreload` が使える）。`vmbr0` は VLAN-aware ではない（`vlan_filtering 0`）。`bridge vlan show` は、`nic0`、`vmbr0`、各 VM の `tap` が、すべて VLAN 1（PVID・untagged）。`dmesg` に `Hardware Unit Hang` は無い。`/etc/network/interfaces` は、`nic0` が `inet manual`（Ansible の ethtool の行つき）、`vmbr0` が `192.168.11.10/24`・ゲートウェイ `192.168.11.1`・`bridge-ports nic0`・`bridge-stp off`・`bridge-fd 0`。末尾に `source /etc/network/interfaces.d/*`。
+
+事前の確認（2026-11-08。どれも、ネットワークに影響しない）:
+
+- 自動復旧に使う `systemd-run` のタイマーは、**動く**（1 分後に実行された）。**途中で止められる**（`systemctl stop <unit>.timer`）。
+- `ifreload -a -n`（実行せず、表示だけ）は、今の設定で、**エラーなく終わる**（`-n` が使える）。
+- SG2210P の p2 は、今、tagged に Trusted（30）と IoT（50）が入っている（作った VLAN が、自動で入っている）。VLAN10 を作ったとき、p2 に自動で入るかは、C-1 で確認する。
+- ER605 のネットワークは、Default、Trusted、IoT の 3 つ。検証用の ACL（`rh-`）は、すべて無効。
+
 手順:
 
 1. [ ] `/etc/network/interfaces` を退避する（例: `cp /etc/network/interfaces /root/interfaces.bak-YYYYMMDD`）。Mac 以外にも、写しを置く。
-2. [ ] **自動復旧のタイマーを仕掛ける**（案。未検証）。たとえば、10 分後に退避を書き戻す一時タイマー:
+2. [ ] **自動復旧のタイマーを仕掛ける**（タイマーの動作は、2026-11-08 に確認した。実際の復旧（設定の書き戻しと `ifreload`）は未検証）。たとえば、10 分後に退避を書き戻す一時タイマー:
 
    ```bash
    systemd-run --unit=netrevert --on-active=10m /bin/sh -c 'cp /root/interfaces.bak-YYYYMMDD /etc/network/interfaces && ifreload -a'
    ```
 
    成功したら、`systemctl stop netrevert.timer` で止める。
-3. [ ] `vmbr0` に `bridge-vlan-aware yes` を足し、`bridge-vids 2-4094`（または、使う VLAN）を設定する。IP は `192.168.11.10`・タグなしのまま。設定を反映する（`ifreload -a`）。
-4. [ ] 確認する: Proxmox に届く（`ssh`、Web UI）。VM が動き続けている。`nic0` が up で、e1000e の送信停止（`INC-2026-10-25`）が出ていない（`dmesg` に `Hardware Unit Hang` が無い）。
+3. [ ] `vmbr0` のブロックに、次の 2 行を**足す**（ほかは、変えない）。IP は `192.168.11.10`・タグなしのまま。設定を反映する（`ifreload -a`。Proxmox の画面の Node → System → Network → 「Apply Configuration」でもよい）。
+
+   ```text
+   auto vmbr0
+   iface vmbr0 inet static
+           address 192.168.11.10/24
+           gateway 192.168.11.1
+           bridge-ports nic0
+           bridge-stp off
+           bridge-fd 0
+           bridge-vlan-aware yes      # 足す
+           bridge-vids 2-4094         # 足す
+   ```
+
+   反映の前に、`ifreload -a -n`（実行せず、表示だけ）で、エラーが出ないことを見る（今の設定では、エラーなく終わった）。
+4. [ ] 確認する: Proxmox に届く（`ssh`、Web UI）。VM が動き続けている（`qm list`。`vm-infra`、`vm-omada`、`vm-monitoring`、`vm-apps`、`vm-code` が running）。`ip -d link show vmbr0 | grep -o "vlan_filtering [0-9]"` が `1`。`bridge vlan show` で、`nic0` に VLAN 2〜4094 が増え、各 `tap` は、VLAN 1（PVID・untagged）のまま。`nic0` が up で、e1000e の送信停止（`INC-2026-10-25`）が出ていない（`dmesg` に `Hardware Unit Hang` が無い）。
 5. [ ] **タイマーを止める**（成功したとき）。
 6. [ ] SG2210P の p2 に、tagged 10/20/40/50/70 を足す（untagged VLAN1 は、そのまま。今の通信に影響しない）。
 7. [ ] 1 つの検証用 VM（`vm-dev`）を、タグ付き（VLAN40 など）で繋いで、動作を確かめる。使い終えたら、元の設定に戻す（`vm-dev` は、止めたままにしておく）。
@@ -127,7 +150,15 @@ p6（VLAN50）の Mac で:
 B が済んでいること。タイマー（B の 2）を仕掛けてから行う。
 
 1. [ ] ER605 に VLAN10（`10.77.10.1/24`）を作る（A-1 と同じ要領。DHCP は、緊急用の `.240`〜`.250` だけ）。
-2. [ ] Proxmox の `vmbr0.10` に、`10.77.10.10/24` を**足す**（旧 `192.168.11.10` は残す）。
+2. [ ] Proxmox の `vmbr0.10` に、`10.77.10.10/24` を**足す**（旧 `192.168.11.10` は残す）。試験用に、**別ファイル**（`/etc/network/interfaces.d/vmbr0-10-rehearsal`。末尾の `source /etc/network/interfaces.d/*` で読み込まれる）に書く。ゲートウェイは書かない（今のゲートウェイは `vmbr0` のまま）。
+
+   ```text
+   auto vmbr0.10
+   iface vmbr0.10 inet static
+           address 10.77.10.10/24
+   ```
+
+   反映は `ifreload -a`。**外すとき**は、`ifdown vmbr0.10` → ファイルを削除 → `ifreload -a`。自動復旧のタイマーは、この外す手順を仕掛ける（`systemd-run --unit=netrevert --on-active=10m /bin/sh -c 'ifdown vmbr0.10; rm -f /etc/network/interfaces.d/vmbr0-10-rehearsal; ifreload -a'`。案。未検証）。
 3. [ ] 確認する: Mac（VLAN30 の p5）から、`10.77.10.10` に届く（ACL で許可しておく）。Proxmox の Web UI が `10.77.10.10:8006` で開く。
 4. [ ] **届かなければ、`vmbr0.10` を外す**。旧 IP は残してあるので、今の通信は止まらない。
 5. [ ] 結果: `vmbr0.10` で届いたか: ______。届いた場合も、試験が済んだら、`vmbr0.10` を外す（当日に付け直す）。
