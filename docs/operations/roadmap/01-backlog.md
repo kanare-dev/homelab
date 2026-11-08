@@ -11,7 +11,8 @@
 
 ## インフラ・IaC・運用
 
-- [ ] **検討中**: `docs/services/` の文書を、種類ごとにフォルダ分けする（2026-11-03、運用者の希望）。例: インフラ（DNS、リバースプロキシ、監視、Omada、ER605、SG2210P、Buffalo）とアプリ（Homepage、Home Assistant、n8n、FreshRSS）と開発環境（vm-code、CI/CD、MOTD）。分け方と名前はまだ決めていない。移すときは、文書へのリンク（`docs/`、`README.md`、`CLAUDE.md`、設計書、ADR、ロードマップ、`make md-links` の対象）と、`docs/services/README.md` の番号・一覧を、同じ変更で直す。ファイル名の番号（01〜14）を残すか、フォルダごとに振り直すかも決める。リンクの数が多いので、一度にまとめて行い、`make md-links` で漏れを確認する。
+- [x] `docs/services/` の文書を、役割ごとにフォルダ分けした（**2026-11-06 に実施**。`network/`、`platform/`、`apps/`、`dev/`。番号は外した。機器の設定値は `docs/hardware/<機器>/settings.md` に移した。[services/README.md](../../services/README.md)、[hardware/README.md](../../hardware/README.md)）
+- [ ] **検討中**: Omada コントローラー（`vm-omada`）を、Proxmox の外（別のハード）に移す（2026-11-08、運用者の考え。別のハードを買ったときに検討する）。理由: コントローラーが、管理する機器（SG2210P）の先の Proxmox の上にあるので、Proxmox が LAN から消えると、コントローラーも消え、スイッチの設定を直せない（[INC-2026-11-08](../incidents/2026-11-08-sg2210p-native-vlan-overwrite.md)）。当面は、IP（`https://192.168.11.12:8043`）でのアクセスと、ER605 の LAN ポートへの直結の切り戻し（[障害時切り分け](../runbooks/11-troubleshooting.md#proxmox-ホストと全-vm-にlan-から届かない)）で補う。
 - [ ] 学習用に Traefik を `vm-apps` 上で試す。既存の入口（`vm-infra` の Caddy、[ADR 0019](../../adr/0019-caddy-reverse-proxy.md)）は置き換えず、`vm-apps` のコンテナ向けの別の入口として並べる。Docker ラベルによる自動検出、ダッシュボード、ミドルウェアを触るのが目的。Caddy を置き換えるかは、試したあとに新しい ADR で判断する
 - [ ] VM の OS を Ubuntu 26.04 LTS に移行する（[ADR 0021](../../adr/0021-ubuntu-lts-for-vms.md)）。新しい cloud image で `ubuntu-cloud`（VMID 9000）を作り直し、まず `vm-dev` で Ansible が通るか確認してから、VM を 1 台ずつ作り直す。その場更新はしない。24.04 のサポートは 2029 年 4 月までなので急がない
 - [ ] PVE ホストを 9.1 → 9.2 に更新する。保留 248 パッケージ（セキュリティ修正 61 件）が溜まっている。QEMU 10 → 11 とカーネル更新で、全 VM の停止を伴う再起動が要る。見送りの理由と再検討の条件は[障害記録 §4.3](../incidents/2026-10-22-pve-webui-broken-by-ansible-patch.md)。バックアップ（`vzdump`）を先に入れる順番が望ましい

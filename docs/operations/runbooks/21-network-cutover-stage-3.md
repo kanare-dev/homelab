@@ -52,7 +52,7 @@ VLAN を有効にし、全ホストの IP を `192.168.11.x` から `10.77.<VLAN
 ## 2. Omada の本番設定を有効にする
 
 1. `vm-dev` を止める。最終のバックアップ（Omada、Proxmox の `/etc/network/interfaces`、`terraform.tfstate`）を取る。
-2. Omada: 本番の設定を有効にする（VLAN、DHCP、ACL。**ACL は最初は緩め（全許可）**）。SG2210P の p1・p3 を、新しい設定にする。
+2. Omada: 本番の設定を有効にする（VLAN、DHCP、ACL。**ACL は最初は緩め（全許可）**）。SG2210P の p1・p3 を、新しい設定にする。**ポートの設定は、ネットワークを作るウィザードの「Select Device Port」ではなく、ポートの画面（Devices → `sg2210p` → Ports → Edit Port）で行う**（ウィザードでポートを選ぶと、そのポートが、その VLAN のアクセスポート（Native が書き換わり、タグ付きは Block All）になる。トランクの p1・p2 は選ばない。[INC-2026-11-08](../incidents/2026-11-08-sg2210p-native-vlan-overwrite.md)）。変更のたびに、**Proxmox（p2）に届くか**を確認する。届かなくなったら、[障害時切り分け](11-troubleshooting.md#proxmox-ホストと全-vm-にlan-から届かない)の切り戻し（ER605 の LAN ポートに直結）。
    - p1: untagged VLAN1、tagged 10/20/30/40/50/60/70
    - p3（Buffalo）: access VLAN30（untagged）
    - p4（ディスプレイ）: access VLAN30（untagged）

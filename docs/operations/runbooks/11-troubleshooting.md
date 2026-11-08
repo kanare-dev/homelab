@@ -1,5 +1,31 @@
 # 障害時切り分け
 
+## Proxmox ホストと全 VM に、LAN から届かない
+
+Mac から `192.168.11.10`（Proxmox）、`.11`、`.12` などに届かず、ER605（`192.168.11.1`）と `1.1.1.1` には届く。外部の Heartbeat が途絶し、Slack には何も届かない。**前回（[INC-2026-10-25](../incidents/2026-10-25-nic-hardware-unit-hang.md)）は NIC の送信停止、今回（[INC-2026-11-08](../incidents/2026-11-08-sg2210p-native-vlan-overwrite.md)）は SG2210P の p2 の VLAN 設定の書き換え**だった。症状が似ているので、次の順で切り分ける。
+
+**直前に、SG2210P・ER605・Omada のネットワークやポートの設定を触ったか**を、まず思い出す。触っていれば、そちらが先に疑わしい。
+
+```text
+1. Proxmox にモニターとキーボードを繋ぐ（成功すれば使わない保険。夜間でもすぐ繋げるよう、場所を決めておく）
+2. ログインして、次を実行する
+   dmesg | grep -i "Hardware Unit Hang" | tail -3     # NIC の送信停止
+   journalctl -k | grep -i nic0 | tail -20             # リンクの上下の時刻
+   ethtool nic0 | grep -i "Link detected"
+   ping -c 3 192.168.11.1                              # ホストから ER605 に届くか
+3. 判定
+   - Hang あり            → NIC の送信停止。ip link set nic0 down; sleep 2; ip link set nic0 up。だめなら reboot
+   - Hang なし、リンクあり、.1 に届かない → SG2210P の p2 の側（VLAN 設定など）。次の「切り戻し」へ
+```
+
+**切り戻し（コントローラーを使わずに、Proxmox を LAN に戻す）**: コントローラー（`vm-omada`）は Proxmox の上にあるので、Proxmox が LAN から消えると、**コントローラーから直せない**。次のようにする。
+
+1. Proxmox の LAN ケーブルを、SG2210P の p2 から外し、**ER605 の LAN ポート**（WAN/LAN3 など。Native が Default で、タグなし）に、直接挿す。SG2210P を迂回する。
+2. `ping -c 3 192.168.11.1`（ホストから）。届けば、原因は SG2210P 側。`vm-omada` も戻る。
+3. コントローラーに、**IP で**入る（`https://192.168.11.12:8043`。証明書の警告は進む。`omada.lab` は DNS に依存するので、DNS が落ちているときは使えない）。
+4. SG2210P の p1〜p4 の VLAN Configuration（Devices → `sg2210p` → Ports → Edit Port）を見て、**Native が Default(1) か、Network Tags が Allow All か**を確認し、直す。
+5. 直したら、ケーブルを p2 に戻し、`ping -c 3 192.168.11.1` を確認する。
+
 ## VM が応答しない
 
 ```text

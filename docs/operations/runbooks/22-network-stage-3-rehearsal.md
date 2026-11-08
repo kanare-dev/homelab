@@ -37,6 +37,8 @@ A だけなら、今すぐ始めてよい。B と C は、時間に余裕のあ�
 
 `10.77.20.10`（`vm-infra`）は、まだ存在しない。**この段階の DHCP では、DNS が引けない**（配られる値が正しいことだけを確かめる）。
 
+**警告（INC-2026-11-08 の教訓）**: ネットワーク（LAN）を作るウィザードの**「Select Device Port」（デバイスのポートを選ぶ）の手順で、ポートを選ぶと、そのポートが「その VLAN のアクセスポート」になる**（Native Network が、作るネットワークに書き換わり、タグ付きは Block All になる）。**その VLAN の端末を直接繋ぐポートだけ**（p5・p6 のように）選ぶ。**複数の VLAN を通すトランクポート（p1＝ER605 へ、p2＝Proxmox）は選ばない。** タグ付きは、ポートのプロファイルが `All`（Allow All）なら、作った VLAN が自動で入る。Management（VLAN10）を作るとき、**p2（トランク）を「VLAN10 をタグ付きで通すつもり」で選んだ**ため、p2 の Native が Management(10)、タグ付きが Block All になり、Proxmox のタグなしの通信が既定の LAN に届かなくなって、Proxmox と全 VM が LAN から消えた。作成のあと、SG2210P の p1〜p4 の VLAN Configuration が、Native = Default(1)、Network Tags = Allow All のままであることを確認する。
+
 ### A-2. 検証用のポートを設定する
 
 コントローラーで、SG2210P の **p5 を access VLAN30（untagged）、p6 を access VLAN50（untagged）**にする（Devices → `sg2210p` → ポートのプロファイル）。p5・p6 は、空きポートなので、既存に影響しない。
@@ -140,7 +142,9 @@ p6（VLAN50）の Mac で:
    反映の前に、`ifreload -a -n`（実行せず、表示だけ）で、エラーが出ないことを見る（今の設定では、エラーなく終わった）。
 4. [x] 確認する（結果。2026-11-08: `vlan_filtering` が 1、各 `tap` は VLAN 1 のまま、VM が running、`dmesg` は基準どおり、SSH と Web UI が届く、Slack にアラートなし。`nic0` に VLAN 2〜4094 が出ている（`bridge vlan show dev nic0`。1 行ずつ出るので長い。`| wc -l` で行数を見るとよい。`grep nic0` だと、2 行目以降が出ない）。タイマーは止めた）: Proxmox に届く（`ssh`、Web UI）。VM が動き続けている（`qm list`。`vm-infra`、`vm-omada`、`vm-monitoring`、`vm-apps`、`vm-code` が running）。`ip -d link show vmbr0 | grep -o "vlan_filtering [0-9]"` が `1`。`bridge vlan show` で、`nic0` に VLAN 2〜4094 が増え、各 `tap` は、VLAN 1（PVID・untagged）のまま。`nic0` が up で、e1000e の送信停止（`INC-2026-10-25`）が出ていない（`dmesg` に `Hardware Unit Hang` が無い）。
 5. [x] **タイマーを止める**（成功したとき）。
-6. [ ] SG2210P の p2 に、tagged 10/20/40/50/70 が入っていることを確認する（untagged VLAN1 は、そのまま。今の通信に影響しない）。**ポートの tagged は、コントローラーに作ったネットワークからしか選べない**ので、**先に、そのネットワーク（VLAN）を作る**。p2 のプロファイルが、作ったネットワークをすべて tagged にする設定なら、作ると自動で入る（VLAN30・50 で確認済み）。VLAN10 は、C-1 の 1 で作る。VLAN20・40・70 は、本番の設定を作るとき（段階 3 の準備）に作る。
+6. [ ] SG2210P の p2 に、tagged 10/20/40/50/70 が入っていることを確認する（untagged VLAN1 は、そのまま。今の通信に影響しない）。**ポートの tagged は、コントローラーに作ったネットワークからしか選べない**ので、**先に、そのネットワーク（VLAN）を作る**。p2 のプロファイルが、作ったネットワークをすべて tagged にする設定なら、作ると自動で入る（VLAN30・50 で確認済み）。**ネットワークを作るウィザードの「Select Device Port」では、トランクの p2 を選ばない**（選ぶと、p2 の Native が書き換わって、Proxmox が既定の LAN に届かなくなる。上の警告。アクセスポート（p5・p6）だけ選ぶ）。VLAN10 は、C-1 の 1 で作る。VLAN20・40・70 は、本番の設定を作るとき（段階 3 の準備）に作る。
+
+   **状況（2026-11-08）**: p2 には、Trusted（30）と IoT（50）が入っている。**B の 7（`tag=30`）に必要なのは VLAN30 だけで、条件は満たしている**ので、B の 7 に進んでよい。残り（10・20・40・70）は、そのネットワークを作るまで確認できない（このチェックは、C-1 の 1 のあと、VLAN20・40・70 は本番の設定を作るときに、済ませる）。
 7. [ ] 1 つの検証用 VM（`vm-dev`）を、タグ付きで繋いで、動作を確かめる。**今あるネットワークは Trusted（30）と IoT（50）なので、VLAN30（`tag=30`）にする**（VLAN40 は、まだ作っていない）。**この VM は、保留中のルール 4（IoT → Trusted の拒否）の確認にも使える。**
 
    1. Proxmox の画面で、`vm-dev`（VMID 121）→ Hardware → Network Device → Edit → **VLAN Tag を `30`**（ブリッジは `vmbr0` のまま）。
