@@ -18,7 +18,7 @@
 | 10 | [ER605・SG2210P の移行計画](10-er605-sg2210p-migration-plan.md) | 検討中。04 の段階 1〜3 の具体化。AS-IS / TO-BE の構成図、機器の設定、配線の付け替え、戻し方 |
 | 11 | [構成レビューの改善案](11-design-review-ideas.md) | 検討中の記録。ChatGPT による構成図のレビューから、取り入れられそうな改善案（通信許可マトリクス、管理アクセスの制限など）を、あとで採用できるようにまとめたもの |
 | 12 | [to-be の IP 割り当てと DHCP の見直し](12-ip-address-and-dhcp-review.md) | 採用済み（2026-11-05）。第 4 オクテットを役割ベースで振り直し、Management に緊急用 DHCP プールを置き、VLAN ごとに DHCP の範囲とリースを決めた。2026-11-09 に、VMID の規則、Servers の番号、緊急用プールの DNS を追加で決めた。検討の経緯と選択肢の記録（決定は [ADR-0025](../../adr/0025-address-octets-by-role.md)、[ADR-0026](../../adr/0026-vmid-from-vlan-and-octet.md)、[ADR-0027](../../adr/0027-servers-octet-bands-and-emergency-dns.md)） |
-| 13 | [管理系の VLAN10 化を後回しにする案](13-defer-management-vlan.md) | 検討中の記録。C-2（コントローラーの IP 変更への追従）が難しいため、段階 3 では管理系（Proxmox ホスト、`vm-omada`、ER605・SG2210P）を今の LAN に残し、VLAN10 化は別の作業にする案 |
+| 13 | [管理系の VLAN10 化（段階 3b）の前提と未決事項](13-defer-management-vlan.md) | 段階 3 では管理系（Proxmox ホスト、`vm-omada`、ER605・SG2210P）を今の LAN に残すことを採用（2026-11-09、[ADR-0028](../../adr/0028-defer-management-vlan10.md)）。この文書は、検討中の段階 3b の前提と、段階 3 の前に決める未決事項の記録 |
 
 ## 運用
 

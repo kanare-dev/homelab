@@ -40,6 +40,8 @@ TP-Link（ルーター + Managed Switch + AP、Omada 管理）への移行と同
 
 **決定**: アドレスの付け替え（[段階 3](#導入の段階)）は、決めた時間に全ホストを一斉に切り替える。並行構築はしない。機器の導入そのものは段階に分ける（次節）。
 
+**範囲（2026-11-09。[ADR-0028](../adr/0028-defer-management-vlan10.md)）**: 一斉切り替えの対象から、管理系（Proxmox ホスト、`vm-omada`、ER605・SG2210P）を外す。管理系は、段階 3 では今の LAN（VLAN1）に残し、VLAN10 への移行は、段階 3 のあとの「段階 3b」として別に行う。理由は、リハーサル（C-2）で、機器がコントローラーの住所の変更に付いてこない見込みが強まったこと。最終形は変わらない。
+
 **検討した選択肢**:
 
 | | 並行構築 | 一斉切り替え |
@@ -96,10 +98,10 @@ VLAN ごとのサブネット・ゲートウェイ・DHCP プール、アドレ�
 
 ## 配置の方針
 
-- **Proxmox ホストは Management に置く。** 管理面（`:8006`）が VM と同じネットワークに載らない。ホストの IP は、タグ付きの `vmbr0.10`（`10.77.10.10/24`）に付ける。`vmbr0` は VLAN-aware で、IP を持たない。
+- **Proxmox ホストは Management に置く。** 管理面（`:8006`）が VM と同じネットワークに載らない。ホストの IP は、タグ付きの `vmbr0.10`（`10.77.10.10/24`）に付ける。`vmbr0` は VLAN-aware で、IP を持たない。**ただし、段階 3 の間は、ホストを今の LAN（`192.168.11.10`、`vmbr0`、タグなし）のまま置き、`vmbr0.10` への移動は段階 3b で行う**（[ADR-0028](../adr/0028-defer-management-vlan10.md)）。
 - **VM は VLAN タグ付きで割り当てる。** Proxmox のブリッジ（`vmbr0`）を VLAN-aware にし、VM ごとに VLAN ID を指定する。Terraform の VM モジュールに `vlan_id` を持たせる。
-- **スイッチの Proxmox 向けポートは trunk で、全 VLAN をタグ付きにする**（判断の記録: [ADR-0023](../adr/0023-proxmox-trunk-all-tagged.md)）。Management・Servers・Lab・IoT・DMZ を tagged で通し、native（untagged）は未使用の VLAN1 にする。全 VM は VLAN ID を必ず指定する（Management の `vm-omada` も `tag=10`）。タグなしの通信は、どこの VLAN にも入らない。
-- **Omada コントローラーは Management の VM（または LXC）に置く。** 管理機器と同じ面に置き、Trusted・Servers・Lab から直接触れないようにする。
+- **スイッチの Proxmox 向けポートは trunk で、全 VLAN をタグ付きにする**（判断の記録: [ADR-0023](../adr/0023-proxmox-trunk-all-tagged.md)）。Management・Servers・Lab・IoT・DMZ を tagged で通し、native（untagged）は未使用の VLAN1 にする。全 VM は VLAN ID を必ず指定する（Management の `vm-omada` も `tag=10`）。タグなしの通信は、どこの VLAN にも入らない。**段階 3 の間は、native の VLAN1 を、ホストと `vm-omada`（タグなし）が使う**（段階 3b まで。[ADR-0028](../adr/0028-defer-management-vlan10.md)）。
+- **Omada コントローラーは Management の VM（または LXC）に置く。** 管理機器と同じ面に置き、Trusted・Servers・Lab から直接触れないようにする。**段階 3b までは、今の LAN（`192.168.11.12`）に置く**（[ADR-0028](../adr/0028-defer-management-vlan10.md)）。
 - **DMZ の VM は、Proxmox の同じブリッジに載せる場合、ホスト侵害のリスクが VLAN 分離だけでは消えない。** Proxmox の管理面を DMZ に出さず、仮想 NIC とブリッジの設定を確認する。DMZ の置き場所は、まず同じホストで検証し、将来は別の機器（小型 PC やラズパイなど）にする（未決事項）。
 - **`vm-dev` は Lab、`vm-code` と `vm-apps` は Servers に置く。** 開発環境と一時的な検証用 VM は、常時稼働のサーバーと分け、Lab から他の VLAN へは入れないようにする。`vm-code` は常時稼働にしたいので Servers に置く。他の VM とは性質が違うので、`.30–.39` の「開発・作業用」の帯に置く（番号の整理のためで、隔離ではない。[ADR-0027](../adr/0027-servers-octet-bands-and-emergency-dns.md)）。
 - **テレビは IoT に置く。** ベンダーのクラウドに繋がる機器であり、他の VLAN から隔離したい。ただし AirPlay・Cast の発見のために mDNS の中継が必要（次節）。
@@ -218,7 +220,8 @@ Omada コントローラー（`omada.lab.kanare.dev`）と Proxmox（`pve.lab.ka
 | --- | --- | --- | --- | --- |
 | 1 | ルーターを Buffalo から ER605 に交換。Buffalo は AP モードにする | ER605 | 約 9,200〜11,900 円 | `192.168.11.0/24` のまま（変えない） |
 | 2 | Managed Switch を追加する。VLAN はまだ使わない | SG2210P（8 ポート PoE+、SFP 2 スロット） | 要確認（SG2008P は約 15,700〜17,500 円。SG2210P は少し高い想定） | 変えない |
-| 3 | VLAN を有効にし、`10.77.x.x` に一斉切り替えする | なし | 0 円 | `10.77.<VLAN>.0/24` へ全ホスト一斉 |
+| 3 | VLAN を有効にし、`10.77.x.x` に一斉切り替えする | なし | 0 円 | `10.77.<VLAN>.0/24` へ、管理系を除く全ホスト一斉 |
+| 3b | 管理系（Proxmox ホスト、`vm-omada`、ER605・SG2210P）を Management（VLAN10）へ移す | なし | 0 円 | `10.77.10.0/24`（管理系だけ） |
 | 4 | Omada の AP を導入する。Buffalo は退役または予備にする | AP（Wi-Fi 6 または 7） | 未定（下記） | 変えない |
 
 段階 1〜2 の合計は、SG2008P で見積もると約 24,900〜29,400 円（SG2210P はこれに価格差の分が加わる）。LAN ケーブル、棚やラックの費用は含まない。
@@ -248,10 +251,17 @@ Omada コントローラー（`omada.lab.kanare.dev`）と Proxmox（`pve.lab.ka
 **段階 3: VLAN と `10.77.x.x` への一斉切り替え**
 
 - 追加の購入はない。下の「切り替え手順」で行う。
+- **管理系（Proxmox ホスト、`vm-omada`、ER605・SG2210P）は、今の LAN（`192.168.11.0/24`）のまま残す**（[ADR-0028](../adr/0028-defer-management-vlan10.md)）。VLAN10 への移行は、段階 3b で別に行う。
 - 有線の VLAN（Management / Servers / Trusted / Lab と、必要なら IoT のポート）を使う。Wi-Fi は Buffalo（AP）が出す 1 つの SSID で、Trusted に入る。
 - テレビ（有線）は IoT のポートにつなぎ、ゲートウェイの mDNS 中継（Trusted ↔ IoT）を試す。動かなければ、段階 4 まで Trusted に置く。
 - ESP32 は使っていないので、この段階では扱わない。
 - 戻し方: 段階 2 の状態（ER605 + スイッチ、`192.168.11.0/24`）に戻す。Omada のバックアップと `terraform state` を事前に保存しておく。
+
+**段階 3b: 管理系の VLAN10 化**
+
+- 段階 3 のあと、時間のあるときに、単独の作業として行う（[ADR-0028](../adr/0028-defer-management-vlan10.md)）。管理系（Proxmox ホスト、`vm-omada`、ER605・SG2210P）を、今の LAN から Management（VLAN10）へ移す。最終形は、[配置の方針](#配置の方針)と [IP アドレス一覧](09-ip-addresses.md)のとおり。
+- 前提は、機器の接続先（コントローラーの住所）を直す手段を整えること。できれば、IP ではなくホスト名にする。手段と順序は未決（[前提と未決事項](../operations/roadmap/13-defer-management-vlan.md)）。
+- 戻し方: 管理系を今の LAN に戻す。旧アドレスは、移行が済むまで残す。
 
 **段階 4: AP 導入**
 
@@ -296,9 +306,11 @@ Buffalo WSR-1800AX4P は VLAN に対応していない。AP モードにはで�
 
 ### 切り替え当日
 
+> **管理系は、段階 3 では動かさない**（[ADR-0028](../adr/0028-defer-management-vlan10.md)）。`vm-omada`、Proxmox ホスト、ER605・SG2210P の住所は変えない。下の 3 は、段階 3b に移す。
+
 1. 旧ネットワークで現在の状態を保存する（Proxmox の VM 設定、各ホストの設定、`terraform state`）。
 2. スイッチの Proxmox 向けポートを trunk にし、ルーターの VLAN インターフェースを有効にする。Buffalo（AP）は Trusted のポートにつなぎ替える。
-3. Proxmox ホストの IP を、`vmbr0` から外し、タグ付きの `vmbr0.10`（`10.77.10.10/24`）に付ける。`vmbr0` を VLAN-aware にする。必要なら物理コンソールから行う。
+3. （**段階 3 では行わない。段階 3b で行う。**）Proxmox ホストの IP を、`vmbr0` から外し、タグ付きの `vmbr0.10`（`10.77.10.10/24`）に付ける。`vmbr0` を VLAN-aware にする。必要なら物理コンソールから行う。
 4. VM の IP と VLAN を新アドレスに変える（`terraform apply`）。起動順は `vm-infra` を最初にする（DNS を先に復旧させる）。
 5. Ansible を流し、各ホストの設定（DNS レコード、UFW、Tailscale の `--advertise-routes=10.77.20.0/24,10.77.40.0/24` など）を反映する。Tailscale の新しい経路は Admin Console で承認し、旧経路を外す。
 6. 疎通を確認する: 名前解決、各 VLAN から Servers への接続、Caddy 経由の各サービス、Prometheus の scrape、外出先からの Tailscale 接続、テレビへの AirPlay・Cast。
