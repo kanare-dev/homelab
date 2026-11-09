@@ -19,6 +19,9 @@ VLAN を有効にし、全ホストの IP を `192.168.11.x` から `10.77.<VLAN
 - [ ] **Proxmox の準備が済んでいる**（[ADR-0023](../../adr/0023-proxmox-trunk-all-tagged.md)）: `vmbr0` が VLAN-aware（IP は `192.168.11.10`・タグなしのまま）。SG2210P p2 に tagged 10/20/40/50/70 を足してある。1 つの検証用 VM をタグ付きで繋いで、動作を確かめた。
 - [ ] **コードの準備が済んでいる**: 別ブランチで、Terraform（`vlan_id` は必須で、全 VM に指定。`vm-omada` は、段階 3b まで、タグなし（VLAN1）を明示する）、Ansible、Caddyfile、Prometheus、Homepage、ドキュメントを、新アドレスに書き換えてある（一覧は[設計書](../../architecture/08-vlan-design.md#影響を受けるリポジトリ内の箇所)）。
 - [ ] **Omada に本番の設定を作ってある（有効にはしていない）**: VLAN 10/20/30/40/50/60/70、DHCP、ACL、mDNS の中継、スイッチのポートプロファイル。
+- [ ] **今の LAN（VLAN1）の ACL を作って、実機で確かめた**（[ADR-0028](../../adr/0028-defer-management-vlan10.md)）: 管理系が今の LAN に残るので、許可表の「Management」の行を、「今の LAN」に読み替える（[通信ポリシー](../../architecture/08-vlan-design.md#通信ポリシー)）。Trusted → 今の LAN は管理ポートだけ、Servers → 今の LAN は Caddy と node_exporter、Lab・IoT・Guests・DMZ → 今の LAN は拒否、今の LAN → 他は拒否。
+- [ ] **緊急用の入口を決めて、届くことを確かめた**（[ADR-0028](../../adr/0028-defer-management-vlan10.md)）: `vm-infra` が止まったとき、または ACL を絞り間違えたときに、直接 Proxmox・`vm-omada`・ER605 に入れる口。空きポートを 1 つ決める（今は p5〜p8 が、今の LAN に入る設定）。そのポートに繋いだ端末が、今の LAN の DHCP でアドレスを受け取り、`192.168.11.10`（Proxmox）、`192.168.11.12`（`vm-omada`）、`192.168.11.1`（ER605）に届く。決めたポート: ______
+- [ ] **今の LAN の DHCP の DNS をルーターにする手順を確認した**（決定済み。変えるのは、手順 2 で Wi-Fi の端末が Trusted に移ったあと）。
 - [ ] **バックアップが、Mac 以外にもある**: Omada、Proxmox の `/etc/network/interfaces`、`terraform.tfstate`、Buffalo の設定。
 - [ ] Tailscale の経路の承認の手順を確認してある（`--advertise-routes=10.77.20.0/24,10.77.40.0/24`）。
 - [ ] 戻し方（下記）を読んだ。
