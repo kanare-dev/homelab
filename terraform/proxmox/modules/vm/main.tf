@@ -69,6 +69,9 @@ resource "proxmox_vm_qemu" "vm" {
   lifecycle {
     ignore_changes = [
       network,
+      # 起動・停止は Proxmox 側（start_at_node_boot、手動）で決める。vm-dev のように手動起動の VM が、
+      # 既定の vm_state = "running" と食い違って、apply で起動されないようにする
+      vm_state,
     ]
   }
 }
