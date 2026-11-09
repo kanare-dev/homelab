@@ -168,7 +168,7 @@ p6（VLAN50）の Mac で:
 B が済んでいること。タイマー（B の 2）を仕掛けてから行う。
 
 1. [x] ER605 に VLAN10（`10.77.10.1/24`）を作る（A-1 と同じ要領。DHCP は、緊急用の `.240`〜`.250` だけ）。**作成済み**（2026-11-08。B の 6 で作り、INC-2026-11-08 が起きた。p2 は修復済み）。**確認済み（2026-11-08）**: Omada の VLAN 一覧で、Management（VLAN10）は `10.77.10.1/24`、DHCP は `10.77.10.240`〜`.250`（11 件）で、上の値どおり。ポートの画面（ポートは画面に出ていない。p2 の想定）は、Native = Default(1)、Network Tags = Allow All、タグ付きに Management(10)・Trusted(30)・IoT(50)、Untagged = Default(1) で、VLAN10 も自動で入っている。**再開時は、p1〜p4 の Native・Network Tags を、もう一度見る。**
-2. [ ] Proxmox の `vmbr0.10` に、`10.77.10.10/24` を**足す**（旧 `192.168.11.10` は残す）。試験用に、**別ファイル**（`/etc/network/interfaces.d/vmbr0-10-rehearsal`。末尾の `source /etc/network/interfaces.d/*` で読み込まれる）に書く。ゲートウェイは書かない（今のゲートウェイは `vmbr0` のまま）。
+2. [x] Proxmox の `vmbr0.10` に、`10.77.10.10/24` を**足す**（旧 `192.168.11.10` は残す）。試験用に、**別ファイル**（`/etc/network/interfaces.d/vmbr0-10-rehearsal`。末尾の `source /etc/network/interfaces.d/*` で読み込まれる）に書く。ゲートウェイは書かない（今のゲートウェイは `vmbr0` のまま）。
 
    ```text
    auto vmbr0.10
@@ -177,9 +177,16 @@ B が済んでいること。タイマー（B の 2）を仕掛けてから行�
    ```
 
    反映は `ifreload -a`。**外すとき**は、`ifdown vmbr0.10` → ファイルを削除 → `ifreload -a`。自動復旧のタイマーは、この外す手順を仕掛ける（`systemd-run --unit=netrevert --on-active=10m /bin/sh -c 'ifdown vmbr0.10; rm -f /etc/network/interfaces.d/vmbr0-10-rehearsal; ifreload -a'`。案。未検証）。
-3. [ ] 確認する: Mac（VLAN30 の p5）から、`10.77.10.10` に届く（ACL で許可しておく）。Proxmox の Web UI が `10.77.10.10:8006` で開く。
-4. [ ] **届かなければ、`vmbr0.10` を外す**。旧 IP は残してあるので、今の通信は止まらない。
-5. [ ] 結果: `vmbr0.10` で届いたか: ______。届いた場合も、試験が済んだら、`vmbr0.10` を外す（当日に付け直す）。
+
+   **実施の結果（2026-11-09）**:
+
+   - タイマー（上の外す手順）を仕掛けて行った。実際に発火させる確認はしていない（試験が済んでから、手で外した）。
+   - **`ifreload -a -n`（ドライラン）は、VLAN のインターフェースを作る設定だとエラーになる**（`NetlinkListenerWithCache.link_add_vlan_dry_run() takes from 4 to 5 positional arguments but 6 were given`。ifupdown2 の不具合。設定ファイルの誤りではない）。**`vmbr0.10` の検証に `-n` は使えない**。
+   - `ifreload -a` の代わりに、`ifup vmbr0.10` で `vmbr0.10` だけを上げた。成功した（`vmbr0` の `192.168.11.10/24` は、そのまま）。
+   - 返信の経路を合わせるため、VLAN30 宛ての経路（`up ip route add 10.77.30.0/24 via 10.77.10.1 dev vmbr0.10`、`down` で削除）を、同じファイルに足した。経路なしで届くかは、試していない。
+3. [x] 確認する: Mac（VLAN30 の p5）から、`10.77.10.10` に届く（検証用の ACL `rh-` は無効のままで通る）。Proxmox の Web UI が `10.77.10.10:8006` で開く。結果（2026-11-09）: Proxmox から `10.77.10.1` へ ping が通った（3 回とも 0% 損失）。Mac（SG2210P の p5、VLAN30）から `ping 10.77.10.10` が通った（ttl=63。ER605 で 1 回ルーティング）。`https://10.77.10.10:8006` でログイン画面が出た。
+4. [x] **届かなければ、`vmbr0.10` を外す**。（届いたので、手順 5 のとおり外した）旧 IP は残してあるので、今の通信は止まらない。
+5. [x] 結果: `vmbr0.10` で届いたか: **届いた**。試験が済んだので、`vmbr0.10` を外した（`systemctl stop netrevert.timer` → `ifdown vmbr0.10` → ファイル削除 → `ifreload -a`）。外したあとの確認: `vmbr0` は `192.168.11.10/24` だけ、`interfaces.d/` は空、`10.77` の経路なし、タイマーなし、5 台が running。当日に付け直す。
 
 ### C-2. `vm-omada` の IP 変更への追従（リスクが高い。方法は、実施前に決める）
 
