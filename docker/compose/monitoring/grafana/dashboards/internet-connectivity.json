@@ -5,9 +5,9 @@
     "homelab",
     "network"
   ],
-  "description": "インターネット回線の疎通・遅延・パケットロス（ping を 30 秒毎）。遅いと判断する基準は、遅延が 7 日間の中央値の 3 倍かつ 100ms 超（15 分続いたとき通知）。",
+  "description": "インターネット回線の疎通・遅延・パケットロス（ping を 30 秒毎）。上段の ①〜④ は、LAN → 建物 → インターネットの順に、どこまで届いているか。遅いと判断する基準は、遅延が 7 日間の中央値の 3 倍かつ 100ms 超（15 分続いたとき通知）。",
   "schemaVersion": 39,
-  "version": 1,
+  "version": 3,
   "editable": true,
   "graphTooltip": 1,
   "timezone": "browser",
@@ -37,6 +37,314 @@
   },
   "panels": [
     {
+      "id": 4,
+      "type": "stat",
+      "title": "① ルーター",
+      "description": "直近 2 分間に 1 回でも届けば OK、1 回も届かなければ NG。NG なら LAN・ルーター側（GatewayUnreachable）。",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${ds}"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 0,
+        "w": 6,
+        "h": 3
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${ds}"
+          },
+          "expr": "max_over_time(probe_success{service=\"gateway\"}[2m])",
+          "instant": true,
+          "legendFormat": "",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "value",
+        "justifyMode": "center"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "1": {
+                  "text": "OK",
+                  "color": "green",
+                  "index": 0
+                },
+                "0": {
+                  "text": "NG",
+                  "color": "red",
+                  "index": 1
+                }
+              }
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "noValue": "不明"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 7,
+      "type": "stat",
+      "title": "② 建物",
+      "description": "NG でも ICMP に応答しない構成の可能性がある（アラートにはしていない）。①が OK で②が NG なら建物側を疑う。",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${ds}"
+      },
+      "gridPos": {
+        "x": 6,
+        "y": 0,
+        "w": 6,
+        "h": 3
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${ds}"
+          },
+          "expr": "max_over_time(probe_success{service=\"building-router\"}[2m])",
+          "instant": true,
+          "legendFormat": "",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "value",
+        "justifyMode": "center"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "1": {
+                  "text": "OK",
+                  "color": "green",
+                  "index": 0
+                },
+                "0": {
+                  "text": "NG",
+                  "color": "red",
+                  "index": 1
+                }
+              }
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "noValue": "不明"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 8,
+      "type": "stat",
+      "title": "③ 1.1.1.1",
+      "description": "①が OK で③と④が両方 NG なら回線断（InternetDown）。",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${ds}"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 0,
+        "w": 6,
+        "h": 3
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${ds}"
+          },
+          "expr": "max_over_time(probe_success{service=\"internet-cloudflare\"}[2m])",
+          "instant": true,
+          "legendFormat": "",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "value",
+        "justifyMode": "center"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "1": {
+                  "text": "OK",
+                  "color": "green",
+                  "index": 0
+                },
+                "0": {
+                  "text": "NG",
+                  "color": "red",
+                  "index": 1
+                }
+              }
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "noValue": "不明"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 9,
+      "type": "stat",
+      "title": "④ 8.8.8.8",
+      "description": "③だけ・④だけ NG なら、その宛先側の問題とみなす。",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${ds}"
+      },
+      "gridPos": {
+        "x": 18,
+        "y": 0,
+        "w": 6,
+        "h": 3
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${ds}"
+          },
+          "expr": "max_over_time(probe_success{service=\"internet-google\"}[2m])",
+          "instant": true,
+          "legendFormat": "",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "value",
+        "justifyMode": "center"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "1": {
+                  "text": "OK",
+                  "color": "green",
+                  "index": 0
+                },
+                "0": {
+                  "text": "NG",
+                  "color": "red",
+                  "index": 1
+                }
+              }
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "noValue": "不明"
+        },
+        "overrides": []
+      }
+    },
+    {
       "id": 1,
       "type": "stat",
       "title": "1.1.1.1 への遅延（最新）",
@@ -47,8 +355,8 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 0,
-        "w": 6,
+        "y": 3,
+        "w": 8,
         "h": 4
       },
       "fieldConfig": {
@@ -92,9 +400,9 @@
         "uid": "${ds}"
       },
       "gridPos": {
-        "x": 6,
-        "y": 0,
-        "w": 6,
+        "x": 8,
+        "y": 3,
+        "w": 8,
         "h": 4
       },
       "fieldConfig": {
@@ -138,9 +446,9 @@
         "uid": "${ds}"
       },
       "gridPos": {
-        "x": 12,
-        "y": 0,
-        "w": 6,
+        "x": 16,
+        "y": 3,
+        "w": 8,
         "h": 4
       },
       "fieldConfig": {
@@ -175,52 +483,6 @@
       ]
     },
     {
-      "id": 4,
-      "type": "stat",
-      "title": "疎通（ルーター / 1.1.1.1 / 8.8.8.8）",
-      "description": "1 = 3 か所とも届いている。0 を含むと、どこかに届いていない。",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${ds}"
-      },
-      "gridPos": {
-        "x": 18,
-        "y": 0,
-        "w": 6,
-        "h": 4
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short",
-          "decimals": 0
-        },
-        "overrides": []
-      },
-      "options": {
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "colorMode": "none"
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${ds}"
-          },
-          "expr": "min(probe_success{service=~\"gateway|internet-.*\"})",
-          "legendFormat": "",
-          "refId": "A",
-          "instant": true,
-          "range": false
-        }
-      ]
-    },
-    {
       "id": 5,
       "type": "timeseries",
       "title": "ping の遅延（RTT）",
@@ -231,7 +493,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 4,
+        "y": 7,
         "w": 24,
         "h": 9
       },
@@ -246,7 +508,34 @@
             "showPoints": "auto"
           }
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byFrameRefID",
+              "options": "E"
+            },
+            "properties": [
+              {
+                "id": "custom.fillOpacity",
+                "value": 0
+              },
+              {
+                "id": "custom.lineStyle",
+                "value": {
+                  "fill": "dash",
+                  "dash": [
+                    10,
+                    10
+                  ]
+                }
+              },
+              {
+                "id": "custom.lineWidth",
+                "value": 2
+              }
+            ]
+          }
+        ]
       },
       "options": {
         "legend": {
@@ -316,7 +605,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 13,
+        "y": 16,
         "w": 24,
         "h": 8
       },
