@@ -7,7 +7,7 @@
   ],
   "description": "インターネット回線の疎通・遅延・パケットロス（ping を 30 秒毎）。上段の ①〜④ は、LAN → 建物 → インターネットの順に、どこまで届いているか。遅いと判断する基準は、遅延が 7 日間の中央値の 3 倍かつ 100ms 超（15 分続いたとき通知）。",
   "schemaVersion": 39,
-  "version": 3,
+  "version": 4,
   "editable": true,
   "graphTooltip": 1,
   "timezone": "browser",
@@ -346,9 +346,9 @@
     },
     {
       "id": 1,
-      "type": "stat",
+      "type": "gauge",
       "title": "1.1.1.1 への遅延（最新）",
-      "description": "",
+      "description": "緑: 50ms 未満 / 黄: 50〜100ms / 赤: 100ms 以上（通知のしきい値）。平日の日中は 50〜65ms になるのが平常。",
       "datasource": {
         "type": "prometheus",
         "uid": "${ds}"
@@ -362,7 +362,29 @@
       "fieldConfig": {
         "defaults": {
           "unit": "s",
-          "decimals": 1
+          "decimals": 1,
+          "min": 0,
+          "max": 0.15,
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 0.05
+              },
+              {
+                "color": "red",
+                "value": 0.1
+              }
+            ]
+          }
         },
         "overrides": []
       },
@@ -374,7 +396,9 @@
           "fields": "",
           "values": false
         },
-        "colorMode": "none"
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "orientation": "auto"
       },
       "targets": [
         {
@@ -438,9 +462,9 @@
     },
     {
       "id": 3,
-      "type": "stat",
+      "type": "gauge",
       "title": "パケットロス（直近 10 分）",
-      "description": "",
+      "description": "緑: 1% 未満 / 黄: 1〜10% / 赤: 10% 以上（通知のしきい値。1.1.1.1 と 8.8.8.8 の両方で続いたとき通知）。",
       "datasource": {
         "type": "prometheus",
         "uid": "${ds}"
@@ -454,7 +478,29 @@
       "fieldConfig": {
         "defaults": {
           "unit": "percentunit",
-          "decimals": 1
+          "decimals": 1,
+          "min": 0,
+          "max": 0.2,
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 0.01
+              },
+              {
+                "color": "red",
+                "value": 0.1
+              }
+            ]
+          }
         },
         "overrides": []
       },
@@ -466,7 +512,9 @@
           "fields": "",
           "values": false
         },
-        "colorMode": "none"
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "orientation": "auto"
       },
       "targets": [
         {
@@ -534,6 +582,61 @@
                 "value": 2
               }
             ]
+          },
+          {
+            "matcher": {
+              "id": "byFrameRefID",
+              "options": "F"
+            },
+            "properties": [
+              {
+                "id": "custom.axisPlacement",
+                "value": "hidden"
+              },
+              {
+                "id": "min",
+                "value": 0
+              },
+              {
+                "id": "max",
+                "value": 1
+              },
+              {
+                "id": "unit",
+                "value": "none"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#8e8e93"
+                }
+              },
+              {
+                "id": "custom.lineWidth",
+                "value": 0
+              },
+              {
+                "id": "custom.fillOpacity",
+                "value": 14
+              },
+              {
+                "id": "custom.lineInterpolation",
+                "value": "stepAfter"
+              },
+              {
+                "id": "custom.showPoints",
+                "value": "never"
+              },
+              {
+                "id": "custom.hideFrom",
+                "value": {
+                  "tooltip": true,
+                  "legend": false,
+                  "viz": false
+                }
+              }
+            ]
           }
         ]
       },
@@ -591,6 +694,15 @@
           "expr": "clamp_min(3 * quantile_over_time(0.5, probe_icmp_duration_seconds{phase=\"rtt\",service=\"internet-cloudflare\"}[7d]), 0.1)",
           "legendFormat": "1.1.1.1 の通知しきい値（中央値の 3 倍。100ms 未満なら通知しない）",
           "refId": "E"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${ds}"
+          },
+          "expr": "(day_of_week() >= bool 1) * (day_of_week() <= bool 5) * (hour() < bool 8)",
+          "legendFormat": "平日の日中（9〜17 時。平常でも遅くなる時間帯）",
+          "refId": "F"
         }
       ]
     },
