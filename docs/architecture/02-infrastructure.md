@@ -22,7 +22,7 @@ Proxmox VE 上に Terraform で VM を作り、Ansible で設定し、各 VM で
 | 名前 | VMID | IP | vCPU | RAM | ディスク | 起動 | 役割 | 主なサービス |
 | --- | --- | --- | ---: | ---: | ---: | --- | --- | --- |
 | `vm-infra` | 111 | `192.168.11.11` | 2 | 1.5GB | 20G | 自動（順序 1） | インフラ基盤 | AdGuard Home, Unbound, CoreDNS, Caddy, Tailscale |
-| `vm-omada` | 112 | `192.168.11.12` | 2 | 3GB | 20G | 自動（順序 6） | ネットワーク機器の管理 | Omada コントローラー（Docker。ER605・SG2210P を管理） |
+| `vm-omada` | 112 | `192.168.11.12` | 2 | 4GB | 20G | 自動（順序 6） | ネットワーク機器の管理 | Omada コントローラー（Docker。ER605・SG2210P を管理） |
 | `vm-monitoring` | 113 | `192.168.11.13` | 2 | 2GB | 40G | 自動（順序 2） | 監視 | Prometheus, Alertmanager, Grafana, blackbox-exporter |
 | `vm-apps` | 120 | `192.168.11.20` | 2 | 4GB | 40G | 自動（順序 3） | アプリ | Homepage, Home Assistant, n8n, FreshRSS |
 | `vm-dev` | 121 | `192.168.11.21` | 2 | 1GB | 10G | 手動 | 破壊検証 | playground |
@@ -67,7 +67,7 @@ VM ごとの vCPU・メモリ・ディスクは [論理構成](#論理構成) �
 | `vm-omada` | 約 1.5〜2GB（見込み） | MongoDB を含む Java アプリ。機器を採用したあとに実測して直す |
 | `vm-code` / `vm-dev` | — | `vm-dev` は手動起動 |
 
-- 常時起動の VM の割当メモリ合計は 14.5GB（`vm-omada` の 3GB を含む）。`vm-dev` を加えて 15.5GB、ホストの確保分（約 2GB）を足すと 17.5GB で、24GB に収まる。`vm-windows` は 2026-11-05 に削除した（8GB を使うため、起動すると 24GB を超えていた。作り直す手順は [バックアップの手順](../operations/runbooks/06-backup-restore.md#vm-windows-の削除と作り直し2026-11-05)）
+- 常時起動の VM の割当メモリ合計は 15.5GB（`vm-omada` の 4GB を含む。2026-11-09 に 3GB から増やした。[INC-2026-11-09](../operations/incidents/2026-11-09-omada-memory-exhaustion.md)）。`vm-dev` を加えて 16.5GB、ホストの確保分（約 2GB）を足すと 18.5GB で、24GB に収まる。`vm-windows` は 2026-11-05 に削除した（8GB を使うため、起動すると 24GB を超えていた。作り直す手順は [バックアップの手順](../operations/runbooks/06-backup-restore.md#vm-windows-の削除と作り直し2026-11-05)）
 - vCPU は物理スレッドに対して過剰割当（常時起動分で 10 vCPU、全 VM で 16 vCPU）。常時高負荷の VM がないことを前提にしている。
 - `vm-apps` は Home Assistant、n8n、FreshRSS を載せても割当に余裕がある。
 

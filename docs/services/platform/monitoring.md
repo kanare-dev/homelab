@@ -164,6 +164,7 @@ Ookla Speedtest は測定のたびに 30〜60 秒、回線を使い切る（1Gbp
 | Home Assistant の履歴（recorder） | 10 日（既定の `purge_keep_days`）。データベースは `/opt/homeassistant/config` | Home Assistant の既定値（変更していない） |
 | n8n の実行履歴 | 7 日。データベースは `/opt/n8n/data` | `docker-compose.yml` の `EXECUTIONS_DATA_MAX_AGE=168` |
 | FreshRSS の記事 | 1 フィードあたり 200 件、最長 3 か月（購読の既定値）。データベースは `/opt/freshrss/data` | FreshRSS の設定「アーカイブ」（既定値のまま） |
+| Omada コンテナ（`vm-omada`） | メモリ 2.5GB（`mem_limit`）、Java ヒープ 768MB、MongoDB キャッシュ 0.25GB。VM は 4GB、スワップ無し（INC-2026-11-09） | `docker/compose/omada/docker-compose.yml` |
 | journald（全 VM） | 200M、1 か月 | `ansible/roles/common`（`journald_system_max_use`、`journald_max_retention`） |
 | AdGuard Home クエリログ | 7 日（168h） | `ansible/playbooks/infra.yml`、`group_vars/infra/vars.yml` |
 | thin pool の未使用ブロック返却 | 毎週 `fstrim.timer` | `ansible/roles/common` |

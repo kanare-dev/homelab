@@ -20,6 +20,11 @@ services:
     network_mode: host
     # MongoDB が正常に止まるまで待つ
     stop_grace_period: 60s
+    # INC-2026-11-09: 上限が無く、Java（ヒープ最大 1GB）と MongoDB（キャッシュ最大 約 1GB）が VM（3GB）を使い切って固まった。
+    # コンテナに上限を付け、超えたらコンテナだけが落ちて restart で戻る（VM は巻き込まない）。
+    # 見積り（ピーク）: Java ヒープ 768MB + ヒープ外 約 400MB + MongoDB キャッシュ 256MB + 本体 約 150MB ≒ 1.6GB。上限は余裕を見て 2.5GB
+    mem_limit: 2560m
+    memswap_limit: 2560m
     ulimits:
       nofile:
         soft: 4096
@@ -43,6 +48,10 @@ services:
       - PORT_RPC_V2=29816
       - SHOW_SERVER_LOGS=true
       - SHOW_MONGODB_LOGS=false
+      # イメージの固定値（-Xmx1024m）を上書きする
+      - JAVA_MAX_HEAP_SIZE=768m
+      # MongoDB の WiredTiger キャッシュ。既定は (メモリ − 1GB) の半分（約 1GB）。DB は約 300MB なので足りる
+      - MONGOD_EXTRA_ARGS=--wiredTigerCacheSizeGB 0.25
     volumes:
       - /opt/omada/data:/opt/tplink/EAPController/data
       - /opt/omada/logs:/opt/tplink/EAPController/logs

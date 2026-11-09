@@ -16,8 +16,9 @@ Omada コントローラーの詳細設計。ER605・SG2210P・将来の AP を�
 
 | 項目 | 値 |
 | --- | --- |
-| VM | `vm-omada`（VMID 112、`192.168.11.12`。VLAN 化のあとは `10.77.10.3`、VLAN10）。2 vCPU、メモリ 3GB、ディスク 20G。起動は自動（順序 6） |
+| VM | `vm-omada`（VMID 112、`192.168.11.12`。VLAN 化のあとは `10.77.10.3`、VLAN10）。2 vCPU、メモリ 4GB（2026-11-09 に 3GB から増やした）、ディスク 20G。起動は自動（順序 6） |
 | コントローラー | Omada Controller 6.3.0.111。Docker（`mbentley/omada-controller:6.3.0.111`、host ネットワーク）。`docker/compose/omada/docker-compose.yml`、Ansible の `omada.yml` |
+| メモリの上限 | Java ヒープ最大 768MB（`JAVA_MAX_HEAP_SIZE`）、MongoDB の WiredTiger キャッシュ 0.25GB（`MONGOD_EXTRA_ARGS`）、コンテナ全体で 2.5GB（`mem_limit`）。VM にスワップは無い。上限の根拠は [INC-2026-11-09](../../operations/incidents/2026-11-09-omada-memory-exhaustion.md) |
 | データ | `/opt/omada/data`、ログ `/opt/omada/logs` |
 | 反映 | `make setup-omada` |
 | ポート | 管理 HTTPS 8043、管理 HTTP 8088、ポータル 8843。機器との通信は UDP 29810（自動検出）、TCP 29811〜29816。UFW で絞る（`ansible/inventory/group_vars/omada/vars.yml`） |
@@ -49,6 +50,7 @@ Omada コントローラーの詳細設計。ER605・SG2210P・将来の AP を�
 
 | 日付 | 内容 |
 | --- | --- |
+| 2026-11-09 | メモリ枯渇で固まった（[INC-2026-11-09](../../operations/incidents/2026-11-09-omada-memory-exhaustion.md)）ため、VM のメモリを 4GB にし、コンテナに Java ヒープ 768MB・MongoDB キャッシュ 0.25GB・`mem_limit` 2.5GB を付けた |
 | 2026-11-06 | サイトの NTP を `ntp.nict.jp` にした（運用者の報告） |
 | 2026-11-06 | サイト名を `kanare-homelab`、デバイス名を `er605`、`sg2210p` にした（運用者の報告） |
 | 2026-11-06 | 段階 1・2 で、ER605（2.4.2）と SG2210P（5.30.7）を採用した（運用者の報告）。`omada.lab.kanare.dev` を新設し、`router.lab.kanare.dev` を廃止した（Caddy の転送先と DNS レコード） |
