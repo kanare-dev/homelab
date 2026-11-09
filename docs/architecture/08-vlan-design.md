@@ -255,6 +255,7 @@ Omada コントローラー（`omada.lab.kanare.dev`）と Proxmox（`pve.lab.ka
 - 有線の VLAN（Management / Servers / Trusted / Lab と、必要なら IoT のポート）を使う。Wi-Fi は Buffalo（AP）が出す 1 つの SSID で、Trusted に入る。
 - テレビ（有線）は IoT のポートにつなぎ、ゲートウェイの mDNS 中継（Trusted ↔ IoT）を試す。動かなければ、段階 4 まで Trusted に置く。
 - ESP32 は使っていないので、この段階では扱わない。
+- **ACL は、当日は全許可のまま切り替え、許可表の内容に絞るのは別の日に行う**（[ADR-0029](../adr/0029-stage3-acl-allow-all-then-tighten.md)）。段階 3 のあと数日動かして落ち着いてから、遅くとも段階 4 の前に絞る。
 - 戻し方: 段階 2 の状態（ER605 + スイッチ、`192.168.11.0/24`）に戻す。Omada のバックアップと `terraform state` を事前に保存しておく。
 
 **段階 3b: 管理系の VLAN10 化**
@@ -314,7 +315,7 @@ Buffalo WSR-1800AX4P は VLAN に対応していない。AP モードにはで�
 4. VM の IP と VLAN を新アドレスに変える（`terraform apply`）。起動順は `vm-infra` を最初にする（DNS を先に復旧させる）。
 5. Ansible を流し、各ホストの設定（DNS レコード、UFW、Tailscale の `--advertise-routes=10.77.20.0/24,10.77.40.0/24` など）を反映する。Tailscale の新しい経路は Admin Console で承認し、旧経路を外す。
 6. 疎通を確認する: 名前解決、各 VLAN から Servers への接続、Caddy 経由の各サービス、Prometheus の scrape、外出先からの Tailscale 接続、テレビへの AirPlay・Cast。
-7. ファイアウォールは最初は緩め（全許可）にして疎通を確認し、ログを見ながら許可表の内容に絞る。
+7. ファイアウォール（ACL）は全許可のままにする。許可表の内容に絞るのは、当日ではなく別の日に、ログを見ながら行う（[ADR-0029](../adr/0029-stage3-acl-allow-all-then-tighten.md)）。
 8. 戻す判断の時刻までに疎通が取れなければ、事前に書いた戻し手順に従う。
 
 ### 切り替え後
