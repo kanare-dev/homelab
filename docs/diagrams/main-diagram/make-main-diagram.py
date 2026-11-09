@@ -288,7 +288,7 @@ def layout():
                     ("network/unbound.svg", svc("Unbound", ":5335")),
                     ("network/caddy.png", svc("Caddy", ":80, :443"))]),
         ("row", *NODE)])
-    h_code = vm(20, sx + 20, A + h_infra + 20, "vm-code", "10.77.20.13", "Ubuntu Server 24.04", [
+    h_code = vm(20, sx + 20, A + h_infra + 20, "vm-code", "10.77.20.30", "Ubuntu Server 24.04", [
         ("row", "dev/claude-code.svg", "Claude Code"),
         ("row", "dev/cloudcli.svg", svc("CloudCLI", ":3001")),
         ("row", "dev/code-server.png", svc("code-server", ":8080")),
@@ -298,7 +298,7 @@ def layout():
                     ("monitoring/prometheus.png", svc("Prometheus", ":9090")),
                     ("monitoring/prometheus.png", svc("blackbox-exporter", ":9115"))]),
         ("row", *NODE)])
-    h_apps = vm(20, sx + 340, A + h_mon + 20, "vm-apps", "10.77.20.12", "Ubuntu Server 24.04", [
+    h_apps = vm(20, sx + 340, A + h_mon + 20, "vm-apps", "10.77.20.20", "Ubuntu Server 24.04", [
         ("docker", [("apps/homepage.png", svc("Homepage", ":3001")),
                     ("apps/home-assistant.svg", svc("Home Assistant", ":8123")),
                     ("apps/n8n.svg", svc("n8n", ":5678")),
