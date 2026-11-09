@@ -28,7 +28,7 @@ Omada コントローラーの詳細設計。ER605・SG2210P・将来の AP を�
 
 | 項目 | 値 |
 | --- | --- |
-| 管理者アカウント | パスワードは Keychain（`homelab / omada admin`） |
+| ユーザー（Accounts） | ローカルユーザー `homelab-owner`（Owner。日常に使う）と `homelab-admin`（Super Admin。予備）。Cloud User（TP-Link ID 名義の Owner。**名前は変更できない仕様**）は Omada Cloud 用。パスワードは Keychain（名前は台帳）。**ローカルユーザーの名前を、メールアドレスの形にしない**（下の注） |
 | サイト | 1 つ。名前は `kanare-homelab`（2026-11-06 に決めた） |
 | LAN（Settings > Wired Networks > LAN） | `192.168.11.1/24`、DHCP `.60`〜`.99`、リース 48 時間、DNS は `192.168.11.11` だけ（2026-11-03 に運用者が設定。画面の値は未確認） |
 | 採用している機器 | ER605（JP 版 2.4.2）と SG2210P（5.30.7）。2026-11-06 に採用した。デバイス名は、型番ベースの小文字（`er605`、`sg2210p`。AP を足すときも、同じ付け方で `eap-xxx` など）（2026-11-03 に、ER605 を一度採用して更新し、取り外していた） |
@@ -38,6 +38,9 @@ Omada コントローラーの詳細設計。ER605・SG2210P・将来の AP を�
 | 地域（タイムゾーン） | (UTC+09:00) 大阪、札幌、東京（2026-11-06 に確認） |
 | コントローラー本体の NTP | 指定する欄が無い（6.3.0.111。2026-11-06 に確認）。時刻は、`vm-omada` の OS（`systemd-timesyncd`、`ntp.nict.jp` など）に従う見込み（未確認） |
 | 機器のファームウェアの自動更新 | 未確認。有効だと、機器（ER605・SG2210P）が自動で更新・再起動する。更新の時機を自分で決めたいので、無効のままにしたい |
+
+> [!NOTE]
+> Cloud Access が有効だと、ログイン画面に **TP-Link ID と同じ名前**（メール形式）を入力すると、ローカルユーザーではなくクラウド側で認証され、Cloud User のセッションになる（ログは `cloud tenant login strategy`）。このセッションは、ユーザーごとの設定（言語・テーマ・24 時間表記）を保存できず、`Account unauthorized`（`-90021`）になる。ローカルユーザーの名前を別の名前（`@` を含まない）にすると、`local tenant login strategy` で入れて保存できる。2026-11-09 に、ローカルの Owner を `homelab-owner` に改名して確認した。
 
 ## 見直したい項目・未確認
 
@@ -50,6 +53,7 @@ Omada コントローラーの詳細設計。ER605・SG2210P・将来の AP を�
 
 | 日付 | 内容 |
 | --- | --- |
+| 2026-11-09 | ローカルの Owner の名前を、TP-Link ID と同じメール形式から `homelab-owner` に変えた。`omada.lab.kanare.dev` でユーザー設定（言語・テーマ）が `Account unauthorized` で保存できなかったため。予備に `homelab-admin`（Super Admin）を作った（運用者の報告） |
 | 2026-11-09 | メモリ枯渇で固まった（[INC-2026-11-09](../../operations/incidents/2026-11-09-omada-memory-exhaustion.md)）ため、VM のメモリを 4GB にし、コンテナに Java ヒープ 768MB・MongoDB キャッシュ 0.25GB・`mem_limit` 2.5GB を付けた |
 | 2026-11-06 | サイトの NTP を `ntp.nict.jp` にした（運用者の報告） |
 | 2026-11-06 | サイト名を `kanare-homelab`、デバイス名を `er605`、`sg2210p` にした（運用者の報告） |
