@@ -256,7 +256,8 @@
 | 未検討 | statping-ng/statping-ng | サービス稼働監視・ステータスページ | — |
 | 未検討 | Monit | プロセス・ファイル・ホストの監視と自動復旧 | — |
 | 未検討 | Zabbix | エージェント型の統合監視プラットフォーム | — |
-| 未検討 | google/cadvisor | コンテナごとのリソース使用量メトリクス（Prometheus 連携可） | — |
+| 検討中 | google/cadvisor | コンテナごとのリソース使用量メトリクス（Prometheus 連携可）。`vm-omada` だけに入れる案。同じコンテナ内の Java と MongoDB は分けられない | [未着手の項目](operations/roadmap/01-backlog.md) |
+| 未検討 | ncabatoff/process-exporter | プロセス名ごとの CPU・メモリを Prometheus に出す。`vm-omada` で、Java と MongoDB を分けて見る案（cAdvisor の代案） | [未着手の項目](operations/roadmap/01-backlog.md) |
 | 未検討 | NUT (Network UPS Tools) | UPS の監視と自動シャットダウン（UPS 導入が前提） | [未着手の項目](operations/roadmap/01-backlog.md) |
 | 導入済み | Slack | Alertmanager の通知先（SaaS） | [監視・アラート](services/platform/monitoring.md) |
 | 導入済み | healthchecks.io | 外部 Heartbeat（Alertmanager の Watchdog が途絶えたら通知。SaaS） | [ADR 0010](adr/0010-external-heartbeat.md) |
@@ -476,6 +477,7 @@
 | DNS | AdGuard Home + CoreDNS + Unbound（[ADR 0020](adr/0020-dns-three-layer-stack.md)） | Pi-hole、Technitium DNS Server、BIND9（いずれも見送り） |
 | リモートアクセス | Tailscale | WireGuard（見送り）、OpenVPN（未検討）、Omada Cloud（検討中。Omada コントローラーの管理画面だけ） |
 | メトリクス監視 | Prometheus + Grafana | Netdata（未検討）、Glances・Telegraf + InfluxDB（見送り） |
+| コンテナ・プロセス別のメモリ監視 | 未決定（`vm-omada` だけ。検討中: cAdvisor、process-exporter） | 入れずに `docker stats` で見る案もある |
 | 回線の疎通・遅延の監視 | blackbox-exporter（ICMP）+ Prometheus + Grafana（計画中） | Speedtest 系: speedtest-exporter（見送り）、MySpeed、LibreSpeed（未検討） |
 | 死活監視・ステータスページ | blackbox-exporter + Alertmanager | Uptime Kuma（見送り） |
 | ログ集約 | なし（journald と Docker のログ） | Loki + Alloy（見送り） |

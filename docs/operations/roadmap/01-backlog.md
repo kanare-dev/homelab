@@ -20,6 +20,14 @@
 - [ ] **検討中**: ER605・SG2210P の設定（VLAN、DHCP、ACL、ポートの割り当て）をコード化できるか（2026-11-03、運用者の疑問）。調べた範囲では、(1) Omada コントローラーに **Open API**（REST。OAuth のクライアント認証。設定は Global view > Settings > Platform Integration > Open API）がある。(2) **公式の Terraform プロバイダーはない**（TP-Link の担当者は、その方法をサポートしないと回答している）。(3) コミュニティ製の [Tohaker/terraform-provider-omada](https://github.com/Tohaker/terraform-provider-omada) がある（コントローラー v5.x・v6.x 対応とされる。VLAN・ACL・ポートの設定を扱えるかは**未確認**）。移行（段階 1〜3）のあとに、コントローラーの Open API の文書（コントローラーの画面から開ける）で、VLAN・ACL・DHCP・スイッチのポートのエンドポイントがあるかを見て、プロバイダーの対応範囲と照らす。コード化できない部分は、設計書の許可表と設定値の表を正にして、バックアップを併用する（Buffalo と同じ運用）。コード化するなら、クライアントの鍵は SOPS に入れる。
 - [ ] **検討中**: Omada コントローラーのバックアップの保存先を、iCloud Drive から S3 などに広げるか。今は手で取って、iCloud Drive に暗号化せずに置く（決定 2026-11-03。運用者は、今の段階では厳密さを求めない）。設定の唯一の記録がコントローラーの中にあり（[VLAN 設計](../../architecture/08-vlan-design.md)）、Mac だけだと、Mac と `vm-omada` が同時に失われたときに戻せない。S3 にするなら、バックアップファイルを暗号化してから置く（設定と認証情報が入るため）。バックアップ全般の方針（[ADR 0001](../../adr/0001-no-vm-backup.md)、NAS・PBS・restic の検討）と合わせて決める
 - [ ] `vm-omada` の Omada コントローラーの画面（HTTPS）の外形監視を、blackbox に加える。`vm-omada` の OS の死活は、2026-11-03 に Prometheus の scrape に入れて、`TargetDown` で見ている（`up` が 1 になることを確認済み）。残りは、Caddy と DNS に `omada.lab.kanare.dev` を足したあとに、`prometheus.yml` の `blackbox_http` に足すこと（段階 1 の「同じ変更で直すもの」と一緒にやる）。足したら、[監視・アラート](../../services/platform/monitoring.md)の注記を消す
+- [ ] **検討中**: `vm-omada` だけに、プロセス・コンテナ別のメモリの履歴を取る仕組みを入れる（2026-11-09、[INC-2026-11-09](../incidents/2026-11-09-omada-memory-exhaustion.md) のアクションアイテム #3）。**採用は未決定**。
+  - 動機: node_exporter は VM 全体の値しか出さず、01:46 の +327MB が Java か MongoDB かを特定できなかった。上限の設定（Java ヒープ 768MB、MongoDB キャッシュ 0.25GB、`mem_limit` 2.5GB）が効くかを、適用後に実測で確かめたい。
+  - 案 A: **cAdvisor**（`gcr.io/cadvisor/cadvisor`）を `vm-omada` に 1 コンテナ置き、Prometheus が `:8080` を scrape する。`container_memory_working_set_bytes{name="omada"}` で、コンテナ単位の履歴と `mem_limit` への近さが取れる。UFW は `vm-monitoring`（`192.168.11.13`）からだけ許可する。メモリは 50〜100MB 程度（`mem_limit` を付ける）。系列数を絞る（`--docker_only`、使わないメトリクスの除外）。**限界**: Java と MongoDB は同じコンテナの中なので、cAdvisor では、どちらが増えたかは分からない。
+  - 案 B: **process-exporter**（プロセス名ごとに RSS を出す。`java` と `mongod` を別の系列にする）を、`vm-omada` に systemd で置く。**今回知りたかった「Java か MongoDB か」に答えられる**。コンテナ内のプロセスも、ホストの `/proc` から見える。設定は、プロセス名の一致（`java`、`mongod`）を書いた YAML 1 つ。
+  - 案 C: 入れない。適用後の数日だけ、`docker stats` と `ps` を手で見る（再発したら入れる）。
+  - 見立て: 今回の目的には B が合う。コンテナ単位の傾向も見たければ A も足す。Omada 以外の VM には、必要になるまで入れない。
+  - 決める条件・確認: Prometheus の TSDB の上限（5GB）への影響（`vm-omada` だけなら軽い）。`HostMemoryLow` に加えて、コンテナ・プロセス別のアラートを足すかは、実測を見てから決める。
+  - 採用を決めたら、設計書（[監視・アラート](../../services/platform/monitoring.md)、[Omada コントローラー](../../services/network/omada-controller.md)）と ADR に移す。
 - [ ] k3s などのクラスタ構成を検討する（学習用クラスタとして分離運用し、Grafana / PVE / AdGuard Home 等の安定稼働中サービスは当面 Docker Compose のまま維持する）。より重いワークロードや複数アプリの分離運用もここで扱う
 
 ## ハードウェア・拡張

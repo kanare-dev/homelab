@@ -110,7 +110,7 @@ VM に SSH できなかったので、次の順に調べた。
 | --- | --- | --- |
 | 1 | `terraform apply`（`vm-omada` の 4GB）と `make setup-omada`（コンテナの上限）を適用する | 未実施（運用者の作業。メモリの変更には VM の再起動が要る） |
 | 2 | 適用後、`docker stats` と Prometheus で、Java・MongoDB のメモリが、上限の内側に収まることを数日見る | 未実施 |
-| 3 | プロセス別のメモリの履歴が無いので、cAdvisor などの導入を検討する（今回、増えたプロセスを特定できなかった） | 検討中 |
+| 3 | プロセス別のメモリの履歴が無いので、`vm-omada` だけに cAdvisor（コンテナ別）か process-exporter（プロセス別。Java と MongoDB を分けられる）を入れるかを検討する（今回、増えたプロセスを特定できなかった。[バックログ](../roadmap/01-backlog.md)） | 検討中（未決定） |
 | 4 | 01:46 の +327MB の正体（Java ヒープの拡張か、別の処理か）を、適用後の観察で確かめる | 未確認 |
 | 5 | `HostMemoryLow`（warning）が、固まる前に鳴っていたかを確認する（今回の通知は、`HostMemoryCritical` だけが記録にある） | 未確認 |
 
