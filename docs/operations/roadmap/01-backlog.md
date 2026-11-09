@@ -29,6 +29,12 @@
   - 見立て: 今回の目的には B が合う。コンテナ単位の傾向も見たければ A も足す。Omada 以外の VM には、必要になるまで入れない。
   - 決める条件・確認: Prometheus の TSDB の上限（5GB）への影響（`vm-omada` だけなら軽い）。`HostMemoryLow` に加えて、コンテナ・プロセス別のアラートを足すかは、実測を見てから決める。
   - 採用を決めたら、設計書（[監視・アラート](../../services/platform/monitoring.md)、[Omada コントローラー](../../services/network/omada-controller.md)）と ADR に移す。
+- [ ] **検討中**: Omada のメトリクスを Grafana で見られるようにする（2026-11-09、運用者の希望）。**採用は未決定**。
+  - 動機: 今の監視は、`vm-omada` の OS（node_exporter）と、ルーター・回線の ping だけで、Omada が管理する機器（ER605・SG2210P・AP）とクライアントの状態は、Omada の画面でしか見られない。Grafana に載せれば、回線・VM の監視と同じ画面で、推移とアラートが扱える。
+  - 見たいもの（**未決定**）: 機器の状態（オンライン・オフライン）、ポートごとのトラフィック、AP ごとの接続端末数、クライアント数など。何を見たいかを先に決めると、方法を選びやすい。
+  - 方法の候補（**未調査・未検証**）: (1) コミュニティ製の Omada 用 Prometheus exporter（例: `charlie-haley/omada_exporter`。**コントローラー v6 に対応しているかは未確認**）。(2) コントローラーの Open API（上の「設定のコード化」の項目と同じ API）を呼ぶ自前の exporter。どちらも、コントローラーの閲覧用の認証情報が要り、SOPS に入れる（読み取り専用のユーザーを作る）。
+  - 時期: **移行（段階 1〜3）が落ち着いてから**。VLAN・ポートの設定が固まる前に作ると、見たい単位が変わる。[ネットワーク通信の収集・可視化](06-network-traffic-analysis.md)とは目的が違う（こちらは機器の状態と使用量、06 はパケットレベルの通信）。
+  - 採用を決めたら、設計書（[監視・アラート](../../services/platform/monitoring.md)、[Omada コントローラー](../../services/network/omada-controller.md)）と ADR に移す。
 - [ ] k3s などのクラスタ構成を検討する（学習用クラスタとして分離運用し、Grafana / PVE / AdGuard Home 等の安定稼働中サービスは当面 Docker Compose のまま維持する）。より重いワークロードや複数アプリの分離運用もここで扱う
 
 ## ハードウェア・拡張
@@ -44,6 +50,13 @@
   ```plaintext
   ESP32 → MQTT → HomeAssistant → Prometheus → Grafana
   ```
+
+- [ ] **検討中**: SwitchBot Hub 2 の温度・湿度（将来は CO2 濃度）を監視し、しきい値を超えたら Slack にアラートを送る（2026-11-09、運用者の希望）。**採用は未決定**。
+  - 今の状態: Home Assistant が SwitchBot Cloud 経由で値を取得し（`sensor.switchbot_hub_2_temperature` / `sensor.switchbot_hub_2_humidity`）、Homepage のウィジェットが HA から表示している（[Homepage](../../services/apps/homepage.md)、[Home Assistant](../../services/apps/home-assistant.md)）。**現在値を見るだけで、履歴もアラートも無い**。
+  - CO2: 今の Hub 2 では取れない前提（運用者の話。機種の仕様は未確認）。CO2 に対応するセンサーを足したときに、同じ仕組みに載せる（機種は未定）。
+  - 方法の候補（**未調査・未検証**）: Home Assistant の Prometheus 連携でセンサーの値を Prometheus に出し、`alerts.yml` にルールを足す。既存の Alertmanager から Slack に送る経路をそのまま使え、Grafana に履歴も出る。上の ESP32 の流れ（HA → Prometheus → Grafana）と同じ経路にできる。
+  - 決めること: 温度・湿度・CO2 のしきい値と継続時間、HA の認証情報（長期アクセストークン）の置き場所（SOPS）、SwitchBot Cloud のポーリング間隔（反応が遅い。API の上限は 1 日 10,000 回）で足りるか、センサーの値が途絶えたときの扱い（欠測の検知）。
+  - 採用を決めたら、設計書（[監視・アラート](../../services/platform/monitoring.md)、[Home Assistant](../../services/apps/home-assistant.md)）と ADR に移す。
 
 - [ ] IP カメラ + Frigate の導入
 - [ ] メディアサーバーの導入（Jellyfin / Plex / Emby）

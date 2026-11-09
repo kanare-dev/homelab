@@ -188,6 +188,7 @@
 | 未検討 | Ubiquiti UniFi | ネットワーク機器・管理プラットフォーム | — |
 | 計画中 | TP-Link Omada | ネットワーク機器・管理プラットフォーム | [Omada 導入・VLAN 化](operations/roadmap/04-network-omada-vlan.md)。コントローラーは `vm-omada` で稼働中（2026-11-03、[インフラ構成](architecture/02-infrastructure.md)）。ER605・SG2210P の本設置はこれから（[移行計画](operations/roadmap/10-er605-sg2210p-migration-plan.md)） |
 | 未検討 | terraform-provider-omada（コミュニティ製） | Omada の設定を Terraform で管理する | [バックログ](operations/roadmap/01-backlog.md)。対応範囲は未確認。公式のプロバイダーはない |
+| 検討中 | omada_exporter（コミュニティ製。例: charlie-haley/omada_exporter） | Omada の機器・クライアントのメトリクスを Prometheus に出し、Grafana で見る。コントローラー v6 への対応は未確認 | [バックログ](operations/roadmap/01-backlog.md)。Open API の自前 exporter も候補 |
 | 検討中 | Omada Cloud | Omada コントローラーをクラウド経由で開く機能 | 2026-11-03 から有効にして試用中。最終的に無効にするかもしれない（[検討中の項目](operations/roadmap/01-backlog.md)） |
 | 未検討 | LibreNMS | ネットワーク監視 (SNMP) | — |
 | 廃止 | Scanopy | ネットワーク探索・トポロジー図の自動作成 | [見送り中の項目](operations/roadmap/03-deferred.md#scanopyネットワーク探索トポロジー図) |
@@ -349,6 +350,7 @@
 | 状況 | ツール | 説明 | 根拠・備考 |
 | --- | --- | --- | --- |
 | 導入済み | homeassistant/home-assistant | スマートホーム統合プラットフォーム | [Home Assistant](services/apps/home-assistant.md) |
+| 検討中 | Home Assistant の Prometheus 連携（組み込み） | SwitchBot Hub 2 の温度・湿度（将来は CO2）を Prometheus に出し、Slack にアラートを送る。未検証 | [バックログ](operations/roadmap/01-backlog.md) |
 | 計画中 | blakeblackshear/frigate | NVR・AI 物体検知 | [未着手の項目](operations/roadmap/01-backlog.md) |
 | 未検討 | koush/scrypted | カメラ・デバイスの HomeKit ブリッジ | — |
 | 未検討 | oznu/homebridge | HomeKit ブリッジ | — |
@@ -477,6 +479,8 @@
 | DNS | AdGuard Home + CoreDNS + Unbound（[ADR 0020](adr/0020-dns-three-layer-stack.md)） | Pi-hole、Technitium DNS Server、BIND9（いずれも見送り） |
 | リモートアクセス | Tailscale | WireGuard（見送り）、OpenVPN（未検討）、Omada Cloud（検討中。Omada コントローラーの管理画面だけ） |
 | メトリクス監視 | Prometheus + Grafana | Netdata（未検討）、Glances・Telegraf + InfluxDB（見送り） |
+| Omada のメトリクス取得 | 未決定（検討中: omada_exporter（コミュニティ製）、Open API の自前 exporter） | 移行（段階 1〜3）のあとに検討 |
+| センサー（温度・湿度・CO2）の監視 | 未決定（検討中: Home Assistant の Prometheus 連携 + Alertmanager） | 現在は Homepage のウィジェットで現在値を見るだけ |
 | コンテナ・プロセス別のメモリ監視 | 未決定（`vm-omada` だけ。検討中: cAdvisor、process-exporter） | 入れずに `docker stats` で見る案もある |
 | 回線の疎通・遅延の監視 | blackbox-exporter（ICMP）+ Prometheus + Grafana（計画中） | Speedtest 系: speedtest-exporter（見送り）、MySpeed、LibreSpeed（未検討） |
 | 死活監視・ステータスページ | blackbox-exporter + Alertmanager | Uptime Kuma（見送り） |
