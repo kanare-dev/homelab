@@ -14,7 +14,7 @@
 
 - blackbox-exporter の ICMP で、ルーター・建物の共用ルーター（`172.22.0.1`）・`1.1.1.1`・`8.8.8.8` に 30 秒毎に ping する。通信量はほぼゼロなので、仕事中も止めない。
 - 回線断: ルーターに届くのに `1.1.1.1` と `8.8.8.8` の両方に届かない状態が 2 分続いたら `InternetDown`（critical）。回線断の間は、遅延・パケットロス・外の名前解決の失敗の通知を抑制する。
-- 遅延: `1.1.1.1` への RTT（10 分平均）が、7 日間の中央値の 2 倍かつ 50ms 超で 10 分続いたら `InternetLatencyHigh`。パケットロス（10 分で 10% 超）も通知する。
+- 遅延: `1.1.1.1` への RTT（10 分平均）が、7 日間の中央値の 3 倍かつ 100ms 超で 15 分続いたら `InternetLatencyHigh`。パケットロス（`1.1.1.1` と `8.8.8.8` の両方で 10 分に 10% 超、かつルーターに届いている状態が 10 分続く）も通知する。しきい値は 2026-11-09 に、誤報が多かったため当初（2 倍・50ms・10 分）から引き上げた。方式（ping と中央値との比較）は変えていない。詳細は [監視・アラート](../services/platform/monitoring.md#回線の疎通遅延の監視)。
 - 推移は Grafana「Internet Connectivity」で見る。通知は既存の Alertmanager から Slack へ送る。
 - **Speedtest による速度の定期測定は見送る**。理由と再検討の条件は [見送り中の項目](../operations/roadmap/03-deferred.md#回線速度の定期測定speedtest)。
 - 家庭内 LAN（iperf3）と Wi-Fi 経由の測定は、将来の拡張とし、手順を文書に残す（[Wi-Fi 経由の測定](../services/platform/monitoring.md#wi-fi-経由の測定未実装)、[家庭内 LAN への拡張](../services/platform/monitoring.md#家庭内-lan-への拡張未実装)）。
