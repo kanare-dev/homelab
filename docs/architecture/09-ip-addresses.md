@@ -2,7 +2,7 @@
 
 homelab の IP アドレスを、1 か所にまとめた一覧。アドレスの範囲、VLAN、ホスト、FQDN の宛先を、**現在**と**移行後**（ER605・SG2210P を入れて VLAN に分けたあと）の両方で示す。**IP アドレスの一覧は、この文書を正とする。**
 
-- 設計の理由は、[VLAN 設計](08-vlan-design.md)と ADR（[0015](../adr/0015-vlan-address-scheme-10-77.md)、[0022](../adr/0022-vlan-set-and-ids.md)、[0024](../adr/0024-dhcp-dns-single-no-fallback.md)、[0025](../adr/0025-address-octets-by-role.md)）にある。移行の手順は、[移行計画](../operations/roadmap/10-er605-sg2210p-migration-plan.md)。
+- 設計の理由は、[VLAN 設計](08-vlan-design.md)と ADR（[0015](../adr/0015-vlan-address-scheme-10-77.md)、[0022](../adr/0022-vlan-set-and-ids.md)、[0024](../adr/0024-dhcp-dns-single-no-fallback.md)、[0025](../adr/0025-address-octets-by-role.md)、[0026](../adr/0026-vmid-from-vlan-and-octet.md)、[0027](../adr/0027-servers-octet-bands-and-emergency-dns.md)）にある。移行の手順は、[移行計画](../operations/roadmap/10-er605-sg2210p-migration-plan.md)。
 - 実際に設定している値は、VM の IP が `terraform/proxmox/terraform.tfvars`、ホストが `ansible/inventory/`、Caddy の転送先が `docker/compose/reverse-proxy/Caddyfile`、DNS のレコードが CoreDNS のゾーンにある（[更新のしかた](#更新のしかた)）。
 - 秘密の値と、機器の MAC アドレスは書かない。
 
@@ -26,12 +26,12 @@ homelab の IP アドレスを、1 か所にまとめた一覧。アドレスの
 | `192.168.11.100–149` | IoT デバイス | `.100` ESP32 |
 | `192.168.11.150–254` | 予約 / 実験用 | — |
 
-- VM の IP は Terraform（`terraform.tfvars`）で固定する。VMID は、IP の末尾オクテットに 100 を足した値。
+- VM の IP は Terraform（`terraform.tfvars`）で固定する。現在の VMID は、IP の末尾オクテットに 100 を足した値。移行後は、`VLAN ID × 100 + 第 4 オクテット`（[ADR-0026](../adr/0026-vmid-from-vlan-and-octet.md)）。VMID の付け替えは、段階 3 では行わず、VM を作り直すときに行う（[ホスト別の IP](#ホスト別の-ip)に、現在と移行後の VMID を並べた）。
 - 段階 1 以降、ER605 の DHCP が配る DNS サーバーは `192.168.11.11`（`vm-infra`。[ER605 の設定](../hardware/er605/settings.md)）。
 
 ## 移行後のアドレス
 
-`10.77.<VLAN>.0/24`。VLAN ID とサブネットの第 3 オクテットを揃える（第 2 オクテットは `77` で固定）。第 4 オクテットは、現在の値を引き継がず、役割で決める（[ADR-0025](../adr/0025-address-octets-by-role.md)）。
+`10.77.<VLAN>.0/24`。VLAN ID とサブネットの第 3 オクテットを揃える（第 2 オクテットは `77` で固定）。第 4 オクテットは、現在の値を引き継がず、役割で決める（[ADR-0025](../adr/0025-address-octets-by-role.md)、[ADR-0027](../adr/0027-servers-octet-bands-and-emergency-dns.md)）。
 
 ### VLAN 一覧
 
@@ -62,9 +62,20 @@ VLAN の ID は、信頼度の高い順（内側から外側）に振る。外�
 | `.100–.149` / `.100–.199` | DHCP プール（範囲は VLAN ごと。上の表。DHCP を使う VLAN のみ） |
 | `.200–.254` | 予備（将来の拡張）。Management の `.240–.250` は緊急用プール |
 
+### Servers の固定アドレスの帯
+
+Servers（`10.77.20.0/24`）の固定アドレス（`.10–.49`）は、役割の帯に分ける（[ADR-0027](../adr/0027-servers-octet-bands-and-emergency-dns.md)）。新しい VM は、役割の帯の空きに置く。帯は番号の整理のためで、ネットワークの隔離ではない（同じ VLAN の中の通信は、ER605 の ACL を通らない）。ほかの VLAN は、台数が少ないので連番にする。
+
+| 範囲 | 役割 | 割り当て |
+| --- | --- | --- |
+| `.10–.19` | 基盤・運用 | `vm-infra` が `.10`、`vm-monitoring` が `.11` |
+| `.20–.29` | アプリ | `vm-apps` が `.20` |
+| `.30–.39` | 開発・作業用 | `vm-code` が `.30` |
+| `.40–.49` | 未使用 | 将来の拡張 |
+
 ### DHCP
 
-- DHCP が配る DNS サーバーは、全 VLAN で `10.77.20.10`（`vm-infra`）。フォールバックは配らない（[ADR-0024](../adr/0024-dhcp-dns-single-no-fallback.md)）。
+- DHCP が配る DNS サーバーは、`10.77.20.10`（`vm-infra`）。フォールバックは配らない（[ADR-0024](../adr/0024-dhcp-dns-single-no-fallback.md)）。**例外: Management の緊急用プールは、ルーター（`10.77.10.1`）を配る**（[ADR-0027](../adr/0027-servers-octet-bands-and-emergency-dns.md)）。`vm-infra` が止まっていても、外部の名前を引ける。`*.lab.kanare.dev` は引けないので、管理機器は IP で開く。
 - リース時間は VLAN ごとに決める。Management の緊急用プールは 1 時間、Trusted は 24〜48 時間、Lab と IoT は 24 時間、Guests は 4 時間。Guests は短くして、来客の端末の情報を長く保持しない。
 - Lab は、Terraform で固定 IP を振る VM（`vm-dev` など）と、手で立てる使い捨ての VM が混在する。前者は `.10–.49`、後者は DHCP の `.100–.149` に入れる。
 - Trusted の常用機（Mac など）は、DHCP 予約（`.50–.99`）で固定する。
@@ -73,22 +84,22 @@ VLAN の ID は、信頼度の高い順（内側から外側）に振る。外�
 
 ## ホスト別の IP
 
-| ホスト | VMID | 現在 | 移行後 | VLAN | 備考 |
-| --- | --- | --- | --- | --- | --- |
-| ルーター | — | `192.168.11.1`（ER605） | `10.77.10.1`（ER605） | 10 | 2026-11-06 に、Buffalo に替わって ER605 が `192.168.11.1` を持った |
-| Managed Switch（SG2210P） | — | —（段階 2 から DHCP） | `10.77.10.2` | 10 | |
-| Omada コントローラー（`vm-omada`） | 112 | `192.168.11.12` | `10.77.10.3` | 10 | |
-| AP | — | — | `10.77.10.4–.9` | 10 | 採番は購入後に確定する |
-| Proxmox（`pve`） | — | `192.168.11.10` | `10.77.10.10` | 10 | 移行後は、タグ付きの `vmbr0.10` に付ける |
-| `vm-infra` | 111 | `192.168.11.11` | `10.77.20.10` | 20 | DNS、Caddy、Tailscale |
-| `vm-monitoring` | 113 | `192.168.11.13` | `10.77.20.11` | 20 | |
-| `vm-apps` | 120 | `192.168.11.20` | `10.77.20.12` | 20 | |
-| `vm-code` | 122 | `192.168.11.22` | `10.77.20.13` | 20 | |
-| `vm-dev` | 121 | `192.168.11.21` | `10.77.40.10` | 40 | 手動起動 |
-| Buffalo（AP モード） | — | `192.168.11.2`（固定。2026-11-06 に、ルーターの `192.168.11.1` から変更） | `10.77.30.50`（段階 4 で退役するまで） | 30 | Trusted。`.2–.9` は Management だけなので、予約の帯 `.50–.99` を使う |
-| ESP32 | — | `192.168.11.100` | `10.77.50.50` | 50 | 現在は停止中 |
-| テレビ | — | DHCP | `10.77.50.x` | 50 | DHCP 予約（`.50–.99`）で固定。無線 |
-| `ubuntu-cloud` | 9000 | — | — | — | VM のテンプレート。IP なし |
+| ホスト | 現 VMID | 移行後の VMID | 現在 | 移行後 | VLAN | 備考 |
+| --- | --- | --- | --- | --- | --- | --- |
+| ルーター | — | — | `192.168.11.1`（ER605） | `10.77.10.1`（ER605） | 10 | 2026-11-06 に、Buffalo に替わって ER605 が `192.168.11.1` を持った |
+| Managed Switch（SG2210P） | — | — | —（段階 2 から DHCP） | `10.77.10.2` | 10 | |
+| Omada コントローラー（`vm-omada`） | 112 | 1003 | `192.168.11.12` | `10.77.10.3` | 10 | |
+| AP | — | — | — | `10.77.10.4–.9` | 10 | 採番は購入後に確定する |
+| Proxmox（`pve`） | — | — | `192.168.11.10` | `10.77.10.10` | 10 | 移行後は、タグ付きの `vmbr0.10` に付ける |
+| `vm-infra` | 111 | 2010 | `192.168.11.11` | `10.77.20.10` | 20 | DNS、Caddy、Tailscale |
+| `vm-monitoring` | 113 | 2011 | `192.168.11.13` | `10.77.20.11` | 20 | |
+| `vm-apps` | 120 | 2020 | `192.168.11.20` | `10.77.20.20` | 20 | |
+| `vm-code` | 122 | 2030 | `192.168.11.22` | `10.77.20.30` | 20 | |
+| `vm-dev` | 121 | 4010 | `192.168.11.21` | `10.77.40.10` | 40 | 手動起動 |
+| Buffalo（AP モード） | — | — | `192.168.11.2`（固定。2026-11-06 に、ルーターの `192.168.11.1` から変更） | `10.77.30.50`（段階 4 で退役するまで） | 30 | Trusted。`.2–.9` は Management だけなので、予約の帯 `.50–.99` を使う |
+| ESP32 | — | — | `192.168.11.100` | `10.77.50.50` | 50 | 現在は停止中 |
+| テレビ | — | — | DHCP | `10.77.50.x` | 50 | DHCP 予約（`.50–.99`）で固定。無線 |
+| `ubuntu-cloud` | 9000 | 9000 | — | — | — | VM のテンプレート。IP なし |
 
 Mac、スマホなどの日常端末は、DHCP で受け取る（移行後は Trusted。常用機は予約）。
 
@@ -102,19 +113,19 @@ Mac、スマホなどの日常端末は、DHCP で受け取る（移行後は Tr
 | `grafana.lab.kanare.dev` | Grafana | `192.168.11.13:3000` | `10.77.20.11:3000` |
 | `prometheus.lab.kanare.dev` | Prometheus | `192.168.11.13:9090` | `10.77.20.11:9090` |
 | `pve.lab.kanare.dev` | Proxmox Web UI | `192.168.11.10:8006` | `10.77.10.10:8006` |
-| `home.lab.kanare.dev` | Homepage | `192.168.11.20:3001` | `10.77.20.12:3001` |
-| `ha.lab.kanare.dev` | Home Assistant | `192.168.11.20:8123` | `10.77.20.12:8123` |
-| `n8n.lab.kanare.dev` | n8n | `192.168.11.20:5678` | `10.77.20.12:5678` |
-| `rss.lab.kanare.dev` | FreshRSS | `192.168.11.20:8081` | `10.77.20.12:8081` |
+| `home.lab.kanare.dev` | Homepage | `192.168.11.20:3001` | `10.77.20.20:3001` |
+| `ha.lab.kanare.dev` | Home Assistant | `192.168.11.20:8123` | `10.77.20.20:8123` |
+| `n8n.lab.kanare.dev` | n8n | `192.168.11.20:5678` | `10.77.20.20:5678` |
+| `rss.lab.kanare.dev` | FreshRSS | `192.168.11.20:8081` | `10.77.20.20:8081` |
 | `adguard.lab.kanare.dev` | AdGuard Home Web UI | `192.168.11.11:3000` | `10.77.20.10:3000` |
-| `code.lab.kanare.dev` | code-server | `192.168.11.22:8080` | `10.77.20.13:8080` |
-| `cloudcli.lab.kanare.dev` | CloudCLI | `192.168.11.22:3001` | `10.77.20.13:3001` |
+| `code.lab.kanare.dev` | code-server | `192.168.11.22:8080` | `10.77.20.30:8080` |
+| `cloudcli.lab.kanare.dev` | CloudCLI | `192.168.11.22:3001` | `10.77.20.30:3001` |
 | `router.lab.kanare.dev` | ルーター管理画面（Buffalo。2026-11-06 に廃止） | 廃止（`omada.lab` に付け替えた） | 廃止 |
 | `omada.lab.kanare.dev` | Omada コントローラーの管理画面（HTTPS） | `192.168.11.12:8043`（Caddy が転送。2026-11-06 に新設） | `10.77.10.3:8043` |
 | `infra.lab.kanare.dev` / `vm-infra.lab.kanare.dev` | `vm-infra` への直接アクセス | `192.168.11.11` | `10.77.20.10` |
 | `vm-monitoring.lab.kanare.dev` | `vm-monitoring` への直接アクセス | `192.168.11.13` | `10.77.20.11` |
-| `vm-apps.lab.kanare.dev` | `vm-apps` への直接アクセス | `192.168.11.20` | `10.77.20.12` |
-| `vm-code.lab.kanare.dev` | SSH / mosh の直接アクセス（Moshi など） | `192.168.11.22` | `10.77.20.13` |
+| `vm-apps.lab.kanare.dev` | `vm-apps` への直接アクセス | `192.168.11.20` | `10.77.20.20` |
+| `vm-code.lab.kanare.dev` | SSH / mosh の直接アクセス（Moshi など） | `192.168.11.22` | `10.77.20.30` |
 
 `vm-dev` には DNS レコードを置いていない（手動起動のため）。
 

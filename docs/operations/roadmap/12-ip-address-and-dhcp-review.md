@@ -2,7 +2,7 @@
 
 [ロードマップ](README.md)の記録。2026-11-05 に、運用者が「to-be の第 4 オクテットが現行の値を引き継ぐ方針を見直したい。必要なら DHCP の範囲も」と述べたことから、一斉切り替え（段階 3）の前に設計で決めておくために、案をまとめた。
 
-**状態: 採用（2026-11-05）。** 下の「方針案」で決め、設計書・ADR に反映した（[ADR-0025](../../adr/0025-address-octets-by-role.md)、[VLAN 設計](../../architecture/08-vlan-design.md)）。この文書は、検討の経緯と、選択肢の比較の記録として残す。未確認の項目だけが、実機で確かめるまで残る。
+**状態: 採用（2026-11-05）。** 下の「方針案」で決め、設計書・ADR に反映した（[ADR-0025](../../adr/0025-address-octets-by-role.md)、[VLAN 設計](../../architecture/08-vlan-design.md)）。2026-11-09 に、VMID の規則、Servers の番号、緊急用プールの DNS を追加で決めた（下の「追加の見直し」。[ADR-0026](../../adr/0026-vmid-from-vlan-and-octet.md)、[ADR-0027](../../adr/0027-servers-octet-bands-and-emergency-dns.md)）。この文書は、検討の経緯と、選択肢の比較の記録として残す。未確認の項目だけが、実機で確かめるまで残る。
 
 現行の設計は [VLAN 設計](../../architecture/08-vlan-design.md)（[ADR-0015](../../adr/0015-vlan-address-scheme-10-77.md)）。第 3 オクテット = VLAN ID は変えない。この文書が扱うのは、第 4 オクテットと DHCP の範囲だけ。
 
@@ -103,7 +103,43 @@ Management に、`.240–.250` の小さなプールを置く。平時は使わ�
 4. [Omada コントローラー](../../services/network/omada-controller.md)・[ER605](../../hardware/er605/settings.md) の設定値のうち、段階 3 の DHCP の記述を更新し、変更履歴に 1 行足す。
 5. [サービスカタログ](../../homelab-service-catalog.md)に影響は無い見込み（ツールの採否は変わらない）。
 
+## 追加の見直し（採用。2026-11-09）
+
+2026-11-09 に、運用者が「VLAN 移行後に VMID と IP の対応が取れなくなる件」と「移行後の IP 設計が妥当か」を見直したいと述べた。決めたことは、次のとおり。上の表の `vm-apps`（`10.77.20.12`）と `vm-code`（`10.77.20.13`）は、ここで置き換わった（正は [IP アドレス一覧](../../architecture/09-ip-addresses.md#ホスト別の-ip)）。
+
+| 項目 | 決定 | 記録 |
+| --- | --- | --- |
+| VMID | `VLAN ID × 100 + 第 4 オクテット`。段階 3 では変えず、VM を作り直すときに付け替える | [ADR-0026](../../adr/0026-vmid-from-vlan-and-octet.md) |
+| Servers の番号 | 役割の帯: `.10–.19` 基盤・運用、`.20–.29` アプリ、`.30–.39` 開発・作業用。`vm-apps` は `.20`、`vm-code` は `.30` | [ADR-0027](../../adr/0027-servers-octet-bands-and-emergency-dns.md) |
+| `vm-code` | Servers に置く（常時稼働にしたい）。帯を分けるだけで、隔離は求めない | 同上 |
+| 緊急用プールの DNS | ルーター（`10.77.10.1`） | 同上 |
+| Buffalo | `10.77.30.50`（Trusted）のまま。Buffalo は VLAN に対応せず、管理 IP と Wi-Fi の端末が同じ VLAN になるため。段階 4 の Omada AP は、Management に置ける見込み（実機で確認） | 同上 |
+
+### VMID の案の比較
+
+| 案 | 内容 | 判断 |
+| --- | --- | --- |
+| A | VMID を据え置き、対応表を正にする | 見送り。VMID から IP が引けない |
+| **B** | `VLAN ID × 100 + 第 4 オクテット` | **採用**。`vm-infra` は 2010、`vm-omada` は 1003、`vm-dev` は 4010 |
+
+### 緊急用プールの DNS の案の比較
+
+| 案 | 緊急時に引ける名前 | 判断 |
+| --- | --- | --- |
+| `vm-infra`（現状） | 障害時は何も引けない | 見送り |
+| **ルーター（`10.77.10.1`）** | 外部のみ | **採用**。ADR-0007 と同じ考え方 |
+| 配らない | なし | 見送り |
+| 公開 DNS を直接 | 外部のみ | 見送り。外への 53 番の例外が増える |
+
+### 検討したが採らなかったこと
+
+- `vm-code` を Lab に移す案: 常時稼働にしたいので見送り。
+- 「IP の帯を分けること」を隔離として扱う案: 同じ VLAN の中の通信は ER605 の ACL を通らないので、隔離にならない。帯は番号の整理のためだけに使う。隔離が要るなら、他の VM の UFW で受信を絞るか、VLAN を分ける（ADR-0027 に書いた）。
+
 ## 未確認
 
 - [ ] 工場出荷時の Omada 機器（AP、SG2210P）が、DHCP の無い VLAN でどう振る舞うか。ER605 と SG2210P の導入後（段階 1・2）の実機で確認できる。結果次第で、Management の緊急用プールを外せる。
 - [ ] 緊急用プールを置く場合の、Management VLAN のポートの割り当て（使わないポートを Management にしない）。
+- [ ] ER605 の DNS プロキシ（上流への転送）が、Management で有効か。緊急用プールがルーターの DNS を配る前提（[ADR-0027](../../adr/0027-servers-octet-bands-and-emergency-dns.md)）。段階 3 のリハーサルで確かめる。
+- [ ] Omada の AP が、AP 自身の管理 VLAN（Management）と、SSID ごとの VLAN を別々に設定できるか。AP を購入したときに確かめる（Buffalo は、VLAN に対応しないので Trusted に置いている）。
+- [ ] VMID の付け替えの手順（`qm clone` で新しい VMID に複製し、Terraform の state を付け替える）。`vm-dev` で先に試す。

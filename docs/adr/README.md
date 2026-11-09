@@ -31,6 +31,8 @@
 | [0023](0023-proxmox-trunk-all-tagged.md) | Proxmox 向けの trunk は、全 VLAN をタグ付きにする | 採用（未適用） | 2026-11-03 |
 | [0024](0024-dhcp-dns-single-no-fallback.md) | DHCP が配る DNS は `vm-infra` だけにし、フォールバックを配らない | 採用（未適用） | 2026-11-03 |
 | [0025](0025-address-octets-by-role.md) | 第 4 オクテットは役割で決め直し、Management に緊急用の DHCP プールを置く | 採用（未適用） | 2026-11-05 |
+| [0026](0026-vmid-from-vlan-and-octet.md) | VMID は `VLAN ID × 100 + 第 4 オクテット` にし、付け替えは VM の作り直しに合わせる | 採用（未適用） | 2026-11-09 |
+| [0027](0027-servers-octet-bands-and-emergency-dns.md) | Servers の第 4 オクテットを役割の帯で分け、緊急用プールの DNS はルーターにする | 採用（未適用） | 2026-11-09 |
 
 ## 書き方
 

@@ -82,7 +82,7 @@ IP は変えない。Buffalo の Wi-Fi 設定は今のままなので、端末�
                  SG2210P (10.77.10.2)
                   ├─ p2 ── Proxmox ［trunk: tag=10/20/40/50/70。native は未使用の VLAN1］
                   │          ├─ VLAN10 Management : Proxmox 10.77.10.10 / vm-omada 10.77.10.3
-                  │          ├─ VLAN20 Servers    : vm-infra .11 / vm-monitoring .13 / vm-apps .20 / vm-code .22
+                  │          ├─ VLAN20 Servers    : vm-infra .10 / vm-monitoring .11 / vm-apps .20 / vm-code .30
                   │          ├─ VLAN40 Lab        : vm-dev 10.77.40.10
                   │          └─ VLAN70 DMZ        : （VLAN とルールだけ。置くものは後）
                   ├─ p3 ── Buffalo（AP モード）［access: VLAN30 Trusted］
@@ -244,7 +244,8 @@ ER605 と SG2210P は同時に購入済みで、すでに繋いである（ER605
 - [ ] **リハーサル**: 検証端末を SG2210P の p5（VLAN30 の access）と p6（VLAN50 の access）に繋ぎ、本番の VLAN と同じ設定で次を確かめる。ホストは動かさない。（2026-11-06: ACL の評価は上から順、戻りの通信は通る、`!ネットワーク` でインターネット宛は拒否されない、を確認した。DHCP が VLAN ごとに配ることも確認した。IoT → Trusted の拒否は未了。手順は [Runbook](../runbooks/22-network-stage-3-rehearsal.md)。）
   - Gateway ACL（LAN → LAN）で、Trusted → IoT は通り、IoT → Trusted は拒否される。ルールの評価が上から順で、戻りの通信が通る。
   - 末尾の全拒否が効く。
-  - DHCP が VLAN ごとに配る（DNS は `10.77.20.10`）。
+  - DHCP が VLAN ごとに配る（DNS は `10.77.20.10`。Management の緊急用プールだけ `10.77.10.1`）。
+  - Management の緊急用プールで受けた端末が、ER605 の DNS プロキシで外部の名前を引ける（[ADR-0027](../../adr/0027-servers-octet-bands-and-emergency-dns.md)。DNS プロキシが Management で有効かを確かめる）。
 - [ ] **コントローラーの IP 変更への追従**: `vm-omada` が `192.168.11.12` から `10.77.10.3` に変わったとき、ER605 と SG2210P が付いてくるか。付いてこない場合の手順（コントローラーの接続先の再設定、または機器のリセットと再採用）を、リハーサルで確かめて書く。
 - [ ] **Proxmox の準備**（[ADR-0023](../../adr/0023-proxmox-trunk-all-tagged.md): 全 VLAN をタグ付き）: `vmbr0` を VLAN-aware にする（`bridge-vlan-aware yes`）。IP は `192.168.11.10`（タグなし）のまま。SG2210P p2 に、tagged 10/20/40/50/70 を足す（untagged VLAN1 はそのまま。今の通信に影響しない）。1 つの検証用 VM をタグ付きで繋ぎ、動作を確かめる。
   - **ホストの `vmbr0.10` を試す（案）**: ER605 に VLAN10 を作ったうえで、`vmbr0.10` に `10.77.10.10/24` を足し（旧 `192.168.11.10` は残す）、Mac から届くことを確かめる。届かなければ、`vmbr0.10` を外す。
@@ -262,7 +263,7 @@ ER605 と SG2210P は同時に購入済みで、すでに繋いである（ER605
 
 | VLAN | 名前 | ゲートウェイ | DHCP | 配る DNS |
 | --- | --- | --- | --- | --- |
-| 10 | Management | `10.77.10.1` | `.240–.250`（緊急用） | `10.77.20.10` |
+| 10 | Management | `10.77.10.1` | `.240–.250`（緊急用） | `10.77.10.1`（ルーター。[ADR-0027](../../adr/0027-servers-octet-bands-and-emergency-dns.md)） |
 | 20 | Servers | `10.77.20.1` | なし | — |
 | 30 | Trusted | `10.77.30.1` | `.100–.199` | `10.77.20.10` |
 | 40 | Lab | `10.77.40.1` | `.100–.149` | `10.77.20.10` |

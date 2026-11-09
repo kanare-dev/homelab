@@ -101,7 +101,7 @@ VLAN ごとのサブネット・ゲートウェイ・DHCP プール、アドレ�
 - **スイッチの Proxmox 向けポートは trunk で、全 VLAN をタグ付きにする**（判断の記録: [ADR-0023](../adr/0023-proxmox-trunk-all-tagged.md)）。Management・Servers・Lab・IoT・DMZ を tagged で通し、native（untagged）は未使用の VLAN1 にする。全 VM は VLAN ID を必ず指定する（Management の `vm-omada` も `tag=10`）。タグなしの通信は、どこの VLAN にも入らない。
 - **Omada コントローラーは Management の VM（または LXC）に置く。** 管理機器と同じ面に置き、Trusted・Servers・Lab から直接触れないようにする。
 - **DMZ の VM は、Proxmox の同じブリッジに載せる場合、ホスト侵害のリスクが VLAN 分離だけでは消えない。** Proxmox の管理面を DMZ に出さず、仮想 NIC とブリッジの設定を確認する。DMZ の置き場所は、まず同じホストで検証し、将来は別の機器（小型 PC やラズパイなど）にする（未決事項）。
-- **`vm-dev` は Lab、`vm-code` と `vm-apps` は Servers に置く。** 開発環境と一時的な検証用 VM は、常時稼働のサーバーと分け、Lab から他の VLAN へは入れないようにする。
+- **`vm-dev` は Lab、`vm-code` と `vm-apps` は Servers に置く。** 開発環境と一時的な検証用 VM は、常時稼働のサーバーと分け、Lab から他の VLAN へは入れないようにする。`vm-code` は常時稼働にしたいので Servers に置く。他の VM とは性質が違うので、`.30–.39` の「開発・作業用」の帯に置く（番号の整理のためで、隔離ではない。[ADR-0027](../adr/0027-servers-octet-bands-and-emergency-dns.md)）。
 - **テレビは IoT に置く。** ベンダーのクラウドに繋がる機器であり、他の VLAN から隔離したい。ただし AirPlay・Cast の発見のために mDNS の中継が必要（次節）。
 
 ## mDNS（AirPlay / Google Cast）
@@ -142,7 +142,7 @@ AirPlay も Google Cast も、機器の発見に mDNS を使う。mDNS の呼び
   - `vm-monitoring`（Prometheus）→ Lab の `:9100`（node_exporter）。
   - Lab からサーバーへの取得は許可しない（DNS を除く）。Lab の VM が Servers の何かを必要とするときは、その都度、宛先とポートを限って追加する。
 - **Servers → IoT**: `vm-monitoring` → ESP32 `:80`（メトリクスの取得）。IoT からサーバーへの取得は許可しない。
-- **全 VLAN → `vm-infra:53`**: どの VLAN も DNS は AdGuard に向ける。DHCP が配る DNS サーバーは `10.77.20.10`。
+- **全 VLAN → `vm-infra:53`**: どの VLAN も DNS は AdGuard に向ける。DHCP が配る DNS サーバーは `10.77.20.10`。例外は Management の緊急用プールで、ルーターの `10.77.10.1` を配る（[ADR-0027](../adr/0027-servers-octet-bands-and-emergency-dns.md)）。
 - **インターネット → DMZ**: Tunnel（`cloudflared`）の外向き接続で届く通信が基本。ポート転送で受ける場合は、公開するポートだけ許可する（[DMZ と外部公開](../operations/roadmap/07-dmz.md)）。
 - **Lab・Guests・IoT・DMZ の隔離**: 他の VLAN のプライベートアドレス（`10.0.0.0/8`、`172.16.0.0/12`、`192.168.0.0/16`）への通信は、DNS と上記の例外を除きすべて拒否する。
 
