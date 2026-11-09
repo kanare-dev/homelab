@@ -261,7 +261,7 @@ ER605 と SG2210P は同時に購入済みで、すでに繋いである（ER605
 - [ ] **コードの準備**: 別ブランチで Terraform・Ansible・Caddyfile・Prometheus・Homepage・ドキュメントを新アドレスに書き換える（一覧は[設計書](../../architecture/08-vlan-design.md#影響を受けるリポジトリ内の箇所)）。`vlan_id` を Terraform の VM モジュールに追加する。**必須（既定値なし）にして、全 VM に指定する**（`vm-omada` は、段階 3b まで、タグなし（VLAN1）を明示する）。
 - [ ] **Omada に本番設定を作る（有効にしない）**: VLAN 10/20/30/40/50/60/70、DHCP、ACL、mDNS、スイッチのポートプロファイル。
 - [ ] **バックアップ**: Omada、Proxmox の `/etc/network/interfaces`、`terraform.tfstate`、Buffalo の設定を、Mac 以外にも保存する（Omada は当面 Mac だけ。[バックログ](01-backlog.md)）。
-- [ ] **戻しの手順**（下記）を書き、時刻を決める。
+- [ ] **戻しの手順**（下記）を書く。**戻す時刻は決めない（決定 2026-11-10、[ADR-0030](../../adr/0030-stage3-no-rollback-deadline.md)）**: 完了するまで作業する。作業中にインターネットが要るときは、建物（壁）の Wi-Fi に繋ぐ。
 - [ ] Tailscale の ACL・経路の承認の手順を確認する（`--advertise-routes=10.77.20.0/24,10.77.40.0/24`）。
 
 ### 3-B. 設定の対応表
@@ -288,7 +288,8 @@ ER605 と SG2210P は同時に購入済みで、すでに繋いである（ER605
 | p2 | Proxmox | untagged VLAN1（段階 3b まで、ホストと `vm-omada` が使う）、tagged 10/20/40/50/70 |
 | p3 | Buffalo（AP） | access VLAN30（untagged） |
 | p4 | メインディスプレイ（Dell U2725QE） | access VLAN30（untagged） |
-| p5–p6 | リハーサル | 作業後に未使用にする |
+| p5 | リハーサル | 作業後に未使用にする |
+| p6 | 緊急用の入口（決定 2026-11-10） | native VLAN1 のまま（今の LAN に入る）。段階 3b で見直す（[ロードマップ 13](13-defer-management-vlan.md#緊急用の入口)） |
 | p7–p8 | 空き | 段階 4 で AP の trunk にする |
 
 スイッチ自身の管理 VLAN は、段階 3b まで VLAN1（`192.168.11.x`）のまま。段階 3b で 10（`10.77.10.2`）にする。
@@ -304,7 +305,7 @@ ER605 と SG2210P は同時に購入済みで、すでに繋いである（ER605
 ### 3-C. 当日の作業
 
 1. 最終のバックアップを取る。`vm-dev` を止める。
-2. Omada: 本番の設定を有効にする（VLAN、DHCP。**ACL は全許可のまま**。[ADR-0029](../../adr/0029-stage3-acl-allow-all-then-tighten.md)）。SG2210P の p1・p3 を新しい設定にする。Buffalo は Trusted に入り、Wi-Fi の端末は `10.77.30.x` を受け取る。**Buffalo の IP は `192.168.11.2` のまま残るので、管理画面には Trusted から届かなくなる**（Wi-Fi の中継は、IP と関係なく動く）。落ち着いてから、Mac を Buffalo の LAN ポートに直接繋ぎ、Mac に `192.168.11.x` の固定 IP を一時的に振って画面を開き、Buffalo の IP を `10.77.30.50/24`（ゲートウェイ `10.77.30.1`、DNS `10.77.20.10`）に変える（案。未確認）。
+2. Omada: 本番の設定を有効にする（VLAN、DHCP。**ACL は全許可のまま**。[ADR-0029](../../adr/0029-stage3-acl-allow-all-then-tighten.md)）。SG2210P の p1・p3 を新しい設定にする。Buffalo は Trusted に入り、Wi-Fi の端末は `10.77.30.x` を受け取る。**Buffalo の IP は `192.168.11.2` のまま残るので、管理画面には Trusted から届かなくなる**（Wi-Fi の中継は、IP と関係なく動く）。落ち着いてから、Mac を Buffalo の LAN ポートに直接繋ぎ、Mac に `192.168.11.x` の固定 IP を一時的に振って画面を開き、Buffalo の IP を `10.77.30.50/24`（ゲートウェイ `10.77.30.1`、DNS `10.77.20.10`）に変える（決定 2026-11-10。[IP アドレス一覧](../../architecture/09-ip-addresses.md)のとおり）。
 3. （段階 3b に移した。段階 3 では行わない。）Proxmox（物理コンソールで）: `vmbr0` の IP を外し、タグ付きの `vmbr0.10` に `10.77.10.10/24`（GW `10.77.10.1`）を設定して、ネットワークを再起動する。p2 は 3-A のまま（untagged VLAN1、tagged 10/20/40/50/70）で、スイッチ側の変更は要らない。
 4. （段階 3b に移した。`vm-omada` は `192.168.11.12` のまま。）`vm-omada` を `10.77.10.3` にする。ER605・SG2210P が追従することを確かめる。
 5. `terraform apply` で VM の IP と VLAN を変える（`vm-omada` は変えない）。**`vm-infra` を最初にする**（DNS を先に戻す）。今の LAN の DHCP が配る DNS は、ルーター（`192.168.11.1`）にする（決定。[ADR-0028](../../adr/0028-defer-management-vlan10.md)。Wi-Fi の端末が Trusted に移ったあとに変える。今は、Wi-Fi の端末が AdGuard を外れるので、変えない）。
@@ -326,7 +327,7 @@ ER605 と SG2210P は同時に購入済みで、すでに繋いである（ER605
 
 ### 3-E. 戻し方
 
-戻す判断の時刻を、作業の前に決めておく。時刻までに疎通が取れなければ戻す。
+**戻す時刻は決めず、完了するまで作業する**（決定 2026-11-10、[ADR-0030](../../adr/0030-stage3-no-rollback-deadline.md)）。下の手順は、機器の故障など、その日のうちに完了できない事情が出たときのために残す。
 
 1. SG2210P のポートを段階 2 の設定（VLAN なし）に戻す。ER605 の VLAN は無効にし、既定の LAN（`192.168.11.0/24`）を有効に戻す。
 2. Proxmox を物理コンソールから `192.168.11.10`（元の `/etc/network/interfaces`）に戻す。
@@ -343,8 +344,8 @@ ER605 と SG2210P は同時に購入済みで、すでに繋いである（ER605
 | コントローラーの IP 変更 | **段階 3b に移した**（[ADR-0028](../../adr/0028-defer-management-vlan10.md)）。ER605・SG2210P が追従するか。機器の接続先を直す手段が未定（検討中。3-A） |
 | 既定の LAN（VLAN1）の扱い | 段階 3b まで消さない（管理系が使う。[ADR-0028](../../adr/0028-defer-management-vlan10.md)）。段階 3b のあとに、消せるか確かめる。消せなければ、使わない状態で残す |
 | 今の LAN の DHCP が配る DNS | **決定（2026-11-10）: ルーター（`192.168.11.1`）**（[ADR-0028](../../adr/0028-defer-management-vlan10.md)）。ER605 の DNS プロキシが、今の LAN で外部の名前を引けることを確認した。内部の名前は引けない（IP で入る） |
-| 今の LAN の ACL | 管理系が今の LAN（VLAN1）に残るので、許可表の「Management」の行を、「今の LAN」に読み替えて作る（Trusted → 今の LAN は管理ポートだけ、Servers → 今の LAN は Caddy と node_exporter、Lab・IoT・Guests・DMZ → 今の LAN は拒否、今の LAN → 他は拒否）。リハーサルの `rh-` は、今の LAN を Servers の代理にした形なので、作り直す。**ACL を絞る日の前に**決めて、実機で確かめる（[ADR-0028](../../adr/0028-defer-management-vlan10.md)、[ADR-0029](../../adr/0029-stage3-acl-allow-all-then-tighten.md)。段階 3 の当日は全許可） |
-| 緊急用の入口 | 段階 3b まで、VLAN10 に端末を繋ぐ口がない。`vm-infra` が止まったときの非常用の入口（緊急用プールの代わり）を、どうするか。**ACL を絞る日の前に**決める（ADR-0028、[ADR-0029](../../adr/0029-stage3-acl-allow-all-then-tighten.md)。全許可の間は、Trusted から管理系に IP で届く） |
+| 今の LAN の ACL | 管理系が今の LAN（VLAN1）に残るので、許可表の「Management」の行を、「今の LAN」に読み替えて作る（Trusted → 今の LAN は管理ポートだけ、Servers → 今の LAN は Caddy と node_exporter、Lab・IoT・Guests・DMZ → 今の LAN は拒否、今の LAN → 他は拒否）。リハーサルの `rh-` は、今の LAN を Servers の代理にした形なので、作り直す。**段階 3b までの暫定**なので、案は[ロードマップ 13](13-defer-management-vlan.md#今の-lan-の-acl段階-3b-までの暫定)に書く。ACL を絞る日の前に、実機で確かめる（[ADR-0028](../../adr/0028-defer-management-vlan10.md)、[ADR-0029](../../adr/0029-stage3-acl-allow-all-then-tighten.md)。段階 3 の当日は全許可） |
+| 緊急用の入口 | 段階 3b まで、VLAN10 に端末を繋ぐ口がない。**決定（2026-11-10）: SG2210P の p6**（native VLAN1 で、今の LAN に入る）。ACL を絞る日の前に、届くことを確かめる（[ロードマップ 13](13-defer-management-vlan.md#緊急用の入口)） |
 | ディスプレイの接続先 | **決定（運用者）: SG2210P の p4 に繋ぐ。** Buffalo は段階 4 で退役し、Buffalo が止まると有線のディスプレイも止まるため。ポート単位の VLAN 割り当てやミラーリングもしやすい。ケーブル C は届く |
 | Proxmox の NIC | `INC-2026-10-25` の e1000e の送信停止。ポートを付け替えるたびに、再発していないことを確認する |
 

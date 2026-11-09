@@ -34,7 +34,8 @@
 | [0026](0026-vmid-from-vlan-and-octet.md) | VMID は `VLAN ID × 100 + 第 4 オクテット` にし、付け替えは VM の作り直しに合わせる | 採用（未適用） | 2026-11-09 |
 | [0027](0027-servers-octet-bands-and-emergency-dns.md) | Servers の第 4 オクテットを役割の帯で分け、緊急用プールの DNS はルーターにする | 採用（未適用） | 2026-11-09 |
 | [0028](0028-defer-management-vlan10.md) | 段階 3 では管理系を今の LAN に残し、VLAN10 化は別の段階にする | 採用（未適用） | 2026-11-09 |
-| [0029](0029-stage3-acl-allow-all-then-tighten.md) | 段階 3 は ACL を全許可のまま切り替え、絞るのは別の日にする | 採用（未適用） | 2026-11-09 |
+| [0029](0029-stage3-acl-allow-all-then-tighten.md) | 段階 3 は ACL を全許可のまま切り替え、絞るのは別の日にする | 採用（未適用） | 2026-11-10 |
+| [0030](0030-stage3-no-rollback-deadline.md) | 段階 3 は戻す時刻を決めず、完了するまで作業する | 採用（未適用） | 2026-11-10 |
 
 ## 書き方
 
