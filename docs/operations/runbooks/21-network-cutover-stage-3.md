@@ -90,7 +90,7 @@ p2 のスイッチ側の設定は、準備（手順 0）のまま（untagged VLA
 
 **`vm-infra` を最初にする**（DNS を先に戻す）。
 
-0. `vm-omada` は、変えない（段階 3b まで、`192.168.11.12`・タグなし）。今の LAN の DHCP が配る DNS は、`vm-infra` の新しい住所に合わせて直す（未決。[ADR-0028](../../adr/0028-defer-management-vlan10.md)）。
+0. `vm-omada` は、変えない（段階 3b まで、`192.168.11.12`・タグなし）。今の LAN の DHCP が配る DNS は、ルーター（`192.168.11.1`）にする（決定。[ADR-0028](../../adr/0028-defer-management-vlan10.md)）。Wi-Fi の端末が Trusted に移った（手順 2 のあと）ら変える。今は、Wi-Fi の端末が AdGuard を外れるので、変えない。
 1. `terraform apply` で、`vm-infra` の IP（`10.77.20.10`）と VLAN（20）を変える。VM ごとに分けるときは、`-target='module.vm["vm-infra"]'` のように指定する。`-target` を付けないと、手動起動の `vm-dev` も `running` にする差分が一緒に適用される（[移行計画](../roadmap/10-er605-sg2210p-migration-plan.md)）。apply で VM が再起動するときは、[apply による再起動](15-terraform-apply-restart.md)。
 2. `vm-infra` が上がったら確認する: [ ] `10.77.20.10` で届く　[ ] AdGuard が `:53` で応答する
 3. 残りの VM を、順に変える。
