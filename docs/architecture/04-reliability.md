@@ -20,6 +20,7 @@
 | thin pool 枯渇 | 全 VM が `io-error` で一時停止 | `LvmThinPoolData*`（Slack） | INC-2026-10-22。容量アラートで枯渇前に検知する |
 | `vm-infra` | 全 LAN の名前解決、`*.lab.kanare.dev` の入口（Caddy）、外出先からのアクセス（Tailscale）が止まる | `TargetDown`、`PveVmStopped`（Slack） | DNS・リバースプロキシ・VPN が 1 台に集中している |
 | `vm-monitoring` | 監視と通知が止まる。サービス自体は影響なし | **Slack には届かない**。外部 Heartbeat が Slack とメールで通知する | [監視・アラート](../services/platform/monitoring.md#限界既知の弱点) |
+| `vm-omada` | Omada の画面と管理が使えない。ER605・SG2210P は設定を持って動き続ける | `TargetDown`、`HostMemory*`、`ServiceProbeFailed`（Slack） | INC-2026-11-09。メモリ枯渇で固まった。VM 4GB と、コンテナの上限（Java ヒープ・MongoDB キャッシュ・`mem_limit`）で対処 |
 | Unbound | 外部ドメインの名前解決が `SERVFAIL` になる（fallback は効かない） | `UnboundProbeFailing`（Slack） | [DNS 構成](../services/network/dns.md#fallback-dns-の限界) |
 | ルーター・回線 | インターネットと外出先からの接続が止まる。LAN 内は動く | なし | 二重 NAT のため、建物側の障害も含む |
 | Cloudflare / Let's Encrypt | 新規・更新の証明書が取れない | Caddy のログ | 証明書は期限の前に更新するため、短時間の障害では影響しない |
@@ -107,6 +108,7 @@
 | [thin pool 枯渇（INC-2026-10-22）](../operations/incidents/2026-10-22-lvm-thin-exhaustion.md) | `discard` 有効化、`fstrim`、容量アラート、VM 停止アラート、Slack 通知、容量の上限設定 |
 | [PVE 管理画面の破損（INC-2026-10-22-b）](../operations/incidents/2026-10-22-pve-webui-broken-by-ansible-patch.md) | パッチを「判定式の置換」にして冪等化。復旧手順を Runbook に記載 |
 | [PVE の NIC 送信停止（INC-2026-10-25）](../operations/incidents/2026-10-25-nic-hardware-unit-hang.md) | NIC のオフロード（TSO/GSO/GRO）を無効化。外部 Heartbeat（Healthchecks.io）を導入 |
+| [vm-omada のメモリ枯渇（INC-2026-11-09）](../operations/incidents/2026-11-09-omada-memory-exhaustion.md) | VM を 4GB に増設。Omada コンテナに Java ヒープ・MongoDB キャッシュ・`mem_limit` の上限を設定 |
 
 ## 目標（暫定）
 

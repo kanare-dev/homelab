@@ -10,6 +10,7 @@
 | [INC-2026-10-22-b](2026-10-22-pve-webui-broken-by-ansible-patch.md) | Ansible のパッチで `proxmoxlib.js` が壊れ、PVE の管理画面が開けなくなった | 解決済み | 2026-10-22 |
 | [INC-2026-10-25](2026-10-25-nic-hardware-unit-hang.md) | PVE ホストの NIC（e1000e）が送信停止し、LAN と全 VM が使えなくなった | 対応中 | 2026-10-25 |
 | [INC-2026-11-08](2026-11-08-sg2210p-native-vlan-overwrite.md) | Omada で VLAN を作った操作で、SG2210P の p2 の Native が書き換わり、Proxmox と全 VM が LAN から消えた | 解決済み | 2026-11-08 |
+| [INC-2026-11-09](2026-11-09-omada-memory-exhaustion.md) | vm-omada がメモリ枯渇で固まり、Omada の画面と監視が止まった | 対応中 | 2026-11-09 |
 
 ## 書き方
 
