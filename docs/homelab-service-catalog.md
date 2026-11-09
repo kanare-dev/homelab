@@ -273,7 +273,7 @@
 | 状況 | ツール | 説明 | 根拠・備考 |
 | --- | --- | --- | --- |
 | 見送り | authelia/authelia | SSO・2FA 認証プロキシ（Caddy forward_auth 経由で Grafana/PVE/AdGuardHome 等のログインを一元化する案。見送り） | [ADR 0008](adr/0008-no-authelia.md) |
-| 未検討 | goauthentik/authentik | オープンソース SSO・アイデンティティプロバイダー（IdP） | — |
+| 検討中 | goauthentik/authentik | オープンソース SSO・アイデンティティプロバイダー（IdP） | [バックログ](operations/roadmap/01-backlog.md)。[ADR 0008](adr/0008-no-authelia.md) が「過剰」としていた前提を、置き場所と目的から見直す |
 | 未検討 | vaultwarden/server | Bitwarden 互換パスワードマネージャ | — |
 | 未検討 | crowdsecurity/crowdsec | 侵入検知・ファイアウォール | — |
 | 未検討 | gravitational/teleport | セキュアなインフラアクセス | — |
@@ -488,7 +488,7 @@
 | コンテナ管理 | Docker Compose | Portainer（見送り）、k3s（検討中） |
 | VM の OS | Ubuntu Server LTS（[ADR 0021](adr/0021-ubuntu-lts-for-vms.md)） | Debian（見送り）、Arch、openSUSE（未検討） |
 | VM イメージ | Terraform + cloud-init | Packer（見送り） |
-| 認証の一元化 | なし（各サービスのログイン） | Authelia（見送り）、authentik（未検討） |
+| 認証の一元化 | なし（各サービスのログイン） | Authelia（見送り）、authentik（検討中） |
 | バックアップ | なし（[ADR 0001](adr/0001-no-vm-backup.md)） | PBS、restic（検討中）、borg、kopia（未検討） |
 | ネットワーク探索 | なし | Scanopy（廃止）、nmap、NetAlertX、NetBox（未検討） |
 | メディアサーバー | なし | Jellyfin、Plex、Emby（検討中） |
