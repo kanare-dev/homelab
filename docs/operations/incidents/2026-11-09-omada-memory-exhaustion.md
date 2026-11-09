@@ -2,7 +2,7 @@
 
 | 項目 | 内容 |
 | --- | --- |
-| 状態 | **対応中**（再起動で復旧済み。恒久対応の反映（`make setup-omada`、`terraform apply`）と、その後の観察が残る。§5） |
+| 状態 | **対応中**（恒久対応は 2026-11-09 09:35 に適用済み。数日の観察が残る。§5） |
 | 発生 | 2026-11-09 06:11 ごろ（node_exporter の最後のスクレイプ。VM が応答しなくなった）。メモリの逼迫は 01:46 から |
 | 発見 | 2026-11-09 朝（運用者が Slack の通知で気づいた。就寝中のため、夜間は対応していない） |
 | 復旧 | 2026-11-09 08:59 ごろ（Proxmox から `qm reset 112` で強制再起動） |
@@ -95,11 +95,13 @@ VM に SSH できなかったので、次の順に調べた。
 
 | # | 内容 | 場所 | 状態 |
 | --- | --- | --- | --- |
-| 1 | VM のメモリを 3GB → **4GB** | `terraform/proxmox/terraform.tfvars` | 反映済み（`terraform apply` と VM の再起動は未実施） |
-| 2 | Java ヒープの最大を **768MB** | `docker-compose.yml`（`JAVA_MAX_HEAP_SIZE`） | 反映済み（`make setup-omada` は未実施） |
-| 3 | MongoDB の WiredTiger キャッシュを **0.25GB** | 同（`MONGOD_EXTRA_ARGS=--wiredTigerCacheSizeGB 0.25`） | 同上 |
+| 1 | VM のメモリを 3GB → **4GB** | `terraform/proxmox/terraform.tfvars` | 適用済み（09:3x。`terraform apply` が VM を停止したあと `500 VM 112 not running` で失敗したが、設定は反映済み。`qm start 112` で起動した。下の注） |
+| 2 | Java ヒープの最大を **768MB** | `docker-compose.yml`（`JAVA_MAX_HEAP_SIZE`） | 適用済み（09:2x。`make setup-omada`） |
+| 3 | MongoDB の WiredTiger キャッシュを **0.25GB** | 同（`MONGOD_EXTRA_ARGS=--wiredTigerCacheSizeGB 0.25`） | 適用済み（再起動後に、`-Xmx768m`、`cache_size=256M`、`mem_limit` 2.5GB を確認） |
 | 4 | コンテナの `mem_limit` を **2.5GB**（`memswap_limit` も同じ） | 同 | 同上 |
 
+- 注: 適用の途中、`terraform plan` に `vm-dev`（`stopped` → `running`）が出た。provider の `vm_state` の既定（`running`）と、手動起動の VM が食い違うためで、そのまま `apply` すると `vm-dev` が起動するところだった。`vm_state` を `ignore_changes` にして解消した（`terraform/proxmox/modules/vm/main.tf`）。
+- 注: メモリの変更は、provider が VM を停止して反映する。`apply` は、停止のあとの待ちで `500 VM 112 not running` になり失敗したが、`memory = 4096` は反映されており、`qm start 112` で起動した。次に VM のメモリを変えるときも、同じ挙動を想定する（`apply` のあとに VM の状態を確認する）。
 - 見積り（ピーク）: Java ヒープ 768MB + ヒープ外 約 400MB + MongoDB キャッシュ 256MB + 本体 約 150MB ≒ 1.6GB。OS 側に約 300MB。**4GB の VM に、約 2GB の余裕**ができる。ヒープ外の見積りは**推定**で、実測で確認する（§5 の #3）。
 - **スワップは足さない**。コンテナに `mem_limit` が付くので、超えたらコンテナだけが OOM で落ち、`restart: unless-stopped` で戻る（VM は固まらない）。スワップは、固まるまでの時間を延ばすだけで、今回のような「気づかず長時間固まる」状態を、むしろ長引かせる。足りなければ、スワップではなく、上限かメモリを見直す。
 - DB の大きさは約 300MB（`/opt/omada/data/db`）。キャッシュ 0.25GB で、大きく困らない見込み。クエリが遅くなれば、0.5GB に上げる。
@@ -108,7 +110,7 @@ VM に SSH できなかったので、次の順に調べた。
 
 | # | 内容 | 状態 |
 | --- | --- | --- |
-| 1 | `terraform apply`（`vm-omada` の 4GB）と `make setup-omada`（コンテナの上限）を適用する | 未実施（運用者の作業。メモリの変更には VM の再起動が要る） |
+| 1 | `terraform apply`（`vm-omada` の 4GB）と `make setup-omada`（コンテナの上限）を適用する | 済み（09:35。VM の total 3.9GB、コンテナの上限 2.5GB、`terraform plan` は差分なし） |
 | 2 | 適用後、`docker stats` と Prometheus で、Java・MongoDB のメモリが、上限の内側に収まることを数日見る | 未実施 |
 | 3 | プロセス別のメモリの履歴が無いので、`vm-omada` だけに cAdvisor（コンテナ別）か process-exporter（プロセス別。Java と MongoDB を分けられる）を入れるかを検討する（今回、増えたプロセスを特定できなかった。[バックログ](../roadmap/01-backlog.md)） | 検討中（未決定） |
 | 4 | 01:46 の +327MB の正体（Java ヒープの拡張か、別の処理か）を、適用後の観察で確かめる | 未確認 |
