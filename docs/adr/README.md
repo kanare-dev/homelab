@@ -1,6 +1,6 @@
 # ADR（設計判断の記録）
 
-重要な設計判断を、**なぜそう決めたか**とともに残す。構成の説明は [architecture/](../architecture/01-overview.md)、サービスの詳細は [services/](../services/01-dns.md) に書き、判断の経緯だけをここに切り出す。
+重要な設計判断を、**なぜそう決めたか**とともに残す。構成の説明は [architecture/](../architecture/01-overview.md)、サービスの詳細は [services/](../services/README.md) に書き、判断の経緯だけをここに切り出す。
 
 ## 一覧
 
@@ -9,7 +9,7 @@
 | [0001](0001-no-vm-backup.md) | VM のバックアップを取らない | 採用 | 2026-10-22 |
 | [0002](0002-no-external-monitoring.md) | 外部監視を導入しない | 置き換え済み（→ 0010） | 2026-10-22 |
 | [0003](0003-vlan-address-scheme.md) | VLAN のアドレス体系を `10.<VLAN>.0.0/24` にする | 置き換え済み（→ 0015） | 2026-10-23 |
-| [0004](0004-vlan-cutover-all-at-once.md) | VLAN 移行は一斉切り替えにする | 採用（未適用） | 2026-10-23 |
+| [0004](0004-vlan-cutover-all-at-once.md) | VLAN 移行は一斉切り替えにする | 採用（未適用。段階 3 の範囲は → 0028） | 2026-10-23 |
 | [0005](0005-tailscale-only-remote-access.md) | 外出先からのアクセスは Tailscale のみにする | 採用 | 記録なし |
 | [0006](0006-ci-lint-only.md) | CI は lint のみ。デプロイは自動化しない | 採用 | 記録なし |
 | [0007](0007-vm-host-dns-is-router.md) | VM のホスト DNS はルーターにする | 採用 | 記録なし |
@@ -20,7 +20,7 @@
 | [0012](0012-n8n-on-vm-apps.md) | n8n を vm-apps に置き、ワークフローだけ Git で守る | 採用 | 2026-10-30 |
 | [0013](0013-vm-console-password.md) | 全 VM の `ubuntu` にコンソール用パスワードを設定する | 採用 | 2026-10-31 |
 | [0014](0014-freshrss-on-vm-apps.md) | FreshRSS を vm-apps に置き、購読リストだけ Git の外に退避する | 採用 | 2026-11-01 |
-| [0015](0015-vlan-address-scheme-10-77.md) | VLAN のアドレス体系を `10.77.<VLAN>.0/24` にする | 置き換え済み（→ 0022） | 2026-11-01 |
+| [0015](0015-vlan-address-scheme-10-77.md) | VLAN のアドレス体系を `10.77.<VLAN>.0/24` にする | 置き換え済み（→ 0022、末尾オクテットは → 0025） | 2026-11-01 |
 | [0016](0016-dmz-placement.md) | DMZ は VLAN60 に作り、まず Proxmox 上で公開せずに検証する | 採用（未適用） | 2026-11-01 |
 | [0017](0017-ipv6-disabled.md) | IPv6 は無効にし、IPv4 だけで設計する | 採用（未適用） | 2026-11-01 |
 | [0018](0018-internet-speed-monitoring.md) | 回線は ping（ICMP）で監視し、Speedtest は回線を使い切るため見送る | 採用（未適用） | 2026-11-01 |
@@ -28,6 +28,14 @@
 | [0020](0020-dns-three-layer-stack.md) | DNS は AdGuard Home・CoreDNS・Unbound の3層にする | 採用 | 2026-11-01 |
 | [0021](0021-ubuntu-lts-for-vms.md) | VM の OS は Ubuntu Server LTS にし、LTS の入れ替えは VM の作り直しで行う | 採用 | 2026-11-01 |
 | [0022](0022-vlan-set-and-ids.md) | VLAN を 7 本（Trusted と Lab を含む）にし、ID を信頼度の順に振る | 採用（未適用） | 2026-11-02 |
+| [0023](0023-proxmox-trunk-all-tagged.md) | Proxmox 向けの trunk は、全 VLAN をタグ付きにする | 採用（未適用。ホストの `vmbr0.10` への移行は段階 3b。→ 0028） | 2026-11-03 |
+| [0024](0024-dhcp-dns-single-no-fallback.md) | DHCP が配る DNS は `vm-infra` だけにし、フォールバックを配らない | 採用（未適用） | 2026-11-03 |
+| [0025](0025-address-octets-by-role.md) | 第 4 オクテットは役割で決め直し、Management に緊急用の DHCP プールを置く | 採用（未適用） | 2026-11-05 |
+| [0026](0026-vmid-from-vlan-and-octet.md) | VMID は `VLAN ID × 100 + 第 4 オクテット` にし、付け替えは VM の作り直しに合わせる | 採用（未適用） | 2026-11-09 |
+| [0027](0027-servers-octet-bands-and-emergency-dns.md) | Servers の第 4 オクテットを役割の帯で分け、緊急用プールの DNS はルーターにする | 採用（未適用） | 2026-11-09 |
+| [0028](0028-defer-management-vlan10.md) | 段階 3 では管理系を今の LAN に残し、VLAN10 化は別の段階にする | 採用（未適用） | 2026-11-09 |
+| [0029](0029-stage3-acl-allow-all-then-tighten.md) | 段階 3 は ACL を全許可のまま切り替え、絞るのは別の日にする | 採用（未適用） | 2026-11-10 |
+| [0030](0030-stage3-no-rollback-deadline.md) | 段階 3 は戻す時刻を決めず、完了するまで作業する | 採用（未適用） | 2026-11-10 |
 
 ## 書き方
 

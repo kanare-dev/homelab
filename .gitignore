@@ -42,6 +42,10 @@ Thumbs.db
 *.swo
 *~
 
+# Python
+__pycache__/
+*.pyc
+
 # diagrams
 docs/diagrams/assets/
 

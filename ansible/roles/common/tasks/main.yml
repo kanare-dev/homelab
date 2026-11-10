@@ -122,7 +122,7 @@
 
 # フォントは配布元（xero/figlet-fonts）にライセンスの記載が無く、作者も不明（"Font Author: ?"）なので、
 # リポジトリには置かない。コミットとチェックサムを固定して取得する。
-# 更新するときは、新しいコミットの URL と sha256 を、docs/services/10-motd.md の手順で確かめてから差し替える。
+# 更新するときは、新しいコミットの URL と sha256 を、docs/services/platform/motd.md の手順で確かめてから差し替える。
 - name: Download ansi-shadow figlet font (pinned)
   ansible.builtin.get_url:
     url: https://raw.githubusercontent.com/xero/figlet-fonts/fbf3b68dd0fcd1e63c0f04d3c79eea2743bb377c/ANSI%20Shadow.flf

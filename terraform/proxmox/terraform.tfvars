@@ -56,7 +56,7 @@ vms = {
     ip                 = "192.168.11.21/24"
     cores              = 2
     memory             = 1024
-    disk               = "30G"
+    disk               = "10G"
     tags               = ["dev", "playground"]
     start_at_node_boot = false
     startup_order      = 4
@@ -75,5 +75,18 @@ vms = {
     startup_order      = 5
     startup_delay      = 10
     shutdown_timeout   = 30
+  }
+  # Omada コントローラー（ER605・SG2210P・将来の AP を管理）: 常時起動。コントローラーが止まっても、機器は設定を持ったまま動き続ける
+  "vm-omada" = {
+    vmid               = 112
+    ip                 = "192.168.11.12/24"
+    cores              = 2
+    memory             = 4096 # INC-2026-11-09: 3GB で枯渇して固まった
+    disk               = "20G"
+    tags               = ["omada", "network"]
+    start_at_node_boot = true
+    startup_order      = 6
+    startup_delay      = 10
+    shutdown_timeout   = 60 # MongoDB を正常に止める
   }
 }

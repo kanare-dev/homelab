@@ -5,7 +5,7 @@
 
 ## 背景
 
-LAN 内の Web 画面（Grafana、Proxmox、AdGuard Home など）を、`https://<name>.lab.kanare.dev` の正規の証明書で開けるようにする入口が要る（[リバースプロキシと TLS](../services/02-reverse-proxy-tls.md)）。Caddy を採用して稼働しているが、nginx、Nginx Proxy Manager、Traefik、Cloudflare Tunnel と比べた記録が残っていなかったため、選んだ理由を明文化する。導入当時の検討記録は無く、以下は現在の要件に照らして評価し直したもの。
+LAN 内の Web 画面（Grafana、Proxmox、AdGuard Home など）を、`https://<name>.lab.kanare.dev` の正規の証明書で開けるようにする入口が要る（[リバースプロキシと TLS](../services/network/reverse-proxy-tls.md)）。Caddy を採用して稼働しているが、nginx、Nginx Proxy Manager、Traefik、Cloudflare Tunnel と比べた記録が残っていなかったため、選んだ理由を明文化する。導入当時の検討記録は無く、以下は現在の要件に照らして評価し直したもの。
 
 要件は次のとおり。
 
@@ -43,4 +43,4 @@ LAN 内の Web 画面（Grafana、Proxmox、AdGuard Home など）を、`https:/
   - Caddy にない機能（高度な負荷分散、WAF など）が要る。
   - Caddy のプラグインのビルドや更新が負担になった。
 
-詳細: [リバースプロキシと TLS](../services/02-reverse-proxy-tls.md)
+詳細: [リバースプロキシと TLS](../services/network/reverse-proxy-tls.md)

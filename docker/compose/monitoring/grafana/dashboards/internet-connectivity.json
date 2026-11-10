@@ -5,9 +5,9 @@
     "homelab",
     "network"
   ],
-  "description": "インターネット回線の疎通・遅延・パケットロス（ping を 30 秒毎）。遅いと判断する基準は、遅延が 7 日間の中央値の 2 倍かつ 50ms 超。",
+  "description": "インターネット回線の疎通・遅延・パケットロス（ping を 30 秒毎）。上段の ①〜④ は、LAN → 建物 → インターネットの順に、どこまで届いているか。遅いと判断する基準は、遅延が 7 日間の中央値の 3 倍かつ 100ms 超（15 分続いたとき通知）。",
   "schemaVersion": 39,
-  "version": 1,
+  "version": 4,
   "editable": true,
   "graphTooltip": 1,
   "timezone": "browser",
@@ -37,10 +37,10 @@
   },
   "panels": [
     {
-      "id": 1,
+      "id": 4,
       "type": "stat",
-      "title": "1.1.1.1 への遅延（最新）",
-      "description": "",
+      "title": "① ルーター",
+      "description": "直近 2 分間に 1 回でも届けば OK、1 回も届かなければ NG。NG なら LAN・ルーター側（GatewayUnreachable）。",
       "datasource": {
         "type": "prometheus",
         "uid": "${ds}"
@@ -49,12 +49,342 @@
         "x": 0,
         "y": 0,
         "w": 6,
+        "h": 3
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${ds}"
+          },
+          "expr": "max_over_time(probe_success{service=\"gateway\"}[2m])",
+          "instant": true,
+          "legendFormat": "",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "value",
+        "justifyMode": "center"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "1": {
+                  "text": "OK",
+                  "color": "green",
+                  "index": 0
+                },
+                "0": {
+                  "text": "NG",
+                  "color": "red",
+                  "index": 1
+                }
+              }
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "noValue": "不明"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 7,
+      "type": "stat",
+      "title": "② 建物",
+      "description": "NG でも ICMP に応答しない構成の可能性がある（アラートにはしていない）。①が OK で②が NG なら建物側を疑う。",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${ds}"
+      },
+      "gridPos": {
+        "x": 6,
+        "y": 0,
+        "w": 6,
+        "h": 3
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${ds}"
+          },
+          "expr": "max_over_time(probe_success{service=\"building-router\"}[2m])",
+          "instant": true,
+          "legendFormat": "",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "value",
+        "justifyMode": "center"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "1": {
+                  "text": "OK",
+                  "color": "green",
+                  "index": 0
+                },
+                "0": {
+                  "text": "NG",
+                  "color": "red",
+                  "index": 1
+                }
+              }
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "noValue": "不明"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 8,
+      "type": "stat",
+      "title": "③ 1.1.1.1",
+      "description": "①が OK で③と④が両方 NG なら回線断（InternetDown）。",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${ds}"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 0,
+        "w": 6,
+        "h": 3
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${ds}"
+          },
+          "expr": "max_over_time(probe_success{service=\"internet-cloudflare\"}[2m])",
+          "instant": true,
+          "legendFormat": "",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "value",
+        "justifyMode": "center"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "1": {
+                  "text": "OK",
+                  "color": "green",
+                  "index": 0
+                },
+                "0": {
+                  "text": "NG",
+                  "color": "red",
+                  "index": 1
+                }
+              }
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "noValue": "不明"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 9,
+      "type": "stat",
+      "title": "④ 8.8.8.8",
+      "description": "③だけ・④だけ NG なら、その宛先側の問題とみなす。",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${ds}"
+      },
+      "gridPos": {
+        "x": 18,
+        "y": 0,
+        "w": 6,
+        "h": 3
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${ds}"
+          },
+          "expr": "max_over_time(probe_success{service=\"internet-google\"}[2m])",
+          "instant": true,
+          "legendFormat": "",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "value",
+        "justifyMode": "center"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "1": {
+                  "text": "OK",
+                  "color": "green",
+                  "index": 0
+                },
+                "0": {
+                  "text": "NG",
+                  "color": "red",
+                  "index": 1
+                }
+              }
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "noValue": "不明"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 1,
+      "type": "gauge",
+      "title": "1.1.1.1 への遅延（最新）",
+      "description": "緑: 50ms 未満 / 黄: 50〜100ms / 赤: 100ms 以上（通知のしきい値）。平日の日中は 50〜65ms になるのが平常。",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${ds}"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 3,
+        "w": 8,
         "h": 4
       },
       "fieldConfig": {
         "defaults": {
           "unit": "s",
-          "decimals": 1
+          "decimals": 1,
+          "min": 0,
+          "max": 0.15,
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 0.05
+              },
+              {
+                "color": "red",
+                "value": 0.1
+              }
+            ]
+          }
         },
         "overrides": []
       },
@@ -66,7 +396,9 @@
           "fields": "",
           "values": false
         },
-        "colorMode": "none"
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "orientation": "auto"
       },
       "targets": [
         {
@@ -86,15 +418,15 @@
       "id": 2,
       "type": "stat",
       "title": "遅延の 7 日間の中央値（通知の基準）",
-      "description": "この 2 倍かつ 50ms 超が 10 分続くと InternetLatencyHigh が発報する。",
+      "description": "この 3 倍かつ 100ms 超が 15 分続くと InternetLatencyHigh が発報する。",
       "datasource": {
         "type": "prometheus",
         "uid": "${ds}"
       },
       "gridPos": {
-        "x": 6,
-        "y": 0,
-        "w": 6,
+        "x": 8,
+        "y": 3,
+        "w": 8,
         "h": 4
       },
       "fieldConfig": {
@@ -130,23 +462,45 @@
     },
     {
       "id": 3,
-      "type": "stat",
+      "type": "gauge",
       "title": "パケットロス（直近 10 分）",
-      "description": "",
+      "description": "緑: 1% 未満 / 黄: 1〜10% / 赤: 10% 以上（通知のしきい値。1.1.1.1 と 8.8.8.8 の両方で続いたとき通知）。",
       "datasource": {
         "type": "prometheus",
         "uid": "${ds}"
       },
       "gridPos": {
-        "x": 12,
-        "y": 0,
-        "w": 6,
+        "x": 16,
+        "y": 3,
+        "w": 8,
         "h": 4
       },
       "fieldConfig": {
         "defaults": {
           "unit": "percentunit",
-          "decimals": 1
+          "decimals": 1,
+          "min": 0,
+          "max": 0.2,
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 0.01
+              },
+              {
+                "color": "red",
+                "value": 0.1
+              }
+            ]
+          }
         },
         "overrides": []
       },
@@ -158,7 +512,9 @@
           "fields": "",
           "values": false
         },
-        "colorMode": "none"
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "orientation": "auto"
       },
       "targets": [
         {
@@ -167,52 +523,6 @@
             "uid": "${ds}"
           },
           "expr": "1 - avg_over_time(probe_success{service=\"internet-cloudflare\"}[10m])",
-          "legendFormat": "",
-          "refId": "A",
-          "instant": true,
-          "range": false
-        }
-      ]
-    },
-    {
-      "id": 4,
-      "type": "stat",
-      "title": "疎通（ルーター / 1.1.1.1 / 8.8.8.8）",
-      "description": "1 = 3 か所とも届いている。0 を含むと、どこかに届いていない。",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${ds}"
-      },
-      "gridPos": {
-        "x": 18,
-        "y": 0,
-        "w": 6,
-        "h": 4
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short",
-          "decimals": 0
-        },
-        "overrides": []
-      },
-      "options": {
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "colorMode": "none"
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${ds}"
-          },
-          "expr": "min(probe_success{service=~\"gateway|internet-.*\"})",
           "legendFormat": "",
           "refId": "A",
           "instant": true,
@@ -231,7 +541,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 4,
+        "y": 7,
         "w": 24,
         "h": 9
       },
@@ -246,7 +556,89 @@
             "showPoints": "auto"
           }
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byFrameRefID",
+              "options": "E"
+            },
+            "properties": [
+              {
+                "id": "custom.fillOpacity",
+                "value": 0
+              },
+              {
+                "id": "custom.lineStyle",
+                "value": {
+                  "fill": "dash",
+                  "dash": [
+                    10,
+                    10
+                  ]
+                }
+              },
+              {
+                "id": "custom.lineWidth",
+                "value": 2
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byFrameRefID",
+              "options": "F"
+            },
+            "properties": [
+              {
+                "id": "custom.axisPlacement",
+                "value": "hidden"
+              },
+              {
+                "id": "min",
+                "value": 0
+              },
+              {
+                "id": "max",
+                "value": 1
+              },
+              {
+                "id": "unit",
+                "value": "none"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#8e8e93"
+                }
+              },
+              {
+                "id": "custom.lineWidth",
+                "value": 0
+              },
+              {
+                "id": "custom.fillOpacity",
+                "value": 14
+              },
+              {
+                "id": "custom.lineInterpolation",
+                "value": "stepAfter"
+              },
+              {
+                "id": "custom.showPoints",
+                "value": "never"
+              },
+              {
+                "id": "custom.hideFrom",
+                "value": {
+                  "tooltip": true,
+                  "legend": false,
+                  "viz": false
+                }
+              }
+            ]
+          }
+        ]
       },
       "options": {
         "legend": {
@@ -299,9 +691,18 @@
             "type": "prometheus",
             "uid": "${ds}"
           },
-          "expr": "2 * quantile_over_time(0.5, probe_icmp_duration_seconds{phase=\"rtt\",service=\"internet-cloudflare\"}[7d])",
-          "legendFormat": "1.1.1.1 の通知しきい値（中央値の 2 倍。50ms 未満なら通知しない）",
+          "expr": "clamp_min(3 * quantile_over_time(0.5, probe_icmp_duration_seconds{phase=\"rtt\",service=\"internet-cloudflare\"}[7d]), 0.1)",
+          "legendFormat": "1.1.1.1 の通知しきい値（中央値の 3 倍。100ms 未満なら通知しない）",
           "refId": "E"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${ds}"
+          },
+          "expr": "(day_of_week() >= bool 1) * (day_of_week() <= bool 5) * (hour() < bool 8)",
+          "legendFormat": "平日の日中（9〜17 時。平常でも遅くなる時間帯）",
+          "refId": "F"
         }
       ]
     },
@@ -316,7 +717,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 13,
+        "y": 16,
         "w": 24,
         "h": 8
       },

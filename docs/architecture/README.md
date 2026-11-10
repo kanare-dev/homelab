@@ -1,6 +1,6 @@
 # アーキテクチャ
 
-homelab の方式設計。構成の全体像から読み、必要な観点へ進む。サービスごとの詳細は [services/](../services/01-dns.md)、設計判断の経緯は [adr/](../adr/README.md)、運用手順は [operations/](../operations/runbooks/README.md)。
+homelab の方式設計。構成の全体像から読み、必要な観点へ進む。サービスごとの詳細は [services/](../services/README.md)、設計判断の経緯は [adr/](../adr/README.md)、運用手順は [operations/](../operations/runbooks/README.md)。
 
 ## 目次
 
@@ -8,12 +8,13 @@ homelab の方式設計。構成の全体像から読み、必要な観点へ進
 | --- | --- |
 | [システム概要](01-overview.md) | 構成図、目的、この構成にした理由、前提と制約 |
 | [インフラ構成](02-infrastructure.md) | 物理・論理構成、ソフトウェア構成、資源の配分、拡張の方針 |
-| [ネットワーク](03-network.md) | IP アドレス・ドメイン命名規約、外部接続（Tailscale、外部サービスへの依存） |
+| [ネットワーク](03-network.md) | ドメイン命名規約、外部接続（Tailscale、外部サービスへの依存） |
 | [可用性・信頼性](04-reliability.md) | 単一障害点、起動順序、変更の確かさ、障害の検知、再発防止 |
 | [セキュリティ](05-security.md) | 脅威の想定、秘密情報、アクセス制御、未対応の項目 |
 | [移行性](06-migration.md) | ハード・ネットワーク・バージョンの移行シナリオ |
 | [災害対策](07-disaster-recovery.md) | 想定する災害、バックアップの状況、再構築の手順 |
 | [VLAN 設計](08-vlan-design.md) | 次期のネットワーク分割（設計段階。未適用） |
+| [IP アドレス一覧](09-ip-addresses.md) | 現在と移行後の IP（アドレスの範囲、VLAN、ホスト、FQDN の宛先、DHCP） |
 
 ## 運用ルール
 

@@ -6,12 +6,12 @@
 
 見送り中（2026-10-27 時点では導入しない）。
 
-- 現状: HTTPS と DNS の外形監視は blackbox-exporter + Alertmanager で行い、停止の検知は外部 Heartbeat（Healthchecks.io）が担う（[03-monitoring.md](../../services/03-monitoring.md)）
+- 現状: HTTPS と DNS の外形監視は blackbox-exporter + Alertmanager で行い、停止の検知は外部 Heartbeat（Healthchecks.io）が担う（[monitoring.md](../../services/platform/monitoring.md)）
 - 見送る理由: 死活監視と通知が blackbox-exporter と重なり、二重管理になる。Alertmanager の `inhibit_rules`（VM 停止・DNS 障害時の抑制）が使えず、障害のたびに通知が増える。vm-apps に置くと監視対象と同じホストで止まり、ホスト停止は検知できない
 - 再検討する条件:
   - 家族など Grafana を見ない人向けに、ステータスページが必要になった
   - 外形監視のターゲット追加（`prometheus.yml` の編集とデプロイ）が負担になった
-  - 回線断・停電を家の外から検知したくなり、外部の VPS を用意できた（[03-monitoring.md](../../services/03-monitoring.md) の案 C）
+  - 回線断・停電を家の外から検知したくなり、外部の VPS を用意できた（[monitoring.md](../../services/platform/monitoring.md) の案 C）
 
 ## Loki + Grafana Alloy（ログ収集基盤）
 
@@ -24,13 +24,13 @@
   - ストレージ障害でログごと消え、原因が追えなかった
   - アラートの前後のログを Grafana でメトリクスと並べて見たくなった
   - thin pool の過剰割当を解消した（容量に余裕ができた）
-- 導入するときの方針（案）: `vm-monitoring` に Loki、全ホストに Grafana Alloy（Promtail は後継の Alloy に移行済み）。保持期間 14 日、容量の上限 3GB 程度から始める。ADR を追加し、`03-monitoring.md` の「容量の上限設定」の表も更新する
+- 導入するときの方針（案）: `vm-monitoring` に Loki、全ホストに Grafana Alloy（Promtail は後継の Alloy に移行済み）。保持期間 14 日、容量の上限 3GB 程度から始める。ADR を追加し、`monitoring.md` の「容量の上限設定」の表も更新する
 
 ## 回線速度の定期測定（Speedtest）
 
 見送り中（2026-11-01 時点では導入しない）。
 
-- 現状: 回線断と遅延は、blackbox-exporter の ICMP（30 秒毎）で見ている（[03-monitoring.md](../../services/03-monitoring.md#回線の疎通遅延の監視)、[ADR 0018](../../adr/0018-internet-speed-monitoring.md)）
+- 現状: 回線断と遅延は、blackbox-exporter の ICMP（30 秒毎）で見ている（[monitoring.md](../../services/platform/monitoring.md#回線の疎通遅延の監視)、[ADR 0018](../../adr/0018-internet-speed-monitoring.md)）
 - 見送る理由: Speedtest は測定のたびに 30〜60 秒、回線を使い切る。仕事中のビデオ会議などに影響し、建物の共用回線にも負荷をかける。遅延とパケットロスでも、建物側の混雑は多くの場合に検知できる
 - 再検討する条件:
   - 「遅いのに ping の遅延・ロスに出ていない」状況が起きた
@@ -42,7 +42,7 @@
 
 見送り中（2026-10-30 時点では導入しない）。
 
-- 現状: Homepage の Hosts は、Prometheus の `node_exporter` から CPU・メモリ・ディスクの使用率を数値で出している（[Homepage](../../services/04-homepage.md)）。バー表示は、Homepage が動く `vm-apps` 自身だけを測る `resources` ウィジェットにしかない
+- 現状: Homepage の Hosts は、Prometheus の `node_exporter` から CPU・メモリ・ディスクの使用率を数値で出している（[Homepage](../../services/apps/homepage.md)）。バー表示は、Homepage が動く `vm-apps` 自身だけを測る `resources` ウィジェットにしかない
 - 見送る理由: 全 VM に Glances を入れる必要がある（Ansible のロール、公開ポートと `DOCKER-USER` / UFW の許可の追加）。`node_exporter` と同じ情報を二重に集めることになる。数値の表示で足りている
 - 再検討する条件: 数値では状況をつかみにくく、バーで見たい場面が増えた
 - 導入するときの方針（案）: 全 VM に Glances を入れ、Homepage の Glances ウィジェットで表示する。`vm-apps` の `resources` ウィジェットとは併用しない

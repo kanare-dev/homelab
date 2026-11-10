@@ -145,7 +145,7 @@ Mac やスマホのファイルは、ホストを通らないので直接は見�
 ### Phase 3: 可視化
 
 - [ ] Loki + Grafana で攻撃ログを可視化し、アラートを設定する
-- [ ] [監視](../../services/03-monitoring.md)の文書と「容量の上限設定」を更新する
+- [ ] [監視](../../services/platform/monitoring.md)の文書と「容量の上限設定」を更新する
 
 ### Phase 4: 外部に公開する
 

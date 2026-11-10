@@ -31,6 +31,11 @@ scrape_configs:
           env: "homelab"
           host: "vm-infra"
           role: "infra"
+      - targets: ["192.168.11.12:9100"]   # vm-omada
+        labels:
+          env: "homelab"
+          host: "vm-omada"
+          role: "omada"
       - targets: ["192.168.11.13:9100"]   # vm-monitoring
         labels:
           env: "homelab"
@@ -85,8 +90,8 @@ scrape_configs:
         labels: { host: "vm-code", service: "code-server" }
       - targets: ["https://cloudcli.lab.kanare.dev"]
         labels: { host: "vm-code", service: "cloudcli" }
-      - targets: ["https://router.lab.kanare.dev"]
-        labels: { host: "router", service: "router" }
+      - targets: ["https://omada.lab.kanare.dev"]
+        labels: { host: "vm-omada", service: "omada" }
     relabel_configs:
       - source_labels: ["__address__"]
         target_label: __param_target

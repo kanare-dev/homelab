@@ -25,7 +25,7 @@ row() {
   printf "  ${DIM}%-10s${RESET}  ${2}%s${RESET}\n" "$1" "$3"
 }
 
-# 色の基準は Prometheus のアラート（docs/services/03-monitoring.md）に合わせる。
+# 色の基準は Prometheus のアラート（docs/services/platform/monitoring.md）に合わせる。
 # $1=使用率 $2=これを超えると黄（warning） $3=これを超えると赤（critical）
 pick_pct_color() {
   local pct=$1 warn=$2 crit=$3

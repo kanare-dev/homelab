@@ -7,11 +7,13 @@
 | 機器 | モデル | スペック | IP | 備考 |
 | --- | --- | --- | --- | --- |
 | サーバー | Lenovo ThinkCentre M70q Tiny | i5-10400T / 24GB RAM / 256GB NVMe | `192.168.11.10` | Proxmox VE ホスト。物理 NIC は 1 つ |
-| ルーター | Buffalo WSR-1800AX4P | — | `192.168.11.1` | 集合住宅の共用ルーターの下に置く（二重 NAT） |
+| ルーター | TP-Link ER605 V2 | — | `192.168.11.1` | 集合住宅の共用ルーターの下に置く（二重 NAT）。2026-11-06 に、Buffalo から交換した。Omada コントローラー（`vm-omada`）が管理する |
+| スイッチ | TP-Link SG2210P | — | DHCP（ER605 から） | PoE+ スイッチ。ER605 の p2 に繋ぎ、Proxmox・Buffalo・ディスプレイを収める。Omada コントローラーが管理する |
+| AP | Buffalo WSR-1800AX4P | — | `192.168.11.2`（固定） | AP（ブリッジ）モード。Wi-Fi の入口だけを担う（段階 4 で退役予定） |
 | IoT | ESP32 | — | `192.168.11.100` | 現在停止中 |
 
 - 電源は UPS なし。ホスト 1 台に全 VM が載る単一障害点の構成（[可用性](04-reliability.md)）。
-- 次期構成（TP-Link + Managed Switch + AP、VLAN 分割）は [VLAN 設計](08-vlan-design.md)。未適用。
+- 次期構成（VLAN 分割）は [VLAN 設計](08-vlan-design.md)。ER605・SG2210P の導入（段階 1・2）は、2026-11-06 に適用した。VLAN 化（段階 3）は未適用。
 
 ## 論理構成
 
@@ -20,14 +22,14 @@ Proxmox VE 上に Terraform で VM を作り、Ansible で設定し、各 VM で
 | 名前 | VMID | IP | vCPU | RAM | ディスク | 起動 | 役割 | 主なサービス |
 | --- | --- | --- | ---: | ---: | ---: | --- | --- | --- |
 | `vm-infra` | 111 | `192.168.11.11` | 2 | 1.5GB | 20G | 自動（順序 1） | インフラ基盤 | AdGuard Home, Unbound, CoreDNS, Caddy, Tailscale |
+| `vm-omada` | 112 | `192.168.11.12` | 2 | 4GB | 20G | 自動（順序 6） | ネットワーク機器の管理 | Omada コントローラー（Docker。ER605・SG2210P を管理） |
 | `vm-monitoring` | 113 | `192.168.11.13` | 2 | 2GB | 40G | 自動（順序 2） | 監視 | Prometheus, Alertmanager, Grafana, blackbox-exporter |
 | `vm-apps` | 120 | `192.168.11.20` | 2 | 4GB | 40G | 自動（順序 3） | アプリ | Homepage, Home Assistant, n8n, FreshRSS |
-| `vm-dev` | 121 | `192.168.11.21` | 2 | 1GB | 30G | 手動 | 破壊検証 | playground |
+| `vm-dev` | 121 | `192.168.11.21` | 2 | 1GB | 10G | 手動 | 破壊検証 | playground |
 | `vm-code` | 122 | `192.168.11.22` | 2 | 4GB | 30G | 自動（順序 5） | 常用リモート開発 | Claude Code, CloudCLI, code-server, gh, git, mosh, moshi-hook |
-| `vm-windows` | 130 | — | 4 | 8GB | 60G | 手動（停止） | 検証用 | Windows 11 |
 | `ubuntu-cloud` | 9000 | — | — | — | — | — | VM テンプレート | cloud-init 付き Ubuntu |
 
-正の定義は `terraform/proxmox/terraform.tfvars`（`vm-windows` は `windows.tf`）。起動順序と待機秒数は [運用 Runbook](../operations/runbooks/01-vm-startup-shutdown.md#vm-自動起動停止) を参照。
+正の定義は `terraform/proxmox/terraform.tfvars`。IP アドレスの一覧（現在と移行後）は [IP アドレス一覧](09-ip-addresses.md)。起動順序と待機秒数は [運用 Runbook](../operations/runbooks/01-vm-startup-shutdown.md#vm-自動起動停止) を参照。
 
 ## ソフトウェア構成
 
@@ -37,11 +39,11 @@ Proxmox VE 上に Terraform で VM を作り、Ansible で設定し、各 VM で
 | VM プロビジョニング | Terraform（`telmate/proxmox` 3.0.2-rc07） | `terraform/proxmox/` |
 | OS 設定 | Ansible（Ubuntu Server 24.04 LTS。[ADR 0021](../adr/0021-ubuntu-lts-for-vms.md)） | `ansible/roles/common/` ほか |
 | コンテナ | Docker Compose | `docker/compose/<stack>/` → VM 上の `/opt/<stack>/` |
-| 監視 | Prometheus, Alertmanager, Grafana, blackbox-exporter, node_exporter | [監視・アラート](../services/03-monitoring.md) |
-| 名前解決 | AdGuard Home → CoreDNS / Unbound | [DNS 構成](../services/01-dns.md) |
+| 監視 | Prometheus, Alertmanager, Grafana, blackbox-exporter, node_exporter | [監視・アラート](../services/platform/monitoring.md) |
+| 名前解決 | AdGuard Home → CoreDNS / Unbound | [DNS 構成](../services/network/dns.md) |
 | リバースプロキシ・TLS | Caddy + Let's Encrypt（Cloudflare DNS-01） | [運用 Runbook](../operations/runbooks/04-tls-certificates.md#lan-内-tls) |
 | 秘密情報 | SOPS + age | [セキュリティ](05-security.md) |
-| CI | GitHub Actions（lint のみ） | [CI/CD](../services/07-cicd.md) |
+| CI | GitHub Actions（lint のみ） | [CI/CD](../services/dev/cicd.md) |
 
 ## ホストの資源
 
@@ -62,16 +64,16 @@ VM ごとの vCPU・メモリ・ディスクは [論理構成](#論理構成) �
 | `vm-infra` | 約 500MB | |
 | `vm-monitoring` | 約 660MB | |
 | `vm-apps` | 約 1.6GB | OS と Homepage（約 100MB）、Home Assistant（約 620MB）、n8n（約 360MB）、FreshRSS（待機時で約 20MB）を含む（2026-10-30。FreshRSS は 2026-11-01 に追加）。割当（4GB）には余裕がある |
+| `vm-omada` | 約 1.5〜2GB（見込み） | MongoDB を含む Java アプリ。機器を採用したあとに実測して直す |
 | `vm-code` / `vm-dev` | — | `vm-dev` は手動起動 |
-| `vm-windows` | — | 手動起動（通常は停止） |
 
-- 常時起動の VM の割当メモリ合計は 11.5GB。`vm-dev` を加えて 12.5GB、`vm-windows` も起動すると 20.5GB になる。ホストの確保分（約 2GB）を足すと 22.5GB で、24GB に対する余白は約 1.5GB しかない。**`vm-windows` を起動するときは、他の VM の負荷に注意する。**
-- vCPU は物理スレッドに対して過剰割当（常時起動分で 8 vCPU、全 VM で 14 vCPU）。常時高負荷の VM がないことを前提にしている。
+- 常時起動の VM の割当メモリ合計は 15.5GB（`vm-omada` の 4GB を含む。2026-11-09 に 3GB から増やした。[INC-2026-11-09](../operations/incidents/2026-11-09-omada-memory-exhaustion.md)）。`vm-dev` を加えて 16.5GB、ホストの確保分（約 2GB）を足すと 18.5GB で、24GB に収まる。`vm-windows` は 2026-11-05 に削除した（8GB を使うため、起動すると 24GB を超えていた。作り直す手順は [バックアップの手順](../operations/runbooks/06-backup-restore.md#vm-windows-の削除と作り直し2026-11-05)）
+- vCPU は物理スレッドに対して過剰割当（常時起動分で 10 vCPU、全 VM で 16 vCPU）。常時高負荷の VM がないことを前提にしている。
 - `vm-apps` は Home Assistant、n8n、FreshRSS を載せても割当に余裕がある。
 
 ## ストレージの設計
 
-- thin provisioning で過剰割当している。割当の合計は pool の約 1.4 倍（`LvmThinPoolOverprovisioned` の閾値は 1.5）。
+- thin provisioning で過剰割当している。割当の合計は 163.5G で、pool（155.6G）の約 1.05 倍（2026-11-05 時点。`vm-windows` の削除と `vm-dev` の 30G → 10G で、1.57 から下げた。`LvmThinPoolOverprovisioned` の閾値は 1.5）。`vm-omada` を追加した 2026-11-03 は、1.44 → 1.57 でアラートが出ていた。
 - 仮想ディスクはすべて `discard` を有効にし、毎週 `fstrim` で未使用ブロックを pool に返す。
 - 使用率は `LvmThinPoolDataHigh`（75%）と `Critical`（90%）で見る。メタデータも同様。
 - VG に未割当の余りは、pool 拡張の余地として使える（`lvextend`）。余りがなければ、ディスク追加か VM ディスクの縮小になる。
@@ -79,7 +81,7 @@ VM ごとの vCPU・メモリ・ディスクは [論理構成](#論理構成) �
 
 ## 資源の見張り方
 
-| 見たいもの | アラート（[監視・アラート](../services/03-monitoring.md)） |
+| 見たいもの | アラート（[監視・アラート](../services/platform/monitoring.md)） |
 | --- | --- |
 | CPU の逼迫 | `HostCpuHigh`（85%、15 分）/ `HostCpuCritical`（95%、10 分） |
 | メモリの逼迫・OOM | `HostMemoryLow`（利用可能 10% 未満）/ `HostMemoryCritical`（5%）、`HostOomKilled` |

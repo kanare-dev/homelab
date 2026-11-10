@@ -14,7 +14,9 @@ Proxmox 上に複数 VM を構築し、Terraform + Ansible + Docker Compose で�
 
 ## 構成
 
-![構成図](docs/diagrams/architecture.drawio.svg)
+![構成図（移行前）](docs/diagrams/pre-migration-diagram/architecture.drawio.svg)
+
+上は、ER605・SG2210P への移行の前の構成（移行の完了後に、この図は削除する）。移行のあと（VLAN 化）の構成は[メインの構成図](docs/diagrams/main-diagram/main-diagram.png)、配線は[物理構成図](docs/diagrams/physical-diagram/physical-diagram.png)にある。
 
 最新の構成図（テキスト版）と、VM ごとの割当（CPU・メモリ・ディスク）は [システム構成・環境](docs/architecture/01-overview.md) を参照。
 
@@ -24,6 +26,7 @@ Proxmox 上に複数 VM を構築し、Terraform + Ansible + Docker Compose で�
 | `vm-infra` | `111` | `192.168.11.11` | 常時起動 | インフラ基盤 | AdGuard Home, Unbound, CoreDNS, Caddy, Tailscale |
 | `vm-monitoring` | `113` | `192.168.11.13` | 常時起動 | 監視 | Prometheus, Alertmanager, Grafana, blackbox-exporter |
 | `vm-apps` | `120` | `192.168.11.20` | 常時起動 | アプリ | Homepage, Home Assistant, n8n, FreshRSS |
+| `vm-omada` | `112` | `192.168.11.12` | 常時起動 | ネットワーク機器の管理 | Omada コントローラー |
 | `vm-code` | `122` | `192.168.11.22` | 常時起動 | 常用リモート開発 | Claude Code, CloudCLI, code-server |
 | `vm-dev` | `121` | `192.168.11.21` | 任意起動 | 開発・実験 | playground |
 
@@ -57,28 +60,28 @@ Proxmox 上に複数 VM を構築し、Terraform + Ansible + Docker Compose で�
 | ディレクトリ | 区分 | 内容 |
 | --- | --- | --- |
 | [docs/architecture/](docs/architecture/README.md) | 方式設計 | [システム概要](docs/architecture/01-overview.md)、[インフラ構成](docs/architecture/02-infrastructure.md)、[ネットワーク設計](docs/architecture/03-network.md)、[可用性・信頼性](docs/architecture/04-reliability.md)、[セキュリティ](docs/architecture/05-security.md)、[移行性](docs/architecture/06-migration.md)、[災害対策](docs/architecture/07-disaster-recovery.md)、[VLAN 設計](docs/architecture/08-vlan-design.md) |
-| [docs/services/](docs/services/README.md) | サービスごとの詳細設計 | [DNS](docs/services/01-dns.md)、[リバースプロキシと TLS](docs/services/02-reverse-proxy-tls.md)、[監視・アラート](docs/services/03-monitoring.md)、[Home Assistant](docs/services/05-home-assistant.md)、[Homepage](docs/services/04-homepage.md)、[n8n](docs/services/06-n8n.md)、[FreshRSS](docs/services/09-freshrss.md)、[CI/CD](docs/services/07-cicd.md) |
+| [docs/services/](docs/services/README.md) | サービスごとの詳細設計 | [DNS](docs/services/network/dns.md)、[リバースプロキシと TLS](docs/services/network/reverse-proxy-tls.md)、[監視・アラート](docs/services/platform/monitoring.md)、[Home Assistant](docs/services/apps/home-assistant.md)、[Homepage](docs/services/apps/homepage.md)、[n8n](docs/services/apps/n8n.md)、[FreshRSS](docs/services/apps/freshrss.md)、[CI/CD](docs/services/dev/cicd.md) |
 | [docs/operations/](docs/operations/runbooks/README.md) | 運用 | [Runbook](docs/operations/runbooks/README.md)、[バックアップの手順](docs/operations/runbooks/06-backup-restore.md)、[障害記録](docs/operations/incidents/README.md)、[ロードマップ](docs/operations/roadmap/README.md) |
 | [docs/adr/](docs/adr/README.md) | ADR | 設計判断の記録 |
 
 ## 設計の特徴
 
-- **3 層 DNS**: AdGuard Home（フィルタリング）→ CoreDNS（`lab.kanare.dev` の権威）/ Unbound（ルートからの再帰解決）。1.1.1.1 などの外部リゾルバに依存しない（[DNS 構成](docs/services/01-dns.md)）
-- **正規の TLS 証明書**: Caddy が Cloudflare DNS-01 で Let's Encrypt の証明書を取得し、LAN 内でも警告なしで HTTPS（[リバースプロキシと TLS](docs/services/02-reverse-proxy-tls.md)）
+- **3 層 DNS**: AdGuard Home（フィルタリング）→ CoreDNS（`lab.kanare.dev` の権威）/ Unbound（ルートからの再帰解決）。1.1.1.1 などの外部リゾルバに依存しない（[DNS 構成](docs/services/network/dns.md)）
+- **正規の TLS 証明書**: Caddy が Cloudflare DNS-01 で Let's Encrypt の証明書を取得し、LAN 内でも警告なしで HTTPS（[リバースプロキシと TLS](docs/services/network/reverse-proxy-tls.md)）
 - **二重 NAT でも外出先から接続**: Tailscale を subnet router として動かし、split DNS で `lab.kanare.dev` を引く（[ネットワーク設計](docs/architecture/03-network.md)）
 - **機密情報管理**: SOPS + age で暗号化して Git に置く。CI で gitleaks と暗号化漏れを検査する（[セキュリティ](docs/architecture/05-security.md)）
-- **可観測性**: Prometheus + Alertmanager で、容量枯渇・VM 停止・OOM などを検知して Slack に通知する（[監視・アラート](docs/services/03-monitoring.md)）
+- **可観測性**: Prometheus + Alertmanager で、容量枯渇・VM 停止・OOM などを検知して Slack に通知する（[監視・アラート](docs/services/platform/monitoring.md)）
 
 ## 管理画面
 
 | サービス | ドメイン | 備考 |
 | --- | --- | --- |
-| ルーター | [https://router.lab.kanare.dev](https://router.lab.kanare.dev) | ルーター設定画面（ドメインは Caddy 経由。[DNS 構成](docs/services/01-dns.md#ルーター管理画面)） |
+| Omada | [https://omada.lab.kanare.dev](https://omada.lab.kanare.dev) | Omada コントローラー（ER605・SG2210P の管理。ドメインは Caddy 経由。[DNS 構成](docs/services/network/dns.md#管理画面omada-コントローラー)） |
 | Proxmox | [https://pve.lab.kanare.dev](https://pve.lab.kanare.dev) | Proxmox VE 管理画面 |
-| Homepage | [https://home.lab.kanare.dev](https://home.lab.kanare.dev) | ランディングダッシュボード（[詳細](docs/services/04-homepage.md)） |
-| Home Assistant | [https://ha.lab.kanare.dev](https://ha.lab.kanare.dev) | スマートホーム（[詳細](docs/services/05-home-assistant.md)） |
-| n8n | [https://n8n.lab.kanare.dev](https://n8n.lab.kanare.dev) | ワークフロー自動化（[詳細](docs/services/06-n8n.md)） |
-| FreshRSS | [https://rss.lab.kanare.dev](https://rss.lab.kanare.dev) | RSS リーダー（[詳細](docs/services/09-freshrss.md)） |
+| Homepage | [https://home.lab.kanare.dev](https://home.lab.kanare.dev) | ランディングダッシュボード（[詳細](docs/services/apps/homepage.md)） |
+| Home Assistant | [https://ha.lab.kanare.dev](https://ha.lab.kanare.dev) | スマートホーム（[詳細](docs/services/apps/home-assistant.md)） |
+| n8n | [https://n8n.lab.kanare.dev](https://n8n.lab.kanare.dev) | ワークフロー自動化（[詳細](docs/services/apps/n8n.md)） |
+| FreshRSS | [https://rss.lab.kanare.dev](https://rss.lab.kanare.dev) | RSS リーダー（[詳細](docs/services/apps/freshrss.md)） |
 | Grafana | [https://grafana.lab.kanare.dev](https://grafana.lab.kanare.dev) | 監視ダッシュボード |
 | Prometheus | [https://prometheus.lab.kanare.dev](https://prometheus.lab.kanare.dev) | メトリクス確認 |
 | Alertmanager | [https://alertmanager.lab.kanare.dev](https://alertmanager.lab.kanare.dev) | 発報中アラートの確認・Silence |
@@ -109,15 +112,20 @@ homelab/
 │   ├── roles/
 │   └── playbooks/
 ├── docker/
-│   └── compose/            # dns / freshrss / homeassistant / homepage / monitoring / n8n / reverse-proxy
-├── hardware/
-│   └── rack-10inch/        # 10 インチラックの 3D プリント用データ（models/。他の作者のモデルで、別ライセンス）と配布元リンク
+│   └── compose/            # dns / freshrss / homeassistant / homepage / monitoring / n8n / omada / reverse-proxy
 ├── tools/
 │   └── check-md-links.py   # Markdown の内部リンク検査
 └── docs/
     ├── architecture/       # 方式設計
-    ├── diagrams/           # 構成図（SVG）と整形スクリプト。assets/ はアイコン素材（Git 管理外）
-    ├── services/           # サービスごとの詳細設計
+    ├── diagrams/           # 構成図（現行は draw.io の SVG、VLAN 化後と物理構成図は HTML と PNG）と生成・整形スクリプト、README（更新の手順）。assets/ はアイコン素材（Git 管理外）
+    ├── services/           # サービスごとの詳細設計（役割ごとのフォルダ: network/、platform/、apps/、dev/）
+    ├── hardware/           # 機器ごとの仕様・資料と設定値（置き方の決まりは README）
+    │   ├── thinkcentre-m70q-tiny/  # ThinkCentre M70q Tiny（Proxmox ホスト）。spec.md（公式資料と仕様。Lenovo PSREF）、settings.md（設定値）
+    │   ├── er605/              # ER605 V2。spec.md（データシート V2.2）、settings.md
+    │   ├── sg2210p/            # SG2210P。spec.md（データシート V5.30）、settings.md
+    │   ├── wsr-1800ax4p/       # Buffalo WSR-1800AX4P。spec.md（AP モードの扱いを含む）、settings.md
+    │   └── future/             # 導入前の機器・用品
+    │       └── rack-10inch/    # 10 インチラックの 3D プリント用データ（models/。他の作者のモデルで、別ライセンス）と配布元リンク
     ├── operations/         # Runbook、バックアップ、障害記録、ロードマップ
     └── adr/                # 設計判断の記録
 ```

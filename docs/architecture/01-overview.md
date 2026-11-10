@@ -4,12 +4,12 @@ homelab の全体像。最新の構成図、目的、構成の理由、前提と
 
 ## 構成図
 
-> 構成を変えたら、この図（ASCII）と下の表を同じ変更で更新する。SVG は `docs/diagrams/layout-architecture.py` で生成し直して同じ変更で更新する。食い違っていたら、この ASCII 図が正。
+> 構成を変えたら、この図（ASCII）と下の表を同じ変更で更新する。SVG（移行前の構成図。移行の完了後に削除する）は `docs/diagrams/pre-migration-diagram/layout-architecture.py` で生成し直して同じ変更で更新する。食い違っていたら、この ASCII 図が正。
 
 ```text
  External: Healthchecks.io / Slack / Cloudflare / Let's Encrypt / Tailscale / GitHub
      │
- Internet ── Buffalo router (.1)
+ Internet ── ER605 router (.1) ── SG2210P switch ── Buffalo AP (.2) / Proxmox / Display
      │
 ┌─────────────────────────────────────────────────────────────────────────────────────┐
 │  LAN: 192.168.11.0/24                  GW: 192.168.11.1          Tailscale (外出先)  │
@@ -29,20 +29,22 @@ homelab の全体像。最新の構成図、目的、構成の理由、前提と
 │  └─────────────────────────────────────────────────────────────────────────────┘    │
 │                                                                                     │
 │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐                               │
-│  │  IoT devices │  │  vm-dev      │  │  vm-windows  │                               │
-│  │  .100~       │  │  .21 任意起動 │  │  任意起動    │                               │
-│  │  ESP32 etc.  │  │  playground  │  │  検証用      │                               │
+│  │  IoT devices │  │  vm-dev      │  │  vm-omada    │                               │
+│  │  .100~       │  │  .21 任意起動 │  │  .12  3GB    │                              │
+│  │  ESP32 etc.  │  │  playground  │  │  Omada Ctrl  │                               │
 │  └──────────────┘  └──────────────┘  └──────────────┘                               │
 └─────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
-`vm-monitoring` では Prometheus に加えて blackbox-exporter が、Caddy 経由の HTTPS と AdGuard の名前解決を外形監視し、ping（ICMP）でインターネット回線の断・遅延も見る（[監視・アラート](../services/03-monitoring.md)）。
+`vm-monitoring` では Prometheus に加えて blackbox-exporter が、Caddy 経由の HTTPS と AdGuard の名前解決を外形監視し、ping（ICMP）でインターネット回線の断・遅延も見る（[監視・アラート](../services/platform/monitoring.md)）。
 
-外部サービス（Healthchecks.io、Slack、Cloudflare、Let's Encrypt、Tailscale、GitHub）は、図の上部にまとめて描いている。いずれも LAN から外向きに接続するだけで、外部から入る経路は Tailscale のみ（[外部接続](03-network.md#外部サービスへの依存)）。
+外部サービス（Healthchecks.io、Slack、Cloudflare、Let's Encrypt、Tailscale、GitHub、Omada Cloud）は、図の上部にまとめて描いている。いずれも LAN から外向きに接続するだけ。外部から入る経路は Tailscale と、Omada Cloud 経由の Omada コントローラーの管理画面（[外部接続](03-network.md#外部サービスへの依存)）。
 
-`node_exporter` は全 VM（`vm-infra` / `vm-monitoring` / `vm-apps` / `vm-dev` / `vm-code`）と Proxmox ホストに常駐し、`vm-monitoring` の Prometheus がまとめてスクレイプする。
+`node_exporter` は全 VM（`vm-infra` / `vm-monitoring` / `vm-apps` / `vm-dev` / `vm-code` / `vm-omada`）と Proxmox ホストに常駐し、`vm-monitoring` の Prometheus がまとめてスクレイプする。
 
-![構成図](../diagrams/architecture.drawio.svg)
+`vm-omada` の Omada コントローラーは、ER605・SG2210P を管理する（2026-11-03 に稼働。2026-11-06 に、ER605・SG2210P を採用した）。Buffalo は AP モードで、管理対象外。止まっても、機器は設定を持ったまま動く。
+
+![構成図（移行前）](../diagrams/pre-migration-diagram/architecture.drawio.svg)
 
 ## 目的と位置づけ
 

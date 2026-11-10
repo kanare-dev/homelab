@@ -1,12 +1,16 @@
 global:
   resolve_timeout: 5m
 
+# 重要度ごとに通知先と再通知の間隔を一律に決める（アラート名では分けない）。
+#   critical      : slack-critical（critical 用チャンネル）、1 時間毎
+#   それ以外全部  : slack-warning（warning 用チャンネル）、24 時間毎
+# 慢性的な warning が何度再通知されても、critical のチャンネルは埋まらない
 route:
-  receiver: slack
+  receiver: slack-warning
   group_by: ["alertname", "instance"]
   group_wait: 30s
   group_interval: 5m
-  repeat_interval: 4h
+  repeat_interval: 24h
   routes:
     # Watchdog は Slack には送らず、外部の Heartbeat（Healthchecks.io）へ定期送信する。途絶えたら外部から通知される（ADR-0010）
     - matchers:
@@ -17,7 +21,7 @@ route:
       repeat_interval: 5m
     - matchers:
         - severity = "critical"
-      receiver: slack
+      receiver: slack-critical
       repeat_interval: 1h
 
 # 上流の障害があるとき、下流の通知を抑える
@@ -53,10 +57,11 @@ receivers:
       - url_file: /etc/alertmanager/heartbeat_ping_url
         send_resolved: false
 
-  - name: slack
+  - name: slack-critical
     slack_configs:
-      # Webhook URL は Ansible が vault から /etc/alertmanager/slack_webhook_url に配置する
-      - api_url_file: /etc/alertmanager/slack_webhook_url
+      # Webhook URL は Ansible が SOPS から /etc/alertmanager/slack_webhook_url に配置する（critical 用チャンネル）
+      - &slack_config
+        api_url_file: /etc/alertmanager/slack_webhook_url
         send_resolved: true
         color: '{{ if eq .Status "resolved" }}good{{ else if eq .CommonLabels.severity "critical" }}danger{{ else }}warning{{ end }}'
         title: '{{ if eq .Status "resolved" }}[RESOLVED]{{ else }}[{{ .CommonLabels.severity | toUpper }}]{{ end }} {{ .CommonLabels.alertname }}'
@@ -64,3 +69,9 @@ receivers:
           {{ range .Alerts }}• {{ .Annotations.summary }}
           {{ if .Annotations.description }}  {{ .Annotations.description }}
           {{ end }}{{ end }}
+
+  - name: slack-warning
+    slack_configs:
+      # 見た目は slack-critical と同じ。送り先（warning 用チャンネルの Webhook URL）だけ変える
+      - <<: *slack_config
+        api_url_file: /etc/alertmanager/slack_webhook_url_warning

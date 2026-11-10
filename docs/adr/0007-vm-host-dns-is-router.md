@@ -1,6 +1,6 @@
 # 0007. VM のホスト DNS はルーターにする
 
-- ステータス: 採用
+- ステータス: 採用。VLAN 化のあとに DHCP が配る DNS のアドレスは、[ADR 0025](0025-address-octets-by-role.md) で `10.77.20.10` に変わった
 - 日付: 記録なし（理由は 2026-10-24 に運用者が確認して記録）
 
 ## 背景
@@ -30,4 +30,4 @@ VM のホスト DNS は、ルーターのままにする。AdGuard を使いた�
 - VM 内のホストから `*.lab.kanare.dev` は引けない。必要なコンテナは `dns:` で AdGuard を指定する。
 - VLAN 移行（[ADR 0004](0004-vlan-cutover-all-at-once.md)）で DHCP が配る DNS が `10.77.20.11` に変わる。そのとき、VM のホスト DNS を見直す（新しい ADR を追加して、この ADR を置き換える）。
 
-詳細: [DNS](../services/01-dns.md)、[監視・アラート](../services/03-monitoring.md#外形監視blackbox)
+詳細: [DNS](../services/network/dns.md)、[監視・アラート](../services/platform/monitoring.md#外形監視blackbox)

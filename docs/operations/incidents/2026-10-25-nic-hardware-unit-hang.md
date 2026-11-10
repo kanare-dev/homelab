@@ -66,7 +66,7 @@ e1000e 0000:00:1f.6 nic0: Detected Hardware Unit Hang:
 - Prometheus、Alertmanager、blackbox-exporter は、すべて vm-monitoring の上で動く。
 - ホストの NIC が止まると、vm-monitoring は Slack に通信できない。また、Prometheus が `TargetDown` を検知しても、通知の送り先に出られない。
 - 外形監視（blackbox）も同じ VM から発信するので、検知できない。
-- これは [監視・アラートの「限界」1・2](../../services/03-monitoring.md#限界既知の弱点) と、[ADR-0002](../../adr/0002-no-external-monitoring.md) で受け入れたリスクの通り。**再検討の条件（再び監視 VM を巻き込む障害が起きた場合）に該当した**。
+- これは [監視・アラートの「限界」1・2](../../services/platform/monitoring.md#限界既知の弱点) と、[ADR-0002](../../adr/0002-no-external-monitoring.md) で受け入れたリスクの通り。**再検討の条件（再び監視 VM を巻き込む障害が起きた場合）に該当した**。
 
 ### 2.4 なぜインターネットまで使えなくなったか
 
@@ -81,7 +81,7 @@ e1000e 0000:00:1f.6 nic0: Detected Hardware Unit Hang:
 | 仮説 | 内容 |
 | --- | --- |
 | （上の手動設定に加えて）スマホの DNS 切り替えが遅い・切り替わらない | 1 つ目の DNS が応答しないとき、端末はタイムアウトを待ってから 2 つ目に移る。タイムアウトが長いと、アプリが先に諦めて「繋がらない」状態になる。iOS で起きやすいとされる |
-| Tailscale の DNS 設定 | スマホの Tailscale が `lab.kanare.dev` の split DNS や DNS の上書きを持ち、vm-infra が止まると名前解決が詰まった（[DNS 構成](../../services/01-dns.md#tailscale-との連携)） |
+| Tailscale の DNS 設定 | スマホの Tailscale が `lab.kanare.dev` の split DNS や DNS の上書きを持ち、vm-infra が止まると名前解決が詰まった（[DNS 構成](../../services/network/dns.md#tailscale-との連携)） |
 | ほかの要因 | スマホ側の設定（プライベート DNS、プロファイルなど） |
 
 再現して確かめる（§5 の #6）。
@@ -133,7 +133,7 @@ e1000e 0000:00:1f.6 nic0: Detected Hardware Unit Hang:
 | 1 | NIC のオフロードを無効化する（§4.1） | **完了**（10-25） | - |
 | 2 | 外部 Heartbeat（Healthchecks.io）を導入し、`Watchdog` を送信する | **完了**（10-25）。Alertmanager を止めて、DOWN（23:46）と UP（23:52）が Slack とメールに届くことを確認した | - |
 | 3 | ADR-0002 を置き換える新しい ADR を追加する | **完了**（10-25。[ADR-0010](../../adr/0010-external-heartbeat.md)） | - |
-| 4 | `docs/services/03-monitoring.md` の「限界」「外部 Heartbeat」「監視している項目」を更新する | **完了**（10-25。動作確認の結果も記録済み） | - |
+| 4 | `docs/services/platform/monitoring.md` の「限界」「外部 Heartbeat」「監視している項目」を更新する | **完了**（10-25。動作確認の結果も記録済み） | - |
 | 5 | 次回の PVE 再起動後に、`ethtool -k nic0` で `post-up` の効果を確認する | 未着手 | 次回の再起動時 |
 | 6 | スマホが、DNS（AdGuard）の停止時にインターネットへ出られなかった理由を確かめる。原因は手動 DNS の上書きと推定（§2.4）。AdGuard を短時間止めて再現し、Tailscale の設定など他の要因がないか切り分ける。設計判断は §2.5 | 未着手（再現テストはユーザーの承認が必要） | 1 週間 |
 | 7 | 再発したときのために、PVE 機の画面出力を確認できる手段を検討する | **見送り**（10-26）。「必要なときに繋ぐ」を選ぶ。理由は §5.1 | 再検討の条件（§5.1）に該当したとき |
@@ -188,5 +188,5 @@ e1000e 0000:00:1f.6 nic0: Detected Hardware Unit Hang:
 ## 7. 関連ドキュメント
 
 - [ADR-0002: 外部監視を導入しない](../../adr/0002-no-external-monitoring.md)（今回の障害で再検討の条件に該当）
-- [監視・アラート](../../services/03-monitoring.md)
+- [監視・アラート](../../services/platform/monitoring.md)
 - [INC-2026-10-22: LVM-thin プール枯渇](2026-10-22-lvm-thin-exhaustion.md)（監視 VM を巻き込む障害の前例）

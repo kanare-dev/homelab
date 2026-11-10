@@ -16,12 +16,13 @@ Proxmox の `onboot` および `startup` 設定で、ホスト起動・停止時
 | 3 | vm-apps | true | `order=3,up=20,down=60` | Homepage ダッシュボード |
 | 4 | vm-dev | false | `order=4,up=10,down=30` | 開発用（手動起動のみ） |
 | 5 | vm-code | true | `order=5,up=10,down=30` | Claude Code・CloudCLI・code-server |
+| 6 | vm-omada | true | `order=6,up=10,down=60` | Omada コントローラー（止まっても、ER605・SG2210P は設定を持ったまま動く）。`down=60` は MongoDB を正常に止めるため |
 
 `up` は次の VM を起動するまでの待機秒数。`down` はシャットダウン信号送信後の最大待機秒数。
 
 ## シャットダウン順序
 
-ホストのシャットダウン時は `order` の**逆順**で ACPI シャットダウン信号が送られる（vm-code → vm-apps → vm-monitoring → vm-infra）。
+ホストのシャットダウン時は `order` の**逆順**で ACPI シャットダウン信号が送られる（vm-omada → vm-code → vm-apps → vm-monitoring → vm-infra）。
 
 ## 設定の反映
 

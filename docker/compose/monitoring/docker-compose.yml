@@ -35,11 +35,14 @@ services:
     volumes:
       - ./alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
       - ./alertmanager/slack_webhook_url:/etc/alertmanager/slack_webhook_url:ro
+      - ./alertmanager/slack_webhook_url_warning:/etc/alertmanager/slack_webhook_url_warning:ro
       - ./alertmanager/heartbeat_ping_url:/etc/alertmanager/heartbeat_ping_url:ro
       - alertmanager_data:/alertmanager
     command:
       - "--config.file=/etc/alertmanager/alertmanager.yml"
       - "--storage.path=/alertmanager"
+      # Slack 通知のタイトルのリンク先（既定ではコンテナ ID のホスト名になり、ブラウザから開けない）
+      - "--web.external-url=https://alertmanager.lab.kanare.dev"
     logging: *default-logging
     networks:
       - monitoring

@@ -240,7 +240,7 @@ groups:
           severity: warning
         annotations:
           summary: "{{ $labels.instance }} の証明書の残りが {{ $value | printf \"%.0f\" }} 日"
-          description: "Let's Encrypt は残り 30 日で更新されるはずなので、自動更新が失敗している。`docker logs caddy` を確認する（02-reverse-proxy-tls.md）。"
+          description: "Let's Encrypt は残り 30 日で更新されるはずなので、自動更新が失敗している。`docker logs caddy` を確認する（reverse-proxy-tls.md）。"
 
       - alert: TlsCertExpiryCritical
         expr: (probe_ssl_earliest_cert_expiry{job="blackbox_http"} - time()) / 86400 < 3
@@ -287,27 +287,32 @@ groups:
           summary: "ルーター（192.168.11.1）に ping が通らない"
           description: "vm-monitoring からルーターまで届かない。ルーターの停止、LAN の断、PVE の NIC 停止（INC-2026-10-25）を疑う。"
 
+      # 1.1.1.1 と 8.8.8.8 の両方で 10 分間のロスが 10% 超のときだけ通知する（片方だけなら宛先側の問題）。
+      # ルーター自身に届かない間（LAN 側の障害・作業中）は評価しない。その間は GatewayUnreachable が担当する
       - alert: InternetPacketLoss
-        expr: 1 - avg_over_time(probe_success{service=~"internet-.*"}[10m]) > 0.1
-        for: 5m
-        labels:
-          severity: warning
-        annotations:
-          summary: "{{ $labels.service }} へのパケットロスが {{ $value | humanizePercentage }}（10 分間）"
-          description: "回線が不安定。建物側のネットワークの混雑や、Wi-Fi ではなく有線側の問題。Grafana「Internet Connectivity」で遅延と合わせて見る。"
-
-      # 平常（7 日間の中央値）の 2 倍かつ 50ms 超が 10 分続いたら通知する。
-      # 平常値が溜まる前（測定 2 日分 = 5760 回未満）は評価しない
-      - alert: InternetLatencyHigh
         expr: |
-          avg_over_time(probe_icmp_duration_seconds{phase="rtt",service="internet-cloudflare"}[10m]) > 0.05
-          and
-          avg_over_time(probe_icmp_duration_seconds{phase="rtt",service="internet-cloudflare"}[10m])
-            > 2 * quantile_over_time(0.5, probe_icmp_duration_seconds{phase="rtt",service="internet-cloudflare"}[7d])
-          and count_over_time(probe_icmp_duration_seconds{phase="rtt",service="internet-cloudflare"}[7d]) > 5000
+          (1 - avg_over_time(probe_success{service="internet-cloudflare"}[10m]) > 0.1)
+          and on() (1 - avg_over_time(probe_success{service="internet-google"}[10m]) > 0.1)
+          and on() avg_over_time(probe_success{service="gateway"}[10m]) > 0.95
         for: 10m
         labels:
           severity: warning
         annotations:
-          summary: "インターネットへの ping の遅延が平常の 2 倍超（{{ $value | humanizeDuration }}）"
-          description: "1.1.1.1 への RTT が、7 日間の中央値の 2 倍かつ 50ms を超えている。建物側の混雑を疑う。「建物の共用ルーター」の遅延も高ければ建物内、低ければその先。"
+          summary: "インターネットへのパケットロスが {{ $value | humanizePercentage }}（1.1.1.1 宛て、10 分間。8.8.8.8 も 10% 超）"
+          description: "ルーターには届いているのに、1.1.1.1 と 8.8.8.8 の両方への ping が落ちている。建物側のネットワークの混雑や ISP 側の問題。Grafana「Internet Connectivity」で遅延と合わせて見る。"
+
+      # 平常（7 日間の中央値）の 3 倍かつ 100ms 超が 15 分続いたら通知する（体感できる遅さだけ通知する）。
+      # 平常値が溜まる前（測定 2 日分 = 5760 回未満）は評価しない
+      - alert: InternetLatencyHigh
+        expr: |
+          avg_over_time(probe_icmp_duration_seconds{phase="rtt",service="internet-cloudflare"}[10m]) > 0.1
+          and
+          avg_over_time(probe_icmp_duration_seconds{phase="rtt",service="internet-cloudflare"}[10m])
+            > 3 * quantile_over_time(0.5, probe_icmp_duration_seconds{phase="rtt",service="internet-cloudflare"}[7d])
+          and count_over_time(probe_icmp_duration_seconds{phase="rtt",service="internet-cloudflare"}[7d]) > 5000
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: "インターネットへの ping の遅延が平常の 3 倍超（{{ $value | humanizeDuration }}）"
+          description: "1.1.1.1 への RTT が、7 日間の中央値の 3 倍かつ 100ms を超えている。建物側の混雑を疑う。「建物の共用ルーター」の遅延も高ければ建物内、低ければその先。"

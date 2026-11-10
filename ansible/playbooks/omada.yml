@@ -1,0 +1,43 @@
+---
+- name: Setup Omada VM
+  hosts: omada
+  roles:
+    - common
+    - docker
+    - node_exporter
+  tasks:
+    # ufw_docker は使わない（host ネットワークで動き、Docker の公開ポートが無いため。ufw は group_vars/omada で絞る）
+    - name: Deploy Omada Controller
+      tags: [omada]
+      block:
+        # コンテナは PUID/PGID（ubuntu = 1000）で動く
+        - name: Create omada directories
+          ansible.builtin.file:
+            path: "/opt/omada/{{ item }}"
+            state: directory
+            owner: "{{ ansible_user }}"
+            group: "{{ ansible_user }}"
+            mode: "0755"
+          loop:
+            - data
+            - logs
+
+        - name: Copy omada docker-compose.yml
+          ansible.builtin.copy:
+            src: "{{ playbook_dir }}/../../docker/compose/omada/docker-compose.yml"
+            dest: /opt/omada/docker-compose.yml
+            mode: "0644"
+          notify: Restart omada
+
+        - name: Start omada stack
+          community.docker.docker_compose_v2:
+            project_src: /opt/omada
+            state: present
+
+  handlers:
+    - name: Restart omada
+      community.docker.docker_compose_v2:
+        project_src: /opt/omada
+        services:
+          - omada
+        state: restarted
