@@ -117,8 +117,7 @@ IP が変わる場合、直す場所は次のとおり。`dns_records` の `omad
 | 場所 | 内容 |
 | --- | --- |
 | `docker/compose/reverse-proxy/Caddyfile` | `omada.lab.kanare.dev` の `reverse_proxy` の転送先（`vm-omada` の IP） |
-| `ansible/inventory/group_vars/all/vars.yml` | `gateway`（DNS 障害時に経路が壊れないよう、名前ではなく IP のまま） |
-| `terraform/proxmox/variables.tf` / `terraform.tfvars` | `gateway` |
+| `terraform/proxmox/terraform.tfvars` | VM ごとの `gateway`・`nameserver`（DNS 障害時に経路が壊れないよう、名前ではなく IP のまま） |
 | `README.md` | ルーターの IP（構成表） |
 | `docker/compose/homepage/config/services.yaml` | Omada の `description` |
 

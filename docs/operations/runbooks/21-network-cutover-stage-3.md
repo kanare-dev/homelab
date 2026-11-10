@@ -113,7 +113,7 @@ p2 のスイッチ側の設定は、準備（手順 0）のまま（untagged VLA
 
 ## 6. Ansible で反映する
 
-1. `ansible-playbook` を流して、DNS のレコード、UFW、Caddy、Prometheus（scrape 対象）、Tailscale の経路を反映する（Terraform の `gateway` と `ansible/inventory/group_vars/all/vars.yml` の `gateway` も、新しい値）。
+1. `ansible-playbook` を流して、DNS のレコード、UFW、Caddy、Prometheus（scrape 対象）、Tailscale の経路を反映する（Terraform の VM ごとの `gateway`・`nameserver` は、手順 5 の `terraform apply` で変わる）。
 2. **Tailscale**: 新しい経路（`10.77.20.0/24`、`10.77.40.0/24`）を、Admin Console で承認し、旧経路（`192.168.11.0/24`）を外す。
 
    確認: [ ] `*.lab.kanare.dev` が新しい IP に解決される　[ ] Caddy 経由のサービスが開く　[ ] 外出先（スマホを Wi-Fi から外す）から、Tailscale 経由で入れる

@@ -4,10 +4,6 @@
 ansible_user: ubuntu
 ansible_python_interpreter: /usr/bin/python3
 
-# ネットワーク
-lan_network: "192.168.11.0/24"
-gateway: "192.168.11.1"
-dns_server: "192.168.11.11"
 domain: "lab.kanare.dev"
 
 # NTP

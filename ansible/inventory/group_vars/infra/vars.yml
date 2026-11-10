@@ -1,28 +1,28 @@
 ---
 # CoreDNS
 domain: "lab.kanare.dev"
-static_ip: "192.168.11.11"
+static_ip: "10.77.20.10"
 coredns_version: "1.11.1"
 coredns_listen_port: 5353
 coredns_listen_addr: "127.0.0.1"
 dns_records:
-  - { name: "grafana",       ip: "192.168.11.11" }
-  - { name: "prometheus",    ip: "192.168.11.11" }
-  - { name: "alertmanager",  ip: "192.168.11.11" }   # Caddy 経由
-  - { name: "pve",           ip: "192.168.11.11" }
-  - { name: "infra",         ip: "192.168.11.11" }
-  - { name: "vm-infra",      ip: "192.168.11.11" }
-  - { name: "vm-monitoring", ip: "192.168.11.13" }
-  - { name: "home",         ip: "192.168.11.11" }   # Caddy 経由
-  - { name: "ha",           ip: "192.168.11.11" }   # Caddy 経由（Home Assistant）
-  - { name: "n8n",          ip: "192.168.11.11" }   # Caddy 経由（n8n）
-  - { name: "rss",          ip: "192.168.11.11" }   # Caddy 経由（FreshRSS）
-  - { name: "vm-apps",      ip: "192.168.11.20" }
-  - { name: "adguard",     ip: "192.168.11.11" }   # Caddy 経由
-  - { name: "code",        ip: "192.168.11.11" }   # Caddy 経由
-  - { name: "cloudcli",    ip: "192.168.11.11" }   # Caddy 経由
-  - { name: "vm-code",     ip: "192.168.11.22" }   # SSH/mosh 直接アクセス用
-  - { name: "omada",       ip: "192.168.11.11" }   # Caddy 経由（Omada コントローラーの管理画面。ER605・SG2210P を管理）
+  - { name: "grafana",       ip: "10.77.20.10" }
+  - { name: "prometheus",    ip: "10.77.20.10" }
+  - { name: "alertmanager",  ip: "10.77.20.10" }   # Caddy 経由
+  - { name: "pve",           ip: "10.77.20.10" }
+  - { name: "infra",         ip: "10.77.20.10" }
+  - { name: "vm-infra",      ip: "10.77.20.10" }
+  - { name: "vm-monitoring", ip: "10.77.20.11" }
+  - { name: "home",         ip: "10.77.20.10" }   # Caddy 経由
+  - { name: "ha",           ip: "10.77.20.10" }   # Caddy 経由（Home Assistant）
+  - { name: "n8n",          ip: "10.77.20.10" }   # Caddy 経由（n8n）
+  - { name: "rss",          ip: "10.77.20.10" }   # Caddy 経由（FreshRSS）
+  - { name: "vm-apps",      ip: "10.77.20.20" }
+  - { name: "adguard",     ip: "10.77.20.10" }   # Caddy 経由
+  - { name: "code",        ip: "10.77.20.10" }   # Caddy 経由
+  - { name: "cloudcli",    ip: "10.77.20.10" }   # Caddy 経由
+  - { name: "vm-code",     ip: "10.77.20.30" }   # SSH/mosh 直接アクセス用
+  - { name: "omada",       ip: "10.77.20.10" }   # Caddy 経由（Omada コントローラーの管理画面。ER605・SG2210P を管理）
 
 # UFW
 ufw_allowed_ports:
@@ -32,8 +32,8 @@ ufw_allowed_ports:
   - { port: 80,   proto: tcp }
   - { port: 443,  proto: tcp }
   - { port: 51820, proto: udp }                              # WireGuard
-  - { port: 9100, proto: tcp, from: "192.168.11.13" }      # node_exporter (Prometheus on vm-monitoring)
-  - { port: 3000, proto: tcp, from: "192.168.11.0/24" }    # AdGuard Web UI (LAN)
+  - { port: 9100, proto: tcp, from: "10.77.20.11" }      # node_exporter (Prometheus on vm-monitoring)
+  - { port: 3000, proto: tcp, from: "10.77.30.0/24" }      # AdGuard Web UI (Trusted)
   - { port: 3000, proto: tcp, from: "172.16.0.0/12" }      # AdGuard Web UI (Docker bridge → Caddy)
 
 
@@ -43,3 +43,6 @@ adguard_querylog_interval: 168h
 # 許可元を絞る前の「どこからでも許可」ルール。common ロールが削除する
 ufw_removed_ports:
   - { port: 9100, proto: tcp }
+  # 段階 3 で、許可元を新しいアドレスに変えたあと、旧アドレスのルールを消す（ufw は定義にないルールを消さない）
+  - { port: 9100, proto: tcp, from: "192.168.11.13" }
+  - { port: 3000, proto: tcp, from: "192.168.11.0/24" }
