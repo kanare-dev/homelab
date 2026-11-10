@@ -19,6 +19,7 @@ VLAN を有効にし、全ホストの IP を `192.168.11.x` から `10.77.<VLAN
 - [ ] **（段階 3b に移した。段階 3 では不要）コントローラーの IP 変更への追従を確かめた**: `vm-omada` が `192.168.11.12` から `10.77.10.3` に変わったとき、ER605 と SG2210P が付いてくる。付いてこない場合の手順（接続先の再設定、または機器のリセットと再採用）を、リハーサルで確かめて書いてある。
 - [ ] **Proxmox の準備が済んでいる**（[ADR-0023](../../adr/0023-proxmox-trunk-all-tagged.md)）: `vmbr0` が VLAN-aware（IP は `192.168.11.10`・タグなしのまま）。SG2210P p2 に tagged 10/20/40/50/70 を足してある。1 つの検証用 VM をタグ付きで繋いで、動作を確かめた。
 - [ ] **コードの準備が済んでいる**: 別ブランチで、Terraform（`vlan_id` は必須で、全 VM に指定。`vm-omada` は、段階 3b まで、タグなし（VLAN1）を明示する）、Ansible、Caddyfile、Prometheus、Homepage、ドキュメントを、新アドレスに書き換えてある（一覧は[設計書](../../architecture/08-vlan-design.md#影響を受けるリポジトリ内の箇所)）。 UFW の許可元も、新しいアドレスに直す（`vm-infra` の 8043、`vm-monitoring` の 9100。`vm-omada` は段階 3 で動かさないので、**直し忘れやすい**。[ロードマップ 13](../roadmap/13-defer-management-vlan.md)）。
+- [ ] **新アドレスのコードを、現行のブランチに取り込んだ**（[ブランチ運用](../roadmap/10-er605-sg2210p-migration-plan.md#段階-3-のブランチ運用)）。`terraform plan` が、5 台の in-place 更新（`vm-omada` は変わらない）になっている。
 - [ ] **Omada に本番の設定を作ってある（有効にはしていない）**: VLAN 10/20/30/40/50/60/70、DHCP、ACL、mDNS の中継、スイッチのポートプロファイル。
 - [ ] **今の LAN の DHCP の DNS をルーターにする手順を確認した**（決定済み。変えるのは、手順 2 で Wi-Fi の端末が Trusted に移ったあと）。
 - [ ] **バックアップが、Mac 以外にもある**: Omada、Proxmox の `/etc/network/interfaces`、`terraform.tfstate`、Buffalo の設定。
