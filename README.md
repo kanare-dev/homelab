@@ -23,12 +23,12 @@ Proxmox 上に複数 VM を構築し、Terraform + Ansible + Docker Compose で�
 | 名前 | VMID | IP | 状態 | 役割 | 主なサービス |
 | --- | --- | --- | --- | --- | --- |
 | `pve` | — | `192.168.11.10` | 常時起動 | ハイパーバイザ | Proxmox VE |
-| `vm-infra` | `111` | `192.168.11.11` | 常時起動 | インフラ基盤 | AdGuard Home, Unbound, CoreDNS, Caddy, Tailscale |
-| `vm-monitoring` | `113` | `192.168.11.13` | 常時起動 | 監視 | Prometheus, Alertmanager, Grafana, blackbox-exporter |
-| `vm-apps` | `120` | `192.168.11.20` | 常時起動 | アプリ | Homepage, Home Assistant, n8n, FreshRSS |
+| `vm-infra` | `111` | `10.77.20.10` | 常時起動 | インフラ基盤 | AdGuard Home, Unbound, CoreDNS, Caddy, Tailscale |
+| `vm-monitoring` | `113` | `10.77.20.11` | 常時起動 | 監視 | Prometheus, Alertmanager, Grafana, blackbox-exporter |
+| `vm-apps` | `120` | `10.77.20.20` | 常時起動 | アプリ | Homepage, Home Assistant, n8n, FreshRSS |
 | `vm-omada` | `112` | `192.168.11.12` | 常時起動 | ネットワーク機器の管理 | Omada コントローラー |
-| `vm-code` | `122` | `192.168.11.22` | 常時起動 | 常用リモート開発 | Claude Code, CloudCLI, code-server |
-| `vm-dev` | `121` | `192.168.11.21` | 任意起動 | 開発・実験 | playground |
+| `vm-code` | `122` | `10.77.20.30` | 常時起動 | 常用リモート開発 | Claude Code, CloudCLI, code-server |
+| `vm-dev` | `121` | `10.77.40.10` | 任意起動 | 開発・実験 | playground |
 
 ハードウェアは Lenovo ThinkCentre M70q Tiny（i5-10400T / 24GB RAM / 256GB NVMe）。メモリの配分は [性能・拡張性](docs/architecture/02-infrastructure.md) を参照。
 
@@ -174,13 +174,13 @@ ansible-playbook playbooks/site.yml
 
 ```bash
 # DNS
-dig @192.168.11.11 grafana.lab.kanare.dev
+dig @10.77.20.10 grafana.lab.kanare.dev
 
 # Grafana
-open http://192.168.11.13:3000
+open http://10.77.20.11:3000
 
 # Prometheus
-open http://192.168.11.13:9090
+open http://10.77.20.11:9090
 ```
 
 各ディレクトリの README（`terraform/proxmox/`、`ansible/`、`docker/compose/`）に、詳細な手順がある。

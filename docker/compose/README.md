@@ -61,8 +61,8 @@ docker compose down
 
 | サービス | URL | 認証 |
 | --- | --- | --- |
-| Prometheus | `http://192.168.11.13:9090` | なし |
-| Grafana | `http://192.168.11.13:3000` | admin / SOPS 管理（`group_vars/monitoring/secrets.sops.yml`） |
+| Prometheus | `http://10.77.20.11:9090` | なし |
+| Grafana | `http://10.77.20.11:3000` | admin / SOPS 管理（`group_vars/monitoring/secrets.sops.yml`） |
 
 ### Reverse Proxy（vm-infra 上で実行）
 
@@ -74,7 +74,7 @@ docker compose up -d
 ## ネットワーク方針
 
 - 各 Compose プロジェクトは独自の bridge ネットワークを作成
-- VM 間の通信はホストネットワーク（192.168.11.0/24）経由
+- VM 間の通信は、各 VM のアドレス（`10.77.20.0/24` など。VLAN をまたぐときはルーター経由）で行う
 - Prometheus は各 VM の node_exporter（`:9100`）に直接アクセス
 - Reverse Proxy は各サービスの公開ポートに直接アクセス
 

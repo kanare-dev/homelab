@@ -165,7 +165,7 @@ groups:
           summary: "{{ $labels.job }} / {{ $labels.instance }} に接続できない"
 
       # Slack への送信が失敗している。Slack 自体に届かないため、この通知は Alertmanager の UI
-      # (http://192.168.11.13:9093) と Grafana / Prometheus の Alerts 画面でのみ確認できる
+      # (http://10.77.20.11:9093) と Grafana / Prometheus の Alerts 画面でのみ確認できる
       - alert: AlertmanagerNotificationsFailing
         expr: sum by (integration) (increase(alertmanager_notifications_failed_total[10m])) > 0
         for: 5m
@@ -231,7 +231,7 @@ groups:
           severity: critical
         annotations:
           summary: "AdGuard の名前解決に失敗している（{{ $labels.service }}）"
-          description: "dns-lab は内部ゾーン（CoreDNS）、dns-external は外部の名前（Unbound）の解決に失敗している。`dig @192.168.11.11` で確認する。この間、HTTPS の外形監視は通知を抑制する。"
+          description: "dns-lab は内部ゾーン（CoreDNS）、dns-external は外部の名前（Unbound）の解決に失敗している。`dig @10.77.20.10` で確認する。この間、HTTPS の外形監視は通知を抑制する。"
 
       - alert: TlsCertExpiringSoon
         expr: (probe_ssl_earliest_cert_expiry{job="blackbox_http"} - time()) / 86400 < 14
@@ -276,7 +276,7 @@ groups:
           severity: critical
         annotations:
           summary: "インターネットに届かない（1.1.1.1 と 8.8.8.8 の両方に ping が通らない）"
-          description: "ルーター（192.168.11.1）には届いている。Grafana「Internet Connectivity」の「建物の共用ルーター」が通っていれば ISP・建物の先、通っていなければ建物側（共用ルーター・ONU）を疑う。ルーターの WAN 側の再起動も試す。"
+          description: "ルーター（10.77.20.1）には届いている。Grafana「Internet Connectivity」の「建物の共用ルーター」が通っていれば ISP・建物の先、通っていなければ建物側（共用ルーター・ONU）を疑う。ルーターの WAN 側の再起動も試す。"
 
       - alert: GatewayUnreachable
         expr: probe_success{service="gateway"} == 0
@@ -284,7 +284,7 @@ groups:
         labels:
           severity: critical
         annotations:
-          summary: "ルーター（192.168.11.1）に ping が通らない"
+          summary: "ルーター（10.77.20.1）に ping が通らない"
           description: "vm-monitoring からルーターまで届かない。ルーターの停止、LAN の断、PVE の NIC 停止（INC-2026-10-25）を疑う。"
 
       # 1.1.1.1 と 8.8.8.8 の両方で 10 分間のロスが 10% 超のときだけ通知する（片方だけなら宛先側の問題）。

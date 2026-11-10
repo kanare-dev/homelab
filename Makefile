@@ -44,14 +44,14 @@ setup-omada: ## Run Ansible for Omada VM only
 
 ha-config-pull: ## Pull UI-edited Home Assistant YAML (automations/scripts/scenes) from vm-apps into Git (adds the trailing newline HA omits)
 	@for f in automations scripts scenes; do \
-		ssh -o BatchMode=yes -i ~/.ssh/id_ed25519_homelab ubuntu@192.168.11.20 "sudo cat /opt/homeassistant/config/$$f.yaml" | awk 1 > docker/compose/homeassistant/config/$$f.yaml.tmp \
+		ssh -o BatchMode=yes -i ~/.ssh/id_ed25519_homelab ubuntu@10.77.20.20 "sudo cat /opt/homeassistant/config/$$f.yaml" | awk 1 > docker/compose/homeassistant/config/$$f.yaml.tmp \
 			&& mv docker/compose/homeassistant/config/$$f.yaml.tmp docker/compose/homeassistant/config/$$f.yaml \
 			|| { rm -f docker/compose/homeassistant/config/$$f.yaml.tmp; exit 1; }; \
 	done; git status --short docker/compose/homeassistant/config
 
 n8n-workflows-pull: ## Export n8n workflows from vm-apps into Git (workflows only; credentials and owner info are not exported)
 	@tmp=$$(mktemp -d) && mkdir $$tmp/workflows \
-		&& ssh -o BatchMode=yes -i ~/.ssh/id_ed25519_homelab ubuntu@192.168.11.20 "sudo docker exec n8n sh -c 'rm -rf /home/node/.n8n/export && n8n export:workflow --backup --output=/home/node/.n8n/export/' >&2 && sudo tar -C /opt/n8n/data/export -cf - ." > $$tmp/export.tar \
+		&& ssh -o BatchMode=yes -i ~/.ssh/id_ed25519_homelab ubuntu@10.77.20.20 "sudo docker exec n8n sh -c 'rm -rf /home/node/.n8n/export && n8n export:workflow --backup --output=/home/node/.n8n/export/' >&2 && sudo tar -C /opt/n8n/data/export -cf - ." > $$tmp/export.tar \
 		&& tar -xf $$tmp/export.tar -C $$tmp/workflows \
 		&& for f in $$tmp/workflows/*.json; do jq 'del(.shared, .meta.instanceId)' "$$f" > "$$f.tmp" && mv "$$f.tmp" "$$f" || exit 1; done \
 		&& rm -rf docker/compose/n8n/workflows && mv $$tmp/workflows docker/compose/n8n/workflows \
@@ -61,7 +61,7 @@ n8n-workflows-pull: ## Export n8n workflows from vm-apps into Git (workflows onl
 freshrss-opml-pull: ## Export FreshRSS subscriptions (OPML) from vm-apps to iCloud Drive, not Git. Usage: make freshrss-opml-pull FRESHRSS_USER=<name>
 	@test -n "$(FRESHRSS_USER)" || { echo "FRESHRSS_USER is required"; exit 1; }
 	@dir="$(HOME)/Library/Mobile Documents/com~apple~CloudDocs/homelab" && test -d "$$dir" \
-		&& ssh -o BatchMode=yes -i ~/.ssh/id_ed25519_homelab ubuntu@192.168.11.20 "sudo docker exec freshrss ./cli/export-opml-for-user.php --user '$(FRESHRSS_USER)'" > "$$dir/freshrss-subscriptions.opml.tmp" \
+		&& ssh -o BatchMode=yes -i ~/.ssh/id_ed25519_homelab ubuntu@10.77.20.20 "sudo docker exec freshrss ./cli/export-opml-for-user.php --user '$(FRESHRSS_USER)'" > "$$dir/freshrss-subscriptions.opml.tmp" \
 		&& test -s "$$dir/freshrss-subscriptions.opml.tmp" && mv "$$dir/freshrss-subscriptions.opml.tmp" "$$dir/freshrss-subscriptions.opml" \
 		&& echo "saved: $$dir/freshrss-subscriptions.opml" \
 		|| { rm -f "$$dir/freshrss-subscriptions.opml.tmp"; echo "export failed"; exit 1; }

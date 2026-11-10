@@ -18,7 +18,7 @@ services:
     environment:
       - HOMEPAGE_ALLOWED_HOSTS=home.lab.kanare.dev
     dns:
-      - 192.168.11.11
+      - 10.77.20.10
     volumes:
       - ./config:/app/config
       - ./icons:/app/public/icons

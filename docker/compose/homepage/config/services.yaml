@@ -42,7 +42,7 @@
                   maximumFractionDigits: 0
                 suffix: "%"
     - vm-infra:
-        description: DNS / Proxy (192.168.11.11)
+        description: DNS / Proxy (10.77.20.10)
         icon: ubuntu-linux.png
         widget:
           type: prometheusmetric
@@ -70,7 +70,7 @@
                   maximumFractionDigits: 0
                 suffix: "%"
     - vm-monitoring:
-        description: Monitoring (192.168.11.13)
+        description: Monitoring (10.77.20.11)
         icon: ubuntu-linux.png
         widget:
           type: prometheusmetric
@@ -98,7 +98,7 @@
                   maximumFractionDigits: 0
                 suffix: "%"
     - vm-apps:
-        description: Apps (192.168.11.20)
+        description: Apps (10.77.20.20)
         icon: ubuntu-linux.png
         widget:
           type: prometheusmetric
@@ -126,7 +126,7 @@
                   maximumFractionDigits: 0
                 suffix: "%"
     - vm-code:
-        description: Development (192.168.11.22)
+        description: Development (10.77.20.30)
         icon: ubuntu-linux.png
         widget:
           type: prometheusmetric
@@ -167,7 +167,7 @@
         siteMonitor: https://adguard.lab.kanare.dev
         widget:
           type: adguard
-          url: http://192.168.11.11:3000
+          url: http://10.77.20.10:3000
           username: kanare
           password: "{{HOMEPAGE_VAR_ADGUARD_PASSWORD}}"
 
