@@ -258,7 +258,7 @@ ER605 と SG2210P は同時に購入済みで、すでに繋いである（ER605
   - **ホストの `vmbr0.10` を試す（リハーサル済み。2026-11-09。本番の `vmbr0.10` は段階 3b）**: ER605 に VLAN10 を作ったうえで、`vmbr0.10` に `10.77.10.10/24` を足し（旧 `192.168.11.10` は残す）、Mac から届くことを確かめる。届かなければ、`vmbr0.10` を外す。
   - 全 VM は、VLAN ID を指定する（`vm-omada` は、段階 3b まで、タグなし（VLAN1）を明示する）。
   - `bridge-vlan-aware` への変更は、物理コンソールから行う。
-- [ ] **コードの準備**: 別ブランチで Terraform・Ansible・Caddyfile・Prometheus・Homepage・ドキュメントを新アドレスに書き換える（一覧は[設計書](../../architecture/08-vlan-design.md#影響を受けるリポジトリ内の箇所)）。`vlan_id` を Terraform の VM モジュールに追加する。**必須（既定値なし）にして、全 VM に指定する**（`vm-omada` は、段階 3b まで、タグなし（VLAN1）を明示する）。
+- [ ] **コードの準備**: 別ブランチで Terraform・Ansible・Caddyfile・Prometheus・Homepage・ドキュメントを新アドレスに書き換える（一覧は[設計書](../../architecture/08-vlan-design.md#影響を受けるリポジトリ内の箇所)）。`vlan_id` を Terraform の VM モジュールに追加する。**必須（既定値なし）にして、全 VM に指定する**（`vm-omada` は、段階 3b まで、タグなし（VLAN1）を明示する）。 UFW の許可元も、新しいアドレスに直す（`vm-infra` の 8043、`vm-monitoring` の 9100。`vm-omada` は段階 3 で動かさないので、**直し忘れやすい**。[ロードマップ 13](13-defer-management-vlan.md)）。
 - [ ] **Omada に本番設定を作る（有効にしない）**: VLAN 10/20/30/40/50/60/70、DHCP、ACL、mDNS、スイッチのポートプロファイル。
 - [ ] **バックアップ**: Omada、Proxmox の `/etc/network/interfaces`、`terraform.tfstate`、Buffalo の設定を、Mac 以外にも保存する（Omada は当面 Mac だけ。[バックログ](01-backlog.md)）。
 - [ ] **戻しの手順**（下記）を書く。**戻す時刻は決めない（決定 2026-11-10、[ADR-0030](../../adr/0030-stage3-no-rollback-deadline.md)）**: 完了するまで作業する。作業中にインターネットが要るときは、建物（壁）の Wi-Fi に繋ぐ。

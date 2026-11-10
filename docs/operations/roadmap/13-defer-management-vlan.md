@@ -53,7 +53,7 @@
 | 順 | 動作 | 名前 | 送信元 | 宛先 | 中身 |
 | --- | --- | --- | --- | --- | --- |
 | 1 | 許可 | `130-servers-to-lan-caddy` | `vm-infra`（`10.77.20.10`） | `vm-omada`（`192.168.11.12`）の 8043、Proxmox（`192.168.11.10`）の 8006 | Caddy の `omada.lab`・`pve.lab` の転送 |
-| 2 | 許可 | `131-servers-to-lan-metrics` | `vm-monitoring`（`10.77.20.11`） | 今の LAN の 9100 | Prometheus の取得（Proxmox、`vm-omada` の node_exporter） |
+| 2 | 許可 | `131-servers-to-lan-metrics` | `vm-monitoring`（`10.77.20.11`） | 今の LAN の 9100 | Prometheus の取得（Proxmox、`vm-omada` の node_exporter）。ACL を絞る日は、`vm-omada` の UFW の許可元（下の「同じ日に直すコード」）と、合っていることを確かめる |
 | 3 | 許可 | `151-trusted-to-lan` | Trusted | 今の LAN の 80/443/8006/22 | 管理ポートだけ（許可表の Trusted → Management） |
 | 4 | 拒否 | `900-deny-from-lan` | 今の LAN | !今の LAN | 末尾。管理系から他の VLAN へは出さない。インターネット宛は止まらない（リハーサルの 5a〜5c で確認済みの形） |
 
@@ -63,7 +63,7 @@
 - **ゲートウェイ自身（`192.168.11.1`）宛は、この ACL の対象外**（設計書の注意書きのとおり）。
 - 確かめること: Caddy 経由の Omada・Proxmox の画面、Prometheus の `TargetDown` が出ないこと、Trusted の Mac から `ssh` で Proxmox に入れること、IoT の端末から今の LAN に届かないこと。
 
-**同じ日に直すコード**: `vm-omada` の UFW は、Caddy からの 8043 を、`vm-infra` の旧アドレス（`192.168.11.11`）からだけ許可している（`ansible/inventory/group_vars/omada/vars.yml`）。段階 3 で `vm-infra` が `10.77.20.10` に移るので、**段階 3 のコードの準備で、`10.77.20.10` に直す**（直さないと、ACL と関係なく、`omada.lab.kanare.dev` が開けなくなる）。機器のファームウェアの取得用の許可（`192.168.11.0/24` から 8043）は、機器が今の LAN に残るので、そのままでよい。
+**同じ日に直すコード**: `vm-omada` の UFW は、Caddy からの 8043 を、`vm-infra` の旧アドレス（`192.168.11.11`）からだけ許可している（`ansible/inventory/group_vars/omada/vars.yml`）。段階 3 で `vm-infra` が `10.77.20.10` に移るので、**段階 3 のコードの準備で、`10.77.20.10` に直す**（直さないと、ACL と関係なく、`omada.lab.kanare.dev` が開けなくなる）。**9100（node_exporter）も同じ**: `vm-omada` の UFW は、`vm-monitoring` の旧アドレス（`192.168.11.13`）からだけ許可している（同じ `vars.yml` の 9 行目）。`vm-monitoring` が `10.77.20.11` に移るので、これも直す（直さないと、ACL が全許可でも、UFW で止まり、`vm-omada` の `TargetDown` が出る）。`vm-omada` は段階 3 で動かさないので、**直し忘れやすい**。`vm-infra`・`vm-apps`・`vm-code` の 9100 の許可も、同じ旧アドレスで書いてある（`group_vars/*/vars.yml`）ので、同じ作業で直す。機器のファームウェアの取得用の許可（`192.168.11.0/24` から 8043）は、機器が今の LAN に残るので、そのままでよい。
 
 **段階 3b での書き直し**: 送信元・宛先の「今の LAN」を Management（VLAN10）にし、名前を設計書の例（`130-servers-to-mgmt-caddy` など）に戻す。宛先の IP も新しい住所（`10.77.10.3`、`10.77.10.10`）にする。最終形の `110-mgmt-to-servers-dns`（DNS・NTP）は、そのとき要るか決め直す。`[暫定]` のルールを消す。
 
