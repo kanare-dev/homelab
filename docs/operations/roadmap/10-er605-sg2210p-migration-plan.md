@@ -264,6 +264,23 @@ ER605 と SG2210P は同時に購入済みで、すでに繋いである（ER605
 - [ ] **戻しの手順**（下記）を書く。**戻す時刻は決めない（決定 2026-11-10、[ADR-0030](../../adr/0030-stage3-no-rollback-deadline.md)）**: 完了するまで作業する。作業中にインターネットが要るときは、建物（壁）の Wi-Fi に繋ぐ。
 - [ ] Tailscale の ACL・経路の承認の手順を確認する（`--advertise-routes=10.77.20.0/24,10.77.40.0/24`）。
 
+### 段階 3 のブランチ運用
+
+段階 3 の新アドレスのコードは、実機に流す現行のコードと混ざらないよう、別のブランチに溜める（2026-11-10 決定）。
+
+| ブランチ | 内容 | 実機に流してよいか |
+| --- | --- | --- |
+| `main` | 統合済みの本線（PR #10 で、旧ブランチを統合した） | — |
+| `docs/stage3-prep` | 普段の作業（修正、文書、運用）。現行のアドレス（`192.168.11.x`）のコード | **流してよい**（`terraform apply`、`ansible-playbook`） |
+| `stage3/new-addresses` | 段階 3 の新アドレス（`10.77.x.x`）のコード。`docs/stage3-prep` から分岐 | **切り替えの日まで、流さない**（`terraform plan`、lint、文書の編集は可） |
+
+- `stage3/new-addresses` には、段階 3 のコードの準備だけを入れる（Terraform、Ansible、Caddyfile、Prometheus、Homepage、コンテナの設定、Makefile、README）。
+- **`docs/stage3-prep` が進んだら、`stage3/new-addresses` に取り込む**（`git switch stage3/new-addresses` → `git merge docs/stage3-prep`）。切り替えの日の競合を小さくするため。
+- 作業ツリーは 1 つなので、`stage3/new-addresses` をチェックアウトしている間に、別のセッションが `apply` を流さないよう、[CLAUDE.md](../../../CLAUDE.md) に規則を書いた。実機に流す前に、`git branch --show-current` で確かめる。
+- **切り替えの日**: 作業の前に、`stage3/new-addresses` を、現行のブランチに取り込み、`terraform plan` で、期待どおりの差分（5 台の in-place 更新。`vm-omada` は変わらない）を確かめてから、[Runbook](../runbooks/21-network-cutover-stage-3.md)の手順 5・6 で流す。
+- 切り替えが済んだら、取り込んだブランチ（`stage3/new-addresses`）は削除する。
+- 決めた方針（2026-11-10）: Terraform は `vlan_id` を VM ごとに必須（タグなしは `null`）、`gateway`・`nameserver` を VM ごとの値にする。UFW の許可元は、`vm-infra`（`10.77.20.10`）、`vm-monitoring`（`10.77.20.11`）、Trusted（`10.77.30.0/24`）。Tailscale は、`10.77.20.0/24`、`10.77.40.0/24` に、`192.168.11.0/24` を足して広告する（段階 3b まで）。`group_vars/monitoring/vars.yml` の `prometheus_scrape_targets` は、誰も使っていないので削除する。
+
 ### 3-B. 設定の対応表
 
 **ER605（VLAN インターフェース）**

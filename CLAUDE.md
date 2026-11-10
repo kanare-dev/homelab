@@ -28,6 +28,13 @@
 - 新しい設計書・手順を追加したら、`docs/README.md` と該当ディレクトリの README の一覧も更新する。
 - 設定変更で監視や容量に影響する場合は、`docs/services/platform/monitoring.md` の「容量の上限設定」の表も更新する。
 
+## 段階 3 のブランチ運用（移行の実施中）
+
+- 段階 3 の新アドレス（`10.77.x.x`）のコードは、**`stage3/new-addresses`** に溜めている。切り替えの日までに実機へ流さない。詳細は[移行計画の 3-A](docs/operations/roadmap/10-er605-sg2210p-migration-plan.md#段階-3-のブランチ運用)。
+- **`stage3/new-addresses` をチェックアウトしている間は、`terraform apply` と `ansible-playbook`（実機に流すコマンド）を実行しない。** `terraform plan`、lint、文書の編集は、してよい。実機に流す前に、`git branch --show-current` で、今のブランチを確かめる。
+- 普段の作業（修正、文書、運用）は、`docs/stage3-prep`（または、その時点の本線）で行う。`stage3/new-addresses` には、段階 3 のコードの準備だけを入れる。
+- 本線が進んだら、`stage3/new-addresses` に取り込む（切り替えの日の競合を小さくするため）。
+
 ## Lint
 
 - push する前に `make lint-all` をローカルで通す（CI の `.github/workflows/lint.yml` と同じチェック）。失敗したまま push しない。
