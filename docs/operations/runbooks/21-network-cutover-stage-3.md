@@ -97,7 +97,7 @@ p2 のスイッチ側の設定は、準備（手順 0）のまま（untagged VLA
 **`vm-infra` を最初にする**（DNS を先に戻す）。
 
 0. `vm-omada` は、変えない（段階 3b まで、`192.168.11.12`・タグなし）。今の LAN の DHCP が配る DNS は、ルーター（`192.168.11.1`）にする（決定。[ADR-0028](../../adr/0028-defer-management-vlan10.md)）。Wi-Fi の端末が Trusted に移った（手順 2 のあと）ら変える。今は、Wi-Fi の端末が AdGuard を外れるので、変えない。
-1. `terraform apply` で、`vm-infra` の IP（`10.77.20.10`）と VLAN（20）を変える。VM ごとに分けるときは、`-target='module.vm["vm-infra"]'` のように指定する。`-target` を付けないと、手動起動の `vm-dev` も `running` にする差分が一緒に適用される（[移行計画](../roadmap/10-er605-sg2210p-migration-plan.md)）。apply で VM が再起動するときは、[apply による再起動](15-terraform-apply-restart.md)。
+1. `terraform apply` で、`vm-infra` の IP（`10.77.20.10`）と VLAN（20）を変える。VM ごとに分けるときは、`-target='module.vm["vm-infra"]'` のように指定する。`vm_state` は `ignore_changes` なので、止まっている `vm-dev` は、`apply` で起動しない（`vm-dev` だけの `apply` で確認済み。[リハーサルの D](22-network-stage-3-rehearsal.md#d-vm-dev-で-terraform-apply-を試す2026-11-11)）。**`apply` の前に、`plan` を見て、各 VM の VLAN タグの差分（`0 -> 20` など）が出ていること**を確かめる。apply で VM が再起動するときは、[apply による再起動](15-terraform-apply-restart.md)。
 2. `vm-infra` が上がったら確認する: [ ] `10.77.20.10` で届く　[ ] AdGuard が `:53` で応答する
 3. 残りの VM を、順に変える。
 
@@ -111,9 +111,11 @@ p2 のスイッチ側の設定は、準備（手順 0）のまま（untagged VLA
 
    VMID は変えない（付け替えは、切り替えのあとの VM の作り直しで行う。[ADR-0026](../../adr/0026-vmid-from-vlan-and-octet.md)）。
 
-   `vm-dev` は止めたまま、IP と VLAN の設定だけを変えられるかは、未確認（apply で起動してしまわないか、リハーサルで確かめる）。
+   `vm-dev` は止めたまま、IP と VLAN の設定だけを変えられる（`vm-dev` だけの `apply` で確認済み。2026-11-11。[リハーサルの D](22-network-stage-3-rehearsal.md#d-vm-dev-で-terraform-apply-を試す2026-11-11)）。
 
 ## 6. Ansible で反映する
+
+0. Mac の `~/.ssh/config` の `HostName` を、新しいアドレスに直す（`vm-infra` `10.77.20.10`、`vm-monitoring` `10.77.20.11`、`vm-apps` `10.77.20.20`、`vm-code` `10.77.20.30`、`vm-dev` `10.77.40.10`。`pve`・`vm-omada` は、段階 3b まで変えない）。IP を直接指定するときは、`-i ~/.ssh/id_ed25519_homelab` を付ける（`Host *` の `IdentitiesOnly yes` のため）。
 
 1. `ansible-playbook` を流して、DNS のレコード、UFW、Caddy、Prometheus（scrape 対象）、Tailscale の経路を反映する（Terraform の `gateway` と `ansible/inventory/group_vars/all/vars.yml` の `gateway` も、新しい値）。
 2. **Tailscale**: 新しい経路（`10.77.20.0/24`、`10.77.40.0/24`）を、Admin Console で承認する。**旧経路（`192.168.11.0/24`）は外さない**（管理系が今の LAN に残るため。外すのは段階 3b のあと。[ADR-0028](../../adr/0028-defer-management-vlan10.md)）。
