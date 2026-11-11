@@ -31,6 +31,7 @@ Omada コントローラーの詳細設計。ER605・SG2210P・将来の AP を�
 | ユーザー（Accounts） | ローカルユーザー `homelab-owner`（Owner。日常に使う）と `homelab-admin`（Super Admin。予備）。Cloud User（TP-Link ID 名義の Owner。**名前は変更できない仕様**）は Omada Cloud 用。パスワードは Keychain（名前は台帳）。**ローカルユーザーの名前を、メールアドレスの形にしない**（下の注） |
 | サイト | 1 つ。名前は `kanare-homelab`（2026-11-06 に決めた） |
 | LAN（Settings > Wired Networks > LAN） | `192.168.11.1/24`、DHCP `.60`〜`.99`、リース 48 時間、DNS は `192.168.11.11` だけ（2026-11-03 に運用者が設定。画面の値は未確認） |
+| VLAN のネットワーク（段階 3 の準備。2026-11-11 に作成） | 10・20・30・40・50・60・70 の 7 つ（値は[ER605 の設定](../../hardware/er605/settings.md#vlan-のネットワーク段階-3-の準備)）。端末・ホストは、まだ繋がっていない。当日（段階 3）に、ポートと端末を移す。ACL は作らない（全許可。[ADR-0029](../../adr/0029-stage3-acl-allow-all-then-tighten.md)） |
 | 採用している機器 | ER605（JP 版 2.4.2）と SG2210P（5.30.7）。2026-11-06 に採用した。デバイス名は、型番ベースの小文字（`er605`、`sg2210p`。AP を足すときも、同じ付け方で `eap-xxx` など）（2026-11-03 に、ER605 を一度採用して更新し、取り外していた） |
 | Omada Cloud（クラウドアクセス） | **有効**（試用中。最終的に無効にするかもしれない。[外部サービスの表](../../architecture/03-network.md#外部サービスへの依存)）。TP-Link ID は台帳 |
 | Open API | 使っていない |
@@ -53,6 +54,7 @@ Omada コントローラーの詳細設計。ER605・SG2210P・将来の AP を�
 
 | 日付 | 内容 |
 | --- | --- |
+| 2026-11-11 | 段階 3 の準備として、VLAN のネットワーク 7 つ（10〜70）を、設計書の値にそろえた（Servers・Lab・Guests・DMZ を新規に作成。Management の DNS を `10.77.10.1`、Trusted のリースを 48 時間に修正）。端末は繋いでいない（運用者の報告） |
 | 2026-11-09 | ローカルの Owner の名前を、TP-Link ID と同じメール形式から `homelab-owner` に変えた。`omada.lab.kanare.dev` でユーザー設定（言語・テーマ）が `Account unauthorized` で保存できなかったため。予備に `homelab-admin`（Super Admin）を作った（運用者の報告） |
 | 2026-11-09 | メモリ枯渇で固まった（[INC-2026-11-09](../../operations/incidents/2026-11-09-omada-memory-exhaustion.md)）ため、VM のメモリを 4GB にし、コンテナに Java ヒープ 768MB・MongoDB キャッシュ 0.25GB・`mem_limit` 2.5GB を付けた |
 | 2026-11-06 | サイトの NTP を `ntp.nict.jp` にした（運用者の報告） |
