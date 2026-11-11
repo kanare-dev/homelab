@@ -130,6 +130,7 @@ p2 のスイッチ側の設定は、準備（手順 0）のまま（untagged VLA
 - [ ] Caddy 経由の各サービス、Omada・Proxmox の管理画面
 - [ ] Prometheus の全ターゲットが `up`。`GatewayUnreachable` は、新しい IP に直す
 - [ ] 外出先から Tailscale 経由で、`vm-code`・`vm-dev` に入れる
+- [ ] **自宅の Wi-Fi（Trusted）で、Tailscale をオンにした MacBook の通信経路を確かめる**: Tailscale の「サブネット経路を使う」がオンだと、Servers（`10.77.20.0/24`）・Lab（`10.77.40.0/24`）への通信が、ER605 を通らず Tailscale 経由（`vm-infra` が送信元）になりうる。そうなると、手順 8 で絞る ACL が効かない。経路は `tailscale status` や `route -n get 10.77.20.10` で見る。経路が Tailscale 経由なら、自宅では「サブネット経路を使う」をオフにする（外出先でだけ使う）。手順 8 の前に結論を出す。
 - [ ] メインディスプレイ、MacBook、Wi-Fi の端末（Trusted）
 - [ ] テレビ（無線、Trusted）の AirPlay・Cast
 - [ ] Healthchecks.io の heartbeat
