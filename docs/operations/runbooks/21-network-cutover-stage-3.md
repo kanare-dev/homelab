@@ -22,7 +22,7 @@ VLAN を有効にし、全ホストの IP を `192.168.11.x` から `10.77.<VLAN
 - [ ] **新アドレスのコードを、現行のブランチに取り込んだ**（[ブランチ運用](../roadmap/10-er605-sg2210p-migration-plan.md#段階-3-のブランチ運用)）。`terraform plan` が、5 台の in-place 更新（`vm-omada` は変わらない）になっている。
 - [ ] **Omada に本番の設定を作ってある（有効にはしていない）**: VLAN 10/20/30/40/50/60/70、DHCP、ACL、mDNS の中継、スイッチのポートプロファイル。
 - [ ] **今の LAN の DHCP の DNS をルーターにする手順を確認した**（決定済み。変えるのは、手順 2 で Wi-Fi の端末が Trusted に移ったあと）。
-- [ ] **バックアップが、Mac 以外にもある**: Omada、Proxmox の `/etc/network/interfaces`、`terraform.tfstate`、Buffalo の設定。
+- [x] **バックアップが、Mac 以外にもある**（iCloud Drive の `homelab/`。2026-11-11 に取得）: Omada（`omada_backup_...2026-11-11_21-06-24.cfg` と `sitebackup_...2026-11-11_21-04-37.cfg`）、Proxmox の `/etc/network/interfaces`（`pve-interfaces-bk-20261111.txt`）、`terraform.tfstate`（`terraform.tfstate-bk-20261111`）、Buffalo の設定（`wsr-1800ax4p-bk-20261103*.bin`）。Omada に本番の設定を作る前の状態なので、**当日の手順 1 で、もう一度取る**。
 - [ ] Tailscale の経路の承認の手順を確認してある（`--advertise-routes=10.77.20.0/24,10.77.40.0/24`）。
 - [ ] 戻し方（下記）を読んだ。
 
