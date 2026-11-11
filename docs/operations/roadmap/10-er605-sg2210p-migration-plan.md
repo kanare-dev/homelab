@@ -306,13 +306,13 @@ ER605 と SG2210P は同時に購入済みで、すでに繋いである（ER605
 **2. SG2210P のポート（Settings > Wired Networks > Profiles と、Devices > `sg2210p`）**
 
 - [x] p2 の tagged に、10・20・40・50・70 が入っている（2026-11-11。作った VLAN が自動で入り、10〜70 のすべてが入った。30・60 は余分だが、害はない。untagged は、VLAN1 のまま）。
-- [ ] ポートプロファイル「アクセス VLAN30（untagged）」を作っておく（p3・p4 用。**適用は当日**。今のうちに p3・p4 を変えると、Buffalo の Wi-Fi の端末が今の LAN から外れる）。
+- [x] ポートプロファイル「アクセス VLAN30（untagged）」を作っておく（2026-11-11。名前は `access-trusted`。p3・p4 用。**適用は当日**。今のうちに p3・p4 を変えると、Buffalo の Wi-Fi の端末が今の LAN から外れる）。
 - [ ] p1 の tagged が、10・20・30・40・50・60・70 になっている（作ったあとの確認）。**未確認**（p2 は確認した）。
 - [ ] p6（緊急用の入口）は、native VLAN1 のまま。p5・p7・p8 は空き。
 
 **3. mDNS の中継（Trusted ↔ IoT）**
 
-- [ ] ER605 の mDNS（Settings > Services）で、Trusted と IoT の間の中継を作る。対象は、この 2 つだけ（Management・Servers・Lab・Guests には中継しない）。
+- [x] mDNS（Settings > 一般設定 > mDNS）で、Trusted と IoT の間の中継を作る（2026-11-11。ルール `mdns-trusted-iot`、無効のまま。Google Cast は一覧に無いので、`_googlecast._tcp.local` を追加した）。対象は、この 2 つだけ（Management・Servers・Lab・Guests には中継しない）。
 - 動作の確認は、段階 4（テレビを IoT の SSID に移すとき）。段階 3 には、確かめる相手がいない。作るだけにして、画面で作れるか（必要な版か）を確かめる。
 
 **4. 作らない・触らないもの**
@@ -322,9 +322,9 @@ ER605 と SG2210P は同時に購入済みで、すでに繋いである（ER605
 
 **5. 終わったあと**
 
-- [ ] Omada のバックアップを取り直す（`omada_backup_...` と `sitebackup_...`。iCloud Drive）。
-- [ ] 設定書を、同じ変更で更新する: `docs/services/network/omada-controller.md`、`docs/hardware/er605/settings.md`、`docs/hardware/sg2210p/settings.md`（変更履歴に 1 行）。
-- [ ] 手順書の前提「Omada に本番の設定を作ってある」に印を付ける（[当日の手順書](../runbooks/21-network-cutover-stage-3.md)）。
+- [x] Omada のバックアップを取り直す（`omada_backup_...` と `sitebackup_...`。iCloud Drive。2026-11-11 21:48）。
+- [x] 設定書を、同じ変更で更新する: `docs/services/network/omada-controller.md`、`docs/hardware/er605/settings.md`、`docs/hardware/sg2210p/settings.md`（変更履歴に 1 行）。
+- [x] 手順書の前提「Omada に本番の設定を作ってある」に印を付ける（[当日の手順書](../runbooks/21-network-cutover-stage-3.md)）。
 
 **決定（2026-11-11）**: Trusted のリースは 48 時間（今の ER605 と同じ。日常端末は入れ替わりが少ない）。DHCP 予約（`.50–.99`）は、段階 3 では作らない（Mac などは、プールのアドレスで困らない）。固定が要るテレビ・ESP32 は、段階 4 で IoT に移すときに予約する（MAC は台帳に書く）。
 
