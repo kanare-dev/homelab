@@ -326,7 +326,7 @@ ER605 と SG2210P は同時に購入済みで、すでに繋いである（ER605
 3. （段階 3b に移した。段階 3 では行わない。）Proxmox（物理コンソールで）: `vmbr0` の IP を外し、タグ付きの `vmbr0.10` に `10.77.10.10/24`（GW `10.77.10.1`）を設定して、ネットワークを再起動する。p2 は 3-A のまま（untagged VLAN1、tagged 10/20/40/50/70）で、スイッチ側の変更は要らない。
 4. （段階 3b に移した。`vm-omada` は `192.168.11.12` のまま。）`vm-omada` を `10.77.10.3` にする。ER605・SG2210P が追従することを確かめる。
 5. `terraform apply` で VM の IP と VLAN を変える（`vm-omada` は変えない）。**`vm-infra` を最初にする**（DNS を先に戻す）。今の LAN の DHCP が配る DNS は、ルーター（`192.168.11.1`）にする（決定。[ADR-0028](../../adr/0028-defer-management-vlan10.md)。Wi-Fi の端末が Trusted に移ったあとに変える。今は、Wi-Fi の端末が AdGuard を外れるので、変えない）。
-6. `ansible-playbook` で DNS レコード、UFW、Tailscale の経路、Caddy、Prometheus を反映する。Tailscale の新しい経路は Admin Console で承認し、旧経路を外す。
+6. `ansible-playbook` で DNS レコード、UFW、Tailscale の経路、Caddy、Prometheus を反映する。Tailscale の新しい経路は Admin Console で承認する（旧経路 `192.168.11.0/24` は、管理系が残るので、段階 3b まで外さない）。
 7. 疎通を確認する（次の一覧）。
 8. **ACL は、当日は絞らない**（[ADR-0029](../../adr/0029-stage3-acl-allow-all-then-tighten.md)）。段階 3 のあと数日動かして落ち着いてから、別の日に、許可表の内容に、ログを見ながら 1 つずつ絞る。遅くとも段階 4 の前に済ませる。今の LAN の ACL と緊急用の入口は、その日の前提にする（[Runbook](../runbooks/21-network-cutover-stage-3.md)の手順 8）。
 9. 旧ネットワーク（VLAN1）は、止めない（管理系が使う。[ADR-0028](../../adr/0028-defer-management-vlan10.md)）。リハーサル用のポートは、未使用に戻してある（2026-11-09）。
