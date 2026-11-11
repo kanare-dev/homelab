@@ -76,7 +76,7 @@ Servers（`10.77.20.0/24`）の固定アドレス（`.10–.49`）は、役割�
 ### DHCP
 
 - DHCP が配る DNS サーバーは、`10.77.20.10`（`vm-infra`）。フォールバックは配らない（[ADR-0024](../adr/0024-dhcp-dns-single-no-fallback.md)）。**例外: Management の緊急用プールは、ルーター（`10.77.10.1`）を配る**（[ADR-0027](../adr/0027-servers-octet-bands-and-emergency-dns.md)）。`vm-infra` が止まっていても、外部の名前を引ける。`*.lab.kanare.dev` は引けないので、管理機器は IP で開く。
-- リース時間は VLAN ごとに決める。Management の緊急用プールは 1 時間、Trusted は 24〜48 時間、Lab と IoT は 24 時間、Guests は 4 時間。Guests は短くして、来客の端末の情報を長く保持しない。
+- リース時間は VLAN ごとに決める。Management の緊急用プールは 1 時間、Trusted は 48 時間、Lab と IoT は 24 時間、Guests は 4 時間。Guests は短くして、来客の端末の情報を長く保持しない。
 - Lab は、Terraform で固定 IP を振る VM（`vm-dev` など）と、手で立てる使い捨ての VM が混在する。前者は `.10–.49`、後者は DHCP の `.100–.149` に入れる。
 - Trusted の常用機（Mac など）は、DHCP 予約（`.50–.99`）で固定する。
 - Servers・DMZ は DHCP を配らない。DMZ に侵入した端末が自動でアドレスを得るのを避ける。
