@@ -313,7 +313,7 @@ Buffalo WSR-1800AX4P は VLAN に対応していない。AP モードにはで�
 2. スイッチの Proxmox 向けポートを trunk にし、ルーターの VLAN インターフェースを有効にする。Buffalo（AP）は Trusted のポートにつなぎ替える。
 3. （**段階 3 では行わない。段階 3b で行う。**）Proxmox ホストの IP を、`vmbr0` から外し、タグ付きの `vmbr0.10`（`10.77.10.10/24`）に付ける。`vmbr0` を VLAN-aware にする。必要なら物理コンソールから行う。
 4. VM の IP と VLAN を新アドレスに変える（`terraform apply`）。起動順は `vm-infra` を最初にする（DNS を先に復旧させる）。
-5. Ansible を流し、各ホストの設定（DNS レコード、UFW、Tailscale の `--advertise-routes=10.77.20.0/24,10.77.40.0/24` など）を反映する。Tailscale の新しい経路は Admin Console で承認し、旧経路を外す。
+5. Ansible を流し、各ホストの設定（DNS レコード、UFW、Tailscale の `--advertise-routes=10.77.20.0/24,10.77.40.0/24,192.168.11.0/24` など）を反映する。Tailscale の新しい経路は Admin Console で承認する（旧経路 `192.168.11.0/24` は、管理系が今の LAN に残るので、段階 3b まで外さない）。
 6. 疎通を確認する: 名前解決、各 VLAN から Servers への接続、Caddy 経由の各サービス、Prometheus の scrape、外出先からの Tailscale 接続、テレビへの AirPlay・Cast。
 7. ファイアウォール（ACL）は全許可のままにする。許可表の内容に絞るのは、当日ではなく別の日に、ログを見ながら行う（[ADR-0029](../adr/0029-stage3-acl-allow-all-then-tighten.md)）。
 8. 戻す時刻は決めない（[ADR-0030](../adr/0030-stage3-no-rollback-deadline.md)）。事前に書いた戻し手順は、機器の故障など、その日のうちに完了できない事情が出たときに使う。
