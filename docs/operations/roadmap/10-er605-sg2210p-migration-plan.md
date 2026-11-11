@@ -102,6 +102,8 @@ IP は変えない。Buffalo の Wi-Fi 設定は今のままなので、端末�
 
 ### 段階 4 の後
 
+**段階 4 は、EAP（AP）を買ったあとの話で、当面来ない見込み（運用者。2026-11-11）。段階 3 が、当面の完成形になる。** Buffalo は、Trusted の AP として、当面使い続ける（Wi-Fi の端末は Trusted に入る。IoT・Guests・DMZ は、VLAN だけ作り、機器は置かない）。
+
 AP を SG2210P の p7（PoE）に繋ぎ、SSID を 3 つ（Trusted / IoT / Guest）にする。詳細は [04 の段階 4](04-network-omada-vlan.md#段階-4-apeap)。テレビは IoT の SSID に移し、そのとき Trusted ↔ IoT の mDNS 中継を実機で確認する。
 
 ## ケーブルと電源
@@ -375,7 +377,7 @@ ER605 と SG2210P は同時に購入済みで、すでに繋いである（ER605
 5. `terraform apply` で VM の IP と VLAN を変える（`vm-omada` は変えない）。**`vm-infra` を最初にする**（DNS を先に戻す）。今の LAN の DHCP が配る DNS は、ルーター（`192.168.11.1`）にする（決定。[ADR-0028](../../adr/0028-defer-management-vlan10.md)。Wi-Fi の端末が Trusted に移ったあとに変える。今は、Wi-Fi の端末が AdGuard を外れるので、変えない）。
 6. `ansible-playbook` で DNS レコード、UFW、Tailscale の経路、Caddy、Prometheus を反映する。Tailscale の新しい経路は Admin Console で承認する（旧経路 `192.168.11.0/24` は、管理系が残るので、段階 3b まで外さない）。
 7. 疎通を確認する（次の一覧）。
-8. **ACL は、当日は絞らない**（[ADR-0029](../../adr/0029-stage3-acl-allow-all-then-tighten.md)）。段階 3 のあと数日動かして落ち着いてから、別の日に、許可表の内容に、ログを見ながら 1 つずつ絞る。遅くとも段階 4 の前に済ませる。今の LAN の ACL と緊急用の入口は、その日の前提にする（[Runbook](../runbooks/21-network-cutover-stage-3.md)の手順 8）。
+8. **ACL は、当日は絞らない**（[ADR-0029](../../adr/0029-stage3-acl-allow-all-then-tighten.md)）。段階 3 のあと数日動かして落ち着いてから、別の日に、許可表の内容に、ログを見ながら 1 つずつ絞る。段階 3 の完了から 2 週間以内を目安に、優先して行う（決定 2026-11-11）。今の LAN の ACL と緊急用の入口は、その日の前提にする（[Runbook](../runbooks/21-network-cutover-stage-3.md)の手順 8）。
 9. 旧ネットワーク（VLAN1）は、止めない（管理系が使う。[ADR-0028](../../adr/0028-defer-management-vlan10.md)）。リハーサル用のポートは、未使用に戻してある（2026-11-09）。
 
 ### 3-D. 確認

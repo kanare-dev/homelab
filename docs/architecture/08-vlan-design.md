@@ -255,7 +255,7 @@ Omada コントローラー（`omada.lab.kanare.dev`）と Proxmox（`pve.lab.ka
 - 有線の VLAN（Management / Servers / Trusted / Lab と、必要なら IoT のポート）を使う。Wi-Fi は Buffalo（AP）が出す 1 つの SSID で、Trusted に入る。
 - テレビ（有線）は IoT のポートにつなぎ、ゲートウェイの mDNS 中継（Trusted ↔ IoT）を試す。動かなければ、段階 4 まで Trusted に置く。
 - ESP32 は使っていないので、この段階では扱わない。
-- **ACL は、当日は全許可のまま切り替え、許可表の内容に絞るのは別の日に行う**（[ADR-0029](../adr/0029-stage3-acl-allow-all-then-tighten.md)）。段階 3 のあと数日動かして落ち着いてから、遅くとも段階 4 の前に絞る。
+- **ACL は、当日は全許可のまま切り替え、許可表の内容に絞るのは別の日に行う**（[ADR-0029](../adr/0029-stage3-acl-allow-all-then-tighten.md)）。段階 3 のあと数日動かして落ち着いてから、段階 3 の完了から 2 週間以内を目安に、優先して絞る（段階 4 は当面来ない見込みなので、段階 4 を期限にしない）。
 - 戻し方: 段階 2 の状態（ER605 + スイッチ、`192.168.11.0/24`）に戻す。Omada のバックアップと `terraform state` を事前に保存しておく。
 
 **段階 3b: 管理系の VLAN10 化**
