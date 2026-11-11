@@ -259,7 +259,7 @@ ER605 と SG2210P は同時に購入済みで、すでに繋いである（ER605
   - 全 VM は、VLAN ID を指定する（`vm-omada` は、段階 3b まで、タグなし（VLAN1）を明示する）。
   - `bridge-vlan-aware` への変更は、物理コンソールから行う。
 - [ ] **コードの準備**: 別ブランチで Terraform・Ansible・Caddyfile・Prometheus・Homepage・ドキュメントを新アドレスに書き換える（一覧は[設計書](../../architecture/08-vlan-design.md#影響を受けるリポジトリ内の箇所)）。`vlan_id` を Terraform の VM モジュールに追加する。**必須（既定値なし）にして、全 VM に指定する**（`vm-omada` は、段階 3b まで、タグなし（VLAN1）を明示する）。 UFW の許可元も、新しいアドレスに直す（`vm-infra` の 8043、`vm-monitoring` の 9100。`vm-omada` は段階 3 で動かさないので、**直し忘れやすい**。[ロードマップ 13](13-defer-management-vlan.md)）。
-- [ ] **Omada に本番設定を作る（有効にしない）**: VLAN 10/20/30/40/50/60/70、DHCP、ACL、mDNS、スイッチのポートプロファイル。
+- [ ] **Omada に本番設定を作る（有効にしない）**: VLAN 10/20/30/40/50/60/70、DHCP、mDNS、スイッチのポートプロファイル（ACL は、絞る日に作る）。画面で行う項目は、[Omada の本番設定の一覧](#omada-の本番設定の一覧段階-3-の準備画面操作)にある。
 - [ ] **バックアップ**: Omada、Proxmox の `/etc/network/interfaces`、`terraform.tfstate`、Buffalo の設定を、Mac 以外にも保存する（Omada は当面 Mac だけ。[バックログ](01-backlog.md)）。
 - [ ] **戻しの手順**（下記）を書く。**戻す時刻は決めない（決定 2026-11-10、[ADR-0030](../../adr/0030-stage3-no-rollback-deadline.md)）**: 完了するまで作業する。作業中にインターネットが要るときは、建物（壁）の Wi-Fi に繋ぐ。
 - [ ] Tailscale の ACL・経路の承認の手順を確認する（`--advertise-routes=10.77.20.0/24,10.77.40.0/24`）。
@@ -280,6 +280,53 @@ ER605 と SG2210P は同時に購入済みで、すでに繋いである（ER605
 - **切り替えの日**: 作業の前に、`stage3/new-addresses` を、現行のブランチに取り込み、`terraform plan` で、期待どおりの差分（5 台の in-place 更新。`vm-omada` は変わらない）を確かめてから、[Runbook](../runbooks/21-network-cutover-stage-3.md)の手順 5・6 で流す。
 - 切り替えが済んだら、取り込んだブランチ（`stage3/new-addresses`）は削除する。
 - 決めた方針（2026-11-10）: Terraform は `vlan_id` を VM ごとに必須（タグなしは `null`）、`gateway`・`nameserver` を VM ごとの値にする。UFW の許可元は、`vm-infra`（`10.77.20.10`）、`vm-monitoring`（`10.77.20.11`）、Trusted（`10.77.30.0/24`）。Tailscale は、`10.77.20.0/24`、`10.77.40.0/24` に、`192.168.11.0/24` を足して広告する（段階 3b まで）。`group_vars/monitoring/vars.yml` の `prometheus_scrape_targets` は、誰も使っていないので削除する。
+
+### Omada の本番設定の一覧（段階 3 の準備。画面操作）
+
+3-A の「Omada に本番設定を作る」を、画面で行う項目に分けた。値は、設計書（[IP アドレス一覧](../../architecture/09-ip-addresses.md)、[VLAN 設計](../../architecture/08-vlan-design.md)）と、3-B の表が正。**今の LAN の通信を変えないものだけを、事前に作る。ポートの切り替えと、端末の移動は、当日にする。** ACL は、段階 3 の当日は作らず、絞る日に作る（[ADR-0029](../../adr/0029-stage3-acl-allow-all-then-tighten.md)）。
+
+**1. ネットワーク（Settings > Wired Networks > LAN）**
+
+| VLAN | 名前 | ゲートウェイ | DHCP | リース | 配る DNS | 状態 |
+| --- | --- | --- | --- | --- | --- | --- |
+| 10 | Management | `10.77.10.1/24` | `.240–.250` | 1 時間 | `10.77.10.1` | 作成済み（C-1）。設定値を確認する。段階 3b まで使わない |
+| 20 | Servers | `10.77.20.1/24` | なし | — | — | **作る** |
+| 30 | Trusted | `10.77.30.1/24` | `.100–.199` | 48 時間（決定 2026-11-11） | `10.77.20.10` | 作成済み（A-1）。設定値を確認する |
+| 40 | Lab | `10.77.40.1/24` | `.100–.149` | 24 時間 | `10.77.20.10` | **作る** |
+| 50 | IoT | `10.77.50.1/24` | `.100–.149` | 24 時間 | `10.77.20.10` | 作成済み（A-1）。設定値を確認する |
+| 60 | Guests | `10.77.60.1/24` | `.100–.199` | 4 時間 | `10.77.20.10` | **作る** |
+| 70 | DMZ | `10.77.70.1/24` | なし | — | — | **作る** |
+
+- [x] 20・40・60・70 を作る（2026-11-11）。**ウィザードの「Select Device Port」では、ポートを選ばない**（INC-2026-11-08。トランクを選ぶと、Proxmox が LAN から消える）。
+- [x] 作ったあと、SG2210P の p1〜p4 が、Native = Default(1)、Network Tags = Allow All のままであることを確認する（2026-11-11）。
+- [x] 作ったあと、今の LAN が動いている（`ping 192.168.11.10`、`ping 1.1.1.1`）。
+- [x] 10・30・50 の設定値が、上の表と合っている（2026-11-11。Management の DNS を `10.77.10.1` に、Trusted のリースを 48 時間に直した）。
+- [ ] 既定の LAN（`192.168.11.0/24`）の DHCP は、止めない。DNS の変更（ルーター）は、当日の手順 2 のあと。
+
+**2. SG2210P のポート（Settings > Wired Networks > Profiles と、Devices > `sg2210p`）**
+
+- [x] p2 の tagged に、10・20・40・50・70 が入っている（2026-11-11。作った VLAN が自動で入り、10〜70 のすべてが入った。30・60 は余分だが、害はない。untagged は、VLAN1 のまま）。
+- [x] ポートプロファイル「アクセス VLAN30（untagged）」を作っておく（2026-11-11。名前は `access-trusted`。p3・p4 用。**適用は当日**。今のうちに p3・p4 を変えると、Buffalo の Wi-Fi の端末が今の LAN から外れる）。
+- [ ] p1 の tagged が、10・20・30・40・50・60・70 になっている（作ったあとの確認）。**未確認**（p2 は確認した）。
+- [ ] p6（緊急用の入口）は、native VLAN1 のまま。p5・p7・p8 は空き。
+
+**3. mDNS の中継（Trusted ↔ IoT）**
+
+- [x] mDNS（Settings > 一般設定 > mDNS）で、Trusted と IoT の間の中継を作る（2026-11-11。ルール `mdns-trusted-iot`、無効のまま。Google Cast は一覧に無いので、`_googlecast._tcp.local` を追加した）。対象は、この 2 つだけ（Management・Servers・Lab・Guests には中継しない）。
+- 動作の確認は、段階 4（テレビを IoT の SSID に移すとき）。段階 3 には、確かめる相手がいない。作るだけにして、画面で作れるか（必要な版か）を確かめる。
+
+**4. 作らない・触らないもの**
+
+- ACL（Gateway ACL）: 段階 3 の当日は作らない（全許可）。リハーサルの `rh-` の 7 件が、**無効のまま**であることを確認する。削除は、絞る日。
+- 既定の LAN、管理系の住所、`vm-omada` の接続先: 触らない（[ADR-0028](../../adr/0028-defer-management-vlan10.md)）。
+
+**5. 終わったあと**
+
+- [x] Omada のバックアップを取り直す（`omada_backup_...` と `sitebackup_...`。iCloud Drive。2026-11-11 21:48）。
+- [x] 設定書を、同じ変更で更新する: `docs/services/network/omada-controller.md`、`docs/hardware/er605/settings.md`、`docs/hardware/sg2210p/settings.md`（変更履歴に 1 行）。
+- [x] 手順書の前提「Omada に本番の設定を作ってある」に印を付ける（[当日の手順書](../runbooks/21-network-cutover-stage-3.md)）。
+
+**決定（2026-11-11）**: Trusted のリースは 48 時間（今の ER605 と同じ。日常端末は入れ替わりが少ない）。DHCP 予約（`.50–.99`）は、段階 3 では作らない（Mac などは、プールのアドレスで困らない）。固定が要るテレビ・ESP32 は、段階 4 で IoT に移すときに予約する（MAC は台帳に書く）。
 
 ### 3-B. 設定の対応表
 
@@ -326,7 +373,7 @@ ER605 と SG2210P は同時に購入済みで、すでに繋いである（ER605
 3. （段階 3b に移した。段階 3 では行わない。）Proxmox（物理コンソールで）: `vmbr0` の IP を外し、タグ付きの `vmbr0.10` に `10.77.10.10/24`（GW `10.77.10.1`）を設定して、ネットワークを再起動する。p2 は 3-A のまま（untagged VLAN1、tagged 10/20/40/50/70）で、スイッチ側の変更は要らない。
 4. （段階 3b に移した。`vm-omada` は `192.168.11.12` のまま。）`vm-omada` を `10.77.10.3` にする。ER605・SG2210P が追従することを確かめる。
 5. `terraform apply` で VM の IP と VLAN を変える（`vm-omada` は変えない）。**`vm-infra` を最初にする**（DNS を先に戻す）。今の LAN の DHCP が配る DNS は、ルーター（`192.168.11.1`）にする（決定。[ADR-0028](../../adr/0028-defer-management-vlan10.md)。Wi-Fi の端末が Trusted に移ったあとに変える。今は、Wi-Fi の端末が AdGuard を外れるので、変えない）。
-6. `ansible-playbook` で DNS レコード、UFW、Tailscale の経路、Caddy、Prometheus を反映する。Tailscale の新しい経路は Admin Console で承認し、旧経路を外す。
+6. `ansible-playbook` で DNS レコード、UFW、Tailscale の経路、Caddy、Prometheus を反映する。Tailscale の新しい経路は Admin Console で承認する（旧経路 `192.168.11.0/24` は、管理系が残るので、段階 3b まで外さない）。
 7. 疎通を確認する（次の一覧）。
 8. **ACL は、当日は絞らない**（[ADR-0029](../../adr/0029-stage3-acl-allow-all-then-tighten.md)）。段階 3 のあと数日動かして落ち着いてから、別の日に、許可表の内容に、ログを見ながら 1 つずつ絞る。遅くとも段階 4 の前に済ませる。今の LAN の ACL と緊急用の入口は、その日の前提にする（[Runbook](../runbooks/21-network-cutover-stage-3.md)の手順 8）。
 9. 旧ネットワーク（VLAN1）は、止めない（管理系が使う。[ADR-0028](../../adr/0028-defer-management-vlan10.md)）。リハーサル用のポートは、未使用に戻してある（2026-11-09）。

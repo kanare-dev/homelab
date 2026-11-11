@@ -20,10 +20,10 @@ VLAN を有効にし、全ホストの IP を `192.168.11.x` から `10.77.<VLAN
 - [ ] **Proxmox の準備が済んでいる**（[ADR-0023](../../adr/0023-proxmox-trunk-all-tagged.md)）: `vmbr0` が VLAN-aware（IP は `192.168.11.10`・タグなしのまま）。SG2210P p2 に tagged 10/20/40/50/70 を足してある。1 つの検証用 VM をタグ付きで繋いで、動作を確かめた。
 - [ ] **コードの準備が済んでいる**: 別ブランチで、Terraform（`vlan_id` は必須で、全 VM に指定。`vm-omada` は、段階 3b まで、タグなし（VLAN1）を明示する）、Ansible、Caddyfile、Prometheus、Homepage、ドキュメントを、新アドレスに書き換えてある（一覧は[設計書](../../architecture/08-vlan-design.md#影響を受けるリポジトリ内の箇所)）。 UFW の許可元も、新しいアドレスに直す（`vm-infra` の 8043、`vm-monitoring` の 9100。`vm-omada` は段階 3 で動かさないので、**直し忘れやすい**。[ロードマップ 13](../roadmap/13-defer-management-vlan.md)）。
 - [ ] **新アドレスのコードを、現行のブランチに取り込んだ**（[ブランチ運用](../roadmap/10-er605-sg2210p-migration-plan.md#段階-3-のブランチ運用)）。`terraform plan` が、5 台の in-place 更新（`vm-omada` は変わらない）になっている。
-- [ ] **Omada に本番の設定を作ってある（有効にはしていない）**: VLAN 10/20/30/40/50/60/70、DHCP、ACL、mDNS の中継、スイッチのポートプロファイル。
+- [x] **Omada に本番の設定を作ってある（有効にはしていない）**（2026-11-11。一覧は[移行計画](../roadmap/10-er605-sg2210p-migration-plan.md#omada-の本番設定の一覧段階-3-の準備画面操作)）: VLAN 10/20/30/40/50/60/70（端末は繋いでいない）、DHCP、mDNS の中継（無効のまま）、スイッチのポートプロファイル `access-trusted`（どのポートにも未割り当て）。**ACL は作っていない**（当日は全許可。[ADR-0029](../../adr/0029-stage3-acl-allow-all-then-tighten.md)）。設定したあとのバックアップ: `omada_backup_...2026-11-11_21-48-24.cfg` と `sitebackup_...2026-11-11_21-48-31.cfg`（iCloud Drive）。
 - [ ] **今の LAN の DHCP の DNS をルーターにする手順を確認した**（決定済み。変えるのは、手順 2 で Wi-Fi の端末が Trusted に移ったあと）。
-- [ ] **バックアップが、Mac 以外にもある**: Omada、Proxmox の `/etc/network/interfaces`、`terraform.tfstate`、Buffalo の設定。
-- [ ] Tailscale の経路の承認の手順を確認してある（`--advertise-routes=10.77.20.0/24,10.77.40.0/24`）。
+- [x] **バックアップが、Mac 以外にもある**（iCloud Drive の `homelab/`。2026-11-11 に取得）: Omada（`omada_backup_...2026-11-11_21-06-24.cfg` と `sitebackup_...2026-11-11_21-04-37.cfg`）、Proxmox の `/etc/network/interfaces`（`pve-interfaces-bk-20261111.txt`）、`terraform.tfstate`（`terraform.tfstate-bk-20261111`）、Buffalo の設定（`wsr-1800ax4p-bk-20261103*.bin`）。Omada に本番の設定を作る前の状態なので、**当日の手順 1 で、もう一度取る**。
+- [x] Tailscale の経路の承認の手順を確認してある（`--advertise-routes=10.77.20.0/24,10.77.40.0/24,192.168.11.0/24`。手順は 6.2）。2026-11-11 に Admin Console で確認した: `vm-infra` は `192.168.11.0/24` が承認済みで、Expiry disabled。**自動承認（Auto approvers）は無い**ので、新しい 2 経路は当日に手動で承認する。
 - [ ] 戻し方（下記）を読んだ。
 
 ## 1. 開始
@@ -114,7 +114,12 @@ p2 のスイッチ側の設定は、準備（手順 0）のまま（untagged VLA
 ## 6. Ansible で反映する
 
 1. `ansible-playbook` を流して、DNS のレコード、UFW、Caddy、Prometheus（scrape 対象）、Tailscale の経路を反映する（Terraform の VM ごとの `gateway`・`nameserver` は、手順 5 の `terraform apply` で変わる）。
-2. **Tailscale**: 新しい経路（`10.77.20.0/24`、`10.77.40.0/24`）を、Admin Console で承認し、旧経路（`192.168.11.0/24`）を外す。
+2. **Tailscale**: 新しい経路（`10.77.20.0/24`、`10.77.40.0/24`）を、Admin Console で承認する。**旧経路（`192.168.11.0/24`）は外さない**（管理系が今の LAN に残るため。外すのは段階 3b のあと。[ADR-0028](../../adr/0028-defer-management-vlan10.md)）。
+
+   1. `ansible-playbook` の Tailscale の手順（`tailscale up --advertise-routes=10.77.20.0/24,10.77.40.0/24,192.168.11.0/24`）が終わると、新しい 2 経路は「承認待ち」になる（承認するまで、外出先からは届かない）。
+   2. [Admin Console](https://login.tailscale.com/admin/machines) → Machines → `vm-infra` の「…」→ **Edit route settings** で、新しい 2 経路にチェックを入れて Save する。旧経路は、承認済みのまま。
+   3. Split DNS（Nameserver `100.118.14.37`、`lab.kanare.dev`）と key expiry の無効化は、変えない（宛先は Tailscale の IP なので、`vm-infra` の LAN の IP が変わっても影響しない）。
+   4. 外出先（スマホを Wi-Fi から外し、Tailscale をオン）から、`https://home.lab.kanare.dev` が開き、`vm-dev` に SSH で入れることを確かめる。
 
    確認: [ ] `*.lab.kanare.dev` が新しい IP に解決される　[ ] Caddy 経由のサービスが開く　[ ] 外出先（スマホを Wi-Fi から外す）から、Tailscale 経由で入れる
 
@@ -125,6 +130,7 @@ p2 のスイッチ側の設定は、準備（手順 0）のまま（untagged VLA
 - [ ] Caddy 経由の各サービス、Omada・Proxmox の管理画面
 - [ ] Prometheus の全ターゲットが `up`。`GatewayUnreachable` は、新しい IP に直す
 - [ ] 外出先から Tailscale 経由で、`vm-code`・`vm-dev` に入れる
+- [ ] **自宅の Wi-Fi（Trusted）で、Tailscale をオンにした MacBook の通信経路を確かめる**: Tailscale の「サブネット経路を使う」がオンだと、Servers（`10.77.20.0/24`）・Lab（`10.77.40.0/24`）への通信が、ER605 を通らず Tailscale 経由（`vm-infra` が送信元）になりうる。そうなると、手順 8 で絞る ACL が効かない。経路は `tailscale status` や `route -n get 10.77.20.10` で見る。経路が Tailscale 経由なら、自宅では「サブネット経路を使う」をオフにする（外出先でだけ使う）。手順 8 の前に結論を出す。
 - [ ] メインディスプレイ、MacBook、Wi-Fi の端末（Trusted）
 - [ ] テレビ（無線、Trusted）の AirPlay・Cast
 - [ ] Healthchecks.io の heartbeat
