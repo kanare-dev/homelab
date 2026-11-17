@@ -124,6 +124,15 @@ class Model:
         cell = re.sub(r"image=[^;\"]*", "image=data:image/svg+xml," + data, m.group(0), count=1)
         self.xml = self.xml[:m.start()] + cell + self.xml[m.end():]
 
+    def set_png(self, cid, png, w, h):
+        """既存のセルの画像を、素材の PNG に差し替える。幅 w の中で縦横比を保つ高さに合わせる（aspect=fixed）。"""
+        m = re.search(r'<mxCell id="%s"(?:(?!</mxCell>).)*?</mxCell>' % re.escape(cid), self.xml, re.S)
+        if not m:
+            raise KeyError(cid)
+        data = base64.b64encode((ICONS / png).read_bytes()).decode()
+        cell = re.sub(r"image=[^;\"]*", "image=data:image/png," + data, m.group(0), count=1)
+        self.xml = self.xml[:m.start()] + cell + self.xml[m.end():]
+
     def normalize_styles(self):
         def fix(m):
             s = m.group(0)
@@ -176,15 +185,16 @@ def layout(m):
     m.normalize_styles()
 
     # 文字 ---------------------------------------------------------------
-    m.value("8", "Buffalo WSR-1800AX4P<br>" + ORANGE % "192.168.11.1")
+    m.value("8", "TP-Link ER605<br>" + ORANGE % "192.168.11.1" + "<br>" + ORANGE % "10.77.x.1" + "（VLAN ごと）")
+    m.set_png("ejPAYOGr_7ZoUszG3WJD-105", "hardware/tplink-er605.png", 108.33, 99)
     m.value("13", "Internet")
     m.value("15", "Lenovo ThinkCentre M70q Tiny Gen1<br>CPU: Intel Core i5-10400T (6C/12T)<br>"
                   "RAM: 1 x 8 GB + 1 x 16 GB DDR4-3200<br>Storage: 1 x 256GB NVMe SSD")
-    m.value("24", "<b>LAN<br>192.168.11.0/24</b>")
+    m.value("24", "<b>Servers 10.77.20.0/24<br>Lab 10.77.40.0/24<br>今の LAN 192.168.11.0/24</b>")
     m.value("27", "<i>pve</i> " + ORANGE % "192.168.11.10" + "<br>Proxmox 9.1<br>(based on Debian 13)")
-    for cid, name, ip in (("34", "vm-infra", "192.168.11.11"), ("37", "vm-monitoring", "192.168.11.13"),
-                          ("47", "vm-apps", "192.168.11.20"), ("91", "vm-dev", "192.168.11.21"),
-                          (K + "106", "vm-code", "192.168.11.22")):
+    for cid, name, ip in (("34", "vm-infra", "10.77.20.10"), ("37", "vm-monitoring", "10.77.20.11"),
+                          ("47", "vm-apps", "10.77.20.20"), ("91", "vm-dev", "10.77.40.10"),
+                          (K + "106", "vm-code", "10.77.20.30")):
         m.value(cid, vm_head(name, ip))
     for cid in ("62", "80", "98"):
         m.value(cid, "Docker containers")
@@ -250,17 +260,17 @@ def layout(m):
     m.clone("95", "vmdev-nodeexp-text")
     m.value("vmdev-nodeexp-text", svc("node_exporter", ":9100"))
     m.geo("77", 0, 0, 1380, 1170)                      # 背景（キャンバス）。外周の余白は 40
-    m.geo("28", 40, 40, 140, 40)
-    m.geo("24", 40, 40, 140, 40)
+    m.geo("28", 40, 40, 178, 70)
+    m.geo("24", 40, 40, 178, 70)
 
     cx = 940                                          # Internet・ルーター・nic0 を通す縦線
     m.geo("Hu1WL4VJLdPnrhCaS11O-103", cx - 38.19, 46.5, 76.38, 47)  # インターネットのアイコン（差し替え済み）
     m.geo("13", cx + 40, 55, 80, 30)
-    m.geo("ejPAYOGr_7ZoUszG3WJD-105", cx - 54.17, 148, 108.33, 99)  # ルーターの画像（draw.io で差し替え済み）
-    m.geo("8", cx + 70, 170, 220, 40)
+    m.geo("ejPAYOGr_7ZoUszG3WJD-105", cx - 54.17, 178, 108.33, 36.11)  # ルーターの画像（ER605。2172 x 724 の縦横比）
+    m.geo("8", cx + 70, 160, 220, 70)
     m.geo("38", cx - 20, 320, 40, 50)
-    m.edge("11", cx, 93.5, cx, 160)
-    m.edge("21", cx, 240, cx, 320)
+    m.edge("11", cx, 93.5, cx, 178)
+    m.edge("21", cx, 214.11, cx, 320)
     for cid in ("42", "68", "69"):
         m.drop(cid)
     for cid in ("vmmon-speedtest-icon", "vmmon-speedtest-text"):  # 廃止した speedtest-exporter（ADR 0018）
