@@ -27,7 +27,7 @@ homelab の IP アドレスを、1 か所にまとめた一覧。アドレスの
 | `192.168.11.150–254` | 予約 / 実験用 | — |
 
 - VM の IP は Terraform（`terraform.tfvars`）で固定する。現在の VMID は、IP の末尾オクテットに 100 を足した値。移行後は、`VLAN ID × 100 + 第 4 オクテット`（[ADR-0026](../adr/0026-vmid-from-vlan-and-octet.md)）。VMID の付け替えは、段階 3 では行わず、VM を作り直すときに行う（[ホスト別の IP](#ホスト別の-ip)に、現在と移行後の VMID を並べた）。
-- 段階 1 以降、ER605 の今の LAN の DHCP が配る DNS サーバーは `192.168.11.11`（旧 `vm-infra`。[ER605 の設定](../hardware/er605/settings.md)）。**段階 3 で `vm-infra` が移ったので、このアドレスは使えない。ルーター（`192.168.11.1`）に変える予定だが、未実施**（[Runbook 21 の手順 5](../operations/runbooks/21-network-cutover-stage-3.md)、[ADR-0028](../adr/0028-defer-management-vlan10.md)）。
+- 段階 1 以降、ER605 の今の LAN の DHCP が配る DNS サーバーは、段階 3 の前は `192.168.11.11`（`vm-infra`）だった。**2026-11-17 に、ルーター（`192.168.11.1`）に変えた**（[ER605 の設定](../hardware/er605/settings.md)、[ADR-0028](../adr/0028-defer-management-vlan10.md)）。ER605 の DNS プロキシは、内部の名前（`*.lab.kanare.dev`）を引けないので、今の LAN の端末は、IP で入る。
 
 ## 移行後のアドレス
 
