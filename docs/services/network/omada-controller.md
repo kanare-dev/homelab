@@ -30,7 +30,7 @@ Omada コントローラーの詳細設計。ER605・SG2210P・将来の AP を�
 | --- | --- |
 | ユーザー（Accounts） | ローカルユーザー `homelab-owner`（Owner。日常に使う）と `homelab-admin`（Super Admin。予備）。Cloud User（TP-Link ID 名義の Owner。**名前は変更できない仕様**）は Omada Cloud 用。パスワードは Keychain（名前は台帳）。**ローカルユーザーの名前を、メールアドレスの形にしない**（下の注） |
 | サイト | 1 つ。名前は `kanare-homelab`（2026-11-06 に決めた） |
-| LAN（Settings > Wired Networks > LAN） | `192.168.11.1/24`、DHCP `.60`〜`.99`、リース 48 時間、DNS は `192.168.11.11` だけ（2026-11-03 に運用者が設定。画面の値は未確認） |
+| LAN（Settings > Wired Networks > LAN） | `192.168.11.1/24`、DHCP `.60`〜`.99`、リース 48 時間、DNS は `192.168.11.11`（旧 `vm-infra`）だけ（2026-11-03 に運用者が設定。画面の値は未確認）。**段階 3 で `vm-infra` が移ったので使えない。ルーター（`192.168.11.1`）に変える予定で、2026-11-17 時点で未実施** |
 | VLAN のネットワーク（段階 3 の準備。2026-11-11 に作成） | 10・20・30・40・50・60・70 の 7 つ（値は[ER605 の設定](../../hardware/er605/settings.md#vlan-のネットワーク段階-3-の準備)）。端末・ホストは、まだ繋がっていない。当日（段階 3）に、ポートと端末を移す。ACL は作らない（全許可。[ADR-0029](../../adr/0029-stage3-acl-allow-all-then-tighten.md)） |
 | mDNS の中継（Settings > 一般設定 > mDNS） | ルール `mdns-trusted-iot`（2026-11-11 に作成。**無効**のまま）。Bonjour サービスは AirPlay と Google Cast（一覧に無いので、`Google Cast` / `_googlecast._tcp.local` を追加した。サービス ID は `_A._B.local` の形）。バンド VLAN は「VLAN ID 別」、サービスネットワーク VLAN は 50（IoT）、クライアントネットワーク VLAN は 30（Trusted）。有効にして実機で確かめるのは、段階 4（テレビを IoT に移すとき）。Google Cast が中継できるか、`_googlezone._tcp` などの追加が要るかは、そのとき確認する |
 | スイッチのポートプロファイル（デバイス設定 > ポートプロファイル） | 標準の Disable・All・Default のほかに、`access-trusted`（2026-11-11 に作成。VLAN 設定オン、ネイティブネットワーク Trusted(30)、ネットワークタグ設定は全てブロック。PoE は機器の設定を保持）。**どのポートにも割り当てていない**。当日（段階 3）に、p3（Buffalo）と p4（ディスプレイ）へ割り当てる |
