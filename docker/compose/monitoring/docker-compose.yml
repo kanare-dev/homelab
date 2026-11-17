@@ -58,7 +58,7 @@ services:
       - "--config.file=/etc/blackbox_exporter/config.yml"
     # ホストの DNS（ルーター）は lab.kanare.dev を引けない。クライアントと同じ AdGuard を使う
     dns:
-      - 192.168.11.11
+      - 10.77.20.10
     logging: *default-logging
     networks:
       - monitoring

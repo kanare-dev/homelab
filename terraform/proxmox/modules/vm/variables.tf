@@ -54,8 +54,19 @@ variable "ip_address" {
 }
 
 variable "gateway" {
-  description = "Gateway IP"
+  description = "Gateway IP (the router address on the VM's VLAN)"
   type        = string
+}
+
+variable "vlan_id" {
+  description = "VLAN ID of the network interface. No default: omitting it is an error. Set null explicitly for an untagged VM (VLAN1)."
+  type        = number
+  nullable    = true
+
+  validation {
+    condition     = var.vlan_id == null ? true : (var.vlan_id >= 2 && var.vlan_id <= 4094)
+    error_message = "vlan_id must be null (untagged) or between 2 and 4094."
+  }
 }
 
 variable "nameserver" {

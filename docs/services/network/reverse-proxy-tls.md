@@ -5,7 +5,7 @@
 ## 構成
 
 ```text
-client ─► https://<name>.lab.kanare.dev (192.168.11.11:443, Caddy)
+client ─► https://<name>.lab.kanare.dev (10.77.20.10:443, Caddy)
             └─► 各サービス（HTTP。Proxmox のみ自己署名 HTTPS）
 ```
 

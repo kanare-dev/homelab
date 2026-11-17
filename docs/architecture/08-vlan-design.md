@@ -220,7 +220,7 @@ Omada コントローラー（`omada.lab.kanare.dev`）と Proxmox（`pve.lab.ka
 | --- | --- | --- | --- | --- |
 | 1 | ルーターを Buffalo から ER605 に交換。Buffalo は AP モードにする | ER605 | 約 9,200〜11,900 円 | `192.168.11.0/24` のまま（変えない） |
 | 2 | Managed Switch を追加する。VLAN はまだ使わない | SG2210P（8 ポート PoE+、SFP 2 スロット） | 要確認（SG2008P は約 15,700〜17,500 円。SG2210P は少し高い想定） | 変えない |
-| 3 | VLAN を有効にし、`10.77.x.x` に一斉切り替えする | なし | 0 円 | `10.77.<VLAN>.0/24` へ、管理系を除く全ホスト一斉 |
+| 3 | VLAN を有効にし、`10.77.x.x` に一斉切り替えする | なし | 0 円 | `10.77.<VLAN>.0/24` へ、管理系を除く全ホスト一斉。**実施済み（2026-11-17）**。ACL は全許可で、絞るのは別の日（[ADR-0029](../adr/0029-stage3-acl-allow-all-then-tighten.md)） |
 | 3b | 管理系（Proxmox ホスト、`vm-omada`、ER605・SG2210P）を Management（VLAN10）へ移す | なし | 0 円 | `10.77.10.0/24`（管理系だけ） |
 | 4 | Omada の AP を導入する。Buffalo は退役または予備にする | AP（Wi-Fi 6 または 7） | 未定（下記） | 変えない |
 
@@ -255,7 +255,7 @@ Omada コントローラー（`omada.lab.kanare.dev`）と Proxmox（`pve.lab.ka
 - 有線の VLAN（Management / Servers / Trusted / Lab と、必要なら IoT のポート）を使う。Wi-Fi は Buffalo（AP）が出す 1 つの SSID で、Trusted に入る。
 - テレビ（有線）は IoT のポートにつなぎ、ゲートウェイの mDNS 中継（Trusted ↔ IoT）を試す。動かなければ、段階 4 まで Trusted に置く。
 - ESP32 は使っていないので、この段階では扱わない。
-- **ACL は、当日は全許可のまま切り替え、許可表の内容に絞るのは別の日に行う**（[ADR-0029](../adr/0029-stage3-acl-allow-all-then-tighten.md)）。段階 3 のあと数日動かして落ち着いてから、遅くとも段階 4 の前に絞る。
+- **ACL は、当日は全許可のまま切り替え、許可表の内容に絞るのは別の日に行う**（[ADR-0029](../adr/0029-stage3-acl-allow-all-then-tighten.md)）。段階 3 のあと数日動かして落ち着いてから、段階 3 の完了から 2 週間以内を目安に、優先して絞る（段階 4 は当面来ない見込みなので、段階 4 を期限にしない）。
 - 戻し方: 段階 2 の状態（ER605 + スイッチ、`192.168.11.0/24`）に戻す。Omada のバックアップと `terraform state` を事前に保存しておく。
 
 **段階 3b: 管理系の VLAN10 化**
@@ -280,7 +280,7 @@ Buffalo WSR-1800AX4P は VLAN に対応していない。AP モードにはで�
 
 ## 影響を受けるリポジトリ内の箇所
 
-`192.168.11.` を含むファイルは現時点で 25 ほどある。切り替え前の準備ではこの一覧を使って洗い出す。
+`192.168.11.` を含むファイルは、切り替え前に 25 ほどあった。段階 3 の実施（2026-11-17）で、`vm-*` の旧アドレスは直した。今も残る `192.168.11.x` は、管理系（Proxmox ホスト、`vm-omada`、ER605・SG2210P）と、旧 LAN の経路・UFW の許可元で、段階 3b で直す。履歴の文書（ADR、障害記録、ロードマップ、段階 1・2 の手順書）に残る旧アドレスは、当時の記録なので、そのままにする。
 
 | 領域 | 場所 | 内容 |
 | --- | --- | --- |
@@ -289,7 +289,7 @@ Buffalo WSR-1800AX4P は VLAN に対応していない。AP モードにはで�
 | リバースプロキシ | `docker/compose/reverse-proxy/Caddyfile` | 各サービスの転送先 |
 | 監視 | `docker/compose/monitoring/prometheus/`（`prometheus.yml`、`alerts.yml`） | scrape 対象、アラート内の IP |
 | Homepage | `docker/compose/homepage/` | ウィジェットの URL、`dns:` |
-| ドキュメント | `README.md`、`docs/services/network/dns.md`、`docs/services/platform/monitoring.md`、`docs/operations/runbooks/README.md`、`docs/services/dev/cicd.md`、`docs/diagrams/pre-migration-diagram/architecture.drawio.svg` | IP の記載、構成図 |
+| ドキュメント | `README.md`、`docs/services/network/dns.md`、`docs/services/platform/monitoring.md`、`docs/operations/runbooks/README.md`、`docs/services/dev/cicd.md`、`docs/diagrams/as-is-diagram/make-as-is-diagram.py` | IP の記載、構成図 |
 
 `README.md` の「IP アドレス規約」は、この設計に合わせて書き換える。
 
@@ -313,7 +313,7 @@ Buffalo WSR-1800AX4P は VLAN に対応していない。AP モードにはで�
 2. スイッチの Proxmox 向けポートを trunk にし、ルーターの VLAN インターフェースを有効にする。Buffalo（AP）は Trusted のポートにつなぎ替える。
 3. （**段階 3 では行わない。段階 3b で行う。**）Proxmox ホストの IP を、`vmbr0` から外し、タグ付きの `vmbr0.10`（`10.77.10.10/24`）に付ける。`vmbr0` を VLAN-aware にする。必要なら物理コンソールから行う。
 4. VM の IP と VLAN を新アドレスに変える（`terraform apply`）。起動順は `vm-infra` を最初にする（DNS を先に復旧させる）。
-5. Ansible を流し、各ホストの設定（DNS レコード、UFW、Tailscale の `--advertise-routes=10.77.20.0/24,10.77.40.0/24` など）を反映する。Tailscale の新しい経路は Admin Console で承認し、旧経路を外す。
+5. Ansible を流し、各ホストの設定（DNS レコード、UFW、Tailscale の `--advertise-routes=10.77.20.0/24,10.77.40.0/24,192.168.11.0/24` など）を反映する。Tailscale の新しい経路は Admin Console で承認する（旧経路 `192.168.11.0/24` は、管理系が今の LAN に残るので、段階 3b まで外さない）。
 6. 疎通を確認する: 名前解決、各 VLAN から Servers への接続、Caddy 経由の各サービス、Prometheus の scrape、外出先からの Tailscale 接続、テレビへの AirPlay・Cast。
 7. ファイアウォール（ACL）は全許可のままにする。許可表の内容に絞るのは、当日ではなく別の日に、ログを見ながら行う（[ADR-0029](../adr/0029-stage3-acl-allow-all-then-tighten.md)）。
 8. 戻す時刻は決めない（[ADR-0030](../adr/0030-stage3-no-rollback-deadline.md)）。事前に書いた戻し手順は、機器の故障など、その日のうちに完了できない事情が出たときに使う。
@@ -321,7 +321,7 @@ Buffalo WSR-1800AX4P は VLAN に対応していない。AP モードにはで�
 ### 切り替え後
 
 - Prometheus の scrape 対象、アラート、`docs/services/platform/monitoring.md` を更新し、Omada コントローラーの死活監視を追加する。
-- ドキュメントを更新し、旧アドレスを残さない。構成図も直す（メインの構成図 `main-diagram/` を確認し、移行前の構成図 `pre-migration-diagram/` は削除する）。
+- ドキュメントを更新し、旧アドレスを残さない。構成図も直す（to-be の構成図 `to-be-diagram/` を確認し、現状の構成図 `as-is-diagram/` は、段階 3b の完了後に削除する）。
 - Buffalo は段階 4（AP の導入）まで AP として使い続ける。
 
 ## 未決事項

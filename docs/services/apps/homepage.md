@@ -6,13 +6,13 @@ LAN 内サービスへのリンクと、状態のウィジェットを 1 画面�
 
 | 項目 | 内容 |
 | --- | --- |
-| 置き場所 | `vm-apps`（`192.168.11.20`）の `/opt/homepage` |
+| 置き場所 | `vm-apps`（`10.77.20.20`）の `/opt/homepage` |
 | イメージ | `ghcr.io/gethomepage/homepage:latest` |
 | ネットワーク | bridge。3001 を公開し、`vm-infra`（Caddy）だけに許可する（`group_vars/apps/vars.yml` の `docker_published_allow`） |
 | URL | `https://home.lab.kanare.dev`（Caddy 経由）。`HOMEPAGE_ALLOWED_HOSTS` でこのホスト名だけを許可している |
 | 定義 | `docker/compose/homepage/`（`config/`、`icons/`）、`ansible/playbooks/apps.yml`、`ansible/playbooks/templates/homepage.env.j2` |
 
-- コンテナは `dns:` で AdGuard（`192.168.11.11`）を指定している。ホストの DNS（ルーター）は `*.lab.kanare.dev` を引けず、指定しないと `siteMonitor` とウィジェットが失敗する（[ADR-0007](../../adr/0007-vm-host-dns-is-router.md)）。
+- コンテナは `dns:` で AdGuard（`10.77.20.10`）を指定している。ホストの DNS（ルーター）は `*.lab.kanare.dev` を引けず、指定しないと `siteMonitor` とウィジェットが失敗する（[ADR-0007](../../adr/0007-vm-host-dns-is-router.md)）。
 - 外部には公開しない。認証はない（LAN 内と Tailscale 経由のみ。[ADR-0005](../../adr/0005-tailscale-only-remote-access.md)、[ADR-0008](../../adr/0008-no-authelia.md)）。
 - 設定ファイルを変えたら `make deploy-apps APP=homepage` で反映する。Ansible がファイルを配置し、変更があったときだけコンテナを再起動する。
 
@@ -30,7 +30,7 @@ LAN 内サービスへのリンクと、状態のウィジェットを 1 画面�
 | タイル / 情報 | 取得元 | 認証 |
 | --- | --- | --- |
 | Proxmox VE | `https://192.168.11.10:8006`（API トークン `homepage@pve!homepage-token`） | SOPS（`homepage_proxmox_token`） |
-| AdGuard Home | `http://192.168.11.11:3000` | SOPS（`homepage_adguard_password`） |
+| AdGuard Home | `http://10.77.20.10:3000` | SOPS（`homepage_adguard_password`） |
 | Hosts（`pve`、`vm-infra`、`vm-monitoring`、`vm-apps`、`vm-code`） | Prometheus の `node_exporter` から、CPU・メモリ・ディスク（`/`）の使用率を出す（アイコンは Ubuntu、`pve` は Proxmox）。手動起動の `vm-dev` は、停止中に値が取れないため含めない。Grafana のダッシュボードと同じ元データで、こちらは現在値の一覧向き | なし |
 | Prometheus | `https://prometheus.lab.kanare.dev`。監視対象の up / down 数。手動起動の `vm-dev` は down に数えない（`TargetDown` と同じ条件） | なし |
 | Alertmanager | 同上（ウィジェットの種類は `prometheusmetric`）。Prometheus の `ALERTS` から、発報中（`Watchdog` を除く）と保留中の件数を出す。Alertmanager 専用のウィジェットはないため | なし |

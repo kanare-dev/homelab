@@ -3,7 +3,7 @@
 
 ER605・SG2210P を導入して VLAN に分けた後（段階 3 の完了時点）の、有線の最終形。機器はアイコンではなく四角、
 ポートは四角（色で用途を示す）、ケーブルは線（太さと色で種類を示す）で描く。VM・サービス・IP の一覧は、
-論理側の図（../main-diagram/main-diagram.png）に任せ、ここでは配線だけを見る。
+論理側の図（../to-be-diagram/to-be-diagram.png）に任せ、ここでは配線だけを見る。
 
 この図の本体はこのスクリプト。下の「配置」の座標と文字から HTML（physical-diagram.html）を組み、Markdown から参照する
 PNG（physical-diagram.png、ダーク版は physical-diagram-dark.png）も書き出す。何度実行しても結果は同じ。
@@ -17,7 +17,7 @@ PNG（physical-diagram.png、ダーク版は physical-diagram-dark.png）も書�
 docs/hardware/er605/settings.md・docs/hardware/sg2210p/settings.md のポート表、docs/architecture/08-vlan-design.md に合わせる。
 食い違ったら、docs/ の文書のほうが正。
 
-見た目の決まり（座標は 10px グリッド。背景の方眼は 20px。スタイルは ../main-diagram/make-main-diagram.py と同じ）:
+見た目の決まり（座標は 10px グリッド。背景の方眼は 20px。スタイルは ../to-be-diagram/make-to-be-diagram.py と同じ）:
   - 機器は角丸の四角（名前は太字、IP は橙の等幅）。ポートは 48×26 の四角で、機器の枠にまたがせる。
   - ポートの色: WAN（灰の塗り）、trunk（墨の塗り）、access VLAN30（緑）、未使用（点線の枠）。
   - ケーブルの線: WAN は 3px の灰、trunk は 5px の墨、access VLAN30 は 3px の緑（to-be の図と同じ色）。

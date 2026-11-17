@@ -7,14 +7,14 @@ template_name = "ubuntu-cloud"
 # ssh_public_key を省略すると ~/.ssh/id_ed25519_homelab.pub を読み込む
 # ssh_public_key = "ssh-ed25519 AAAAC3... user@host"
 
-gateway    = "192.168.11.1"
-nameserver = "192.168.11.1"
-
 vms = {
   # DNS・リバースプロキシ: 最初に起動、最後にシャットダウン
   "vm-infra" = {
     vmid               = 111
-    ip                 = "192.168.11.11/24"
+    ip                 = "10.77.20.10/24"
+    gateway            = "10.77.20.1"
+    nameserver         = "10.77.20.1"
+    vlan_id            = 20
     cores              = 2
     memory             = 1536
     disk               = "20G"
@@ -27,7 +27,10 @@ vms = {
   # モニタリング: DNS 起動後に起動
   "vm-monitoring" = {
     vmid               = 113
-    ip                 = "192.168.11.13/24"
+    ip                 = "10.77.20.11/24"
+    gateway            = "10.77.20.1"
+    nameserver         = "10.77.20.1"
+    vlan_id            = 20
     cores              = 2
     memory             = 2048
     disk               = "40G"
@@ -40,7 +43,10 @@ vms = {
   # アプリ: モニタリング起動後に起動
   "vm-apps" = {
     vmid               = 120
-    ip                 = "192.168.11.20/24"
+    ip                 = "10.77.20.20/24"
+    gateway            = "10.77.20.1"
+    nameserver         = "10.77.20.1"
+    vlan_id            = 20
     cores              = 2
     memory             = 4096
     disk               = "40G"
@@ -53,7 +59,10 @@ vms = {
   # 開発用: 手動起動のみ（start_at_node_boot = false）
   "vm-dev" = {
     vmid               = 121
-    ip                 = "192.168.11.21/24"
+    ip                 = "10.77.40.10/24"
+    gateway            = "10.77.40.1"
+    nameserver         = "10.77.40.1"
+    vlan_id            = 40
     cores              = 2
     memory             = 1024
     disk               = "10G"
@@ -66,7 +75,10 @@ vms = {
   # 常用リモート開発環境: Claude Code / code-server。常時起動、Tailscale経由のみアクセス
   "vm-code" = {
     vmid               = 122
-    ip                 = "192.168.11.22/24"
+    ip                 = "10.77.20.30/24"
+    gateway            = "10.77.20.1"
+    nameserver         = "10.77.20.1"
+    vlan_id            = 20
     cores              = 2
     memory             = 4096
     disk               = "30G"
@@ -80,6 +92,9 @@ vms = {
   "vm-omada" = {
     vmid               = 112
     ip                 = "192.168.11.12/24"
+    gateway            = "192.168.11.1"
+    nameserver         = "192.168.11.1"
+    vlan_id            = null # 段階 3b まで、今の LAN（VLAN1、タグなし）に残す（ADR-0028）
     cores              = 2
     memory             = 4096 # INC-2026-11-09: 3GB で枯渇して固まった
     disk               = "20G"

@@ -26,7 +26,7 @@ scrape_configs:
           env: "homelab"
           host: "pve"
           role: "proxmox"
-      - targets: ["192.168.11.11:9100"]   # vm-infra
+      - targets: ["10.77.20.10:9100"]   # vm-infra
         labels:
           env: "homelab"
           host: "vm-infra"
@@ -36,22 +36,22 @@ scrape_configs:
           env: "homelab"
           host: "vm-omada"
           role: "omada"
-      - targets: ["192.168.11.13:9100"]   # vm-monitoring
+      - targets: ["10.77.20.11:9100"]   # vm-monitoring
         labels:
           env: "homelab"
           host: "vm-monitoring"
           role: "monitoring"
-      - targets: ["192.168.11.20:9100"]   # vm-apps
+      - targets: ["10.77.20.20:9100"]   # vm-apps
         labels:
           env: "homelab"
           host: "vm-apps"
           role: "apps"
-      - targets: ["192.168.11.21:9100"]   # vm-dev
+      - targets: ["10.77.40.10:9100"]   # vm-dev
         labels:
           env: "homelab"
           host: "vm-dev"
           role: "dev"
-      - targets: ["192.168.11.22:9100"]   # vm-code
+      - targets: ["10.77.20.30:9100"]   # vm-code
         labels:
           env: "homelab"
           host: "vm-code"
@@ -105,9 +105,9 @@ scrape_configs:
     metrics_path: /probe
     scrape_interval: 30s
     static_configs:
-      - targets: ["192.168.11.11:53"]
+      - targets: ["10.77.20.10:53"]
         labels: { host: "vm-infra", service: "dns-lab", module: "dns_lab" }
-      - targets: ["192.168.11.11:53"]
+      - targets: ["10.77.20.10:53"]
         labels: { host: "vm-infra", service: "dns-external", module: "dns_external" }
     relabel_configs:
       - source_labels: ["module"]
@@ -128,7 +128,7 @@ scrape_configs:
       module: [icmp]
     scrape_interval: 30s
     static_configs:
-      - targets: ["192.168.11.1"]
+      - targets: ["10.77.20.1"]   # vm-monitoring と同じ VLAN（Servers）のルーターのアドレス
         labels: { host: "router", service: "gateway" }
       - targets: ["172.22.0.1"]
         labels: { host: "building", service: "building-router" }

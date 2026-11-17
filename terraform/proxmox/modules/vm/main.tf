@@ -59,6 +59,7 @@ resource "proxmox_vm_qemu" "vm" {
     id     = 0
     model  = "virtio"
     bridge = var.bridge
+    tag    = var.vlan_id == null ? 0 : var.vlan_id # 0 = untagged (VLAN1)
   }
 
   ipconfig0  = "ip=${var.ip_address},gw=${var.gateway}"
@@ -67,8 +68,8 @@ resource "proxmox_vm_qemu" "vm" {
   tags       = join(",", var.tags)
 
   lifecycle {
+    # network は無視しない: vlan_id（tag）を Terraform で管理するため
     ignore_changes = [
-      network,
       # 起動・停止は Proxmox 側（start_at_node_boot、手動）で決める。vm-dev のように手動起動の VM が、
       # 既定の vm_state = "running" と食い違って、apply で起動されないようにする
       vm_state,

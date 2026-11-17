@@ -1,6 +1,6 @@
 # IP アドレス一覧
 
-homelab の IP アドレスを、1 か所にまとめた一覧。アドレスの範囲、VLAN、ホスト、FQDN の宛先を、**現在**と**移行後**（ER605・SG2210P を入れて VLAN に分けたあと）の両方で示す。**IP アドレスの一覧は、この文書を正とする。**
+homelab の IP アドレスを、1 か所にまとめた一覧。アドレスの範囲、VLAN、ホスト、FQDN の宛先を、**段階 3 の前**と**段階 3 の後**（VLAN に分けたあと。2026-11-17 に、Servers・Lab・Trusted を適用）の両方で示す。**IP アドレスの一覧は、この文書を正とする。**
 
 - 設計の理由は、[VLAN 設計](08-vlan-design.md)と ADR（[0015](../adr/0015-vlan-address-scheme-10-77.md)、[0022](../adr/0022-vlan-set-and-ids.md)、[0024](../adr/0024-dhcp-dns-single-no-fallback.md)、[0025](../adr/0025-address-octets-by-role.md)、[0026](../adr/0026-vmid-from-vlan-and-octet.md)、[0027](../adr/0027-servers-octet-bands-and-emergency-dns.md)）にある。移行の手順は、[移行計画](../operations/roadmap/10-er605-sg2210p-migration-plan.md)。
 - 実際に設定している値は、VM の IP が `terraform/proxmox/terraform.tfvars`、ホストが `ansible/inventory/`、Caddy の転送先が `docker/compose/reverse-proxy/Caddyfile`、DNS のレコードが CoreDNS のゾーンにある（[更新のしかた](#更新のしかた)）。
@@ -8,14 +8,14 @@ homelab の IP アドレスを、1 か所にまとめた一覧。アドレスの
 
 | 体系 | 状態 | 範囲 |
 | --- | --- | --- |
-| 現在 | 稼働中 | `192.168.11.0/24`（1 つのネットワーク。VLAN なし） |
-| 移行後 | 採用済み・未適用 | `10.77.0.0/16`（VLAN ごとに `10.77.<VLAN>.0/24`） |
+| 段階 3 の前 | 終了（2026-11-17 まで） | `192.168.11.0/24`（1 つのネットワーク。VLAN なし） |
+| 段階 3 の後 | **稼働中**（2026-11-17〜） | `10.77.0.0/16`（VLAN ごとに `10.77.<VLAN>.0/24`）。Servers（20）・Lab（40）・Trusted（30）を適用済み。管理系は、段階 3b まで `192.168.11.0/24` に残る |
 
-アドレスの付け替えは、段階 3 で全ホストを一斉に切り替える（[ADR-0004](../adr/0004-vlan-cutover-all-at-once.md)）。段階 1・2（ER605・SG2210P の導入）では、IP を変えない。 **ただし、管理系（Proxmox ホスト、`vm-omada`、ER605・SG2210P）は、段階 3 では今のアドレス（`192.168.11.x`）のまま残し、`10.77.10.x` への移行は、段階 3b で行う**（[ADR-0028](../adr/0028-defer-management-vlan10.md)）。下の「移行後」の Management の値は、段階 3b のあとの値。
+アドレスの付け替えは、段階 3 で全ホストを一斉に切り替える（[ADR-0004](../adr/0004-vlan-cutover-all-at-once.md)）。段階 1・2（ER605・SG2210P の導入）では、IP を変えない。 **ただし、管理系（Proxmox ホスト、`vm-omada`、ER605・SG2210P）は、段階 3 では今のアドレス（`192.168.11.x`）のまま残し、`10.77.10.x` への移行は、段階 3b で行う**（[ADR-0028](../adr/0028-defer-management-vlan10.md)）。下の表の「段階 3 の後」のうち、Management の値は、段階 3b のあとの値（今は `192.168.11.x` のまま）。
 
-## 現在のアドレス
+## 段階 3 の前のアドレス（旧）
 
-`192.168.11.0/24`。
+`192.168.11.0/24`。2026-11-17 の段階 3 で、`vm-*` は `10.77.x.x` に移った。今も `192.168.11.x` を使うのは、管理系（Proxmox `.10`、`vm-omada` `.12`、ER605 `.1`、SG2210P）と、ESP32（停止中）。
 
 | 範囲 | 用途 | 例 |
 | --- | --- | --- |
@@ -27,7 +27,7 @@ homelab の IP アドレスを、1 か所にまとめた一覧。アドレスの
 | `192.168.11.150–254` | 予約 / 実験用 | — |
 
 - VM の IP は Terraform（`terraform.tfvars`）で固定する。現在の VMID は、IP の末尾オクテットに 100 を足した値。移行後は、`VLAN ID × 100 + 第 4 オクテット`（[ADR-0026](../adr/0026-vmid-from-vlan-and-octet.md)）。VMID の付け替えは、段階 3 では行わず、VM を作り直すときに行う（[ホスト別の IP](#ホスト別の-ip)に、現在と移行後の VMID を並べた）。
-- 段階 1 以降、ER605 の DHCP が配る DNS サーバーは `192.168.11.11`（`vm-infra`。[ER605 の設定](../hardware/er605/settings.md)）。
+- 段階 1 以降、ER605 の今の LAN の DHCP が配る DNS サーバーは、段階 3 の前は `192.168.11.11`（`vm-infra`）だった。**2026-11-17 に、ルーター（`192.168.11.1`）に変えた**（[ER605 の設定](../hardware/er605/settings.md)、[ADR-0028](../adr/0028-defer-management-vlan10.md)）。ER605 の DNS プロキシは、内部の名前（`*.lab.kanare.dev`）を引けないので、今の LAN の端末は、IP で入る。
 
 ## 移行後のアドレス
 
@@ -76,7 +76,7 @@ Servers（`10.77.20.0/24`）の固定アドレス（`.10–.49`）は、役割�
 ### DHCP
 
 - DHCP が配る DNS サーバーは、`10.77.20.10`（`vm-infra`）。フォールバックは配らない（[ADR-0024](../adr/0024-dhcp-dns-single-no-fallback.md)）。**例外: Management の緊急用プールは、ルーター（`10.77.10.1`）を配る**（[ADR-0027](../adr/0027-servers-octet-bands-and-emergency-dns.md)）。`vm-infra` が止まっていても、外部の名前を引ける。`*.lab.kanare.dev` は引けないので、管理機器は IP で開く。
-- リース時間は VLAN ごとに決める。Management の緊急用プールは 1 時間、Trusted は 24〜48 時間、Lab と IoT は 24 時間、Guests は 4 時間。Guests は短くして、来客の端末の情報を長く保持しない。
+- リース時間は VLAN ごとに決める。Management の緊急用プールは 1 時間、Trusted は 48 時間、Lab と IoT は 24 時間、Guests は 4 時間。Guests は短くして、来客の端末の情報を長く保持しない。
 - Lab は、Terraform で固定 IP を振る VM（`vm-dev` など）と、手で立てる使い捨ての VM が混在する。前者は `.10–.49`、後者は DHCP の `.100–.149` に入れる。
 - Trusted の常用機（Mac など）は、DHCP 予約（`.50–.99`）で固定する。
 - Servers・DMZ は DHCP を配らない。DMZ に侵入した端末が自動でアドレスを得るのを避ける。
@@ -84,7 +84,7 @@ Servers（`10.77.20.0/24`）の固定アドレス（`.10–.49`）は、役割�
 
 ## ホスト別の IP
 
-| ホスト | 現 VMID | 移行後の VMID | 現在 | 移行後 | VLAN | 備考 |
+| ホスト | 現 VMID | 移行後の VMID | 段階 3 の前 | 段階 3 の後 | VLAN | 備考 |
 | --- | --- | --- | --- | --- | --- | --- |
 | ルーター | — | — | `192.168.11.1`（ER605） | `10.77.10.1`（ER605） | 10 | 2026-11-06 に、Buffalo に替わって ER605 が `192.168.11.1` を持った |
 | Managed Switch（SG2210P） | — | — | —（段階 2 から DHCP） | `10.77.10.2` | 10 | |
@@ -96,7 +96,7 @@ Servers（`10.77.20.0/24`）の固定アドレス（`.10–.49`）は、役割�
 | `vm-apps` | 120 | 2020 | `192.168.11.20` | `10.77.20.20` | 20 | |
 | `vm-code` | 122 | 2030 | `192.168.11.22` | `10.77.20.30` | 20 | |
 | `vm-dev` | 121 | 4010 | `192.168.11.21` | `10.77.40.10` | 40 | 手動起動 |
-| Buffalo（AP モード） | — | — | `192.168.11.2`（固定。2026-11-06 に、ルーターの `192.168.11.1` から変更） | `10.77.30.50`（段階 4 で退役するまで） | 30 | Trusted。`.2–.9` は Management だけなので、予約の帯 `.50–.99` を使う |
+| Buffalo（AP モード） | — | — | `192.168.11.2`（固定。2026-11-06 に、ルーターの `192.168.11.1` から変更） | `10.77.30.50`（**2026-11-17 に変更済み**。段階 4 で退役するまで） | 30 | Trusted。`.2–.9` は Management だけなので、予約の帯 `.50–.99` を使う |
 | ESP32 | — | — | `192.168.11.100` | `10.77.50.50` | 50 | 現在は停止中 |
 | テレビ | — | — | DHCP | `10.77.50.x` | 50 | DHCP 予約（`.50–.99`）で固定。無線 |
 | `ubuntu-cloud` | 9000 | 9000 | — | — | — | VM のテンプレート。IP なし |
@@ -105,14 +105,14 @@ Mac、スマホなどの日常端末は、DHCP で受け取る（移行後は Tr
 
 ## FQDN の宛先
 
-内部 DNS は `lab.kanare.dev` ゾーン（CoreDNS が権威）。名前の付け方は [ネットワーク設計](03-network.md#ドメイン命名規約)。Caddy 経由の FQDN は、DNS が Caddy（現在 `192.168.11.11`、移行後 `10.77.20.10`）に解決し、Caddy が宛先へ転送する。
+内部 DNS は `lab.kanare.dev` ゾーン（CoreDNS が権威）。名前の付け方は [ネットワーク設計](03-network.md#ドメイン命名規約)。Caddy 経由の FQDN は、DNS が Caddy（`10.77.20.10`。段階 3 の前は `192.168.11.11`）に解決し、Caddy が宛先へ転送する。
 
-| FQDN | 用途 | 現在の宛先 | 移行後の宛先 |
+| FQDN | 用途 | 段階 3 の前の宛先 | 段階 3 の後の宛先 |
 | --- | --- | --- | --- |
 | `alertmanager.lab.kanare.dev` | Alertmanager | `192.168.11.13:9093` | `10.77.20.11:9093` |
 | `grafana.lab.kanare.dev` | Grafana | `192.168.11.13:3000` | `10.77.20.11:3000` |
 | `prometheus.lab.kanare.dev` | Prometheus | `192.168.11.13:9090` | `10.77.20.11:9090` |
-| `pve.lab.kanare.dev` | Proxmox Web UI | `192.168.11.10:8006` | `10.77.10.10:8006` |
+| `pve.lab.kanare.dev` | Proxmox Web UI | `192.168.11.10:8006` | `192.168.11.10:8006`（段階 3b で `10.77.10.10:8006`） |
 | `home.lab.kanare.dev` | Homepage | `192.168.11.20:3001` | `10.77.20.20:3001` |
 | `ha.lab.kanare.dev` | Home Assistant | `192.168.11.20:8123` | `10.77.20.20:8123` |
 | `n8n.lab.kanare.dev` | n8n | `192.168.11.20:5678` | `10.77.20.20:5678` |
@@ -121,7 +121,7 @@ Mac、スマホなどの日常端末は、DHCP で受け取る（移行後は Tr
 | `code.lab.kanare.dev` | code-server | `192.168.11.22:8080` | `10.77.20.30:8080` |
 | `cloudcli.lab.kanare.dev` | CloudCLI | `192.168.11.22:3001` | `10.77.20.30:3001` |
 | `router.lab.kanare.dev` | ルーター管理画面（Buffalo。2026-11-06 に廃止） | 廃止（`omada.lab` に付け替えた） | 廃止 |
-| `omada.lab.kanare.dev` | Omada コントローラーの管理画面（HTTPS） | `192.168.11.12:8043`（Caddy が転送。2026-11-06 に新設） | `10.77.10.3:8043` |
+| `omada.lab.kanare.dev` | Omada コントローラーの管理画面（HTTPS） | `192.168.11.12:8043`（Caddy が転送。2026-11-06 に新設） | `192.168.11.12:8043`（段階 3b で `10.77.10.3:8043`。Caddy が転送） |
 | `infra.lab.kanare.dev` / `vm-infra.lab.kanare.dev` | `vm-infra` への直接アクセス | `192.168.11.11` | `10.77.20.10` |
 | `vm-monitoring.lab.kanare.dev` | `vm-monitoring` への直接アクセス | `192.168.11.13` | `10.77.20.11` |
 | `vm-apps.lab.kanare.dev` | `vm-apps` への直接アクセス | `192.168.11.20` | `10.77.20.20` |
@@ -134,7 +134,7 @@ Mac、スマホなどの日常端末は、DHCP で受け取る（移行後は Tr
 | 項目 | アドレス | 備考 |
 | --- | --- | --- |
 | 建物の共用ルーター | `172.22.0.1` | 上流。ER605 の WAN は DHCP で受ける（二重 NAT）。上流が `10.x` を配っていると、`10.77.0.0/16` と被りうる（[ADR-0015](../adr/0015-vlan-address-scheme-10-77.md)） |
-| Tailscale の広告範囲 | 現在 `192.168.11.0/24`、移行後 `10.77.20.0/24` と `10.77.40.0/24` | `vm-infra` が subnet router。移行後は、Management に届かないようにする（[ネットワーク設計](03-network.md#外出先からのアクセスtailscale)） |
+| Tailscale の広告範囲 | 段階 3 の前は `192.168.11.0/24`。段階 3 の後（2026-11-17〜）は `10.77.20.0/24`、`10.77.40.0/24`、`192.168.11.0/24` | `vm-infra` が subnet router。管理系が `192.168.11.0/24` に残る間は、旧経路も広告する。段階 3b のあとは、Management に届かないようにする（[ネットワーク設計](03-network.md#外出先からのアクセスtailscale)） |
 | AdGuard のフォールバック DNS | `1.1.1.1`、`9.9.9.9` | upstream に接続できないときだけ使う。DHCP では配らない（[DNS 構成](../services/network/dns.md)） |
 
 ## 更新のしかた
@@ -149,6 +149,6 @@ IP アドレスを変えたら（ホストの追加・削除、移行を含む�
 | DNS のレコード | CoreDNS のゾーン（[DNS 構成](../services/network/dns.md)） |
 | 監視の対象 | Prometheus の scrape 対象（[監視・アラート](../services/platform/monitoring.md)） |
 | 機器の設定値 | [ER605](../hardware/er605/settings.md)、[SG2210P](../hardware/sg2210p/settings.md)、[Buffalo](../hardware/wsr-1800ax4p/settings.md)、[ThinkCentre](../hardware/thinkcentre-m70q-tiny/settings.md) の `settings.md` |
-| 構成図 | [メインの構成図](../diagrams/main-diagram/make-main-diagram.py)、[物理構成図](../diagrams/physical-diagram/make-physical-diagram.py)（生成スクリプトの「配置」） |
+| 構成図 | [現状の構成図](../diagrams/as-is-diagram/make-as-is-diagram.py)、[to-be の構成図](../diagrams/to-be-diagram/make-to-be-diagram.py)、[物理構成図](../diagrams/physical-diagram/make-physical-diagram.py)（生成スクリプトの「配置」） |
 
 移行（段階 3）の切り替えの手順と、直す箇所の一覧は、[VLAN 設計](08-vlan-design.md)にある。

@@ -12,7 +12,7 @@
 
 | 種類 | 内容 | 定義場所 |
 | --- | --- | --- |
-| IP・ゲートウェイ・DNS | `192.168.11.0/24`、`gateway`、`dns_server` | `ansible/inventory/group_vars/all/vars.yml`、`terraform/proxmox/variables.tf` / `terraform.tfvars`、`hosts.yml` |
+| IP・ゲートウェイ・DNS | VM ごとの `ip`・`gateway`・`nameserver`・`vlan_id`、`ansible_host`、`static_ip` | `terraform/proxmox/terraform.tfvars`、`ansible/inventory/hosts.yml`、`host_vars` |
 | ドメイン | `lab.kanare.dev`（`domain`） | `group_vars/all/vars.yml`、`dns_records`、Caddyfile |
 | Proxmox | ノード名 `pve`、テンプレート `ubuntu-cloud`（VMID 9000）、ストレージ `local-lvm` | `terraform.tfvars`、`terraform/proxmox/README.md` |
 | ルーターの IP | 構成表、管理画面のリンク、Caddy の転送先 | [DNS 構成](../services/network/dns.md#ルーターを付け替えるとき) の表 |

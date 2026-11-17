@@ -1,6 +1,6 @@
 # vm-code（常用リモート開発環境）
 
-`vm-code`（`192.168.11.22`、vmid 122、`vm-dev` 同等スペック）は、Claude Code やブラウザ版 VS Code で外出先から開発するための常用環境。
+`vm-code`（`10.77.20.30`、vmid 122、`vm-dev` 同等スペック）は、Claude Code やブラウザ版 VS Code で外出先から開発するための常用環境。
 
 ## 分離した理由
 
@@ -23,4 +23,4 @@ CLI・ブラウザ・モバイルの 3 経路をカバーする。
 | モバイル | CloudCLI（`cloudcli.lab.kanare.dev`）、iOS の Moshi アプリ |
 
 - iOS の Moshi アプリからは、専用鍵（`code_extra_authorized_keys`）と直接 DNS レコード（`vm-code.lab.kanare.dev`）で SSH / mosh 接続する。`moshi-hook` を systemd --user サービスとして常駐させて連携する（ペアリングのみ手動）
-- アクセスは Tailscale 経由に限定する。UFW で該当ポートを、LAN / Tailscale サブネットルート経由の `192.168.11.0/24` からのみ許可する。Cloudflare Tunnel 等での外部公開はしない（[ADR 0005](../../adr/0005-tailscale-only-remote-access.md)）
+- アクセスは Tailscale 経由に限定する。UFW で該当ポートを、Trusted（`10.77.30.0/24`）と、Tailscale のサブネットルート経由の接続（送信元は `vm-infra` の `10.77.20.10`）からのみ許可する。Cloudflare Tunnel 等での外部公開はしない（[ADR 0005](../../adr/0005-tailscale-only-remote-access.md)）

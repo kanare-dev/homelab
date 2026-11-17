@@ -220,7 +220,7 @@
       ansible.builtin.command: >-
         tailscale up
         --authkey={{ tailscale_authkey }}
-        --advertise-routes=192.168.11.0/24
+        --advertise-routes=10.77.20.0/24,10.77.40.0/24,192.168.11.0/24
         --accept-dns=false
       changed_when: true  # up は毎回実行され、変更の有無を判定できないため常に changed とする
       no_log: true  # authkey をコマンドラインごとログに出さない

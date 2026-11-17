@@ -1,18 +1,20 @@
 #!/usr/bin/env python3
-"""ER605・SG2210P を導入して VLAN に分けた後（段階 3 の完了時点）の構成図（メインの構成図）を、単体の HTML で作る。移行前の構成図（`pre-migration-diagram/`、削除予定）に替わる。
+"""現状（as-is）の構成図を、単体の HTML で作る。段階 3 の後（2026-11-17〜）の、実機のとおりの構成。管理系（Proxmox ホスト、`vm-omada`、ER605・SG2210P）は、今の LAN（VLAN1、`192.168.11.0/24`）に残っている（段階 3b まで。ADR-0028）。
 
-この図の本体はこのスクリプト。下の「配置」の座標と文字から HTML（main-diagram.html。ロゴとフォントを埋め込む）を組み、
-Markdown から参照する PNG（main-diagram.png、ダーク版は main-diagram-dark.png）も書き出す。何度実行しても結果は同じ。
+最終形（to-be）は ../to-be-diagram/。この図は、to-be-diagram のスクリプトを写して、配置と文字を現状に合わせたもの。見た目の決まりと部品は同じ。
+実機を変えたら（IP、VLAN、ポート）、この図を直す。段階 3b が済んだら、to-be-diagram と同じ形になるので、この図とスクリプトは削除する。
+
+この図の本体はこのスクリプト。下の「配置」の座標と文字から HTML（as-is-diagram.html。ロゴとフォントを埋め込む）を組み、
+Markdown から参照する PNG（as-is-diagram.png、ダーク版は as-is-diagram-dark.png）も書き出す。何度実行しても結果は同じ。
 計画が変わったら、下の「配置」を直して実行する。
 
-    python3 docs/diagrams/main-diagram/make-main-diagram.py          # main-diagram.html を書き出す
-    python3 docs/diagrams/main-diagram/make-main-diagram.py --png    # さらに Chrome で main-diagram.png / main-diagram-dark.png を書き出す
+    python3 docs/diagrams/as-is-diagram/make-as-is-diagram.py          # as-is-diagram.html を書き出す
+    python3 docs/diagrams/as-is-diagram/make-as-is-diagram.py --png    # さらに Chrome で as-is-diagram.png / as-is-diagram-dark.png を書き出す
 
 必要なもの: macOS の `sips`（アイコンの縮小）、--png には Google Chrome（ヘッドレスで撮る。Playwright は要らない）。
 フォントは ../fonts/（Geist と JetBrains Mono。OFL。物理構成図と共通）を HTML に埋め込む。
-アイコン素材 `docs/diagrams/assets/icons/` は Git 管理外。無ければ取得する（pre-migration-diagram/layout-architecture.py と同じ）。
-内容は docs/operations/roadmap/10-er605-sg2210p-migration-plan.md の「段階 3 の後」と
-docs/architecture/08-vlan-design.md の VLAN 一覧に合わせる。食い違ったら、文書のほうが正。
+アイコン素材 `docs/diagrams/assets/icons/` は Git 管理外。無ければ取得する。
+内容は docs/architecture/09-ip-addresses.md（IP の正）と docs/hardware/*/settings.md（機器の設定の正）に合わせる。食い違ったら、文書のほうが正。
 
 見た目の決まり（座標は 10px グリッド。背景の方眼は 20px）:
   - 背景は方眼。文字は Geist（日本語は Hiragino / Noto Sans JP）、IP・ポート・線のラベルは JetBrains Mono。ライト・ダーク両対応。
@@ -30,7 +32,7 @@ import tempfile
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
-OUT = HERE / "main-diagram.html"
+OUT = HERE / "as-is-diagram.html"
 ICONS = HERE.parent / "assets/icons"
 FONTS = HERE.parent / "fonts"
 CHROME = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
@@ -38,6 +40,7 @@ W, H = 1720, 1690
 
 # VLAN ごとの色（塗り, 線）
 COLOR = {
+    1: ("#ece6da", "#9c8f73"),  # 今の LAN（VLAN1）
     10: ("#dae8fc", "#6c8ebf"),
     20: ("#ffe6cc", "#d79b00"),
     30: ("#d5e8d4", "#82b366"),
@@ -46,7 +49,7 @@ COLOR = {
     60: ("#eeeeee", "#666666"),
     70: ("#f8cecc", "#b85450"),
 }
-NAME = {10: "Management", 20: "Servers", 30: "Trusted", 40: "Lab", 50: "IoT", 60: "Guests", 70: "DMZ"}
+NAME = {1: "今の LAN（管理系。192.168.11.0/24）", 10: "Management", 20: "Servers", 30: "Trusted", 40: "Lab", 50: "IoT", 60: "Guests", 70: "DMZ"}
 
 back = []  # 背面（枠）。out より先に描く
 out = []   # 前面（アイコン、文字、線）
@@ -207,14 +210,14 @@ NODE = ("monitoring/prometheus.png", svc("node_exporter", ":9100"))
 def layout():
     # 凡例（右上。縦一列。上ほど信頼度が高い） ------------------------------------------
     lx, ly = 1050, 20
-    frame(1040, ly, 660, 222, "legend")  # 凡例は 1 つの四角（左: VLAN 一覧、右: 線と文字）
+    frame(1040, ly, 660, 244, "legend")  # 凡例は 1 つの四角（左: VLAN 一覧、右: 線と文字）
     text(f"<b>VLAN 一覧</b>（{ip('10.77.&lt;VLAN&gt;.0/24')}）", lx - 3, ly + 6, 380, 26)
     text("信頼度", lx - 3, ly + 39, 54, 22, align="center", cls="el")
-    edge([(lx + 24, ly + 66), (lx + 24, ly + 200)], arrow="start")  # 矢じりが上。上ほど信頼度が高い
-    for k, v in enumerate((10, 20, 30, 40, 50, 60, 70)):
+    edge([(lx + 24, ly + 66), (lx + 24, ly + 222)], arrow="start")  # 矢じりが上。上ほど信頼度が高い
+    for k, v in enumerate((1, 10, 20, 30, 40, 50, 60, 70)):
         y = ly + 56 + 22 * k
         frame(lx + 50, y + 2, 30, 18, f"sw z{v}")
-        text(f"VLAN{v} {NAME[v]}", lx + 90, y, 290, 22)
+        text(f"VLAN{v} {NAME[v]}", lx + 90, y, 340, 22)
 
     # 外部サービス（左上） --------------------------------------------------------------
     frame(20, 20, 500, 210, "ext")
@@ -230,7 +233,7 @@ def layout():
     edge([(520, 125), (852, 125)])
 
     # 凡例の右半分: 線と文字の意味
-    edge([(1440, 30), (1440, 232)], width=1, color="var(--rule2)")
+    edge([(1440, 30), (1440, 254)], width=1, color="var(--rule2)")
     text("<b>線と文字</b>", 1450, 24, 240, 26)
     for k, (w, label) in enumerate([(3, "Ethernet（上流の WAN）"), (5, "Ethernet（trunk）")]):
         cy = 63 + 22 * k
@@ -239,7 +242,7 @@ def layout():
     text("<i>斜体</i>: ホスト名（VM、端末）", 1450, 52 + 22 * 2, 240, 22)
     text(f"{ip('橙')}: IP アドレス、ポート", 1450, 52 + 22 * 3, 240, 22)
 
-    OFF[0] = 80  # ここから下は 80 下げる（凡例と LAN の枠が重ならないように）
+    OFF[0] = 100  # ここから下は 100 下げる（凡例と LAN の枠が重ならないように）
 
     # インターネット・ルーター・スイッチ ------------------------------------------------
     out.append(f'<div class="tile" style="{pos(852, 17, 56, 56)}"></div>')
@@ -251,22 +254,22 @@ def layout():
 
     # LAN 全体の枠 ---------------------------------------------------------------------
     frame(20, 170, 1680, 1400, "lan", to=back)
-    frame(40, 180, 200, 40, "lanlabel", to=back)
-    text("<b>LAN<br>10.77.0.0/16</b>", 40, 180, 200, 40, align="center")
+    frame(40, 180, 300, 40, "lanlabel", to=back)
+    text("<b>LAN</b><br>10.77.0.0/16 + 192.168.11.0/24", 40, 180, 300, 40, align="center")
 
     # 通信ポリシー（LAN の中、ER605 の左） -----------------------------------------------
-    text("<b>通信ポリシー（要約）</b><br>表にない通信は拒否。Trusted は Servers・Lab・IoT・DMZ へ必要なポートだけ許可。<br>"
-         f"Lab・IoT・Guests・DMZ から内部へは拒否（DNS は <i>vm-infra</i> {ip('10.77.20.10')} だけ）。<br>"
-         f"外出先: Tailscale が {ip('10.77.20.0/24')} と {ip('10.77.40.0/24')} だけを広告（Management には届かない）。",
-         40, 250, 560, 140)
+    text("<b>通信ポリシー（現状）</b><br>ACL は<b>全許可</b>（段階 3 の当日。絞るのは別の日。ADR-0029）。<br>"
+         f"DNS: VLAN の DHCP は <i>vm-infra</i> {ip('10.77.20.10')}。今の LAN の DHCP はルーター {ip('192.168.11.1')}。<br>"
+         f"外出先: Tailscale が {ip('10.77.20.0/24')}、{ip('10.77.40.0/24')} と、旧経路 {ip('192.168.11.0/24')} を広告。",
+         40, 250, 640, 140)
 
     icon("hardware/tplink-er605.png", 760, 200, 240, 80, max_px=700)
-    text(f"<b>TP-Link ER605 V2</b><br>{ip('10.77.10.1')}（VLAN10）<br>各 VLAN の GW（.1）・DHCP・ACL", 1010, 200, 330, 80)
+    text(f"<b>TP-Link ER605 V2</b><br>{ip('192.168.11.1')}（今の LAN）<br>各 VLAN の GW（{ip('10.77.&lt;VLAN&gt;.1')}）・DHCP・ACL（全許可）", 1010, 200, 420, 80)
     edge([(880, 280), (880, 380)], width=5)  # p1: trunk（太い線）
-    text("ER605 p2 ⇔ SG2210P p1: trunk（tagged: VLAN10/20/30/40/50/60/70）", 890, 320, 560, 40, cls="el")
+    text("ER605 p2 ⇔ SG2210P p1: trunk（untagged: VLAN1 / tagged: VLAN10/20/30/40/50/60/70）", 890, 320, 700, 40, cls="el")
 
     icon("hardware/tplink-sg2210p.png", 760, 380, 240, 80, max_px=700)
-    text(f"<b>TP-Link SG2210P</b><br>{ip('10.77.10.2')}（VLAN10）<br>p1: ER605 / p2: pve / p3: AP1 / p4: Dell U2725QE / p5–p6: 予備 / p7–p8: 将来の AP 用（PoE）", 1010, 380, 690, 80)
+    text(f"<b>TP-Link SG2210P</b><br>{ip('192.168.11.x')}（今の LAN。ER605 の DHCP）<br>p1: ER605 / p2: pve / p3: Buffalo / p4: Dell U2725QE /<br>p5: 空き / p6: 緊急用の入口（native VLAN1）/ p7–p8: 空き", 1010, 380, 690, 80)
 
     # Proxmox ---------------------------------------------------------------------------
     gx, gy = 40, 640
@@ -274,7 +277,7 @@ def layout():
     text("<b>Lenovo ThinkCentre M70q Tiny Gen1</b><br>CPU: Intel Core i5-10400T (6C/12T)<br>RAM: 1 x 8 GB + 1 x 16 GB DDR4-3200<br>"
          "Storage: 1 x 256GB NVMe SSD", 430, 519, 300, 80, align="center")
     edge([(800, 460), (800, 620)], width=5)  # p2: trunk（太い線）
-    text("p2: trunk（tagged: VLAN10/20/40/50/70）", 440, 468, 350, 24, align="right", cls="el")
+    text("p2: trunk（untagged: VLAN1 / tagged: VLAN10/20/30/40/50/60/70）", 220, 468, 570, 24, align="right", cls="el")
 
     # 右の列（Management / Lab / DMZ）と、Servers の 2 列を先に配置して高さを決める
     gi = len(back)                      # Proxmox の枠は、中の VLAN 枠より前に入れる
@@ -309,12 +312,17 @@ def layout():
     text("<b>VLAN20 Servers</b>", sx + 10, sy + 5, 400, 30)
 
     y = sy
-    # Management
-    h = vm(10, rx + 20, y + 50, "vm-omada", "10.77.10.3", "Ubuntu Server 24.04", [("row", "network/omada-controller.png", "Omada Controller")])
+    # 今の LAN（VLAN1）: 管理系。vm-omada はここ（段階 3b まで）
+    h = vm(1, rx + 20, y + 50, "vm-omada", "192.168.11.12", "Ubuntu Server 24.04", [("row", "network/omada-controller.png", "Omada Controller")])
     mgmt_h = 50 + h + 20
-    zone(10, rx, y, 340, mgmt_h)
-    text("<b>VLAN10 Management</b>", rx + 10, y + 5, 320, 30)
+    zone(1, rx, y, 340, mgmt_h)
+    text("<b>VLAN1 今の LAN</b>　管理系", rx + 10, y + 5, 330, 30)
     y += mgmt_h + 20
+    # Management（VLAN10）: 段階 3b で使う。今は空
+    zone(10, rx, y, 340, 90)
+    text("<b>VLAN10 Management</b>（今は空）", rx + 10, y + 5, 320, 30)
+    text("段階 3b で、管理系を移す", rx + 20, y + 40, 300, 40)
+    y += 90 + 20
     # Lab
     h1 = vm(40, rx + 20, y + 50, "vm-dev", "10.77.40.10", "Ubuntu Server 24.04", [("row", *NODE)])
     lab_h = 50 + h1 + 20
@@ -330,10 +338,10 @@ def layout():
     left_bottom = sy + servers_h
     gh = max(left_bottom, y) - gy + 20 + 60
     grp = []
-    frame(gx, gy, 1060, gh, "z z10", to=grp)  # Proxmox ホストは Management（VLAN10）の色
+    frame(gx, gy, 1060, gh, "z z1", to=grp)  # Proxmox ホストは今の LAN（VLAN1）の色
     back.insert(gi, grp[0])
     icon("platform/proxmox.png", gx + 20, gy + 20, 40, 40, max_px=120)
-    text(f"{name_ip('pve', '10.77.10.10')}<br><i>vmbr0.10</i>（tagged: VLAN10）<br>Proxmox 9.1（Debian 13 ベース）", gx + 70, gy + 20, 303, 60)
+    text(f"{name_ip('pve', '192.168.11.10')}<br><i>vmbr0</i>（untagged: VLAN1。VLAN-aware）<br>Proxmox 9.1（Debian 13 ベース）", gx + 70, gy + 20, 303, 60)
     icon(None, 780, 620, 40, 40, svg=mono_pair(ethernet_svg))
     text("nic0", 830, 635, 60, 20)
     row(*NODE, gx + 20, gy + gh - 50, 220)
@@ -356,16 +364,16 @@ def layout():
     device("hardware/clients/macbook.png", f"<i>canales-macbook-pro-m5</i><br>{ip('DHCP')}<br>MacBook Pro M5", tx + 10, ty + 70, 250, size=(52, 52))
     device("hardware/clients/windows-laptop.png", f"<i>仕事用 Windows PC</i><br>{ip('DHCP')}<br>会社の VPN", tx + 10, ty + 130, 250, size=(52, 52))
     device("hardware/clients/iphone.png", f"<i>canales-iphone-14</i><br>{ip('DHCP')}<br>iPhone 14", tx + 290, ty + 64, 230, size=(52, 52))
-    device("hardware/clients/switchbot.png", f"<i>SwitchBot Hub 2</i><br>{ip('DHCP')}<br>将来 IoT へ移す", tx + 290, ty + 124, 230, size=(52, 52), tile=True)
-    device("hardware/clients/tv.png", f"<i>テレビ（無線）</i><br>{ip('DHCP')}<br>将来 IoT へ移す", tx + 290, ty + 184, 230, size=(52, 52))
+    device("hardware/clients/switchbot.png", f"<i>SwitchBot Hub 2</i><br>{ip('DHCP')}<br>段階 4 で IoT へ移す", tx + 290, ty + 124, 230, size=(52, 52), tile=True)
+    device("hardware/clients/tv.png", f"<i>テレビ（無線）</i><br>{ip('DHCP')}<br>段階 4 で IoT へ移す", tx + 290, ty + 184, 230, size=(52, 52))
 
     iy = ty + 300 + 20
     zone(50, tx, iy, 260, 170)
-    text("<b>VLAN50 IoT</b>（将来）", tx + 10, iy + 5, 240, 30)
-    device("hardware/clients/esp32.svg", f"<i>ESP32 + BME280</i><br>{ip('10.77.50.50')}<br>現在は未使用", tx + 10, iy + 50, 250, size=(52, 52), tile=True)
-    text("AP 追加後に使う。2.4GHz のみ、端末間は隔離", tx + 10, iy + 120, 240, 40)
+    text("<b>VLAN50 IoT</b>（未使用）", tx + 10, iy + 5, 240, 30)
+    device("hardware/clients/esp32.svg", f"<i>ESP32 + BME280</i><br>{ip('192.168.11.100')}<br>現在は停止中", tx + 10, iy + 50, 250, size=(52, 52), tile=True)
+    text(f"段階 4（AP 追加）後に使う。<br>将来のアドレス: {ip('10.77.50.50')}", tx + 10, iy + 120, 240, 40)
     zone(60, tx + 280, iy, 260, 170)
-    text("<b>VLAN60 Guests</b>（将来）", tx + 290, iy + 5, 240, 30)
+    text("<b>VLAN60 Guests</b>（未使用）", tx + 290, iy + 5, 240, 30)
     device("", f"来客の端末<br>{ip('DHCP')}", tx + 290, iy + 50, 250, size=(40, 40), svg=mono_pair(wifi_svg))
     text("AP 追加後に使う。端末間は隔離、LAN へは全遮断", tx + 290, iy + 120, 240, 40)
 
@@ -450,7 +458,7 @@ def build():
               'orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="context-stroke"/></marker></defs></svg>')
     html = ('<!doctype html>\n<html lang="ja">\n<head>\n<meta charset="utf-8">\n'
             '<meta name="viewport" content="width=device-width,initial-scale=1">\n'
-            '<title>VLAN 化のあとの構成図（試作）</title>\n<style>' + css() + '</style>\n'
+            '<title>現状の構成図（as-is。段階 3 の後）</title>\n<style>' + css() + '</style>\n'
             '<script>if(location.hash==="#dark")document.documentElement.dataset.theme="dark";'
             'if(location.hash==="#light")document.documentElement.dataset.theme="light"</script>\n</head>\n<body>\n'
             + marker + '\n<div class="canvas">\n' + "\n".join(back) + "\n" + "\n".join(out) + "\n</div>\n</body>\n</html>\n")
@@ -460,7 +468,7 @@ def build():
 
 def render():
     for suffix, frag in (("", "#light"), ("-dark", "#dark")):
-        png = HERE / f"main-diagram{suffix}.png"
+        png = HERE / f"as-is-diagram{suffix}.png"
         subprocess.run([CHROME, "--headless=new", "--disable-gpu", "--hide-scrollbars", "--force-device-scale-factor=2",
                         f"--window-size={W},{H}", "--virtual-time-budget=3000", f"--screenshot={png}", OUT.as_uri() + frag],
                        check=True, capture_output=True)

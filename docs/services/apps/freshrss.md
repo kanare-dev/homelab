@@ -6,7 +6,7 @@ RSS / Atom のフィードを集めて読む、セルフホストのリーダー
 
 | 項目 | 内容 |
 | --- | --- |
-| 置き場所 | `vm-apps`（`192.168.11.20`）の `/opt/freshrss` |
+| 置き場所 | `vm-apps`（`10.77.20.20`）の `/opt/freshrss` |
 | イメージ | `freshrss/freshrss:1.30.4`（バージョンを固定する） |
 | データベース | SQLite（`/opt/freshrss/data/users/<ユーザー>/db.sqlite`） |
 | ネットワーク | bridge。コンテナの 80 を `8081` で公開し、`vm-infra`（Caddy）だけに許可する |
@@ -20,9 +20,9 @@ RSS / Atom のフィードを集めて読む、セルフホストのリーダー
 Mac / スマホ ─ HTTPS ─> Caddy（vm-infra :443） ─ HTTP ─> vm-apps :8081（FreshRSS :80）
 ```
 
-- `vm-apps` の 8081 は Docker の公開ポートなので、UFW では絞れない。`ufw_docker` ロールの `DOCKER-USER` が、`vm-infra` 以外からの新規接続を破棄する（`group_vars/apps/vars.yml` の `docker_published_allow`）。IP とポートの直打ち（`http://192.168.11.20:8081`）は届かない。
-- Caddy の裏で動かすため、`BASE_URL=https://rss.lab.kanare.dev` と `TRUSTED_PROXY=192.168.11.11`（Caddy の IP）を設定している。
-- コンテナは `dns:` で AdGuard（`192.168.11.11`）を指定し、2 つ目にルーター（`192.168.11.1`）を置く（[ADR-0007](../../adr/0007-vm-host-dns-is-router.md)）。フィードの取得は外部のサイトへ出るので、ルーターだけでも引ける。
+- `vm-apps` の 8081 は Docker の公開ポートなので、UFW では絞れない。`ufw_docker` ロールの `DOCKER-USER` が、`vm-infra` 以外からの新規接続を破棄する（`group_vars/apps/vars.yml` の `docker_published_allow`）。IP とポートの直打ち（`http://10.77.20.20:8081`）は届かない。
+- Caddy の裏で動かすため、`BASE_URL=https://rss.lab.kanare.dev` と `TRUSTED_PROXY=10.77.20.10`（Caddy の IP）を設定している。
+- コンテナは `dns:` で AdGuard（`10.77.20.10`）を指定し、2 つ目にルーター（`10.77.20.1`）を置く（[ADR-0007](../../adr/0007-vm-host-dns-is-router.md)）。フィードの取得は外部のサイトへ出るので、ルーターだけでも引ける。
 - 外部には公開しない。外出先からは Tailscale 経由で使う（[ADR-0005](../../adr/0005-tailscale-only-remote-access.md)）。
 - 認証は FreshRSS のログインのみ。Authelia は使わない（[ADR-0008](../../adr/0008-no-authelia.md)）。
 

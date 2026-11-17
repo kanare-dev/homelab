@@ -10,7 +10,7 @@
       ],
       "use_x_forwarded_for": true,
       "trusted_proxies": [
-        "192.168.11.11/32"
+        "10.77.20.10/32"
       ],
       "login_attempts_threshold": -1,
       "ip_ban_enabled": true,

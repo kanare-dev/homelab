@@ -7,30 +7,17 @@ prometheus_port: 9090
 alertmanager_port: 9093
 grafana_port: 3000
 
-prometheus_scrape_targets:
-  - job_name: "node"
-    targets:
-      - "192.168.11.10:9100"
-      - "192.168.11.11:9100"
-      - "192.168.11.13:9100"
-      - "192.168.11.20:9100"
-      - "192.168.11.21:9100"
-      - "192.168.11.22:9100"
-  - job_name: "prometheus"
-    targets:
-      - "localhost:9090"
-
 # UFW
 ufw_allowed_ports:
   - { port: 22, proto: tcp }
-  - { port: 9100, proto: tcp, from: "192.168.11.13" }   # node_exporter (自分自身。ホストからの scrape)
+  - { port: 9100, proto: tcp, from: "10.77.20.11" }   # node_exporter (自分自身。ホストからの scrape)
   - { port: 9100, proto: tcp, from: "172.16.0.0/12" }   # node_exporter (Prometheus コンテナ。Docker ブリッジ)
 
 # Docker の公開ポートは UFW では絞れないので、roles/ufw_docker が DOCKER-USER で絞る
 docker_published_allow:
-  - { port: 3000, from: "192.168.11.11" }   # Grafana (Caddy on vm-infra)
-  - { port: 9090, from: "192.168.11.11" }   # Prometheus (Caddy)
-  - { port: 9093, from: "192.168.11.11" }   # Alertmanager (Caddy)
+  - { port: 3000, from: "10.77.20.10" }   # Grafana (Caddy on vm-infra)
+  - { port: 9090, from: "10.77.20.10" }   # Prometheus (Caddy)
+  - { port: 9093, from: "10.77.20.10" }   # Alertmanager (Caddy)
 
 # 許可元を絞る前の「どこからでも許可」ルール。common ロールが削除する
 ufw_removed_ports:
@@ -38,3 +25,5 @@ ufw_removed_ports:
   - { port: 9090, proto: tcp }
   - { port: 9093, proto: tcp }
   - { port: 9100, proto: tcp }
+  # 段階 3 で、許可元を新しいアドレスに変えたあと、旧アドレスのルールを消す（ufw は定義にないルールを消さない）
+  - { port: 9100, proto: tcp, from: "192.168.11.13" }

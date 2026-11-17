@@ -16,15 +16,15 @@ services:
       - "8081:80"
     # ホストの DNS（ルーター）は lab.kanare.dev を引けない。他のコンテナと同じく AdGuard を使い、2 つ目にルーターを置く（ADR-0007）
     dns:
-      - 192.168.11.11
-      - 192.168.11.1
+      - 10.77.20.10
+      - 10.77.20.1
     environment:
       - TZ=Asia/Tokyo
       # フィードの更新。毎時 7 分と 37 分に実行する（イメージ内の cron）
       - CRON_MIN=7,37
       # Caddy（https://rss.lab.kanare.dev）の裏で動かす。Caddy の IP だけを信頼して、X-Forwarded-* を読む
       - BASE_URL=https://rss.lab.kanare.dev
-      - TRUSTED_PROXY=192.168.11.11
+      - TRUSTED_PROXY=10.77.20.10
     volumes:
       - /opt/freshrss/data:/var/www/FreshRSS/data
       - /opt/freshrss/extensions:/var/www/FreshRSS/extensions

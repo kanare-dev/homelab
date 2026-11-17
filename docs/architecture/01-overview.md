@@ -4,7 +4,7 @@ homelab の全体像。最新の構成図、目的、構成の理由、前提と
 
 ## 構成図
 
-> 構成を変えたら、この図（ASCII）と下の表を同じ変更で更新する。SVG（移行前の構成図。移行の完了後に削除する）は `docs/diagrams/pre-migration-diagram/layout-architecture.py` で生成し直して同じ変更で更新する。食い違っていたら、この ASCII 図が正。
+> 構成を変えたら、この図（ASCII）と下の表を同じ変更で更新する。現状の構成図（`docs/diagrams/as-is-diagram/`。段階 3b の完了後に削除する）は、`make-as-is-diagram.py` で生成し直して同じ変更で更新する。食い違っていたら、この ASCII 図が正。
 
 ```text
  External: Healthchecks.io / Slack / Cloudflare / Let's Encrypt / Tailscale / GitHub
@@ -12,11 +12,11 @@ homelab の全体像。最新の構成図、目的、構成の理由、前提と
  Internet ── ER605 router (.1) ── SG2210P switch ── Buffalo AP (.2) / Proxmox / Display
      │
 ┌─────────────────────────────────────────────────────────────────────────────────────┐
-│  LAN: 192.168.11.0/24                  GW: 192.168.11.1          Tailscale (外出先)  │
+│  Servers VLAN20: 10.77.20.0/24  GW: 10.77.20.1                   Tailscale (外出先)  │
 │                                                                                     │
 │  ┌──────────────┐  ┌───────────────┐  ┌──────────────┐  ┌──────────────┐            │
 │  │  vm-infra    │  │ vm-monitoring │  │ vm-apps      │  │ vm-code      │            │
-│  │  .11  1.5GB  │  │  .13  2GB     │  │  .20  4GB    │  │  .22  4GB    │            │
+│  │  .10  1.5GB  │  │  .11  2GB     │  │  .20  4GB    │  │  .30  4GB    │            │
 │  │  AdGuard Home│  │  Prometheus   │  │  Homepage    │  │  Claude Code │            │
 │  │  Unbound     │  │  Alertmanager │  │Home Assistant│  │  CloudCLI    │            │
 │  │  CoreDNS     │  │  Grafana      │  │  n8n         │  │  code-server │            │
@@ -25,16 +25,18 @@ homelab の全体像。最新の構成図、目的、構成の理由、前提と
 │  └──────┬───────┘  └──────┬────────┘  └──────┬───────┘  └──────┬───────┘            │
 │         │                 │                  │                 │                    │
 │  ┌──────┴─────────────────┴──────────────────┴─────────────────┴───────────────┐    │
-│  │                      Proxmox VE (.10)                                       │    │
+│  │                      Proxmox VE (192.168.11.10。今の LAN)                   │    │
 │  └─────────────────────────────────────────────────────────────────────────────┘    │
 │                                                                                     │
 │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐                               │
 │  │  IoT devices │  │  vm-dev      │  │  vm-omada    │                               │
-│  │  .100~       │  │  .21 任意起動 │  │  .12  3GB    │                              │
+│  │  .100~       │  │  .10 任意起動 │  │  .12  3GB    │                              │
 │  │  ESP32 etc.  │  │  playground  │  │  Omada Ctrl  │                               │
 │  └──────────────┘  └──────────────┘  └──────────────┘                               │
 └─────────────────────────────────────────────────────────────────────────────────────┘
 ```
+
+図の読み方（段階 3 の後。ACL は全許可）: 上段の 4 台は Servers（VLAN20、`10.77.20.0/24`）。`vm-dev` は Lab（VLAN40、`10.77.40.10`）。Proxmox ホスト（`192.168.11.10`）、`vm-omada`（`192.168.11.12`）、ER605・SG2210P は、段階 3b まで今の LAN（VLAN1、`192.168.11.0/24`）に残る（[ADR-0028](../adr/0028-defer-management-vlan10.md)）。Buffalo（AP）は Trusted（VLAN30、`10.77.30.50`）。ESP32 は停止中で、旧アドレスのまま。
 
 `vm-monitoring` では Prometheus に加えて blackbox-exporter が、Caddy 経由の HTTPS と AdGuard の名前解決を外形監視し、ping（ICMP）でインターネット回線の断・遅延も見る（[監視・アラート](../services/platform/monitoring.md)）。
 
@@ -44,7 +46,9 @@ homelab の全体像。最新の構成図、目的、構成の理由、前提と
 
 `vm-omada` の Omada コントローラーは、ER605・SG2210P を管理する（2026-11-03 に稼働。2026-11-06 に、ER605・SG2210P を採用した）。Buffalo は AP モードで、管理対象外。止まっても、機器は設定を持ったまま動く。
 
-![構成図（移行前）](../diagrams/pre-migration-diagram/architecture.drawio.svg)
+![現状の構成図（as-is）](../diagrams/as-is-diagram/as-is-diagram.png)
+
+上は現状（as-is。段階 3 の後）。詳しくは[現状の構成図](../diagrams/README.md#現状の構成図as-is-diagram段階-3b-の完了後に削除予定)。最終形（to-be）は、[to-be の構成図](../diagrams/README.md#to-be-の構成図-vlan-化のあとto-be-diagram)。
 
 ## 目的と位置づけ
 

@@ -13,7 +13,7 @@ homelab の監視とアラート通知の仕組み。2026-10-22 の障害（[INC
  vm-infra / vm-apps / vm-dev / vm-code / vm-monitoring / vm-omada
   └─ node_exporter :9100 ─────────────┤
                                       v
-                       vm-monitoring (192.168.11.13)
+                       vm-monitoring (10.77.20.11)
                         Prometheus :9090  (15秒毎に scrape, alerts.yml を評価)
                               │ /probe (30秒毎)
                               v
@@ -75,7 +75,7 @@ homelab の監視とアラート通知の仕組み。2026-10-22 の障害（[INC
 | TlsCertExpiringSoon / Critical | 証明書の残り日数 < 14 / < 3 | 1h / 10m | warning / critical | Let's Encrypt の自動更新の失敗（Cloudflare トークン失効など） |
 | BlackboxProbeMissing | 外形監視のメトリクスが存在しない | 10m | warning | blackbox-exporter の停止（監視の盲点） |
 | InternetDown | ルーターには ping が通るが、`1.1.1.1` と `8.8.8.8` の両方に通らない | 2m | critical | **回線断**（建物側・ISP・ルーターの WAN 側）。回線が落ちている間は Slack に届かないので、外部 Heartbeat の DOWN が先に届く。Slack は回線復旧後に届く |
-| GatewayUnreachable | ルーター（`192.168.11.1`）に ping が通らない | 2m | critical | ルーターの停止、LAN の断、PVE の NIC 停止 |
+| GatewayUnreachable | ルーター（`10.77.20.1`。Servers のゲートウェイ）に ping が通らない | 2m | critical | ルーターの停止、LAN の断、PVE の NIC 停止 |
 | InternetPacketLoss | `1.1.1.1` と `8.8.8.8` の**両方**で、パケットロスが 10 分間で 10% 超（ルーター自身に届かない間は評価しない） | 10m | warning | 回線の不安定（建物側の混雑など） |
 | InternetLatencyHigh | `1.1.1.1` への RTT（10 分平均）が 100ms 超かつ 7 日間の中央値の 3 倍超（平常値が溜まるまで評価しない） | 15m | warning | 回線・建物側のネットワークの遅延増加 |
 | Watchdog | 常に firing | - | none | 通知経路の死活確認。Slack には送らず、Healthchecks.io へ 5 分毎に送る（途絶えたら外部から通知） |
@@ -87,10 +87,10 @@ homelab の監視とアラート通知の仕組み。2026-10-22 の障害（[INC
 | ジョブ | 対象 | 確認すること |
 | --- | --- | --- |
 | `blackbox_http` | `https://{grafana,prometheus,alertmanager,pve,home,ha,n8n,rss,adguard,code,cloudcli,router}.lab.kanare.dev` | DNS -> Caddy -> バックエンドの全経路。証明書の検証と期限（`probe_ssl_earliest_cert_expiry`） |
-| `blackbox_icmp` | `192.168.11.1`（ルーター）、`172.22.0.1`（建物の共用ルーター）、`1.1.1.1`、`8.8.8.8` | 30 秒毎の ping。どこまで届くか（疎通）と遅延（RTT）、パケットロス。回線断・建物側の遅延の切り分けに使う |
-| `blackbox_dns` | `192.168.11.11:53`（AdGuard） | `dns-lab`: `grafana.lab.kanare.dev` の A レコード（CoreDNS まで）。`dns-external`: `cloudflare.com`（Unbound まで） |
+| `blackbox_icmp` | `10.77.20.1`（ルーター）、`172.22.0.1`（建物の共用ルーター）、`1.1.1.1`、`8.8.8.8` | 30 秒毎の ping。どこまで届くか（疎通）と遅延（RTT）、パケットロス。回線断・建物側の遅延の切り分けに使う |
+| `blackbox_dns` | `10.77.20.10:53`（AdGuard） | `dns-lab`: `grafana.lab.kanare.dev` の A レコード（CoreDNS まで）。`dns-external`: `cloudflare.com`（Unbound まで） |
 
-- blackbox-exporter のコンテナは DNS に AdGuard（`192.168.11.11`）を使う。vm-monitoring 自体の DNS はルーターで `*.lab.kanare.dev` を引けないため（[ADR 0007](../../adr/0007-vm-host-dns-is-router.md)）、`docker-compose.yml` の `dns:` で指定している。AdGuard が止まると HTTPS のプローブも全部失敗する（`DnsProbeFailed` で抑制）。
+- blackbox-exporter のコンテナは DNS に AdGuard（`10.77.20.10`）を使う。vm-monitoring 自体の DNS はルーターで `*.lab.kanare.dev` を引けないため（[ADR 0007](../../adr/0007-vm-host-dns-is-router.md)）、`docker-compose.yml` の `dns:` で指定している。AdGuard が止まると HTTPS のプローブも全部失敗する（`DnsProbeFailed` で抑制）。
 - `http_service` は 200 系・リダイレクト・401/403 を成功とみなす（認証付きサービスやログイン画面への転送を「応答している」とする）。500 系・接続失敗・TLS エラーは失敗。
 - 各ターゲットの `host` ラベルは背後の VM。VM が落ちて `TargetDown` が出ている間は、同じ `host` の `ServiceProbeFailed` を抑制する（`alertmanager.yml` の `inhibit_rules`）。
 - `DnsProbeFailed` の発報中は、名前解決に依存する `ServiceProbeFailed` も抑制する。通知が大量に出るのを防ぐ。
@@ -105,7 +105,7 @@ homelab の監視とアラート通知の仕組み。2026-10-22 の障害（[INC
 
   | 宛先 | `service` ラベル | 意味 |
   | --- | --- | --- |
-  | `192.168.11.1` | `gateway` | 自宅のルーター（Buffalo） |
+  | `10.77.20.1` | `gateway` | 自宅のルーター（ER605。`vm-monitoring` と同じ Servers 側のアドレス） |
   | `172.22.0.1` | `building-router` | 建物の共用ルーター（traceroute の 2 ホップ目） |
   | `1.1.1.1` | `internet-cloudflare` | インターネット（Cloudflare） |
   | `8.8.8.8` | `internet-google` | インターネット（Google） |
@@ -314,8 +314,8 @@ Slack App の「Incoming Webhooks」で再発行し、`sops ansible/inventory/gr
 | PveVmIoError | 先にプールを拡張してから `qm resume <vmid>`。強制リセットしない |
 | PveVmStopped | PVE の UI で状態確認。`qm start <vmid>`。意図した停止なら `onboot` の設定を見直す |
 | TargetDown | VM が起動しているか、`ssh` できるか、`systemctl status node_exporter` を確認 |
-| ServiceProbeFailed | `curl -v https://<名前>` で DNS・TLS・応答を切り分ける。DNS なら `dig @192.168.11.11 <名前>`、TLS なら Caddy のログ、5xx ならバックエンドのコンテナを確認する |
-| DnsProbeFailed | `dig @192.168.11.11 grafana.lab.kanare.dev`（内部）と `dig @192.168.11.11 cloudflare.com`（外部）で、どちらが落ちているか確認する。`docker ps` で adguard / unbound / coredns を見る。[dns.md](../network/dns.md) 参照 |
+| ServiceProbeFailed | `curl -v https://<名前>` で DNS・TLS・応答を切り分ける。DNS なら `dig @10.77.20.10 <名前>`、TLS なら Caddy のログ、5xx ならバックエンドのコンテナを確認する |
+| DnsProbeFailed | `dig @10.77.20.10 grafana.lab.kanare.dev`（内部）と `dig @10.77.20.10 cloudflare.com`（外部）で、どちらが落ちているか確認する。`docker ps` で adguard / unbound / coredns を見る。[dns.md](../network/dns.md) 参照 |
 | TlsCertExpiring* | vm-infra で `docker logs caddy` を確認する。Cloudflare API トークンの失効が典型。[reverse-proxy-tls.md](../network/reverse-proxy-tls.md) 参照 |
 | BlackboxProbeMissing | vm-monitoring で `docker logs blackbox-exporter`、`docker compose ps` を確認する |
 | HostDiskUsage* | `du -xh --max-depth=2 /`、`docker system df` |

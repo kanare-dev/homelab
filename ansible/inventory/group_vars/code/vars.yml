@@ -10,15 +10,26 @@ code_extra_authorized_keys:
   - "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILg3DREcyvs31MMZdbvyN+mvEf4SYWf85mk14kDMoVoq moshi-ios@vm-code"
   - "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJbCWNceSwgcSgMRwtUu+OU1mC6X5Tki01S2u5ahCmnR moshi-ipad@vm-code"
 
-# UFW: code-server / cloudcli / mosh は LAN（Tailscale サブネットルート経由含む）からのみ許可
+# UFW: code-server / cloudcli / mosh / Vite は、Trusted（10.77.30.0/24）と、vm-infra（10.77.20.10）からのみ許可する。
+# vm-infra は Caddy の転送元と、Tailscale のサブネットルートの送信元になる（外出先からの通信は、vm-infra の住所で届く）
 ufw_allowed_ports:
   - { port: 22,          proto: tcp }
-  - { port: 8080,        proto: tcp, from: "192.168.11.0/24" }   # code-server
-  - { port: 3001,        proto: tcp, from: "192.168.11.0/24" }   # CloudCLI (Claude Code UI)
-  - { port: "60000:61000", proto: udp, from: "192.168.11.0/24" }  # mosh
-  - { port: 5173,        proto: tcp, from: "192.168.11.0/24" }   # 開発用サーバ（Vite）。vm-code 上の開発を手元の端末から確認する
-  - { port: 9100,        proto: tcp, from: "192.168.11.13" }   # node_exporter (Prometheus on vm-monitoring)
+  - { port: 8080,        proto: tcp, from: "10.77.30.0/24" }   # code-server
+  - { port: 8080,        proto: tcp, from: "10.77.20.10" }     # code-server（Caddy、Tailscale）
+  - { port: 3001,        proto: tcp, from: "10.77.30.0/24" }   # CloudCLI (Claude Code UI)
+  - { port: 3001,        proto: tcp, from: "10.77.20.10" }     # CloudCLI（Caddy、Tailscale）
+  - { port: "60000:61000", proto: udp, from: "10.77.30.0/24" }  # mosh
+  - { port: "60000:61000", proto: udp, from: "10.77.20.10" }    # mosh（Tailscale）
+  - { port: 5173,        proto: tcp, from: "10.77.30.0/24" }   # 開発用サーバ（Vite）。vm-code 上の開発を手元の端末から確認する
+  - { port: 5173,        proto: tcp, from: "10.77.20.10" }     # 開発用サーバ（Vite。Tailscale）
+  - { port: 9100,        proto: tcp, from: "10.77.20.11" }     # node_exporter (Prometheus on vm-monitoring)
 
 # 許可元を絞る前の「どこからでも許可」ルール。common ロールが削除する
 ufw_removed_ports:
   - { port: 9100, proto: tcp }
+  # 段階 3 で、許可元を新しいアドレスに変えたあと、旧アドレスのルールを消す（ufw は定義にないルールを消さない）
+  - { port: 8080, proto: tcp, from: "192.168.11.0/24" }
+  - { port: 3001, proto: tcp, from: "192.168.11.0/24" }
+  - { port: "60000:61000", proto: udp, from: "192.168.11.0/24" }
+  - { port: 5173, proto: tcp, from: "192.168.11.0/24" }
+  - { port: 9100, proto: tcp, from: "192.168.11.13" }

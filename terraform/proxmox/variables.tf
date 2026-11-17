@@ -27,23 +27,14 @@ variable "ssh_public_key" {
   default     = null
 }
 
-variable "gateway" {
-  description = "Default gateway IP"
-  type        = string
-  default     = "192.168.11.1"
-}
-
-variable "nameserver" {
-  description = "DNS server IP"
-  type        = string
-  default     = "192.168.11.11"
-}
-
 variable "vms" {
   description = "Map of VMs to create"
   type = map(object({
     vmid               = number
     ip                 = string
+    gateway            = string # その VM の VLAN のルーターのアドレス
+    nameserver         = string # VM のホスト DNS（ルーター。ADR-0007）
+    vlan_id            = number # 必須。タグなし（VLAN1）は null を明示する
     cores              = number
     memory             = number
     disk               = string

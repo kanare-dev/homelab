@@ -24,7 +24,7 @@
 
 ```bash
 # Caddy のログで証明書取得状況を確認
-ssh ubuntu@192.168.11.11 "cd /opt/reverse-proxy && docker compose logs caddy | grep -i tls"
+ssh ubuntu@10.77.20.10 "cd /opt/reverse-proxy && docker compose logs caddy | grep -i tls"
 
 # 証明書の有効期限を確認（例: grafana）
 echo | openssl s_client -connect grafana.lab.kanare.dev:443 2>/dev/null \
@@ -38,7 +38,7 @@ Caddy は自動で更新するため通常は手動操作不要。
 
 ```bash
 # Caddy コンテナの再起動（更新を強制トリガー）
-ssh ubuntu@192.168.11.11 "cd /opt/reverse-proxy && docker compose restart caddy"
+ssh ubuntu@10.77.20.10 "cd /opt/reverse-proxy && docker compose restart caddy"
 
 # Cloudflare API トークンが有効か確認（値は表示しない）
 curl -s -H "Authorization: Bearer $(sops -d --extract '["cloudflare_api_token"]' ansible/inventory/group_vars/infra/secrets.sops.yml)" \
@@ -51,7 +51,7 @@ curl -s -H "Authorization: Bearer $(sops -d --extract '["cloudflare_api_token"]'
 
 ```text
 newservice.lab.kanare.dev {
-	reverse_proxy 192.168.11.XX:PORT
+	reverse_proxy 10.77.20.XX:PORT
 	tls {
 		dns cloudflare {env.CLOUDFLARE_API_TOKEN}
 		resolvers 1.1.1.1
@@ -60,7 +60,7 @@ newservice.lab.kanare.dev {
 ```
 
 ```bash
-ssh ubuntu@192.168.11.11 "cd /opt/reverse-proxy && docker compose up -d --force-recreate caddy"
+ssh ubuntu@10.77.20.10 "cd /opt/reverse-proxy && docker compose up -d --force-recreate caddy"
 ```
 
 ## Proxmox へのリバースプロキシについて
