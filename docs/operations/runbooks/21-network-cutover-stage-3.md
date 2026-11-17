@@ -13,27 +13,27 @@ VLAN を有効にし、全ホストの IP を `192.168.11.x` から `10.77.<VLAN
 
 計画の「3-A. 準備」が、すべて済んでいること。
 
-- [ ] **リハーサルが済んでいる**: 検証端末を SG2210P の p5（VLAN30）と p6（VLAN50）に繋ぎ、本番と同じ設定で次を確かめた。
+- [x] **リハーサルが済んでいる**: 検証端末を SG2210P の p5（VLAN30）と p6（VLAN50）に繋ぎ、本番と同じ設定で次を確かめた。（2026-11-06・11-09。結果は[リハーサル](22-network-stage-3-rehearsal.md)）
   - Gateway ACL で、Trusted → IoT は通り、IoT → Trusted は拒否される。戻りの通信が通る。末尾の全拒否が効く。
   - DHCP が VLAN ごとに配る（DNS は `10.77.20.10`）。
-- [ ] **（段階 3b に移した。段階 3 では不要）コントローラーの IP 変更への追従を確かめた**: `vm-omada` が `192.168.11.12` から `10.77.10.3` に変わったとき、ER605 と SG2210P が付いてくる。付いてこない場合の手順（接続先の再設定、または機器のリセットと再採用）を、リハーサルで確かめて書いてある。
-- [ ] **Proxmox の準備が済んでいる**（[ADR-0023](../../adr/0023-proxmox-trunk-all-tagged.md)）: `vmbr0` が VLAN-aware（IP は `192.168.11.10`・タグなしのまま）。SG2210P p2 に tagged 10/20/40/50/70 を足してある。1 つの検証用 VM をタグ付きで繋いで、動作を確かめた。
-- [ ] **コードの準備が済んでいる**: 別ブランチで、Terraform（`vlan_id` は必須で、全 VM に指定。`vm-omada` は、段階 3b まで、タグなし（VLAN1）を明示する）、Ansible、Caddyfile、Prometheus、Homepage、ドキュメントを、新アドレスに書き換えてある（一覧は[設計書](../../architecture/08-vlan-design.md#影響を受けるリポジトリ内の箇所)）。 UFW の許可元も、新しいアドレスに直す（`vm-infra` の 8043、`vm-monitoring` の 9100。`vm-omada` は段階 3 で動かさないので、**直し忘れやすい**。[ロードマップ 13](../roadmap/13-defer-management-vlan.md)）。
+- **（段階 3b の前提に移した。段階 3 では不要）コントローラーの IP 変更への追従を確かめる**: `vm-omada` が `192.168.11.12` から `10.77.10.3` に変わったとき、ER605 と SG2210P が付いてくる。付いてこない場合の手順（接続先の再設定、または機器のリセットと再採用）を、リハーサルで確かめて書いてある。
+- [x] **Proxmox の準備が済んでいる**（[ADR-0023](../../adr/0023-proxmox-trunk-all-tagged.md)）: `vmbr0` が VLAN-aware（IP は `192.168.11.10`・タグなしのまま）。SG2210P p2 に tagged 10/20/40/50/70 を足してある。1 つの検証用 VM をタグ付きで繋いで、動作を確かめた。（2026-11-17 までに確認した。`vmbr0` は VLAN-aware、p2 の tagged は 2026-11-11、タグ付きの VM は `vm-dev` のリハーサルと、手順 5 の全 VM）
+- [x] **コードの準備が済んでいる**: 別ブランチで、Terraform（`vlan_id` は必須で、全 VM に指定。`vm-omada` は、段階 3b まで、タグなし（VLAN1）を明示する）、Ansible、Caddyfile、Prometheus、Homepage、ドキュメントを、新アドレスに書き換えてある（一覧は[設計書](../../architecture/08-vlan-design.md#影響を受けるリポジトリ内の箇所)）。 UFW の許可元も、新しいアドレスに直す（`vm-infra` の 8043、`vm-monitoring` の 9100。`vm-omada` は段階 3 で動かさないので、**直し忘れやすい**。[ロードマップ 13](../roadmap/13-defer-management-vlan.md)）。（2026-11-17。手順 5・6 で実機に流した）
 - [x] **新アドレスのコードを、現行のブランチに取り込んだ**（2026-11-17。作業用のブランチ `stage3/new-addresses` は、取り込んだあと削除した）。`terraform plan` が、5 台の in-place 更新（`vm-omada` は変わらない）になっている。
 - [x] **Omada に本番の設定を作ってある（有効にはしていない）**（2026-11-11。一覧は[移行計画](../roadmap/10-er605-sg2210p-migration-plan.md#omada-の本番設定の一覧段階-3-の準備画面操作)）: VLAN 10/20/30/40/50/60/70（端末は繋いでいない）、DHCP、mDNS の中継（無効のまま）、スイッチのポートプロファイル `access-trusted`（どのポートにも未割り当て）。**ACL は作っていない**（当日は全許可。[ADR-0029](../../adr/0029-stage3-acl-allow-all-then-tighten.md)）。設定したあとのバックアップ: `omada_backup_...2026-11-11_21-48-24.cfg` と `sitebackup_...2026-11-11_21-48-31.cfg`（iCloud Drive）。
 - [x] **今の LAN の DHCP の DNS をルーターにした**（2026-11-17。変更後に確認した。運用者の報告）。手順の確認:（決定済み。変えるのは、手順 2 で Wi-Fi の端末が Trusted に移ったあと）。
 - [x] **バックアップが、Mac 以外にもある**（iCloud Drive の `homelab/`。2026-11-11 に取得）: Omada（`omada_backup_...2026-11-11_21-06-24.cfg` と `sitebackup_...2026-11-11_21-04-37.cfg`）、Proxmox の `/etc/network/interfaces`（`pve-interfaces-bk-20261111.txt`）、`terraform.tfstate`（`terraform.tfstate-bk-20261111`）、Buffalo の設定（`wsr-1800ax4p-bk-20261103*.bin`）。Omada に本番の設定を作る前の状態なので、**当日の手順 1 で、もう一度取る**。
   - **取り直した（2026-11-17）**: Omada（`omada_backup_...2026-11-17_20-55-01.cfg` と `sitebackup_...2026-11-17_20-55-17.cfg`）、Proxmox の `/etc/network/interfaces`（`pve-interfaces-bk-20261117.txt`）、`terraform.tfstate`（`terraform.tfstate-bk-20261117`）。Buffalo は、段階 3 で設定を変えていないので、取り直さない。手順 2 の直前に設定を変えたら、その分だけ取り直す。
 - [x] Tailscale の経路の承認の手順を確認してある（`--advertise-routes=10.77.20.0/24,10.77.40.0/24,192.168.11.0/24`。手順は 6.2）。2026-11-11 に Admin Console で確認した: `vm-infra` は `192.168.11.0/24` が承認済みで、Expiry disabled。**自動承認（Auto approvers）は無い**ので、新しい 2 経路は当日に手動で承認する。
-- [ ] 戻し方（下記）を読んだ。
+- [x] 戻し方（下記）を読んだ。（実施済み。2026-11-17。運用者の報告）
 
 ## 1. 開始
 
 - **戻す時刻は決めない**（決定 2026-11-10、[ADR-0030](../../adr/0030-stage3-no-rollback-deadline.md)）。完了するまで作業する。
-- [ ] 作業中にインターネットが要るとき（調べもの、ファームウェアの取得）に、端末を建物（壁）の Wi-Fi に繋げることを確かめておく。
-- [ ] 物理コンソール（キーボードとモニター）を、Proxmox にすぐ繋げられる状態にする（成功すれば使わない。ホストのネットワーク設定を誤ると、SSH も Web UI も使えなくなるための保険）。自動で元に戻るタイマーを仕掛ける方法もある（[リハーサル](22-network-stage-3-rehearsal.md)の B）。
-- [ ] Mac に、有線の口（手順 2 で Buffalo の画面に入るときに使う）と、固定 IP を振る手段がある。外出先との確認用に、スマホを用意する。
-- [ ] 作業中に出るアラート（`GatewayUnreachable`、`TargetDown`、`PveVmStopped`、Heartbeat）は、想定内。
+- [x] 作業中にインターネットが要るとき（調べもの、ファームウェアの取得）に、端末を建物（壁）の Wi-Fi に繋げることを確かめておく。（実施済み。2026-11-17。運用者の報告）
+- [x] 物理コンソール（キーボードとモニター）を、Proxmox にすぐ繋げられる状態にする（成功すれば使わない。ホストのネットワーク設定を誤ると、SSH も Web UI も使えなくなるための保険）。自動で元に戻るタイマーを仕掛ける方法もある（[リハーサル](22-network-stage-3-rehearsal.md)の B）。（実施済み。2026-11-17。運用者の報告）
+- [x] Mac に、有線の口（手順 2 で Buffalo の画面に入るときに使う）と、固定 IP を振る手段がある。外出先との確認用に、スマホを用意する。（実施済み。2026-11-17。運用者の報告）
+- [x] 作業中に出るアラート（`GatewayUnreachable`、`TargetDown`、`PveVmStopped`、Heartbeat）は、想定内。（実施済み。2026-11-17。運用者の報告）
 
 ### 要判断: DHCP が配る DNS のタイミング
 
@@ -147,22 +147,23 @@ p2 のスイッチ側の設定は、準備（手順 0）のまま（untagged VLA
 - チェックモードでだけ、`vm-monitoring` の「Download Node Exporter Full dashboard」が HTTP 405 で失敗した（grafana.com が確認用の要求を拒否するとみられる）。本番では通った。
 - **Home Assistant の `trusted_proxies` は、Ansible では直らない**（`.storage/http` は、無いときだけ置く設定）。`vm-apps` の `/opt/homeassistant/config/.storage/http` の `trusted_proxies` を、旧 `vm-infra`（`192.168.11.11/32`）から `10.77.20.10/32` に、手で直す必要がある。直さないと、Caddy 経由で 400 になり、`ServiceProbeFailed`（ha）が出る。直し方: バックアップを取り、HA のコンテナを止めて、ファイルを直し、起動する。
 - Tailscale の経路の承認は、2026-11-17 に済んだ（新しい 2 経路と、旧経路が承認済み）。
+- **停止中の VM（`vm-dev`）は、Ansible の対象外になる。** 起動したときに、`ansible-playbook playbooks/site.yml --limit vm-dev` を流さないと、UFW の許可元が旧アドレス（`192.168.11.13`）のまま残り、Prometheus の `:9100` が `down` になる（2026-11-17 に、`vm-dev` を起動して流した。`up` を確認した）。
 
 ## 7. 疎通の確認
 
-- [ ] 各 VLAN の DHCP と名前解決（`*.lab.kanare.dev`）。Trusted は確認した（Mac の有線・Wi-Fi が `10.77.30.x`、DNS `10.77.20.10` で、内部の名前が引ける。2026-11-17）。そのほかの VLAN は、端末を繋いでいない
-- [ ] 各 VLAN から Servers への接続（許可表のとおり）。Trusted → Servers は確認した（ACL は全許可）
+- [ ] 各 VLAN の DHCP と名前解決（`*.lab.kanare.dev`）。Trusted は確認した（Mac の有線・Wi-Fi が `10.77.30.x`、DNS `10.77.20.10` で、内部の名前が引ける。2026-11-17）。Lab は、`vm-dev` の中で、一時的な macvlan から DHCP を試して確認した（`10.77.40.100`、リース 24 時間、GW `10.77.40.1`、DNS `10.77.20.10`。2026-11-17）。Servers・DMZ は DHCP なし、IoT・Guests は、端末を繋いでいないので未確認
+- [ ] 各 VLAN から Servers への接続（許可表のとおり）。Trusted → Servers と、Lab（`vm-dev`）→ Servers（`ping`、Caddy の 443）・旧 LAN（Proxmox の `:8006`）は確認した（ACL は全許可。2026-11-17）。IoT・Guests・DMZ は、端末を繋いでいない
 - [x] Caddy 経由の各サービス、Omada・Proxmox の管理画面（2026-11-17。`home`・`grafana`・`omada`・`ha` が開く。Proxmox は `https://192.168.11.10:8006`）。**`vm-omada` の `:8043` へは、直接つなげない**（UFW は Caddy の `10.77.20.10` と、旧 LAN `192.168.11.0/24` からだけ許可）。管理画面へは、`https://omada.lab.kanare.dev`
 - [x] Prometheus の全ターゲットが `up`（27 のうち 26。`down` は停止中の `vm-dev` だけ）。アラートは `Watchdog` だけ。`GatewayUnreachable` の宛先は、`10.77.20.1`（2026-11-17）
-- [x] 外出先から Tailscale 経由で入れる（`https://home.lab.kanare.dev` に、外出先から入れた。2026-11-17。運用者の確認）。`vm-code`・`vm-dev` の SSH は、`vm-dev` が停止中なので未確認
+- [x] 外出先から Tailscale 経由で入れる（`https://home.lab.kanare.dev` に、外出先から入れた。2026-11-17。運用者の確認）。`vm-code`・`vm-dev` の SSH は、自宅の Mac から（Tailscale のサブネット経路が有効な状態で）通ることを確認した（`vm-dev` は起動して確認し、停止した。2026-11-17）。外出先（モバイル回線）からの SSH は、未確認
 - [x] **自宅の Wi-Fi（Trusted）で、Tailscale をオンにした MacBook の通信経路を確かめた（2026-11-17。結論は下）**: 「サブネット経路を使う」がオンだと、Servers（`10.77.20.0/24`）・Lab（`10.77.40.0/24`）・旧 LAN（`192.168.11.0/24`）への通信が、ER605 を通らず Tailscale 経由（`vm-infra` が送信元）になる。`route -n get 10.77.20.10` で `interface: utun6` になり、`RouteAll: true` だった。
   - **決定（2026-11-17）: 自宅と外出先で設定を切り替えない。** Tailscale は常にオン、「サブネット経路を使う」もオンのままにする。自宅でも外出先でも、同じ設定と同じ経路になる。
   - 受け入れること: (1) この Mac の通信は、ER605 の ACL の対象にならない（ACL が守る相手は、Lab・IoT・Guests・DMZ の信用しない端末。運用者の Mac は、もともと Trusted で、Servers に入れる側）。(2) 自宅でも、`vm-infra` が止まると、Mac から Servers・Proxmox に入れない（保険は、緊急用の入口 p6。手順 8 の前提）。(3) 手順 8 の ACL の確認は、**この Mac では行わず、別の端末**（Trusted のスマホ、Lab の `vm-dev`）で行う。
-- [ ] メインディスプレイ、MacBook、Wi-Fi の端末（Trusted）
+- [x] メインディスプレイ、MacBook、Wi-Fi の端末（Trusted）（2026-11-17。Mac の有線（p4）・Wi-Fi が `10.77.30.x`、スマホの Wi-Fi から `home.lab.kanare.dev` が開く）
 - [ ] テレビ（無線、Trusted）の AirPlay・Cast
 - [x] Healthchecks.io の heartbeat（2026-11-17。運用者の確認で ok）
-- [ ] （気づき）AdGuard のキャッシュと、Mac の DNS キャッシュに、旧 IP が残る。`vm-infra` を移したあと、AdGuard の画面で、キャッシュをクリアする（設定 > DNS 設定）。Mac は、Wi-Fi をオフ・オンにする（`sudo` が使えれば、`dscacheutil -flushcache` と `killall -HUP mDNSResponder`）。Chrome は、`chrome://net-internals/#dns` で、ホストのキャッシュをクリアする
-- [ ] （気づき）VM の DNS が、ルーター（`10.77.20.1`）なので、VM から内部の名前が引けない。検討中: [ロードマップ 01](../roadmap/01-backlog.md#ネットワークdns)
+- （気づき）AdGuard のキャッシュと、Mac の DNS キャッシュに、旧 IP が残る。`vm-infra` を移したあと、AdGuard の画面で、キャッシュをクリアする（設定 > DNS 設定）。Mac は、Wi-Fi をオフ・オンにする（`sudo` が使えれば、`dscacheutil -flushcache` と `killall -HUP mDNSResponder`）。Chrome は、`chrome://net-internals/#dns` で、ホストのキャッシュをクリアする
+- （気づき）VM のホスト DNS は、ルーター（`10.77.20.1`）なので、VM から内部の名前が引けない。**既定の設計**（[ADR-0007](../../adr/0007-vm-host-dns-is-router.md)）。AdGuard が要るコンテナだけ、`docker-compose.yml` の `dns:` で指定している（[ロードマップ 01](../roadmap/01-backlog.md#ネットワークdns)）。
 
 ## 8. ACL を絞る（別の日）
 

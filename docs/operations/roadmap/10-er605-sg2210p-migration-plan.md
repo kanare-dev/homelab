@@ -247,24 +247,24 @@ ER605 と SG2210P は同時に購入済みで、すでに繋いである（ER605
 
 実機で確かめる項目（リハーサル）の手順は、[Runbook](../runbooks/22-network-stage-3-rehearsal.md)にある。
 
-- [ ] **リハーサル**: 検証端末を SG2210P の p5（VLAN30 の access）と p6（VLAN50 の access）に繋ぎ、本番の VLAN と同じ設定で次を確かめる。ホストは動かさない。（2026-11-06: ACL の評価は上から順、戻りの通信は通る、`!ネットワーク` でインターネット宛は拒否されない、を確認した。DHCP が VLAN ごとに配ることも確認した。2026-11-09: IoT → Trusted の拒否を、タグ付きの `vm-dev` で確認した。手順は [Runbook](../runbooks/22-network-stage-3-rehearsal.md)。）
+- [x] **リハーサル**: 検証端末を SG2210P の p5（VLAN30 の access）と p6（VLAN50 の access）に繋ぎ、本番の VLAN と同じ設定で次を確かめる。ホストは動かさない。（2026-11-06: ACL の評価は上から順、戻りの通信は通る、`!ネットワーク` でインターネット宛は拒否されない、を確認した。DHCP が VLAN ごとに配ることも確認した。2026-11-09: IoT → Trusted の拒否を、タグ付きの `vm-dev` で確認した。手順は [Runbook](../runbooks/22-network-stage-3-rehearsal.md)。）
   - Gateway ACL（LAN → LAN）で、Trusted → IoT は通り、IoT → Trusted は拒否される。ルールの評価が上から順で、戻りの通信が通る。
   - 末尾の全拒否が効く。
   - DHCP が VLAN ごとに配る（DNS は `10.77.20.10`。Management の緊急用プールだけ `10.77.10.1`）。
   - Management の緊急用プールで受けた端末が、ER605 の DNS プロキシで外部の名前を引ける（[ADR-0027](../../adr/0027-servers-octet-bands-and-emergency-dns.md)。DNS プロキシが Management で有効かを確かめる）。
-- [ ] **コントローラーの IP 変更への追従（段階 3b に移した。段階 3 では行わない）**: `vm-omada` が `192.168.11.12` から `10.77.10.3` に変わったとき、ER605 と SG2210P が付いてくるか。付いてこない場合の手順（コントローラーの接続先の再設定、または機器のリセットと再採用）を、リハーサルで確かめて書く。
+- **コントローラーの IP 変更への追従（段階 3b の前提に移した。段階 3 では行わない）**: `vm-omada` が `192.168.11.12` から `10.77.10.3` に変わったとき、ER605 と SG2210P が付いてくるか。付いてこない場合の手順（コントローラーの接続先の再設定、または機器のリセットと再採用）を、リハーサルで確かめて書く。
   - **確認できたこと（2026-11-09）**: 機器は採用時の住所を覚えている。機器の Web UI は、採用済みの間は入れず、SG2210P は SSH も閉じている。Discovery Utility は Mac で動かない。詳細は[リハーサルの C-2](../runbooks/22-network-stage-3-rehearsal.md)。
   - **採用（2026-11-09）: C-2 を避けるため、管理系を今の LAN に残し、VLAN10 化を段階 3b に分ける**（[ADR-0028](../../adr/0028-defer-management-vlan10.md)）。段階 3b の前提と未決事項は[ロードマップ 13](13-defer-management-vlan.md)。
   - **検討中（段階 3b の前提）: 機器の接続先を直す手段。** (A) Linux の VM（`vm-dev`）で Discovery Utility を動かす（Mac に XQuartz が要る）。(B) Windows の PC で動かす（**仕事用 PC は使えない（運用者）**。ほかに Windows の PC が無ければ、この案は成り立たない）。(C) コントローラーで機器の SSH を有効にし、CLI で直す（CLI の対応は未確認）。(D) ER605 の静的ルートで、旧アドレス `192.168.11.12` を `vm-omada` に中継する（旧 LAN を消すときに、結局、機器の接続先を直す必要がある）。(E) C-2 を省き、付いてこなければ再採用する前提で時間を組む（ER605 のリセットで、インターネットが止まる）。
-- [ ] **Proxmox の準備**（[ADR-0023](../../adr/0023-proxmox-trunk-all-tagged.md): 全 VLAN をタグ付き）: `vmbr0` を VLAN-aware にする（`bridge-vlan-aware yes`）。IP は `192.168.11.10`（タグなし）のまま。SG2210P p2 に、tagged 10/20/40/50/70 を足す（untagged VLAN1 はそのまま。今の通信に影響しない）。1 つの検証用 VM をタグ付きで繋ぎ、動作を確かめる。
+- [x] **Proxmox の準備**（[ADR-0023](../../adr/0023-proxmox-trunk-all-tagged.md): 全 VLAN をタグ付き）: `vmbr0` を VLAN-aware にする（`bridge-vlan-aware yes`）。IP は `192.168.11.10`（タグなし）のまま。SG2210P p2 に、tagged 10/20/40/50/70 を足す（untagged VLAN1 はそのまま。今の通信に影響しない）。1 つの検証用 VM をタグ付きで繋ぎ、動作を確かめる。（2026-11-17 までに確認した）
   - **ホストの `vmbr0.10` を試す（リハーサル済み。2026-11-09。本番の `vmbr0.10` は段階 3b）**: ER605 に VLAN10 を作ったうえで、`vmbr0.10` に `10.77.10.10/24` を足し（旧 `192.168.11.10` は残す）、Mac から届くことを確かめる。届かなければ、`vmbr0.10` を外す。
   - 全 VM は、VLAN ID を指定する（`vm-omada` は、段階 3b まで、タグなし（VLAN1）を明示する）。
   - `bridge-vlan-aware` への変更は、物理コンソールから行う。
-- [ ] **コードの準備**: 別ブランチで Terraform・Ansible・Caddyfile・Prometheus・Homepage・ドキュメントを新アドレスに書き換える（一覧は[設計書](../../architecture/08-vlan-design.md#影響を受けるリポジトリ内の箇所)）。`vlan_id` を Terraform の VM モジュールに追加する。**必須（既定値なし）にして、全 VM に指定する**（`vm-omada` は、段階 3b まで、タグなし（VLAN1）を明示する）。 UFW の許可元も、新しいアドレスに直す（`vm-infra` の 8043、`vm-monitoring` の 9100。`vm-omada` は段階 3 で動かさないので、**直し忘れやすい**。[ロードマップ 13](13-defer-management-vlan.md)）。
-- [ ] **Omada に本番設定を作る（有効にしない）**: VLAN 10/20/30/40/50/60/70、DHCP、mDNS、スイッチのポートプロファイル（ACL は、絞る日に作る）。画面で行う項目は、[Omada の本番設定の一覧](#omada-の本番設定の一覧段階-3-の準備画面操作)にある。
-- [ ] **バックアップ**: Omada、Proxmox の `/etc/network/interfaces`、`terraform.tfstate`、Buffalo の設定を、Mac 以外にも保存する（Omada は当面 Mac だけ。[バックログ](01-backlog.md)）。
-- [ ] **戻しの手順**（下記）を書く。**戻す時刻は決めない（決定 2026-11-10、[ADR-0030](../../adr/0030-stage3-no-rollback-deadline.md)）**: 完了するまで作業する。作業中にインターネットが要るときは、建物（壁）の Wi-Fi に繋ぐ。
-- [ ] Tailscale の ACL・経路の承認の手順を確認する（`--advertise-routes=10.77.20.0/24,10.77.40.0/24`）。
+- [x] **コードの準備**: 別ブランチで Terraform・Ansible・Caddyfile・Prometheus・Homepage・ドキュメントを新アドレスに書き換える（一覧は[設計書](../../architecture/08-vlan-design.md#影響を受けるリポジトリ内の箇所)）。`vlan_id` を Terraform の VM モジュールに追加する。**必須（既定値なし）にして、全 VM に指定する**（`vm-omada` は、段階 3b まで、タグなし（VLAN1）を明示する）。 UFW の許可元も、新しいアドレスに直す（`vm-infra` の 8043、`vm-monitoring` の 9100。`vm-omada` は段階 3 で動かさないので、**直し忘れやすい**。[ロードマップ 13](13-defer-management-vlan.md)）。（2026-11-17。実機に流した）
+- [x] **Omada に本番設定を作る（有効にしない）**: VLAN 10/20/30/40/50/60/70、DHCP、mDNS、スイッチのポートプロファイル（ACL は、絞る日に作る）。画面で行う項目は、[Omada の本番設定の一覧](#omada-の本番設定の一覧段階-3-の準備画面操作)にある。（2026-11-11。下の一覧のとおり）
+- [x] **バックアップ**: Omada、Proxmox の `/etc/network/interfaces`、`terraform.tfstate`、Buffalo の設定を、Mac 以外にも保存する（Omada は当面 Mac だけ。[バックログ](01-backlog.md)）。（2026-11-11 と 2026-11-17。iCloud Drive）
+- [x] **戻しの手順**（下記）を書く。**戻す時刻は決めない（決定 2026-11-10、[ADR-0030](../../adr/0030-stage3-no-rollback-deadline.md)）**: 完了するまで作業する。作業中にインターネットが要るときは、建物（壁）の Wi-Fi に繋ぐ。（3-E に書いた）
+- [x] Tailscale の ACL・経路の承認の手順を確認する（`--advertise-routes=10.77.20.0/24,10.77.40.0/24`）。（2026-11-11 に確認。2026-11-17 に新しい 2 経路を承認した）
 
 ### Omada の本番設定の一覧（段階 3 の準備。画面操作）
 
@@ -292,7 +292,7 @@ ER605 と SG2210P は同時に購入済みで、すでに繋いである（ER605
 
 - [x] p2 の tagged に、10・20・40・50・70 が入っている（2026-11-11。作った VLAN が自動で入り、10〜70 のすべてが入った。30・60 は余分だが、害はない。untagged は、VLAN1 のまま）。
 - [x] ポートプロファイル「アクセス VLAN30（untagged）」を作っておく（2026-11-11。名前は `access-trusted`。p3・p4 用。**適用は当日**。今のうちに p3・p4 を変えると、Buffalo の Wi-Fi の端末が今の LAN から外れる）。
-- [ ] p1 の tagged が、10・20・30・40・50・60・70 になっている（作ったあとの確認）。**未確認**（p2 は確認した）。
+- [x] p1 の tagged が、10・20・30・40・50・60・70 になっている（作ったあとの確認。2026-11-17、運用者の確認で問題なし）。
 - [ ] p6（緊急用の入口）は、native VLAN1 のまま。p5・p7・p8 は空き。
 
 **3. mDNS の中継（Trusted ↔ IoT）**
@@ -365,14 +365,14 @@ ER605 と SG2210P は同時に購入済みで、すでに繋いである（ER605
 
 ### 3-D. 確認
 
-- [ ] 各 VLAN の DHCP と名前解決（`*.lab.kanare.dev`）
-- [ ] 各 VLAN から Servers への接続（許可表のとおり）と、拒否すべき通信が拒否されること
-- [ ] Caddy 経由の各サービス、Omada・Proxmox の管理画面
-- [ ] Prometheus の全ターゲット、アラート（`GatewayUnreachable` は新しい IP に直す）
+- [ ] 各 VLAN の DHCP と名前解決（`*.lab.kanare.dev`）（Trusted と Lab は確認した。2026-11-17。IoT・Guests は端末なし）
+- [ ] 各 VLAN から Servers への接続（許可表のとおり）と、拒否すべき通信が拒否されること（Trusted と Lab → Servers は確認した。拒否は、ACL を絞る日）
+- [x] Caddy 経由の各サービス、Omada・Proxmox の管理画面（2026-11-17）
+- [x] Prometheus の全ターゲット、アラート（`GatewayUnreachable` は新しい IP に直す）（2026-11-17。`vm-dev` は起動したとき `up` を確認）
 - [ ] 外出先から Tailscale 経由で `vm-code`・`vm-dev` に入れる
-- [ ] メインディスプレイ、MacBook、Wi-Fi の端末（Trusted）
+- [x] メインディスプレイ、MacBook、Wi-Fi の端末（Trusted）（2026-11-17）
 - [ ] テレビ（無線、Trusted）の AirPlay・Cast
-- [ ] Healthchecks.io の heartbeat
+- [x] Healthchecks.io の heartbeat（2026-11-17）
 
 ### 3-E. 戻し方
 
