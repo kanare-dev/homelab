@@ -23,6 +23,7 @@ VLAN を有効にし、全ホストの IP を `192.168.11.x` から `10.77.<VLAN
 - [x] **Omada に本番の設定を作ってある（有効にはしていない）**（2026-11-11。一覧は[移行計画](../roadmap/10-er605-sg2210p-migration-plan.md#omada-の本番設定の一覧段階-3-の準備画面操作)）: VLAN 10/20/30/40/50/60/70（端末は繋いでいない）、DHCP、mDNS の中継（無効のまま）、スイッチのポートプロファイル `access-trusted`（どのポートにも未割り当て）。**ACL は作っていない**（当日は全許可。[ADR-0029](../../adr/0029-stage3-acl-allow-all-then-tighten.md)）。設定したあとのバックアップ: `omada_backup_...2026-11-11_21-48-24.cfg` と `sitebackup_...2026-11-11_21-48-31.cfg`（iCloud Drive）。
 - [ ] **今の LAN の DHCP の DNS をルーターにする手順を確認した**（決定済み。変えるのは、手順 2 で Wi-Fi の端末が Trusted に移ったあと）。
 - [x] **バックアップが、Mac 以外にもある**（iCloud Drive の `homelab/`。2026-11-11 に取得）: Omada（`omada_backup_...2026-11-11_21-06-24.cfg` と `sitebackup_...2026-11-11_21-04-37.cfg`）、Proxmox の `/etc/network/interfaces`（`pve-interfaces-bk-20261111.txt`）、`terraform.tfstate`（`terraform.tfstate-bk-20261111`）、Buffalo の設定（`wsr-1800ax4p-bk-20261103*.bin`）。Omada に本番の設定を作る前の状態なので、**当日の手順 1 で、もう一度取る**。
+  - **取り直した（2026-11-17）**: Omada（`omada_backup_...2026-11-17_20-55-01.cfg` と `sitebackup_...2026-11-17_20-55-17.cfg`）、Proxmox の `/etc/network/interfaces`（`pve-interfaces-bk-20261117.txt`）、`terraform.tfstate`（`terraform.tfstate-bk-20261117`）。Buffalo は、段階 3 で設定を変えていないので、取り直さない。手順 2 の直前に設定を変えたら、その分だけ取り直す。
 - [x] Tailscale の経路の承認の手順を確認してある（`--advertise-routes=10.77.20.0/24,10.77.40.0/24,192.168.11.0/24`。手順は 6.2）。2026-11-11 に Admin Console で確認した: `vm-infra` は `192.168.11.0/24` が承認済みで、Expiry disabled。**自動承認（Auto approvers）は無い**ので、新しい 2 経路は当日に手動で承認する。
 - [ ] 戻し方（下記）を読んだ。
 
@@ -61,12 +62,22 @@ VLAN を有効にし、全ホストの IP を `192.168.11.x` から `10.77.<VLAN
    - p1: untagged VLAN1、tagged 10/20/30/40/50/60/70
    - p3（Buffalo）: access VLAN30（untagged）
    - p4（ディスプレイ）: access VLAN30（untagged）
+
+   **実施の記録（2026-11-17）と、わかったこと**:
+   - p1 は、untagged VLAN1・tagged 10〜70 で問題なし。p4、p3 の順に、`access-trusted` を割り当てた。
+   - **ポートの編集画面で、プロファイルを選んだだけでは足りない。「VLAN設定」を「プロファイルに従う」にする**（「カスタム」のままだと、Native が Default(1)・タグ全許可の古い値が残り、VLAN30 にならない）。Apply の前に、Native が Trusted(30) になっていることを確かめる。
+   - p4 を切り替えると、Mac の有線は `10.77.30.100` に移る。DHCP が配る DNS（`10.77.20.10`）は、手順 5 まで存在しないので、**名前が引けなくなる**（Claude など、名前で繋がるものが切れる）。切り替える前に、有線と Wi-Fi の DNS を、一時的に外部にしておく（`networksetup -setdnsservers <サービス名> 1.1.1.1`。手順 5 のあとに `Empty` で戻す）。
+   - 確認した結果: Trusted の端末（`10.77.30.x`）から、ER605（`192.168.11.1`）、Proxmox（`192.168.11.10`）、`vm-omada`（`192.168.11.12`。`:8043` が HTTP 200）、`1.1.1.1` に届く。ER605 が、Trusted と今の LAN を中継している。
 3. Buffalo は Trusted に入る。Wi-Fi の端末は、`10.77.30.x` を受け取る。**Buffalo の IP は `192.168.11.2` のまま残るので、管理画面には Trusted から届かなくなる**（Wi-Fi の中継は、IP と関係なく動く）。Buffalo は、段階 4 が当面来ないため、Trusted の AP として使い続ける。管理画面に入れる状態にしておく（下の 4）。
 4. 落ち着いてから、Buffalo の IP を **`10.77.30.50/24`**（ゲートウェイ `10.77.30.1`、DNS `10.77.20.10`）に変える（案。未確認）。画面（`192.168.11.2`）への入り方は、次の順に試す。
-   1. **（案。未確認）Mac を有線（ディスプレイ経由、p4）にしたまま、Mac に `192.168.11.50/24` を一時的に足す**（`sudo ifconfig <有線のインターフェース> alias 192.168.11.50 255.255.255.0`。終わったら `-alias` で外す）。p3（Buffalo）と p4 は、同じ VLAN30 の中なので、同じ LAN の中でつながる見込み。
+   1. **Mac を有線（ディスプレイ経由、p4）にしたまま、Mac に `192.168.11.50/24` を一時的に足す**（2026-11-17 に、この方法で入れた）。p3（Buffalo）と p4 は、同じ VLAN30 の中なので、同じ LAN の中でつながる。
+      - `sudo ifconfig <有線のインターフェース> alias 192.168.11.50 255.255.255.0`、`sudo route add -net 192.168.11.0/24 -interface <有線のインターフェース>`。そのあと `http://192.168.11.2` を開く。
+      - **`/32` のホスト経路（`route add -host 192.168.11.2 -interface ...`）は使えない**。macOS が、Mac 自身の MAC に解決してしまい（自分宛てと見なす）、Buffalo に問い合わせが出ない。経路は、`/24` で足す。
+      - **Mac の Tailscale は、オフにする。** `vm-infra` が `192.168.11.0/24` を広告しているので、オンだと、Mac が `192.168.11.2` への通信を Tailscale 経由（`vm-infra` から出る）にして、届かない。
+      - この間は、Mac から今の LAN の他の機器（Proxmox など）に届かなくなる。終わったら、`sudo route delete -net 192.168.11.0/24`、`sudo ifconfig <有線のインターフェース> -alias 192.168.11.50`、`sudo arp -d 192.168.11.2` で戻す。
    2. 届かなければ、Mac を Buffalo の LAN ポートに直接繋ぎ、Mac に `192.168.11.x` の固定 IP を一時的に振って、画面を開く。
 
-   確認: [ ] Wi-Fi の端末が `10.77.30.x` で繋がる　[ ] Buffalo の画面に Trusted から入れる
+   確認: [x] Wi-Fi の端末が `10.77.30.x` で繋がる（Mac の Wi-Fi が `10.77.30.103`。2026-11-17）　[x] Buffalo の画面に Trusted から入れる（`10.77.30.50` で、HTTP 200。Buffalo の IP を変え終えた。2026-11-17）　[ ] スマホなど、Mac 以外の Wi-Fi の端末も `10.77.30.x` で繋がる
 
 ## 3. Proxmox のホストを `vmbr0.10` に移す（段階 3b に移した。段階 3 では行わない）
 
