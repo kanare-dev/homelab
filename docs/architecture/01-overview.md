@@ -48,6 +48,8 @@ homelab の全体像。最新の構成図、目的、構成の理由、前提と
 
 ![構成図（移行前）](../diagrams/pre-migration-diagram/architecture.drawio.svg)
 
+現状（as-is。段階 3 の後）の構成図は、[現状の構成図](../diagrams/README.md#現状の構成図as-is-diagram段階-3b-の完了後に削除予定)（`docs/diagrams/as-is-diagram/`）。最終形（to-be）は、[メインの構成図](../diagrams/README.md#メインの構成図-vlan-化のあとmain-diagram)。
+
 ## 目的と位置づけ
 
 - 個人の検証・常用環境。商用サービスではなく、SLA は持たない（[可用性](04-reliability.md)）。

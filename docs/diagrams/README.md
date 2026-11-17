@@ -6,6 +6,7 @@
 | --- | --- |
 | [`main-diagram/`](#メインの構成図-vlan-化のあとmain-diagram) | **メインの構成図**（VLAN 化のあと）。単体の HTML と PNG |
 | [`physical-diagram/`](#物理構成図physical-diagram) | **物理構成図**（機器のポートとケーブル）。単体の HTML と PNG |
+| [`as-is-diagram/`](#現状の構成図as-is-diagram段階-3b-の完了後に削除予定) | **現状の構成図**（段階 3 の後。管理系は今の LAN）。単体の HTML と PNG。メインの構成図（to-be）と同じ見た目 |
 | [`pre-migration-diagram/`](#移行前の構成図pre-migration-diagram移行の完了後に削除予定) | **移行前の構成図**（draw.io の SVG）。ER605・SG2210P への移行の完了後に削除する |
 | [`stack-diagram-example/`](#stack-diagram-で描いた構成図の例stack-diagram-example) | stack-diagram で描いた構成図の**例**（比較用） |
 | `fonts/`、`assets/` | 図が使うフォントとアイコン素材 |
@@ -36,6 +37,18 @@ ER605 と SG2210P を入れて VLAN に分けたあと（段階 3 の完了時�
 - **Buffalo のポート**: 図は INTERNET ポートで描き、「INTERNET※」と注記した。取扱説明書（2026-11-06 に確認）に、AP モードの接続ポートの指定はなく、公式 FAQ では、ブリッジモードで INTERNET も LAN として動くとある（[Buffalo の資料](../hardware/wsr-1800ax4p/spec.md)）。
 - ER605 のポートの種類（p1 が WAN、p2・p3 が WAN/LAN、p4・p5 が LAN）は、運用者が本体で確認した値。[ER605 の資料](../hardware/er605/spec.md)と、[ER605 の設定](../hardware/er605/settings.md#ポート)にも書いた。
 - 配線を変えたら（ポートの割り当て、ケーブルの付け替え）、同じ変更で、スクリプトの「配置」と、移行計画・設計書のポート表を直す。
+
+### 現状の構成図（`as-is-diagram/`、段階 3b の完了後に削除予定）
+
+**現状（as-is）**の構成。段階 3 の後（2026-11-17〜）の、実機のとおりの姿で、管理系（Proxmox ホスト、`vm-omada`、ER605・SG2210P）は、今の LAN（VLAN1、`192.168.11.0/24`）に残っている。メインの構成図（`main-diagram/`）は **to-be**（最終形）なので、この図とは、管理系の場所（今の LAN と VLAN10）、ACL（全許可と、絞ったあと）、SG2210P のポートの割り当て（p2 の untagged VLAN1、p6 の緊急用の入口）、Tailscale の広告範囲（旧経路 `192.168.11.0/24` を含む）、ESP32 のアドレスが違う。
+
+![現状の構成図](as-is-diagram/as-is-diagram.png)
+
+ダーク版は [`as-is-diagram-dark.png`](as-is-diagram/as-is-diagram-dark.png)、単体の HTML は [`as-is-diagram.html`](as-is-diagram/as-is-diagram.html)。
+
+- スクリプト（`make-as-is-diagram.py`）は、`main-diagram/make-main-diagram.py` を写して、配置と文字を現状に合わせたもの。部品と見た目の決まりは同じ。実機を変えたら（IP、VLAN、ポート）、スクリプトの「配置」を直して、`python3 docs/diagrams/as-is-diagram/make-as-is-diagram.py --png` を実行する。
+- 内容の正は、[IP アドレス一覧](../architecture/09-ip-addresses.md)と、`docs/hardware/*/settings.md`。食い違ったら、文書のほうが正。
+- **段階 3b（管理系を VLAN10 へ）が済んだら、現状と to-be が同じになるので、このディレクトリごと削除する。**
 
 ### 移行前の構成図（`pre-migration-diagram/`、移行の完了後に削除予定）
 
