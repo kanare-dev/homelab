@@ -20,7 +20,7 @@
 - 設計書: `docs/architecture/`（方式設計）、`docs/services/`（サービス別の詳細）。構成を変えたら、該当する設計書を同じ変更で更新する。目次は `docs/architecture/README.md`、`docs/README.md`。
 - 設計判断: 重要な判断（方式の選択、リスクの受け入れ、方針の変更）は `docs/adr/` に ADR として残す。書き方は `docs/adr/README.md`。判断を変えるときは新しい ADR を追加し、古い方を「置き換え済み」にする。
 - Runbook: 手順は `docs/operations/runbooks/`。
-- 構成図: 最新版の ASCII 図を `docs/architecture/01-overview.md` の冒頭に置く。VM・サービス・IP を変えたら、この図と同じ文書の表を更新する。移行前の構成図の SVG（`docs/diagrams/pre-migration-diagram/architecture.drawio.svg`。ER605・SG2210P への移行の完了後に削除する）も同じ変更で Claude Code が更新する。`docs/diagrams/pre-migration-diagram/layout-architecture.py` の「配置」を直して `python3 docs/diagrams/pre-migration-diagram/layout-architecture.py` を実行し、書き出した PNG（`drawio -x -f png`）で崩れていないか見てから、スクリプトと SVG を一緒にコミットする（アイコン素材 `docs/diagrams/assets/` は Git 管理外。無ければ取得する）。
+- 構成図: 最新版の ASCII 図を `docs/architecture/01-overview.md` の冒頭に置く。VM・サービス・IP を変えたら、この図と同じ文書の表を更新する。現状（as-is）の構成図（`docs/diagrams/as-is-diagram/`。段階 3b の完了後に削除する）も、実機を変えたとき（IP、VLAN、ポート、VM・サービス）に、同じ変更で Claude Code が更新する。`docs/diagrams/as-is-diagram/make-as-is-diagram.py` の「配置」を直して `python3 docs/diagrams/as-is-diagram/make-as-is-diagram.py --png` を実行し、書き出した PNG（ライトとダーク）で崩れていないか見てから、スクリプトと、書き出した HTML・PNG を一緒にコミットする。最終形（to-be）の図（`docs/diagrams/to-be-diagram/`）は、計画が変わったときだけ直す（アイコン素材 `docs/diagrams/assets/` は Git 管理外。無ければ取得する）。
 - `README.md`: ディレクトリやファイルを追加・削除・改名したら、「リポジトリ構成」を更新する。管理画面リンク、設計書の一覧も同様。細かい設計内容は README に書かず、設計書に書く。
 - 監視・アラート: `docs/services/platform/monitoring.md`
 - 障害記録: `docs/operations/incidents/`

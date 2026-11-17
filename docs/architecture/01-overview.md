@@ -4,7 +4,7 @@ homelab の全体像。最新の構成図、目的、構成の理由、前提と
 
 ## 構成図
 
-> 構成を変えたら、この図（ASCII）と下の表を同じ変更で更新する。SVG（移行前の構成図。移行の完了後に削除する）は `docs/diagrams/pre-migration-diagram/layout-architecture.py` で生成し直して同じ変更で更新する。食い違っていたら、この ASCII 図が正。
+> 構成を変えたら、この図（ASCII）と下の表を同じ変更で更新する。現状の構成図（`docs/diagrams/as-is-diagram/`。段階 3b の完了後に削除する）は、`make-as-is-diagram.py` で生成し直して同じ変更で更新する。食い違っていたら、この ASCII 図が正。
 
 ```text
  External: Healthchecks.io / Slack / Cloudflare / Let's Encrypt / Tailscale / GitHub
@@ -46,9 +46,9 @@ homelab の全体像。最新の構成図、目的、構成の理由、前提と
 
 `vm-omada` の Omada コントローラーは、ER605・SG2210P を管理する（2026-11-03 に稼働。2026-11-06 に、ER605・SG2210P を採用した）。Buffalo は AP モードで、管理対象外。止まっても、機器は設定を持ったまま動く。
 
-![構成図（移行前）](../diagrams/pre-migration-diagram/architecture.drawio.svg)
+![現状の構成図（as-is）](../diagrams/as-is-diagram/as-is-diagram.png)
 
-現状（as-is。段階 3 の後）の構成図は、[現状の構成図](../diagrams/README.md#現状の構成図as-is-diagram段階-3b-の完了後に削除予定)（`docs/diagrams/as-is-diagram/`）。最終形（to-be）は、[メインの構成図](../diagrams/README.md#メインの構成図-vlan-化のあとmain-diagram)。
+上は現状（as-is。段階 3 の後）。詳しくは[現状の構成図](../diagrams/README.md#現状の構成図as-is-diagram段階-3b-の完了後に削除予定)。最終形（to-be）は、[to-be の構成図](../diagrams/README.md#to-be-の構成図-vlan-化のあとto-be-diagram)。
 
 ## 目的と位置づけ
 

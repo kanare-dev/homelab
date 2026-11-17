@@ -94,9 +94,9 @@ IP は変えない。Buffalo の Wi-Fi 設定は今のままなので、端末�
                   └─ p7–p8 空き（段階 4 の AP 用に PoE を残す）
 ```
 
-![段階 3 の後の構成図](../../diagrams/main-diagram/main-diagram.png)
+![段階 3 の後の構成図（to-be）](../../diagrams/to-be-diagram/to-be-diagram.png)
 
-図は `docs/diagrams/main-diagram/make-main-diagram.py` で生成する（HTML と PNG。ダーク版と単体の HTML は、同じディレクトリにある）。計画を直したら、この ASCII 図とスクリプトを合わせて直す。
+図（最終形。to-be）は `docs/diagrams/to-be-diagram/make-to-be-diagram.py` で生成する。現状の図は `docs/diagrams/as-is-diagram/`（HTML と PNG。ダーク版と単体の HTML は、同じディレクトリにある）。計画を直したら、この ASCII 図とスクリプトを合わせて直す。
 
 各ホストの IP は、[IP アドレス一覧](../../architecture/09-ip-addresses.md#ホスト別の-ip)と [ADR-0025](../../adr/0025-address-octets-by-role.md) のとおり（役割ベース。2026-11-05 に決定）。
 

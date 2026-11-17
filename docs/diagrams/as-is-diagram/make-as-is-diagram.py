@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """現状（as-is）の構成図を、単体の HTML で作る。段階 3 の後（2026-11-17〜）の、実機のとおりの構成。管理系（Proxmox ホスト、`vm-omada`、ER605・SG2210P）は、今の LAN（VLAN1、`192.168.11.0/24`）に残っている（段階 3b まで。ADR-0028）。
 
-最終形（to-be）は ../main-diagram/。この図は、main-diagram のスクリプトを写して、配置と文字を現状に合わせたもの。見た目の決まりと部品は同じ。
-実機を変えたら（IP、VLAN、ポート）、この図を直す。段階 3b が済んだら、main-diagram と同じ形になるので、この図とスクリプトは削除する。
+最終形（to-be）は ../to-be-diagram/。この図は、to-be-diagram のスクリプトを写して、配置と文字を現状に合わせたもの。見た目の決まりと部品は同じ。
+実機を変えたら（IP、VLAN、ポート）、この図を直す。段階 3b が済んだら、to-be-diagram と同じ形になるので、この図とスクリプトは削除する。
 
 この図の本体はこのスクリプト。下の「配置」の座標と文字から HTML（as-is-diagram.html。ロゴとフォントを埋め込む）を組み、
 Markdown から参照する PNG（as-is-diagram.png、ダーク版は as-is-diagram-dark.png）も書き出す。何度実行しても結果は同じ。

@@ -149,6 +149,6 @@ IP アドレスを変えたら（ホストの追加・削除、移行を含む�
 | DNS のレコード | CoreDNS のゾーン（[DNS 構成](../services/network/dns.md)） |
 | 監視の対象 | Prometheus の scrape 対象（[監視・アラート](../services/platform/monitoring.md)） |
 | 機器の設定値 | [ER605](../hardware/er605/settings.md)、[SG2210P](../hardware/sg2210p/settings.md)、[Buffalo](../hardware/wsr-1800ax4p/settings.md)、[ThinkCentre](../hardware/thinkcentre-m70q-tiny/settings.md) の `settings.md` |
-| 構成図 | [メインの構成図](../diagrams/main-diagram/make-main-diagram.py)、[物理構成図](../diagrams/physical-diagram/make-physical-diagram.py)（生成スクリプトの「配置」） |
+| 構成図 | [現状の構成図](../diagrams/as-is-diagram/make-as-is-diagram.py)、[to-be の構成図](../diagrams/to-be-diagram/make-to-be-diagram.py)、[物理構成図](../diagrams/physical-diagram/make-physical-diagram.py)（生成スクリプトの「配置」） |
 
 移行（段階 3）の切り替えの手順と、直す箇所の一覧は、[VLAN 設計](08-vlan-design.md)にある。
