@@ -155,7 +155,9 @@ p2 のスイッチ側の設定は、準備（手順 0）のまま（untagged VLA
 - [x] Caddy 経由の各サービス、Omada・Proxmox の管理画面（2026-11-17。`home`・`grafana`・`omada`・`ha` が開く。Proxmox は `https://192.168.11.10:8006`）。**`vm-omada` の `:8043` へは、直接つなげない**（UFW は Caddy の `10.77.20.10` と、旧 LAN `192.168.11.0/24` からだけ許可）。管理画面へは、`https://omada.lab.kanare.dev`
 - [x] Prometheus の全ターゲットが `up`（27 のうち 26。`down` は停止中の `vm-dev` だけ）。アラートは `Watchdog` だけ。`GatewayUnreachable` の宛先は、`10.77.20.1`（2026-11-17）
 - [x] 外出先から Tailscale 経由で入れる（`https://home.lab.kanare.dev` に、外出先から入れた。2026-11-17。運用者の確認）。`vm-code`・`vm-dev` の SSH は、`vm-dev` が停止中なので未確認
-- [ ] **自宅の Wi-Fi（Trusted）で、Tailscale をオンにした MacBook の通信経路を確かめる**: Tailscale の「サブネット経路を使う」がオンだと、Servers（`10.77.20.0/24`）・Lab（`10.77.40.0/24`）への通信が、ER605 を通らず Tailscale 経由（`vm-infra` が送信元）になりうる。そうなると、手順 8 で絞る ACL が効かない。経路は `tailscale status` や `route -n get 10.77.20.10` で見る。経路が Tailscale 経由なら、自宅では「サブネット経路を使う」をオフにする（外出先でだけ使う）。手順 8 の前に結論を出す。
+- [x] **自宅の Wi-Fi（Trusted）で、Tailscale をオンにした MacBook の通信経路を確かめた（2026-11-17。結論は下）**: 「サブネット経路を使う」がオンだと、Servers（`10.77.20.0/24`）・Lab（`10.77.40.0/24`）・旧 LAN（`192.168.11.0/24`）への通信が、ER605 を通らず Tailscale 経由（`vm-infra` が送信元）になる。`route -n get 10.77.20.10` で `interface: utun6` になり、`RouteAll: true` だった。
+  - **決定（2026-11-17）: 自宅と外出先で設定を切り替えない。** Tailscale は常にオン、「サブネット経路を使う」もオンのままにする。自宅でも外出先でも、同じ設定と同じ経路になる。
+  - 受け入れること: (1) この Mac の通信は、ER605 の ACL の対象にならない（ACL が守る相手は、Lab・IoT・Guests・DMZ の信用しない端末。運用者の Mac は、もともと Trusted で、Servers に入れる側）。(2) 自宅でも、`vm-infra` が止まると、Mac から Servers・Proxmox に入れない（保険は、緊急用の入口 p6。手順 8 の前提）。(3) 手順 8 の ACL の確認は、**この Mac では行わず、別の端末**（Trusted のスマホ、Lab の `vm-dev`）で行う。
 - [ ] メインディスプレイ、MacBook、Wi-Fi の端末（Trusted）
 - [ ] テレビ（無線、Trusted）の AirPlay・Cast
 - [x] Healthchecks.io の heartbeat（2026-11-17。運用者の確認で ok）
@@ -173,7 +175,7 @@ p2 のスイッチ側の設定は、準備（手順 0）のまま（untagged VLA
 
 ACL を、[通信ポリシー](../../architecture/08-vlan-design.md#通信ポリシー)の許可表の内容に絞る。**ログを見ながら、1 つずつ絞る**。絞るたびに、手順 7 の主な項目を確かめる。ルールの名前と説明は、[ACL の名前と説明の付け方](../../architecture/08-vlan-design.md#acl-の名前と説明の付け方)に従う（リハーサルの `rh-` のルールは、ここで削除し、本番のルールを作る）。絞り間違えて Trusted から管理系に届かなくなったら、緊急用の入口から `vm-omada` に入り、そのルールを無効にする。
 
-- [ ] 拒否すべき通信が拒否される（Lab・Guests・IoT・DMZ から内部へ。IoT → Trusted。Trusted → Guests）
+- [ ] 拒否すべき通信が拒否される（Lab・Guests・IoT・DMZ から内部へ。IoT → Trusted。Trusted → Guests）（**確認は、運用者の Mac では行わない**。Mac は Tailscale 経由で ER605 の ACL を通らないため、「拒否されるはずなのに通る」と見える。Trusted のスマホ、Lab の `vm-dev` など、Mac 以外の端末で確かめる。手順 7 の決定）
 - [ ] 許可すべき通信が通る（Trusted → Servers、Servers → 今の LAN（管理系）の Caddy と node_exporter、Tailscale 経由の Lab）
 
 ## 9. 旧ネットワークを片づける
