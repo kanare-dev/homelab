@@ -2,7 +2,7 @@
 
 ## 概要
 
-vm-infra (192.168.11.11) 上で3層の DNS スタックを運用する。3層にした理由と他の候補との比較は [ADR 0020](../../adr/0020-dns-three-layer-stack.md)。
+vm-infra (10.77.20.10) 上で3層の DNS スタックを運用する。3層にした理由と他の候補との比較は [ADR 0020](../../adr/0020-dns-three-layer-stack.md)。
 
 ```text
 client
@@ -27,7 +27,7 @@ client
 - upstream の振り分けルール:
   - `lab.kanare.dev` → CoreDNS (127.0.0.1:5353)
   - それ以外 → Unbound (127.0.0.1:5335)
-- Web UI: <http://192.168.11.11:3000> / <https://adguard.lab.kanare.dev>
+- Web UI: <http://10.77.20.10:3000> / <https://adguard.lab.kanare.dev>
 - 設定ファイル: `/opt/dns/adguard/conf/AdGuardHome.yaml`
 - fallback DNS: `1.1.1.1` / `9.9.9.9`。upstream（CoreDNS・Unbound）が全て失敗したときだけ使う。2026-10-22 に Unbound が約 3 分間応答せず、インターネット全体の名前解決が止まったため追加（`playbooks/infra.yml` で設定）
 
@@ -57,23 +57,23 @@ AdGuard の fallback DNS が使われるのは、upstream に**接続できな�
 
 | ホスト名 | IP | 備考 |
 | --- | --- | --- |
-| `grafana` | 192.168.11.11 | Caddy 経由 |
-| `prometheus` | 192.168.11.11 | Caddy 経由 |
-| `alertmanager` | 192.168.11.11 | Caddy 経由 |
-| `pve` | 192.168.11.11 | Caddy 経由 |
-| `infra` | 192.168.11.11 | vm-infra |
-| `vm-infra` | 192.168.11.11 | vm-infra |
-| `vm-monitoring` | 192.168.11.13 | vm-monitoring |
-| `home` | 192.168.11.11 | Caddy 経由 |
-| `vm-apps` | 192.168.11.20 | vm-apps |
-| `ha` | 192.168.11.11 | Caddy 経由（Home Assistant） |
-| `n8n` | 192.168.11.11 | Caddy 経由（n8n） |
-| `rss` | 192.168.11.11 | Caddy 経由（FreshRSS） |
-| `adguard` | 192.168.11.11 | Caddy 経由 |
-| `code` | 192.168.11.11 | Caddy 経由（code-server） |
-| `cloudcli` | 192.168.11.11 | Caddy 経由（CloudCLI） |
-| `vm-code` | 192.168.11.22 | vm-code（SSH / mosh の直接アクセス用） |
-| `omada` | 192.168.11.11 | Caddy 経由（Omada コントローラーの管理画面。[管理画面](#管理画面omada-コントローラー)）。旧 `router` は廃止 |
+| `grafana` | 10.77.20.10 | Caddy 経由 |
+| `prometheus` | 10.77.20.10 | Caddy 経由 |
+| `alertmanager` | 10.77.20.10 | Caddy 経由 |
+| `pve` | 10.77.20.10 | Caddy 経由 |
+| `infra` | 10.77.20.10 | vm-infra |
+| `vm-infra` | 10.77.20.10 | vm-infra |
+| `vm-monitoring` | 10.77.20.11 | vm-monitoring |
+| `home` | 10.77.20.10 | Caddy 経由 |
+| `vm-apps` | 10.77.20.20 | vm-apps |
+| `ha` | 10.77.20.10 | Caddy 経由（Home Assistant） |
+| `n8n` | 10.77.20.10 | Caddy 経由（n8n） |
+| `rss` | 10.77.20.10 | Caddy 経由（FreshRSS） |
+| `adguard` | 10.77.20.10 | Caddy 経由 |
+| `code` | 10.77.20.10 | Caddy 経由（code-server） |
+| `cloudcli` | 10.77.20.10 | Caddy 経由（CloudCLI） |
+| `vm-code` | 10.77.20.30 | vm-code（SSH / mosh の直接アクセス用） |
+| `omada` | 10.77.20.10 | Caddy 経由（Omada コントローラーの管理画面。[管理画面](#管理画面omada-コントローラー)）。旧 `router` は廃止 |
 
 レコードの追加・変更は `ansible/inventory/group_vars/infra/vars.yml` の `dns_records` を編集し、`ansible-playbook playbooks/infra.yml` を実行する。
 
@@ -91,7 +91,7 @@ AdGuard の fallback DNS が使われるのは、upstream に**接続できな�
 
 ## VM のホスト DNS
 
-全 VM のホスト DNS は、AdGuard ではなくルーター（`192.168.11.1`）を指している。そのため VM 内のホストから `*.lab.kanare.dev` は引けない。AdGuard の障害時にも、Slack 通知・apt・`docker pull` が使えるようにするため。判断の記録: [ADR 0007](../../adr/0007-vm-host-dns-is-router.md)。
+全 VM のホスト DNS は、AdGuard ではなくルーター（各 VLAN のゲートウェイ。Servers は `10.77.20.1`、Lab は `10.77.40.1`）を指している。そのため VM 内のホストから `*.lab.kanare.dev` は引けない。AdGuard の障害時にも、Slack 通知・apt・`docker pull` が使えるようにするため。判断の記録: [ADR 0007](../../adr/0007-vm-host-dns-is-router.md)。
 
 AdGuard を使いたいコンテナは `docker-compose.yml` の `dns:` で個別に指定する（例: blackbox-exporter、n8n、FreshRSS）。
 
@@ -100,15 +100,15 @@ AdGuard を使いたいコンテナは `docker-compose.yml` の `dns:` で個別
 `https://omada.lab.kanare.dev` で、Omada コントローラー（ER605・SG2210P の管理画面）を開ける。`omada` の DNS レコードは `vm-omada` ではなく Caddy（vm-infra）を指す。
 
 ```text
-ブラウザ ─► omada.lab.kanare.dev (192.168.11.11, Caddy が HTTPS で受ける)
+ブラウザ ─► omada.lab.kanare.dev (10.77.20.10, Caddy が HTTPS で受ける)
               └─► Caddy ─► https://192.168.11.12:8043 (vm-omada、HTTPS。自己署名証明書)
 ```
 
 - 以前は `router.lab.kanare.dev` が Buffalo の管理画面を向いていた。ER605 をコントローラーに採用すると、本体の画面が使えなくなるため、2026-11-06 に `omada.lab.kanare.dev` に付け替え、`router` は廃止した（決定: 運用者）。
 - Caddy から `vm-omada` までは HTTPS。自己署名証明書のため、`tls_insecure_skip_verify` を付ける（`pve` と同じ形）。`vm-omada` の UFW は、8043 を Caddy（`vm-infra`）から許可している（`ansible/inventory/group_vars/omada/vars.yml`）。
-- Buffalo（AP モード）の画面は、`http://192.168.11.2` を直接開く（Caddy は通さない）。
+- Buffalo（AP モード）の画面は、`http://10.77.30.50` を直接開く（2026-11-17 に `192.168.11.2` から変更）（Caddy は通さない）。
 - Homepage の Omada タイルは `https://omada.lab.kanare.dev` を監視している。
-- 外出先（Tailscale）からも名前を引ける。Tailscale の subnet route が `192.168.11.0/24` を通すため、機器の IP にも届く。遮断するには Tailscale の ACL で管理画面を除外する（未実施）。
+- 外出先（Tailscale）からも名前を引ける。Tailscale の subnet route が `10.77.20.0/24`、`10.77.40.0/24`、`192.168.11.0/24`（旧 LAN。管理系が残る）を通すため、機器の IP にも届く。遮断するには Tailscale の ACL で管理画面を除外する（未実施）。
 
 ### ルーターを付け替えるとき
 
@@ -163,10 +163,10 @@ dig @127.0.0.1 -p 5353 grafana.lab.kanare.dev
 dig @127.0.0.1 -p 5335 example.com
 
 # AdGuard 経由で内部ドメイン解決
-dig @192.168.11.11 grafana.lab.kanare.dev
+dig @10.77.20.10 grafana.lab.kanare.dev
 
 # AdGuard 経由で外部ドメイン解決
-dig @192.168.11.11 example.com
+dig @10.77.20.10 example.com
 ```
 
 ### AdGuard のキャッシュをクリアする
@@ -199,8 +199,8 @@ ansible-playbook playbooks/infra.yml
 | 項目 | 設定 |
 | --- | --- |
 | vm-infra の Tailscale IP | `100.118.14.37` |
-| 起動オプション | `tailscale up --advertise-routes=192.168.11.0/24 --accept-dns=false` |
-| Subnet route | Admin Console で `192.168.11.0/24` を承認済み |
+| 起動オプション | `tailscale up --advertise-routes=10.77.20.0/24,10.77.40.0/24,192.168.11.0/24 --accept-dns=false` |
+| Subnet route | Admin Console で `10.77.20.0/24`、`10.77.40.0/24`、`192.168.11.0/24` を承認済み（段階 3 の当日、2026-11-17 に新しい 2 経路を承認。旧経路は管理系が残るので外さない） |
 | Key expiry | vm-infra は無効化（期限切れで外出先から繋がらなくなるのを防ぐ） |
 | Split DNS | Admin Console → DNS → Nameserver `100.118.14.37`、Restrict to domain `lab.kanare.dev` |
 
