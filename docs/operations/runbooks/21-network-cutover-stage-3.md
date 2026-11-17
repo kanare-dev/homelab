@@ -122,6 +122,8 @@ p2 のスイッチ側の設定は、準備（手順 0）のまま（untagged VLA
 
    VMID は変えない（付け替えは、切り替えのあとの VM の作り直しで行う。[ADR-0026](../../adr/0026-vmid-from-vlan-and-octet.md)）。
 
+   **実施の記録（2026-11-17）**: 新アドレスのコードを `docs/stage3-prep` に取り込み（`stage3/new-addresses` に本線を merge してから、本線を fast-forward）、`terraform plan` が「5 台の in-place 更新」になることを確かめた。`vm-infra`、`vm-monitoring`、`vm-apps`、`vm-code`、`vm-dev` の順に、`-target` で 1 台ずつ `apply` した。**IP とタグの変更でも、VM は自動で再起動する**（[Runbook 15](15-terraform-apply-restart.md)）。新しい IP で届くまで、約 12 秒（ping の 4 回目）。`vm-dev` は停止したまま、設定だけ変わった。最後の `terraform plan` は `No changes`。`vm_ips` の出力は、`-target` の途中では、ほかの VM の値が先に新しくなって見える。
+
    `vm-dev` は止めたまま、IP と VLAN の設定だけを変えられる（`vm-dev` だけの `apply` で確認済み。2026-11-11。[リハーサルの D](22-network-stage-3-rehearsal.md#d-vm-dev-で-terraform-apply-を試す2026-11-11)）。
 
 ## 6. Ansible で反映する
@@ -136,19 +138,29 @@ p2 のスイッチ側の設定は、準備（手順 0）のまま（untagged VLA
    3. Split DNS（Nameserver `100.118.14.37`、`lab.kanare.dev`）と key expiry の無効化は、変えない（宛先は Tailscale の IP なので、`vm-infra` の LAN の IP が変わっても影響しない）。
    4. 外出先（スマホを Wi-Fi から外し、Tailscale をオン）から、`https://home.lab.kanare.dev` が開き、`vm-dev` に SSH で入れることを確かめる。
 
-   確認: [ ] `*.lab.kanare.dev` が新しい IP に解決される　[ ] Caddy 経由のサービスが開く　[ ] 外出先（スマホを Wi-Fi から外す）から、Tailscale 経由で入れる
+   確認: [x] `*.lab.kanare.dev` が新しい IP に解決される　[x] Caddy 経由のサービスが開く　[x] 外出先から、Tailscale 経由で入れる（`home.lab.kanare.dev`。2026-11-17）
+
+**実施の記録（2026-11-17）と、わかったこと**:
+
+- `~/.ssh/config` の `HostName` を直したあと、新しい IP の host key は、初回接続で `known_hosts` に入った（`StrictHostKeyChecking=accept-new`）。
+- 先に `ansible-playbook playbooks/site.yml --check --diff` で確かめ、差分（Prometheus の scrape 対象、アラート、Caddyfile、CoreDNS のゾーン、UFW の許可元、Tailscale の経路）が、期待どおりであることを見た。`vm-dev` は停止中なので `unreachable` になる。本番は `--limit '!vm-dev'` で流した（`failed=0`）。
+- チェックモードでだけ、`vm-monitoring` の「Download Node Exporter Full dashboard」が HTTP 405 で失敗した（grafana.com が確認用の要求を拒否するとみられる）。本番では通った。
+- **Home Assistant の `trusted_proxies` は、Ansible では直らない**（`.storage/http` は、無いときだけ置く設定）。`vm-apps` の `/opt/homeassistant/config/.storage/http` の `trusted_proxies` を、旧 `vm-infra`（`192.168.11.11/32`）から `10.77.20.10/32` に、手で直す必要がある。直さないと、Caddy 経由で 400 になり、`ServiceProbeFailed`（ha）が出る。直し方: バックアップを取り、HA のコンテナを止めて、ファイルを直し、起動する。
+- Tailscale の経路の承認は、2026-11-17 に済んだ（新しい 2 経路と、旧経路が承認済み）。
 
 ## 7. 疎通の確認
 
-- [ ] 各 VLAN の DHCP と名前解決（`*.lab.kanare.dev`）
-- [ ] 各 VLAN から Servers への接続（許可表のとおり）
-- [ ] Caddy 経由の各サービス、Omada・Proxmox の管理画面
-- [ ] Prometheus の全ターゲットが `up`。`GatewayUnreachable` は、新しい IP に直す
-- [ ] 外出先から Tailscale 経由で、`vm-code`・`vm-dev` に入れる
+- [ ] 各 VLAN の DHCP と名前解決（`*.lab.kanare.dev`）。Trusted は確認した（Mac の有線・Wi-Fi が `10.77.30.x`、DNS `10.77.20.10` で、内部の名前が引ける。2026-11-17）。そのほかの VLAN は、端末を繋いでいない
+- [ ] 各 VLAN から Servers への接続（許可表のとおり）。Trusted → Servers は確認した（ACL は全許可）
+- [x] Caddy 経由の各サービス、Omada・Proxmox の管理画面（2026-11-17。`home`・`grafana`・`omada`・`ha` が開く。Proxmox は `https://192.168.11.10:8006`）。**`vm-omada` の `:8043` へは、直接つなげない**（UFW は Caddy の `10.77.20.10` と、旧 LAN `192.168.11.0/24` からだけ許可）。管理画面へは、`https://omada.lab.kanare.dev`
+- [x] Prometheus の全ターゲットが `up`（27 のうち 26。`down` は停止中の `vm-dev` だけ）。アラートは `Watchdog` だけ。`GatewayUnreachable` の宛先は、`10.77.20.1`（2026-11-17）
+- [x] 外出先から Tailscale 経由で入れる（`https://home.lab.kanare.dev` に、外出先から入れた。2026-11-17。運用者の確認）。`vm-code`・`vm-dev` の SSH は、`vm-dev` が停止中なので未確認
 - [ ] **自宅の Wi-Fi（Trusted）で、Tailscale をオンにした MacBook の通信経路を確かめる**: Tailscale の「サブネット経路を使う」がオンだと、Servers（`10.77.20.0/24`）・Lab（`10.77.40.0/24`）への通信が、ER605 を通らず Tailscale 経由（`vm-infra` が送信元）になりうる。そうなると、手順 8 で絞る ACL が効かない。経路は `tailscale status` や `route -n get 10.77.20.10` で見る。経路が Tailscale 経由なら、自宅では「サブネット経路を使う」をオフにする（外出先でだけ使う）。手順 8 の前に結論を出す。
 - [ ] メインディスプレイ、MacBook、Wi-Fi の端末（Trusted）
 - [ ] テレビ（無線、Trusted）の AirPlay・Cast
-- [ ] Healthchecks.io の heartbeat
+- [x] Healthchecks.io の heartbeat（2026-11-17。運用者の確認で ok）
+- [ ] （気づき）AdGuard のキャッシュと、Mac の DNS キャッシュに、旧 IP が残る。`vm-infra` を移したあと、AdGuard の画面で、キャッシュをクリアする（設定 > DNS 設定）。Mac は、Wi-Fi をオフ・オンにする（`sudo` が使えれば、`dscacheutil -flushcache` と `killall -HUP mDNSResponder`）。Chrome は、`chrome://net-internals/#dns` で、ホストのキャッシュをクリアする
+- [ ] （気づき）VM の DNS が、ルーター（`10.77.20.1`）なので、VM から内部の名前が引けない。検討中: [ロードマップ 01](../roadmap/01-backlog.md#ネットワークdns)
 
 ## 8. ACL を絞る（別の日）
 
