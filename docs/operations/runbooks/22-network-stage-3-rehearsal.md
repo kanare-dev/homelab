@@ -15,6 +15,7 @@
 | B | `vmbr0` を VLAN-aware にする | 6 だけ残っている（VLAN20・40・70 を作ってから） |
 | C-1 | `vmbr0.10` の試験 | 完了（外した） |
 | C-2 | `vm-omada` の IP 変更への追従 | 段階 3b に移した（[ADR-0028](../../adr/0028-defer-management-vlan10.md)）。段階 3 の本番には、不要。手段の検討は、段階 3b の前に続ける |
+| D | `vm-dev` で `terraform apply` を試す（VLAN40・新 IP） | 完了（2026-11-11。元に戻した） |
 | 後 | 結果の反映、`rh-` の ACL の削除 | 未実施 |
 
 ## 全体像
@@ -290,8 +291,28 @@ B が済んでいること。タイマー（B の 2）を仕掛けてから行�
 ## 追加の確認（段階 3 の範囲の変更に伴うもの）
 
 - [x] 今の LAN の端末が、ER605（`192.168.11.1`）の DNS で、外部の名前を引ける（[ADR-0028](../../adr/0028-defer-management-vlan10.md)で、今の LAN の DHCP の DNS をルーターにする前提の確認）。結果（2026-11-10）: Mac から `dig @192.168.11.1 www.google.com +short` が、IP アドレスを返した。
+- [x] ER605 の DNS プロキシが、VLAN 側のアドレスでも、外部の名前を引ける。結果（2026-11-11）: 今の LAN の Mac から、`dig @10.77.10.1`・`@10.77.20.1`・`@10.77.30.1`・`@10.77.40.1 example.com` が、いずれも IP アドレスを返した。**問い合わせ元は今の LAN の Mac。VLAN の中の端末からは、当日に確かめる**
 - [ ] 今の LAN の ACL（管理系 = 今の LAN の読み替え）を、実機で確かめる
 - [ ] 空きポートに繋いだ端末が、今の LAN に入り、Proxmox・Omada・ER605 に届く（緊急用の入口）
+
+## D. `vm-dev` で `terraform apply` を試す（2026-11-11）
+
+当日の手順 5 の `terraform apply`（VLAN タグと新しい IP）を、`vm-dev`（停止中）だけで試した。
+
+**手順と結果**
+
+1. `stage3/new-addresses` に切り替え、`terraform plan -target='module.vm["vm-dev"]'` で、差分が 1 件（in-place）であることを確認した。IP `192.168.11.21` → `10.77.40.10`、ゲートウェイ `10.77.40.1`、ネームサーバー `10.77.40.1`、タグ 0 → 40。`vm_state` の差分は出なかった。
+2. 保存した計画（`-out`）を `apply` した。`vm-dev` は、**停止のまま**だった（`apply` で起動しない）。適用後の `plan` は `No changes`。
+3. `vm-dev` を起動し、Mac から `ping 10.77.40.10` が届いた（TTL 63。ER605 を 1 回通る。VLAN の間のルーティングは、ACL が全許可の間は動く）。SSH は、鍵を指定して入れた。
+4. 元に戻した（下の「落とし穴」のとおり）。
+
+**分かったこと**
+
+- `vm_state` は、`lifecycle.ignore_changes` にあるので、`apply` は、止まっている VM を起動しない。
+- SSH は、`ssh -i ~/.ssh/id_ed25519_homelab ubuntu@<IP>` で入れる。IP を直接指定して鍵を付けないと、`~/.ssh/config` の `Host *`（`IdentitiesOnly yes`）のため、`Permission denied (publickey)` になる（VM の不具合ではない）。名前で入るには、`~/.ssh/config` の各 `Host` の `HostName` を、新しいアドレスに直す（当日の手順 6 のあと。[段階 3 の Runbook](21-network-cutover-stage-3.md)）。
+- **落とし穴**: `docs/stage3-prep`（今の本線）の Terraform は、`network` を `ignore_changes` にしている。そのため、そこで `vm-dev` の IP を元に戻す `apply` を流しても、**VLAN タグ（40）は戻らない**（`plan` にも出ない）。戻すには、Proxmox の画面で `vm-dev` の VLAN Tag を空にし、`terraform apply -refresh-only` で状態ファイルを実機に合わせる。`stage3/new-addresses` では、`network` を `ignore_changes` から外してあるので、タグの差分も出る。
+
+**元に戻した結果**: IP `192.168.11.21`・ゲートウェイ `192.168.11.1`・タグなし・停止。`docs/stage3-prep` の全体の `plan` は `No changes`。
 
 ## リハーサルの後
 
