@@ -2,7 +2,7 @@
 
 ## Proxmox ホストと全 VM に、LAN から届かない
 
-Mac から `192.168.11.10`（Proxmox）、`.11`、`.12` などに届かず、ER605（`192.168.11.1`）と `1.1.1.1` には届く。外部の Heartbeat が途絶し、Slack には何も届かない。**前回（[INC-2026-10-25](../incidents/2026-10-25-nic-hardware-unit-hang.md)）は NIC の送信停止、今回（[INC-2026-11-08](../incidents/2026-11-08-sg2210p-native-vlan-overwrite.md)）は SG2210P の p2 の VLAN 設定の書き換え**だった。症状が似ているので、次の順で切り分ける。
+Mac から `192.168.11.10`（Proxmox）、`.12`（`vm-omada`）、`10.77.20.x`（VM）などに届かず、ER605（`192.168.11.1`）と `1.1.1.1` には届く。外部の Heartbeat が途絶し、Slack には何も届かない。**前回（[INC-2026-10-25](../incidents/2026-10-25-nic-hardware-unit-hang.md)）は NIC の送信停止、今回（[INC-2026-11-08](../incidents/2026-11-08-sg2210p-native-vlan-overwrite.md)）は SG2210P の p2 の VLAN 設定の書き換え**だった。症状が似ているので、次の順で切り分ける。
 
 **直前に、SG2210P・ER605・Omada のネットワークやポートの設定を触ったか**を、まず思い出す。触っていれば、そちらが先に疑わしい。
 
@@ -30,7 +30,7 @@ Mac から `192.168.11.10`（Proxmox）、`.11`、`.12` などに届かず、ER6
 
 ```text
 1. ping で疎通確認
-   $ ping 192.168.11.XX
+   $ ping 10.77.20.XX
 
 2. Proxmox Web UI で VM のステータス確認
    → https://192.168.11.10:8006
@@ -69,16 +69,16 @@ Mac から `192.168.11.10`（Proxmox）、`.11`、`.12` などに届かず、ER6
 
 ```text
 1. CoreDNS のステータス確認
-   $ ssh ubuntu@192.168.11.11 "systemctl status coredns"
+   $ ssh ubuntu@10.77.20.10 "systemctl status coredns"
 
 2. CoreDNS のログ確認
-   $ ssh ubuntu@192.168.11.11 "journalctl -u coredns --tail=50"
+   $ ssh ubuntu@10.77.20.10 "journalctl -u coredns --tail=50"
 
 3. 直接クエリして確認
-   $ dig @192.168.11.11 grafana.lab.kanare.dev
+   $ dig @10.77.20.10 grafana.lab.kanare.dev
 
 4. CoreDNS を再起動
-   $ ssh ubuntu@192.168.11.11 "sudo systemctl restart coredns"
+   $ ssh ubuntu@10.77.20.10 "sudo systemctl restart coredns"
 ```
 
 ## `vm-infra` の停止で名前解決が止まったとき（仕事用 PC）
@@ -108,13 +108,13 @@ DHCP が配る DNS は `vm-infra`（AdGuard）だけで、フォールバック�
    → https://prometheus.lab.kanare.dev/targets
 
 2. ターゲット VM の node_exporter を確認
-   $ ssh vm-monitoring curl -s http://192.168.11.XX:9100/metrics | head   # node_exporter は vm-monitoring からしか届かない
+   $ ssh vm-monitoring curl -s http://10.77.20.XX:9100/metrics | head   # node_exporter は vm-monitoring からしか届かない
 
 3. ファイアウォール確認
-   $ ssh ubuntu@192.168.11.XX "sudo ufw status"
+   $ ssh ubuntu@10.77.20.XX "sudo ufw status"
 
 4. node_exporter を再起動
-   $ ssh ubuntu@192.168.11.XX "sudo systemctl restart node_exporter"
+   $ ssh ubuntu@10.77.20.XX "sudo systemctl restart node_exporter"
 ```
 
 ## Grafana にログインできない

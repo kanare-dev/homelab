@@ -70,8 +70,8 @@
 4. **ホストを構成する**: `make setup-proxmox`（収集スクリプト、node_exporter）。
 5. **VM を作る**: `terraform init && terraform plan && terraform apply`。state がない場合は新規作成になる（既存の VM が残っていると衝突するため、事前に確認する）。
 6. **基盤を構成する**: `make setup-infra`（DNS、Caddy、Tailscale）→ `make setup-monitoring` → `make setup-apps` → `make setup-code`。全体は `make setup`。
-7. **Tailscale を再登録する**: `tailscale_authkey` で登録し、管理画面で subnet route（`192.168.11.0/24`）の承認と、`vm-infra` の key expiry 無効化、split DNS の設定を確認する（[DNS 構成](../services/network/dns.md#tailscale-との連携)）。
-8. **確認する**: `dig @192.168.11.11 grafana.lab.kanare.dev`、`https://grafana.lab.kanare.dev`、Prometheus の Targets、Slack のテスト通知（[運用 Runbook](../operations/runbooks/05-slack-alerts.md#slack-アラート通知)）、外出先（モバイル回線）からの接続。
+7. **Tailscale を再登録する**: `tailscale_authkey` で登録し、管理画面で subnet route（`10.77.20.0/24`、`10.77.40.0/24`、`192.168.11.0/24`）の承認と、`vm-infra` の key expiry 無効化、split DNS の設定を確認する（[DNS 構成](../services/network/dns.md#tailscale-との連携)）。
+8. **確認する**: `dig @10.77.20.10 grafana.lab.kanare.dev`、`https://grafana.lab.kanare.dev`、Prometheus の Targets、Slack のテスト通知（[運用 Runbook](../operations/runbooks/05-slack-alerts.md#slack-アラート通知)）、外出先（モバイル回線）からの接続。
 9. **記録する**: 障害記録を `docs/operations/incidents/` に書く。台帳に変更があれば更新する。
 
 ### 証明書の再取得に関する注意

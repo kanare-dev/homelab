@@ -83,7 +83,7 @@ Terraform は Proxmox の API トークン（`terraform@pam!terraform-token`）�
 | `vm-infra` | 22, 53（tcp/udp）, 80, 443, 51820/udp。9100 は `vm-monitoring` のみ、3000 は LAN と Docker ブリッジのみ |
 | `vm-monitoring` | 22。9100 は自分自身と Prometheus コンテナ（`172.16.0.0/12`）のみ。3000・9090・9093 は下の「Docker の公開ポート」 |
 | `vm-apps` | 22。9100 は `vm-monitoring` のみ。8123（Home Assistant）は `vm-infra`（Caddy）のみ。3001（Homepage）、5678（n8n）、8081（FreshRSS）は下の「Docker の公開ポート」 |
-| `vm-code` | 22。9100 は `vm-monitoring` のみ。8080（code-server）、3001（CloudCLI）、5173（開発用サーバ）、60000–61000/udp（mosh）は `192.168.11.0/24` のみ |
+| `vm-code` | 22。9100 は `vm-monitoring` のみ。8080（code-server）、3001（CloudCLI）、5173（開発用サーバ）、60000–61000/udp（mosh）は Trusted（`10.77.30.0/24`）と `vm-infra`（`10.77.20.10`。Tailscale 経由の接続の送信元）のみ |
 | `vm-dev` | 22。9100 は `vm-monitoring` のみ |
 
 許可元は `from:` で指定する。ufw は定義にないルールを消さないので、旧来の「どこからでも許可」は `ufw_removed_ports` に書いて `common` ロールが削除する。
@@ -98,7 +98,7 @@ Docker の `ports:` で公開したポートは、NAT で UFW の受信ルール
 | `vm-apps` | 3001（Homepage）、5678（n8n）、8081（FreshRSS） | `vm-infra`（Caddy）のみ |
 
 - Home Assistant（8123）は host ネットワークで動くので、Docker の公開ポートではない。この絞り込みは効かず、UFW の受信ルールで `vm-infra` だけに許可している。
-- IP とポートの直打ち（例: `http://192.168.11.13:9090`）は届かない。Mac からは `https://<名前>.lab.kanare.dev` で開く。
+- IP とポートの直打ち（例: `http://10.77.20.11:9090`）は届かない。Mac からは `https://<名前>.lab.kanare.dev` で開く。
 - `vm-infra` の 80・443（Caddy）は、入口なので LAN に開けたまま。
 - 確認: `ssh <vm> sudo iptables -S DOCKER-USER`。
 
@@ -112,7 +112,7 @@ Proxmox ホストの UFW / Proxmox ファイアウォールの設定は、この
 
 ### セグメンテーション
 
-現在は `192.168.11.0/24` の 1 セグメントに全機器が載る。IoT・ゲスト・管理機器の分離は [VLAN 設計](08-vlan-design.md)（設計段階、未適用）。
+現在（段階 3 の後）は、Trusted（`10.77.30.0/24`）、Servers（`10.77.20.0/24`）、Lab（`10.77.40.0/24`）に分かれている。ただし ACL は全許可で、絞るのは別の日（[ADR-0029](../adr/0029-stage3-acl-allow-all-then-tighten.md)）。管理系（Proxmox、`vm-omada`、ER605・SG2210P）は、段階 3b まで今の LAN（`192.168.11.0/24`）に残る（[ADR-0028](../adr/0028-defer-management-vlan10.md)）。IoT・ゲスト・管理機器の分離は [VLAN 設計](08-vlan-design.md)（ACL を絞る日に適用）。
 
 ## 監査・検知
 

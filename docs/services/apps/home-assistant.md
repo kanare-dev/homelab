@@ -6,7 +6,7 @@
 
 | 項目 | 内容 |
 | --- | --- |
-| 置き場所 | `vm-apps`（`192.168.11.20`）の `/opt/homeassistant` |
+| 置き場所 | `vm-apps`（`10.77.20.20`）の `/opt/homeassistant` |
 | 種類 | Home Assistant Container（アドオンは使えない） |
 | イメージ | `ghcr.io/home-assistant/home-assistant:2026.10.4`（バージョンを固定する） |
 | ネットワーク | `network_mode: host`（機器の自動検出に mDNS / SSDP が要るため） |
@@ -20,7 +20,7 @@
 Mac / スマホ ─ HTTPS ─> Caddy（vm-infra :443） ─ HTTP ─> vm-apps :8123（Home Assistant）
 ```
 
-- `vm-apps` の 8123 は、`vm-infra`（Caddy）からだけ許可する（`group_vars/apps/vars.yml` の `ufw_allowed_ports`）。IP とポートの直打ち（`http://192.168.11.20:8123`）は届かない。
+- `vm-apps` の 8123 は、`vm-infra`（Caddy）からだけ許可する（`group_vars/apps/vars.yml` の `ufw_allowed_ports`）。IP とポートの直打ち（`http://10.77.20.20:8123`）は届かない。
 - Home Assistant は host ネットワークで動くため、Docker の公開ポートではない。`ufw_docker` ロールの `DOCKER-USER` による絞り込みは効かず、**UFW の受信ルールで絞る**。
 - Caddy 経由のリクエストを受けるには、Home Assistant に Caddy を信頼させる必要がある（次節）。
 - 外部には公開しない。外出先からは Tailscale 経由で使う（[ADR-0005](../../adr/0005-tailscale-only-remote-access.md)）。
@@ -43,6 +43,7 @@ Mac / スマホ ─ HTTPS ─> Caddy（vm-infra :443） ─ HTTP ─> vm-apps :8
 Home Assistant 2026.10 以降、`http:` の設定は初回起動のときだけ YAML から `.storage/http` に取り込まれる。以後は YAML が**無視される**ので、`configuration.yaml` に `trusted_proxies` を書いても効かない。信頼する Caddy の IP は `storage/http` の初期値で与える。
 
 - 初期値を変えて既存のインスタンスに反映するには、コンテナを止め、`/opt/homeassistant/config/.storage/http` を退避してから、`make deploy-apps APP=homeassistant` を実行する（無ければ初期値が置かれる）。
+- **Caddy の IP が変わったときは、実機の `.storage/http` の `trusted_proxies` を手で直す**（Ansible は、無いときだけ置くので、既存のファイルは直らない）。2026-11-17 に、段階 3 で Caddy が `192.168.11.11` から `10.77.20.10` に移ったとき、直し忘れて Caddy 経由が HTTP 400 になった。直し方: バックアップを取り、コンテナを止めて、`trusted_proxies` を直し、コンテナを起動する。
 - 設定が合っていないと、Caddy 経由は HTTP 400 になる。ログに `your HTTP integration is not set-up for reverse proxies` が出る。
 
 ### Git に入らないもの
