@@ -34,13 +34,13 @@ Caddy 経由の FQDN には、証明書を FQDN ごとに取得する（[リバ�
 ## 外出先からのアクセス（Tailscale）
 
 ```text
-外出先の端末 ──(Tailscale / WireGuard)──► vm-infra（subnet router）──► 192.168.11.0/24
+外出先の端末 ──(Tailscale / WireGuard)──► vm-infra（subnet router）──► 10.77.20.0/24 / 10.77.40.0/24 / 192.168.11.0/24
                                            └─ split DNS: lab.kanare.dev → vm-infra
 ```
 
 | 項目 | 設定 |
 | --- | --- |
-| 入口 | `vm-infra` の Tailscale（subnet router）。`192.168.11.0/24` を広告 |
+| 入口 | `vm-infra` の Tailscale（subnet router）。`10.77.20.0/24`、`10.77.40.0/24`、`192.168.11.0/24` を広告 |
 | 名前解決 | split DNS で `lab.kanare.dev` を `vm-infra` に向ける |
 | 認証 | Tailscale のアカウント。`vm-infra` の key expiry は無効 |
 | 到達できる範囲 | LAN 全体（ACL は既定。ルーターにも届く。絞り込みは未実施） |
