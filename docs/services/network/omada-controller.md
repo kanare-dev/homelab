@@ -56,6 +56,7 @@ Omada コントローラーの詳細設計。ER605・SG2210P・将来の AP を�
 
 | 日付 | 内容 |
 | --- | --- |
+| 2026-11-17 | 段階 3 の手順 5・6 のあと、Omada のバックアップを取り直した（`omada_backup_...2026-11-17_22-01-59.cfg`、`sitebackup_...2026-11-17_22-01-49.cfg`。iCloud Drive）。p3・p4 の `access-trusted` の割り当てが入った状態（運用者の報告） |
 | 2026-11-17 | 段階 3 の当日の手順 2 で、SG2210P の p3・p4 にポートプロファイル `access-trusted` を割り当てた（詳細は[SG2210P](../../hardware/sg2210p/settings.md)の変更履歴）。事前に、Omada のバックアップを取り直した（`omada_backup_...2026-11-17_20-55-01.cfg`、`sitebackup_...2026-11-17_20-55-17.cfg`。iCloud Drive）。バックアップは、p3・p4 を割り当てる前の状態 |
 | 2026-11-11 | 段階 3 の準備として、mDNS のルール `mdns-trusted-iot`（無効）と、ポートプロファイル `access-trusted`（未割り当て）を作った（運用者の報告） |
 | 2026-11-11 | 段階 3 の準備として、VLAN のネットワーク 7 つ（10〜70）を、設計書の値にそろえた（Servers・Lab・Guests・DMZ を新規に作成。Management の DNS を `10.77.10.1`、Trusted のリースを 48 時間に修正）。端末は繋いでいない（運用者の報告） |
