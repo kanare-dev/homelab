@@ -23,6 +23,7 @@ VLAN を有効にし、全ホストの IP を `192.168.11.x` から `10.77.<VLAN
 - [x] **Omada に本番の設定を作ってある（有効にはしていない）**（2026-11-11。一覧は[移行計画](../roadmap/10-er605-sg2210p-migration-plan.md#omada-の本番設定の一覧段階-3-の準備画面操作)）: VLAN 10/20/30/40/50/60/70（端末は繋いでいない）、DHCP、mDNS の中継（無効のまま）、スイッチのポートプロファイル `access-trusted`（どのポートにも未割り当て）。**ACL は作っていない**（当日は全許可。[ADR-0029](../../adr/0029-stage3-acl-allow-all-then-tighten.md)）。設定したあとのバックアップ: `omada_backup_...2026-11-11_21-48-24.cfg` と `sitebackup_...2026-11-11_21-48-31.cfg`（iCloud Drive）。
 - [ ] **今の LAN の DHCP の DNS をルーターにする手順を確認した**（決定済み。変えるのは、手順 2 で Wi-Fi の端末が Trusted に移ったあと）。
 - [x] **バックアップが、Mac 以外にもある**（iCloud Drive の `homelab/`。2026-11-11 に取得）: Omada（`omada_backup_...2026-11-11_21-06-24.cfg` と `sitebackup_...2026-11-11_21-04-37.cfg`）、Proxmox の `/etc/network/interfaces`（`pve-interfaces-bk-20261111.txt`）、`terraform.tfstate`（`terraform.tfstate-bk-20261111`）、Buffalo の設定（`wsr-1800ax4p-bk-20261103*.bin`）。Omada に本番の設定を作る前の状態なので、**当日の手順 1 で、もう一度取る**。
+  - **取り直した（2026-11-17）**: Omada（`omada_backup_...2026-11-17_20-55-01.cfg` と `sitebackup_...2026-11-17_20-55-17.cfg`）、Proxmox の `/etc/network/interfaces`（`pve-interfaces-bk-20261117.txt`）、`terraform.tfstate`（`terraform.tfstate-bk-20261117`）。Buffalo は、段階 3 で設定を変えていないので、取り直さない。手順 2 の直前に設定を変えたら、その分だけ取り直す。
 - [x] Tailscale の経路の承認の手順を確認してある（`--advertise-routes=10.77.20.0/24,10.77.40.0/24,192.168.11.0/24`。手順は 6.2）。2026-11-11 に Admin Console で確認した: `vm-infra` は `192.168.11.0/24` が承認済みで、Expiry disabled。**自動承認（Auto approvers）は無い**ので、新しい 2 経路は当日に手動で承認する。
 - [ ] 戻し方（下記）を読んだ。
 
