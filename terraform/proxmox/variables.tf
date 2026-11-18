@@ -30,15 +30,19 @@ variable "ssh_public_key" {
 variable "vms" {
   description = "Map of VMs to create"
   type = map(object({
-    vmid               = number
-    ip                 = string
-    gateway            = string # その VM の VLAN のルーターのアドレス
-    nameserver         = string # VM のホスト DNS（ルーター。ADR-0007）
-    vlan_id            = number # 必須。タグなし（VLAN1）は null を明示する
-    cores              = number
-    memory             = number
-    disk               = string
-    tags               = list(string)
+    vmid       = number
+    ip         = string
+    gateway    = string # その VM の VLAN のルーターのアドレス
+    nameserver = string # VM のホスト DNS（ルーター。ADR-0007）
+    vlan_id    = number # 必須。タグなし（VLAN1）は null を明示する
+    cores      = number
+    memory     = number
+    disk       = string
+    tags       = list(string)
+    extra_nic = optional(object({ # 任意の 2 枚目の NIC（移行中の並行運用用）
+      vlan_id = number
+      ip      = string
+    }))
     start_at_node_boot = optional(bool, true)
     startup_order      = optional(number, -1)
     startup_delay      = optional(number, 0)

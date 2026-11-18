@@ -69,6 +69,15 @@ variable "vlan_id" {
   }
 }
 
+variable "extra_nic" {
+  description = "Optional second network interface (VLAN-tagged, static IP without gateway). Used to run a VM on two networks during a migration."
+  type = object({
+    vlan_id = number
+    ip      = string
+  })
+  default = null
+}
+
 variable "nameserver" {
   description = "DNS server IP"
   type        = string
