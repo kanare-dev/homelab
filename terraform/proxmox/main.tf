@@ -15,6 +15,7 @@ module "vm" {
   gateway            = each.value.gateway
   nameserver         = each.value.nameserver
   vlan_id            = each.value.vlan_id
+  extra_nic          = each.value.extra_nic
   ssh_public_key     = coalesce(var.ssh_public_key, trimspace(file(pathexpand("~/.ssh/id_ed25519_homelab.pub"))))
   tags               = each.value.tags
   start_at_node_boot = each.value.start_at_node_boot

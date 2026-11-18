@@ -62,7 +62,19 @@ resource "proxmox_vm_qemu" "vm" {
     tag    = var.vlan_id == null ? 0 : var.vlan_id # 0 = untagged (VLAN1)
   }
 
+  # 2 枚目の NIC（任意。段階 3b で vm-omada を VLAN10 に移す前の、並行運用用）。ゲートウェイは付けない
+  dynamic "network" {
+    for_each = var.extra_nic == null ? [] : [var.extra_nic]
+    content {
+      id     = 1
+      model  = "virtio"
+      bridge = var.bridge
+      tag    = network.value.vlan_id
+    }
+  }
+
   ipconfig0  = "ip=${var.ip_address},gw=${var.gateway}"
+  ipconfig1  = var.extra_nic == null ? null : "ip=${var.extra_nic.ip}"
   nameserver = var.nameserver
   sshkeys    = trimspace(var.ssh_public_key)
   tags       = join(",", var.tags)
