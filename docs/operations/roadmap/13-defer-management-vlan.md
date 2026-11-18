@@ -5,7 +5,8 @@
 **状態:**
 
 - **採用（未適用）**: 段階 3 の範囲の変更。決めたことは [ADR-0028](../../adr/0028-defer-management-vlan10.md)、[VLAN 設計](../../architecture/08-vlan-design.md#切り替え方式-一斉切り替え)、[移行計画](10-er605-sg2210p-migration-plan.md)の段階 3 に移した。この文書には、二重に書かない。
-- **検討中**: 段階 3b（管理系を VLAN10 へ移す作業）の前提と、ACL を絞る日の前に決める未決事項（[ADR-0029](../../adr/0029-stage3-acl-allow-all-then-tighten.md)）。下に書く。
+- **採用（未適用）**: 段階 3b の順序（**機器を先に VLAN10 へ移し、そのあとコントローラーを移す**。2026-11-19。[ADR-0031](../../adr/0031-stage3b-devices-before-controller.md)、手順は[段階 3b の作業](../runbooks/23-network-stage-3b-management-vlan10.md)）。下の「確かめる順序」の記録は、この決定に至った経緯。
+- **検討中**: 段階 3b の時期と、ACL を絞る日の前に決める未決事項（[ADR-0029](../../adr/0029-stage3-acl-allow-all-then-tighten.md)）。下に書く。
 
 ## 最終形（確定）
 

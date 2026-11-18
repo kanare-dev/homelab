@@ -261,7 +261,7 @@ Omada コントローラー（`omada.lab.kanare.dev`）と Proxmox（`pve.lab.ka
 **段階 3b: 管理系の VLAN10 化**
 
 - 段階 3 のあと、時間のあるときに、単独の作業として行う（[ADR-0028](../adr/0028-defer-management-vlan10.md)）。管理系（Proxmox ホスト、`vm-omada`、ER605・SG2210P）を、今の LAN から Management（VLAN10）へ移す。最終形は、[配置の方針](#配置の方針)と [IP アドレス一覧](09-ip-addresses.md)のとおり。
-- 前提は、機器の接続先（コントローラーの住所）を直す手段を整えること。できれば、IP ではなくホスト名にする。手段と順序は未決（[前提と未決事項](../operations/roadmap/13-defer-management-vlan.md)）。
+- 順序は、**機器を先に VLAN10 へ移し、そのあとコントローラーを移す**（[ADR-0031](../adr/0031-stage3b-devices-before-controller.md)。2026-11-18 の実機の試験で、機器が旧 LAN にいる間にコントローラーの住所だけを動かす方式は、成功しなかったため）。SG2210P（`10.77.10.2`）→「デバイス管理アクセス」で新しい住所を伝える → ER605 → `vm-omada` を VLAN10 の 1 枚にする。手順は[段階 3b の作業](../operations/runbooks/23-network-stage-3b-management-vlan10.md)。時期と、Proxmox ホストの移動は未決（[前提と未決事項](../operations/roadmap/13-defer-management-vlan.md)）。
 - 戻し方: 管理系を今の LAN に戻す。旧アドレスは、移行が済むまで残す。
 
 **段階 4: AP 導入**
