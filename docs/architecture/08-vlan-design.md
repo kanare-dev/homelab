@@ -98,10 +98,10 @@ VLAN ごとのサブネット・ゲートウェイ・DHCP プール、アドレ�
 
 ## 配置の方針
 
-- **Proxmox ホストは Management に置く。** 管理面（`:8006`）が VM と同じネットワークに載らない。ホストの IP は、タグ付きの `vmbr0.10`（`10.77.10.10/24`）に付ける。`vmbr0` は VLAN-aware で、IP を持たない。**ただし、段階 3 の間は、ホストを今の LAN（`192.168.11.10`、`vmbr0`、タグなし）のまま置き、`vmbr0.10` への移動は段階 3b で行う**（[ADR-0028](../adr/0028-defer-management-vlan10.md)）。
+- **Proxmox ホストは Management に置く。** 管理面（`:8006`）が VM と同じネットワークに載らない。ホストの IP は、タグ付きの `vmbr0.10`（`10.77.10.10/24`）に付ける。`vmbr0` は VLAN-aware で、IP を持たない。**2026-11-19 に、旧 `192.168.11.10`（`vmbr0`、タグなし）から `vmbr0.10`（`10.77.10.10`）へ移した**（[ADR-0028](../adr/0028-defer-management-vlan10.md)、[手順書 24](../operations/runbooks/24-pve-move-to-vmbr0-10.md)）。
 - **VM は VLAN タグ付きで割り当てる。** Proxmox のブリッジ（`vmbr0`）を VLAN-aware にし、VM ごとに VLAN ID を指定する。Terraform の VM モジュールに `vlan_id` を持たせる。
-- **スイッチの Proxmox 向けポートは trunk で、全 VLAN をタグ付きにする**（判断の記録: [ADR-0023](../adr/0023-proxmox-trunk-all-tagged.md)）。Management・Servers・Lab・IoT・DMZ を tagged で通し、native（untagged）は未使用の VLAN1 にする。全 VM は VLAN ID を必ず指定する（Management の `vm-omada` も `tag=10`）。タグなしの通信は、どこの VLAN にも入らない。**段階 3 の間は、native の VLAN1 を、ホストと `vm-omada`（タグなし）が使う**（段階 3b まで。[ADR-0028](../adr/0028-defer-management-vlan10.md)）。
-- **Omada コントローラーは Management の VM（または LXC）に置く。** 管理機器と同じ面に置き、Trusted・Servers・Lab から直接触れないようにする。**段階 3b までは、今の LAN（`192.168.11.12`）に置く**（[ADR-0028](../adr/0028-defer-management-vlan10.md)）。
+- **スイッチの Proxmox 向けポートは trunk で、全 VLAN をタグ付きにする**（判断の記録: [ADR-0023](../adr/0023-proxmox-trunk-all-tagged.md)）。Management・Servers・Lab・IoT・DMZ を tagged で通し、native（untagged）は未使用の VLAN1 にする。全 VM は VLAN ID を必ず指定する（Management の `vm-omada` も `tag=10`）。タグなしの通信は、どこの VLAN にも入らない。段階 3 の間は、native の VLAN1 を、ホストと `vm-omada`（タグなし）が使っていたが、2026-11-19 に、どちらも VLAN10（タグ付き）へ移り、**いまは、native の VLAN1 を使うものが無い**（[ADR-0032](../adr/0032-merge-default-network-into-management-vlan10.md) で、native を `Blackhole` に変える）。
+- **Omada コントローラーは Management の VM（または LXC）に置く。** 管理機器と同じ面に置き、Trusted・Servers・Lab から直接触れないようにする。**2026-11-19 から、`10.77.10.3`（VLAN10）に置いている**（[ADR-0028](../adr/0028-defer-management-vlan10.md)、[ADR-0031](../adr/0031-stage3b-devices-before-controller.md)）。
 - **DMZ の VM は、Proxmox の同じブリッジに載せる場合、ホスト侵害のリスクが VLAN 分離だけでは消えない。** Proxmox の管理面を DMZ に出さず、仮想 NIC とブリッジの設定を確認する。DMZ の置き場所は、まず同じホストで検証し、将来は別の機器（小型 PC やラズパイなど）にする（未決事項）。
 - **`vm-dev` は Lab、`vm-code` と `vm-apps` は Servers に置く。** 開発環境と一時的な検証用 VM は、常時稼働のサーバーと分け、Lab から他の VLAN へは入れないようにする。`vm-code` は常時稼働にしたいので Servers に置く。他の VM とは性質が違うので、`.30–.39` の「開発・作業用」の帯に置く（番号の整理のためで、隔離ではない。[ADR-0027](../adr/0027-servers-octet-bands-and-emergency-dns.md)）。
 - **テレビは IoT に置く。** ベンダーのクラウドに繋がる機器であり、他の VLAN から隔離したい。ただし AirPlay・Cast の発見のために mDNS の中継が必要（次節）。
@@ -263,6 +263,7 @@ Omada コントローラー（`omada.lab.kanare.dev`）と Proxmox（`pve.lab.ka
 - 段階 3 のあと、時間のあるときに、単独の作業として行う（[ADR-0028](../adr/0028-defer-management-vlan10.md)）。管理系（Proxmox ホスト、`vm-omada`、ER605・SG2210P）を、今の LAN から Management（VLAN10）へ移す。最終形は、[配置の方針](#配置の方針)と [IP アドレス一覧](09-ip-addresses.md)のとおり。
 - 順序は、**機器を先に VLAN10 へ移し、そのあとコントローラーを移す**（[ADR-0031](../adr/0031-stage3b-devices-before-controller.md)。2026-11-18 の実機の試験で、機器が旧 LAN にいる間にコントローラーの住所だけを動かす方式は、成功しなかったため）。SG2210P（`10.77.10.2`）→「デバイス管理アクセス」で新しい住所を伝える → ER605 → `vm-omada` を VLAN10 の 1 枚にする。手順は[段階 3b の作業](../operations/runbooks/23-network-stage-3b-management-vlan10.md)。時期と、Proxmox ホストの移動は未決（[前提と未決事項](../operations/roadmap/13-defer-management-vlan.md)）。
 - 戻し方: 管理系を今の LAN に戻す。旧アドレスは、移行が済むまで残す。
+- **実施の状況（2026-11-19）**: SG2210P（`10.77.10.2`）、`vm-omada`（`10.77.10.3`、NIC 1 枚）、ER605（コントローラーへの接続先が `10.77.10.3`。ER605 自身の LAN は `192.168.11.1`）を移した。残りは、Proxmox ホスト（`vmbr0.10`、[手順書 24](../operations/runbooks/24-pve-move-to-vmbr0-10.md)）と、**既定のネットワークの VLAN10 への統合**（[ADR-0032](../adr/0032-merge-default-network-into-management-vlan10.md)。採用、未適用。既定のネットワークを VLAN10 `10.77.10.1/24` にして Management と統合し、VLAN1 を使わない。p2 と空きポートの native は、どこにも繋がない `Blackhole`（VLAN 999）にする。手順は[手順書 25](../operations/runbooks/25-merge-default-network-into-vlan10.md)）。経緯は[ロードマップ 13](../operations/roadmap/13-defer-management-vlan.md)。
 
 **段階 4: AP 導入**
 
@@ -321,7 +322,7 @@ Buffalo WSR-1800AX4P は VLAN に対応していない。AP モードにはで�
 ### 切り替え後
 
 - Prometheus の scrape 対象、アラート、`docs/services/platform/monitoring.md` を更新し、Omada コントローラーの死活監視を追加する。
-- ドキュメントを更新し、旧アドレスを残さない。構成図も直す（to-be の構成図 `to-be-diagram/` を確認し、現状の構成図 `as-is-diagram/` は、段階 3b の完了後に削除する）。
+- ドキュメントを更新し、旧アドレスを残さない。構成図も直す（to-be の構成図 `to-be-diagram/` を確認し、現状の構成図 `as-is-diagram/` は、削除せず、実機に合わせて更新する）。
 - Buffalo は段階 4（AP の導入）まで AP として使い続ける。
 
 ## 未決事項

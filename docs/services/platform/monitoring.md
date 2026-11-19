@@ -5,7 +5,7 @@ homelab の監視とアラート通知の仕組み。2026-10-22 の障害（[INC
 ## 全体像
 
 ```text
- pve (192.168.11.10)
+ pve (10.77.10.10)
   ├─ node_exporter :9100 ─────────────┐
   └─ pve-storage-metrics.timer (1分毎)│  thin pool Data%/Meta%, VM 稼働状態, io-error
        -> /var/lib/node_exporter/textfile/pve_storage.prom
@@ -257,7 +257,7 @@ VM 停止の検知は、`TargetDown`（VM 内 OS の応答なし）が 3 分、`
 
 ```bash
 ssh pve 'd=$(mktemp -d); cat > $d/s.sh; bash $d/s.sh $d && grep -cE " $" $d/pve_storage.prom; rm -rf $d' < ansible/roles/proxmox/files/pve-storage-metrics.sh
-curl -s http://192.168.11.10:9100/metrics | grep node_textfile_scrape_error   # 0 であること
+curl -s http://10.77.10.10:9100/metrics | grep node_textfile_scrape_error   # 0 であること
 ```
 
 2026-10-22 にボリューム別メトリクスを追加した際、非アクティブなテンプレートボリュームの空値で約 6 分間メトリクスが途絶えた（アラートの待ち時間内で発報はなし）。収集が止まった場合は `PveStorageMetricsStale` / `PveStorageMetricsMissing` が検知する。
@@ -299,7 +299,7 @@ curl -XPOST https://alertmanager.lab.kanare.dev/api/v2/alerts -H 'Content-Type: 
 | 証明書の残り日数 | Prometheus で `(probe_ssl_earliest_cert_expiry - time()) / 86400` |
 | scrape 先の状態 | `https://prometheus.lab.kanare.dev/targets` |
 | Slack 送信の成否 | `curl -s https://alertmanager.lab.kanare.dev/metrics \| grep alertmanager_notifications` |
-| PVE の生メトリクス | `curl -s http://192.168.11.10:9100/metrics \| grep -E '^(lvm_thin\|pve_)'` |
+| PVE の生メトリクス | `curl -s http://10.77.10.10:9100/metrics \| grep -E '^(lvm_thin\|pve_)'` |
 
 ### Webhook URL の再発行・変更
 

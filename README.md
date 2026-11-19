@@ -16,17 +16,17 @@ Proxmox 上に複数 VM を構築し、Terraform + Ansible + Docker Compose で�
 
 ![現状の構成図](docs/diagrams/as-is-diagram/as-is-diagram.png)
 
-上は、現状（as-is。段階 3 の後。管理系は今の LAN）の構成（段階 3b の完了後に、この図は削除する）。最終形（to-be。管理系も VLAN10）は[to-be の構成図](docs/diagrams/to-be-diagram/to-be-diagram.png)、配線は[物理構成図](docs/diagrams/physical-diagram/physical-diagram.png)にある。
+上は、現状（as-is。常に実機の状態を表す）の構成。目指す姿（to-be。管理系は VLAN10）は[to-be の構成図](docs/diagrams/to-be-diagram/to-be-diagram.png)、配線は[物理構成図](docs/diagrams/physical-diagram/physical-diagram.png)にある。
 
 最新の構成図（テキスト版）と、VM ごとの割当（CPU・メモリ・ディスク）は [システム構成・環境](docs/architecture/01-overview.md) を参照。
 
 | 名前 | VMID | IP | 状態 | 役割 | 主なサービス |
 | --- | --- | --- | --- | --- | --- |
-| `pve` | — | `192.168.11.10` | 常時起動 | ハイパーバイザ | Proxmox VE |
+| `pve` | — | `10.77.10.10` | 常時起動 | ハイパーバイザ | Proxmox VE |
 | `vm-infra` | `111` | `10.77.20.10` | 常時起動 | インフラ基盤 | AdGuard Home, Unbound, CoreDNS, Caddy, Tailscale |
 | `vm-monitoring` | `113` | `10.77.20.11` | 常時起動 | 監視 | Prometheus, Alertmanager, Grafana, blackbox-exporter |
 | `vm-apps` | `120` | `10.77.20.20` | 常時起動 | アプリ | Homepage, Home Assistant, n8n, FreshRSS |
-| `vm-omada` | `112` | `192.168.11.12` | 常時起動 | ネットワーク機器の管理 | Omada コントローラー |
+| `vm-omada` | `112` | `10.77.10.3` | 常時起動 | ネットワーク機器の管理 | Omada コントローラー |
 | `vm-code` | `122` | `10.77.20.30` | 常時起動 | 常用リモート開発 | Claude Code, CloudCLI, code-server |
 | `vm-dev` | `121` | `10.77.40.10` | 任意起動 | 開発・実験 | playground |
 
@@ -136,7 +136,7 @@ homelab/
 
 - [Terraform](https://www.terraform.io/) >= 1.5
 - [Ansible](https://docs.ansible.com/) >= 2.15
-- Proxmox VE 9.x が `192.168.11.10` で稼働済み
+- Proxmox VE 9.x が `10.77.10.10` で稼働済み
 - 対象 VM に SSH 鍵認証でログインできること
 
 > [!IMPORTANT]

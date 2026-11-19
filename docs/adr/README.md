@@ -37,6 +37,7 @@
 | [0029](0029-stage3-acl-allow-all-then-tighten.md) | 段階 3 は ACL を全許可のまま切り替え、絞るのは別の日にする | 採用（未適用） | 2026-11-10 |
 | [0030](0030-stage3-no-rollback-deadline.md) | 段階 3 は戻す時刻を決めず、完了するまで作業する | 採用（未適用） | 2026-11-10 |
 | [0031](0031-stage3b-devices-before-controller.md) | 段階 3b は、機器を先に VLAN10 へ移し、そのあとコントローラーを移す | 採用（未適用） | 2026-11-19 |
+| [0032](0032-merge-default-network-into-management-vlan10.md) | 既定のネットワークを Management（VLAN10）に統合し、VLAN1 を使わない | 採用（未適用） | 2026-11-19 |
 
 ## 書き方
 

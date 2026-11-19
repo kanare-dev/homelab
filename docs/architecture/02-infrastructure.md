@@ -6,7 +6,7 @@
 
 | 機器 | モデル | スペック | IP | 備考 |
 | --- | --- | --- | --- | --- |
-| サーバー | Lenovo ThinkCentre M70q Tiny | i5-10400T / 24GB RAM / 256GB NVMe | `192.168.11.10` | Proxmox VE ホスト。物理 NIC は 1 つ |
+| サーバー | Lenovo ThinkCentre M70q Tiny | i5-10400T / 24GB RAM / 256GB NVMe | `10.77.10.10`（VLAN10） | Proxmox VE ホスト。物理 NIC は 1 つ |
 | ルーター | TP-Link ER605 V2 | — | `192.168.11.1` | 集合住宅の共用ルーターの下に置く（二重 NAT）。2026-11-06 に、Buffalo から交換した。Omada コントローラー（`vm-omada`）が管理する |
 | スイッチ | TP-Link SG2210P | — | DHCP（ER605 から） | PoE+ スイッチ。ER605 の p2 に繋ぎ、Proxmox・Buffalo・ディスプレイを収める。Omada コントローラーが管理する |
 | AP | Buffalo WSR-1800AX4P | — | `10.77.30.50`（固定。Trusted。2026-11-17 に `192.168.11.2` から変更） | AP（ブリッジ）モード。Wi-Fi の入口だけを担う（段階 4 で退役予定） |
@@ -22,7 +22,7 @@ Proxmox VE 上に Terraform で VM を作り、Ansible で設定し、各 VM で
 | 名前 | VMID | IP | vCPU | RAM | ディスク | 起動 | 役割 | 主なサービス |
 | --- | --- | --- | ---: | ---: | ---: | --- | --- | --- |
 | `vm-infra` | 111 | `10.77.20.10`（VLAN20） | 2 | 1.5GB | 20G | 自動（順序 1） | インフラ基盤 | AdGuard Home, Unbound, CoreDNS, Caddy, Tailscale |
-| `vm-omada` | 112 | `192.168.11.12`（今の LAN。段階 3b まで） | 2 | 4GB | 20G | 自動（順序 6） | ネットワーク機器の管理 | Omada コントローラー（Docker。ER605・SG2210P を管理） |
+| `vm-omada` | 112 | `10.77.10.3`（Management、VLAN10。2026-11-19 から） | 2 | 4GB | 20G | 自動（順序 6） | ネットワーク機器の管理 | Omada コントローラー（Docker。ER605・SG2210P を管理） |
 | `vm-monitoring` | 113 | `10.77.20.11`（VLAN20） | 2 | 2GB | 40G | 自動（順序 2） | 監視 | Prometheus, Alertmanager, Grafana, blackbox-exporter |
 | `vm-apps` | 120 | `10.77.20.20`（VLAN20） | 2 | 4GB | 40G | 自動（順序 3） | アプリ | Homepage, Home Assistant, n8n, FreshRSS |
 | `vm-dev` | 121 | `10.77.40.10`（VLAN40） | 2 | 1GB | 10G | 手動 | 破壊検証 | playground |

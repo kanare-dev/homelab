@@ -2,7 +2,7 @@
 
 ## Proxmox ホストと全 VM に、LAN から届かない
 
-Mac から `192.168.11.10`（Proxmox）、`.12`（`vm-omada`）、`10.77.20.x`（VM）などに届かず、ER605（`192.168.11.1`）と `1.1.1.1` には届く。外部の Heartbeat が途絶し、Slack には何も届かない。**前回（[INC-2026-10-25](../incidents/2026-10-25-nic-hardware-unit-hang.md)）は NIC の送信停止、今回（[INC-2026-11-08](../incidents/2026-11-08-sg2210p-native-vlan-overwrite.md)）は SG2210P の p2 の VLAN 設定の書き換え**だった。症状が似ているので、次の順で切り分ける。
+Mac から `10.77.10.10`（Proxmox）、`10.77.10.3`（`vm-omada`）、`10.77.20.x`（VM）などに届かず、ER605（`192.168.11.1`）と `1.1.1.1` には届く。外部の Heartbeat が途絶し、Slack には何も届かない。**前回（[INC-2026-10-25](../incidents/2026-10-25-nic-hardware-unit-hang.md)）は NIC の送信停止、今回（[INC-2026-11-08](../incidents/2026-11-08-sg2210p-native-vlan-overwrite.md)）は SG2210P の p2 の VLAN 設定の書き換え**だった。症状が似ているので、次の順で切り分ける。
 
 **直前に、SG2210P・ER605・Omada のネットワークやポートの設定を触ったか**を、まず思い出す。触っていれば、そちらが先に疑わしい。
 
@@ -22,7 +22,7 @@ Mac から `192.168.11.10`（Proxmox）、`.12`（`vm-omada`）、`10.77.20.x`�
 
 1. Proxmox の LAN ケーブルを、SG2210P の p2 から外し、**ER605 の LAN ポート**（WAN/LAN3 など。Native が Default で、タグなし）に、直接挿す。SG2210P を迂回する。
 2. `ping -c 3 192.168.11.1`（ホストから）。届けば、原因は SG2210P 側。`vm-omada` も戻る。
-3. コントローラーに、**IP で**入る（`https://192.168.11.12:8043`。証明書の警告は進む。`omada.lab` は DNS に依存するので、DNS が落ちているときは使えない）。
+3. コントローラーに、**SSH のトンネルで**入る（`ssh -N -L 18043:localhost:8043 vm-omada` を実行して、`https://localhost:18043` を開く。証明書の警告は進む）。`omada.lab` は DNS（と Caddy）に依存するので、DNS が落ちているときは使えない。`vm-omada` の UFW は、8043 を Caddy（`vm-infra`）と Management・ER605 だけに許可していて、Trusted の Mac から `https://10.77.10.3:8043` に直接は入れない（2026-11-19 に確認）。
 4. SG2210P の p1〜p4 の VLAN Configuration（Devices → `sg2210p` → Ports → Edit Port）を見て、**Native が Default(1) か、Network Tags が Allow All か**を確認し、直す。
 5. 直したら、ケーブルを p2 に戻し、`ping -c 3 192.168.11.1` を確認する。
 
@@ -33,7 +33,7 @@ Mac から `192.168.11.10`（Proxmox）、`.12`（`vm-omada`）、`10.77.20.x`�
    $ ping 10.77.20.XX
 
 2. Proxmox Web UI で VM のステータス確認
-   → https://192.168.11.10:8006
+   → https://10.77.10.10:8006
 
 3. Proxmox コンソールで起動状況を確認
    → Web UI > VM > Console
@@ -43,10 +43,10 @@ Mac から `192.168.11.10`（Proxmox）、`.12`（`vm-omada`）、`10.77.20.x`�
      SSH はパスワード認証を無効にしている（鍵のみ）。
 
 4. VM を再起動
-   $ ssh root@192.168.11.10 "qm reboot <vmid>"
+   $ ssh root@10.77.10.10 "qm reboot <vmid>"
 
 5. VM を強制停止・起動
-   $ ssh root@192.168.11.10 "qm stop <vmid> && qm start <vmid>"
+   $ ssh root@10.77.10.10 "qm stop <vmid> && qm start <vmid>"
 ```
 
 ## サービスが応答しない

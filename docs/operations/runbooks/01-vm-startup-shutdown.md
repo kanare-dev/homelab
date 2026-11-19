@@ -37,14 +37,14 @@ terraform apply
 
 ```bash
 # 個別起動（Proxmox ホスト上）
-ssh root@192.168.11.10 "qm start <vmid>"
+ssh root@10.77.10.10 "qm start <vmid>"
 
 # 個別停止（ACPI シャットダウン）
-ssh root@192.168.11.10 "qm shutdown <vmid>"
+ssh root@10.77.10.10 "qm shutdown <vmid>"
 
 # 全 VM を起動順に一括起動（vm-dev は onboot=false のため対象外）
 for vmid in 111 113 120 122; do
-  ssh root@192.168.11.10 "qm start $vmid"
+  ssh root@10.77.10.10 "qm start $vmid"
   sleep 30
 done
 ```

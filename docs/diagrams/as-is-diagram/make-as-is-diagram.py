@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""現状（as-is）の構成図を、単体の HTML で作る。段階 3 の後（2026-11-17〜）の、実機のとおりの構成。管理系（Proxmox ホスト、`vm-omada`、ER605・SG2210P）は、今の LAN（VLAN1、`192.168.11.0/24`）に残っている（段階 3b まで。ADR-0028）。
+"""現状（as-is）の構成図を、単体の HTML で作る。段階 3 の後（2026-11-17〜）の、実機のとおりの構成。`vm-omada`（`10.77.10.3`）と SG2210P（`10.77.10.2`）は、2026-11-19 に Management（VLAN10）へ移った（ADR-0031）。Proxmox ホスト（`10.77.10.10`）も、2026-11-19 に VLAN10 へ移った。ER605 の既定の LAN だけが、今の LAN（VLAN1、`192.168.11.0/24`）に残っている。
 
 最終形（to-be）は ../to-be-diagram/。この図は、to-be-diagram のスクリプトを写して、配置と文字を現状に合わせたもの。見た目の決まりと部品は同じ。
-実機を変えたら（IP、VLAN、ポート）、この図を直す。段階 3b が済んだら、to-be-diagram と同じ形になるので、この図とスクリプトは削除する。
+実機を変えたら（IP、VLAN、ポート）、この図を直す。この図は、削除せず、常に実機の状態を表す。to-be-diagram（目指す姿。随時更新する）を追いかけ、実機が追いつくと、ほぼ同じ形になる。
 
 この図の本体はこのスクリプト。下の「配置」の座標と文字から HTML（as-is-diagram.html。ロゴとフォントを埋め込む）を組み、
 Markdown から参照する PNG（as-is-diagram.png、ダーク版は as-is-diagram-dark.png）も書き出す。何度実行しても結果は同じ。
@@ -269,7 +269,7 @@ def layout():
     text("ER605 p2 ⇔ SG2210P p1: trunk（untagged: VLAN1 / tagged: VLAN10/20/30/40/50/60/70）", 890, 320, 700, 40, cls="el")
 
     icon("hardware/tplink-sg2210p.png", 760, 380, 240, 80, max_px=700)
-    text(f"<b>TP-Link SG2210P</b><br>{ip('192.168.11.x')}（今の LAN。ER605 の DHCP）<br>p1: ER605 / p2: pve / p3: Buffalo / p4: Dell U2725QE /<br>p5: 空き / p6: 緊急用の入口（native VLAN1）/ p7–p8: 空き", 1010, 380, 690, 80)
+    text(f"<b>TP-Link SG2210P</b><br>{ip('10.77.10.2')}（VLAN10。2026-11-19〜）＋ {ip('192.168.11.x')}（旧。残している）<br>p1: ER605 / p2: pve / p3: Buffalo / p4: Dell U2725QE /<br>p5: 空き / p6: 緊急用の入口（native VLAN1）/ p7–p8: 空き", 1010, 380, 690, 80)
 
     # Proxmox ---------------------------------------------------------------------------
     gx, gy = 40, 640
@@ -312,17 +312,17 @@ def layout():
     text("<b>VLAN20 Servers</b>", sx + 10, sy + 5, 400, 30)
 
     y = sy
-    # 今の LAN（VLAN1）: 管理系。vm-omada はここ（段階 3b まで）
-    h = vm(1, rx + 20, y + 50, "vm-omada", "192.168.11.12", "Ubuntu Server 24.04", [("row", "network/omada-controller.png", "Omada Controller")])
+    # Management（VLAN10）: vm-omada（2026-11-19〜。NIC 1 枚。ER605・SG2210P もここにつなぐ）
+    h = vm(10, rx + 20, y + 50, "vm-omada", "10.77.10.3", "Ubuntu Server 24.04", [("row", "network/omada-controller.png", "Omada Controller")])
     mgmt_h = 50 + h + 20
-    zone(1, rx, y, 340, mgmt_h)
-    text("<b>VLAN1 今の LAN</b>　管理系", rx + 10, y + 5, 330, 30)
+    zone(10, rx, y, 340, mgmt_h)
+    text("<b>VLAN10 Management</b>", rx + 10, y + 5, 320, 30)
     y += mgmt_h + 20
-    # Management（VLAN10）: 段階 3b で使う。今は空
-    zone(10, rx, y, 340, 90)
-    text("<b>VLAN10 Management</b>（今は空）", rx + 10, y + 5, 320, 30)
-    text("段階 3b で、管理系を移す", rx + 20, y + 40, 300, 40)
-    y += 90 + 20
+    # 今の LAN（VLAN1）: VM は無い。Proxmox ホスト（pve）と ER605 の LAN だけ（段階 3b の残り）
+    zone(1, rx, y, 340, 110)
+    text("<b>VLAN1 今の LAN</b>（VM なし）", rx + 10, y + 5, 330, 30)
+    text("ER605 の既定の LAN だけ。<br>VLAN10 への統合が残る（ADR-0032）", rx + 20, y + 40, 310, 60)
+    y += 110 + 20
     # Lab
     h1 = vm(40, rx + 20, y + 50, "vm-dev", "10.77.40.10", "Ubuntu Server 24.04", [("row", *NODE)])
     lab_h = 50 + h1 + 20
@@ -338,10 +338,10 @@ def layout():
     left_bottom = sy + servers_h
     gh = max(left_bottom, y) - gy + 20 + 60
     grp = []
-    frame(gx, gy, 1060, gh, "z z1", to=grp)  # Proxmox ホストは今の LAN（VLAN1）の色
+    frame(gx, gy, 1060, gh, "z z10", to=grp)  # Proxmox ホストは Management（VLAN10）の色
     back.insert(gi, grp[0])
     icon("platform/proxmox.png", gx + 20, gy + 20, 40, 40, max_px=120)
-    text(f"{name_ip('pve', '192.168.11.10')}<br><i>vmbr0</i>（untagged: VLAN1。VLAN-aware）<br>Proxmox 9.1（Debian 13 ベース）", gx + 70, gy + 20, 303, 60)
+    text(f"{name_ip('pve', '10.77.10.10')}<br><i>vmbr0.10</i>（tagged: VLAN10）<br>Proxmox 9.1（Debian 13 ベース）", gx + 70, gy + 20, 303, 60)
     icon(None, 780, 620, 40, 40, svg=mono_pair(ethernet_svg))
     text("nic0", 830, 635, 60, 20)
     row(*NODE, gx + 20, gy + gh - 50, 220)
