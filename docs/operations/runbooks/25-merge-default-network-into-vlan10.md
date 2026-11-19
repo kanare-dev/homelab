@@ -1,6 +1,6 @@
 # 既定のネットワークを Management（VLAN10）に統合する
 
-**状態: 草案（未実施）。** [ADR-0032](../../adr/0032-merge-default-network-into-management-vlan10.md) の実施の手順。既定のネットワーク（VLAN1、`192.168.11.0/24`）を、VLAN10（`10.77.10.1/24`）にして、別にある「Management」ネットワークと統合する。VLAN1 は使わなくなる。**ER605 の全面停止（約 30〜40 分）を伴う。** 今夜（2026-11-19）の ER605 の再採用（[ロードマップ 13](../roadmap/13-defer-management-vlan.md#er605-の再採用の手順と結果2026-11-19-に実施)）と同じ形の作業。
+**状態: 草案（未実施）。** [ADR-0032](../../adr/0032-merge-default-network-into-management-vlan10.md) の実施の手順。既定のネットワーク（VLAN1、`10.77.1.0/24`。2026-11-19 の夜に、`192.168.11.0/24` から付け替えた）を、VLAN10（`10.77.10.1/24`）にして、別にある「Management」ネットワークと統合する。VLAN1 は使わなくなる。**ER605 の全面停止（約 30〜40 分）を伴う。** 今夜（2026-11-19）の ER605 の再採用（[ロードマップ 13](../roadmap/13-defer-management-vlan.md#er605-の再採用の手順と結果2026-11-19-に実施)）と同じ形の作業。
 
 - **先に、[Proxmox ホストの移動](24-pve-move-to-vmbr0-10.md)を済ませる。** ホストが p2 のタグなし（VLAN1）に居る間は、p2 の native を `Blackhole` にできない。
 - 秘密の値と、機器の MAC アドレスは書かない（台帳へ）。ER605 の管理者のパスワードは、再採用のたびに作り直す（台帳へ）。
@@ -49,8 +49,10 @@ Mac を p6 に繋ぎ、`https://10.77.10.3:8043`（サイトのビュー `kanare
    - SG2210P は、同じ VLAN10 の L2 なので、コントローラーから再採用できる（本体のリセットが要る。リセットの秒数は、[ER605 のときの報告](https://community.tp-link.com/en/home/forum/topic/598154)を参考に、確認する）。
    - 消せないときは、先に、SG2210P の管理 VLAN の設定を外す方法を、画面で探す。
 2. **既定のネットワーク（Default）を編集する**: 名前 `Management`、VLAN `10`、IP/マスク `10.77.10.1/24`、DHCP サーバーは、**緊急用の範囲 `10.77.10.240`〜`.250`、リース 60 分、DNS `10.77.10.1`**。
-3. **SG2210P の管理インターフェース**: 「デバイス → sg2210p → 設定 → インターフェース」で、`Management`（VLAN10、新しい既定のネットワーク）の管理 VLAN を有効にし、**静的 `10.77.10.2/24`、GW・DNS `10.77.10.1`**。旧 VLAN1 のインターフェース（`192.168.11.62`）は、無効にする（もう無い）。
+3. **SG2210P の管理インターフェース**: 「デバイス → sg2210p → 設定 → インターフェース」で、`Management`（VLAN10、新しい既定のネットワーク）の管理 VLAN を有効にし、**静的 `10.77.10.2/24`、GW・DNS `10.77.10.1`**。旧 VLAN1 のインターフェース（`10.77.1.x`、DHCP）は、無効にする（もう無い）。
 4. p1（ER605 との接続）の native が、Management(10) の untagged になっていることを確認する（p1 の native は Default(1) で、既定のネットワークが VLAN10 になれば、VLAN10 になる見込み）。
+
+> 参考（2026-11-19 の夜、既定の LAN を `10.77.1.0/24` に付け替えたときの実績）: **ER605 が接続中に、既定のネットワークの IP を変えると、ER605 は約 2 分で新しい住所から再接続するが、Omada の画面は、約 5 分「適用中」のまま**になる（応答待ちのタイムアウト）。UFW に、新しい送信元の許可を**先に**足しておく。今回は、ER605 を初期化している間に直すので、この問題は出ない。
 
 ## 4. ER605 を、VLAN10 だけで、再採用する
 
@@ -73,9 +75,7 @@ Mac を p6 に繋ぎ、`https://10.77.10.3:8043`（サイトのビュー `kanare
 
 ## 6. 後始末
 
-- [ ] `vm-omada` の UFW から、`192.168.11.1`（ER605 の旧 LAN の住所）の許可を消す（`ansible/inventory/group_vars/omada/vars.yml`。ER605 の送信元が、`10.77.10.1`（`10.77.10.0/24` の許可の中）になったため）。
-- [ ] Tailscale の経路（`ansible/playbooks/infra.yml` の `--advertise-routes`）から、`192.168.11.0/24` を外す。Admin Console で、旧経路を外す。
-- [ ] **旧 LAN（`192.168.11.0/24`）を許可元にした、UFW のルールを直す**（`ansible/inventory/group_vars/code/vars.yml`、`infra/vars.yml`、ほか。Trusted の `10.77.30.0/24` が、必要なら足す）。
+- [ ] `vm-omada` の UFW から、`10.77.1.1`（ER605 の今の LAN の住所）の許可を消す（`ansible/inventory/group_vars/omada/vars.yml`。ER605 の送信元が、`10.77.10.1`（`10.77.10.0/24` の許可の中）になったため）。
 - [ ] 文書を直す: [VLAN 設計](../../architecture/08-vlan-design.md)、[IP アドレス一覧](../../architecture/09-ip-addresses.md)、[ER605 の設定](../../hardware/er605/settings.md)、[SG2210P の設定](../../hardware/sg2210p/settings.md)（ポート表）、[Omada コントローラー](../../services/network/omada-controller.md)、[システム全体像](../../architecture/01-overview.md)、`README.md`。ロードマップ 13、ADR-0032 のステータスを「採用（実施済み）」に。
 - [ ] as-is の構成図を直す（VLAN1 のゾーンを無くし、ER605 の住所を `10.77.10.1`、p2 の native を `Blackhole` に）。**as-is の構成図は、削除しない**（常に実機の状態を表す）。to-be の構成図（`to-be-diagram/`）も、ADR-0032 の最終形（VLAN1 なし、p2 の native `Blackhole`、p6 の緊急用の入口）に合わせて、更新する。
 
