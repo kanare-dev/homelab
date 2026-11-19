@@ -245,7 +245,7 @@ def layout():
     out.append(f'<div class="tile" style="{pos(852, 17, 56, 56)}"></div>')
     icon(None, 860, 25, 40, 40, svg=INTERNET[0])
     text("Internet", 920, 30, 100, 30)
-    edge([(880, 73), (880, 200)])  # タイルの下から ER605 の上まで、1 本で繋ぐ
+    edge([(880, 73), (880, 219)])  # タイルの下から ER605 の上まで、1 本で繋ぐ
     text(f"建物の共用ルーター {ip('172.22.0.1')}（二重 NAT）", 520, 94, 350, 24, align="right", cls="el")
     text("WAN（DHCP）", 750, 128, 120, 24, align="right", cls="el")
 
@@ -260,7 +260,7 @@ def layout():
          f"外出先: Tailscale が {ip('10.77.20.0/24')} と {ip('10.77.40.0/24')} だけを広告（Management には届かない）。",
          40, 250, 560, 140)
 
-    icon("hardware/tplink-er605.png", 760, 200, 240, 80, max_px=700)
+    icon("hardware/tplink-er605.png", 789, 219, 182, 61, max_px=700)  # 実寸の幅の比（ER605 158mm : SG2210P 209mm ≒ 0.76）。下端は 280 のまま
     text(f"<b>TP-Link ER605 V2</b><br>{ip('10.77.10.1')}（VLAN10）<br>各 VLAN の GW（.1）・DHCP・ACL", 1010, 200, 330, 80)
     edge([(880, 280), (880, 380)], width=5)  # p1: trunk（太い線）
     text("ER605 p2 ⇔ SG2210P p1: trunk（untagged: VLAN10 / tagged: VLAN20/30/40/50/60/70）", 890, 320, 700, 40, cls="el")
