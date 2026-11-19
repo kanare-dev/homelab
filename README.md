@@ -22,7 +22,7 @@ Proxmox 上に複数 VM を構築し、Terraform + Ansible + Docker Compose で�
 
 | 名前 | VMID | IP | 状態 | 役割 | 主なサービス |
 | --- | --- | --- | --- | --- | --- |
-| `pve` | — | `192.168.11.10` | 常時起動 | ハイパーバイザ | Proxmox VE |
+| `pve` | — | `10.77.10.10` | 常時起動 | ハイパーバイザ | Proxmox VE |
 | `vm-infra` | `111` | `10.77.20.10` | 常時起動 | インフラ基盤 | AdGuard Home, Unbound, CoreDNS, Caddy, Tailscale |
 | `vm-monitoring` | `113` | `10.77.20.11` | 常時起動 | 監視 | Prometheus, Alertmanager, Grafana, blackbox-exporter |
 | `vm-apps` | `120` | `10.77.20.20` | 常時起動 | アプリ | Homepage, Home Assistant, n8n, FreshRSS |
@@ -136,7 +136,7 @@ homelab/
 
 - [Terraform](https://www.terraform.io/) >= 1.5
 - [Ansible](https://docs.ansible.com/) >= 2.15
-- Proxmox VE 9.x が `192.168.11.10` で稼働済み
+- Proxmox VE 9.x が `10.77.10.10` で稼働済み
 - 対象 VM に SSH 鍵認証でログインできること
 
 > [!IMPORTANT]

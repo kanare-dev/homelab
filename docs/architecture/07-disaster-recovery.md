@@ -65,7 +65,7 @@
 前提: Mac（または別の端末）で GitHub からクローンでき、age 秘密鍵が使える。
 
 1. **端末を用意する**: `brew install sops age terraform ansible`、`ansible-galaxy collection install -r ansible/requirements.yml`。age 秘密鍵を `~/Library/Application Support/sops/age/keys.txt` に復元し、`make secrets-check` で確認する（[運用 Runbook](../operations/runbooks/03-secrets.md#別の-mac-で復元する)）。SSH 鍵も復元する。
-2. **Proxmox VE を入れる**: 新しいハードウェアに Proxmox VE 8.x をインストールし、IP を `192.168.11.10` にする（LAN の IP 体系は変えない）。ストレージは `local-lvm`（thin pool）が使える構成にする。
+2. **Proxmox VE を入れる**: 新しいハードウェアに Proxmox VE 8.x をインストールし、IP を `10.77.10.10`（タグ付きの `vmbr0.10`、VLAN10。[手順書 24](../operations/runbooks/24-pve-move-to-vmbr0-10.md)）にする。`/etc/hosts` の `pve` の行も同じ IP にする。ストレージは `local-lvm`（thin pool）が使える構成にする。
 3. **テンプレートと API トークンを作る**: `terraform/proxmox/README.md` の手順で、cloud-init テンプレート（VMID 9000）と `terraform@pam` の API トークンを作る。トークンの値は `sops terraform/proxmox/secrets.sops.yml` で更新する。
 4. **ホストを構成する**: `make setup-proxmox`（収集スクリプト、node_exporter）。
 5. **VM を作る**: `terraform init && terraform plan && terraform apply`。state がない場合は新規作成になる（既存の VM が残っていると衝突するため、事前に確認する）。

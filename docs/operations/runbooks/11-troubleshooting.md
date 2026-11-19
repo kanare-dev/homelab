@@ -2,7 +2,7 @@
 
 ## Proxmox ホストと全 VM に、LAN から届かない
 
-Mac から `192.168.11.10`（Proxmox）、`.12`（`vm-omada`）、`10.77.20.x`（VM）などに届かず、ER605（`192.168.11.1`）と `1.1.1.1` には届く。外部の Heartbeat が途絶し、Slack には何も届かない。**前回（[INC-2026-10-25](../incidents/2026-10-25-nic-hardware-unit-hang.md)）は NIC の送信停止、今回（[INC-2026-11-08](../incidents/2026-11-08-sg2210p-native-vlan-overwrite.md)）は SG2210P の p2 の VLAN 設定の書き換え**だった。症状が似ているので、次の順で切り分ける。
+Mac から `10.77.10.10`（Proxmox）、`10.77.10.3`（`vm-omada`）、`10.77.20.x`（VM）などに届かず、ER605（`192.168.11.1`）と `1.1.1.1` には届く。外部の Heartbeat が途絶し、Slack には何も届かない。**前回（[INC-2026-10-25](../incidents/2026-10-25-nic-hardware-unit-hang.md)）は NIC の送信停止、今回（[INC-2026-11-08](../incidents/2026-11-08-sg2210p-native-vlan-overwrite.md)）は SG2210P の p2 の VLAN 設定の書き換え**だった。症状が似ているので、次の順で切り分ける。
 
 **直前に、SG2210P・ER605・Omada のネットワークやポートの設定を触ったか**を、まず思い出す。触っていれば、そちらが先に疑わしい。
 
@@ -33,7 +33,7 @@ Mac から `192.168.11.10`（Proxmox）、`.12`（`vm-omada`）、`10.77.20.x`�
    $ ping 10.77.20.XX
 
 2. Proxmox Web UI で VM のステータス確認
-   → https://192.168.11.10:8006
+   → https://10.77.10.10:8006
 
 3. Proxmox コンソールで起動状況を確認
    → Web UI > VM > Console
@@ -43,10 +43,10 @@ Mac から `192.168.11.10`（Proxmox）、`.12`（`vm-omada`）、`10.77.20.x`�
      SSH はパスワード認証を無効にしている（鍵のみ）。
 
 4. VM を再起動
-   $ ssh root@192.168.11.10 "qm reboot <vmid>"
+   $ ssh root@10.77.10.10 "qm reboot <vmid>"
 
 5. VM を強制停止・起動
-   $ ssh root@192.168.11.10 "qm stop <vmid> && qm start <vmid>"
+   $ ssh root@10.77.10.10 "qm stop <vmid> && qm start <vmid>"
 ```
 
 ## サービスが応答しない

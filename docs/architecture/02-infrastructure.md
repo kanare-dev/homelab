@@ -6,7 +6,7 @@
 
 | 機器 | モデル | スペック | IP | 備考 |
 | --- | --- | --- | --- | --- |
-| サーバー | Lenovo ThinkCentre M70q Tiny | i5-10400T / 24GB RAM / 256GB NVMe | `192.168.11.10` | Proxmox VE ホスト。物理 NIC は 1 つ |
+| サーバー | Lenovo ThinkCentre M70q Tiny | i5-10400T / 24GB RAM / 256GB NVMe | `10.77.10.10`（VLAN10） | Proxmox VE ホスト。物理 NIC は 1 つ |
 | ルーター | TP-Link ER605 V2 | — | `192.168.11.1` | 集合住宅の共用ルーターの下に置く（二重 NAT）。2026-11-06 に、Buffalo から交換した。Omada コントローラー（`vm-omada`）が管理する |
 | スイッチ | TP-Link SG2210P | — | DHCP（ER605 から） | PoE+ スイッチ。ER605 の p2 に繋ぎ、Proxmox・Buffalo・ディスプレイを収める。Omada コントローラーが管理する |
 | AP | Buffalo WSR-1800AX4P | — | `10.77.30.50`（固定。Trusted。2026-11-17 に `192.168.11.2` から変更） | AP（ブリッジ）モード。Wi-Fi の入口だけを担う（段階 4 で退役予定） |

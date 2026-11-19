@@ -1,6 +1,6 @@
 # Proxmox ホストを VLAN10（`vmbr0.10`、`10.77.10.10`）に移す
 
-**状態: 草案（未実施）。** 段階 3b の残り。Proxmox ホスト（`pve`）の IP を、今の LAN の `192.168.11.10`（`vmbr0`、タグなし）から、Management の `10.77.10.10/24`（タグ付きの `vmbr0.10`）に移す。`vm-omada`・SG2210P・ER605 の移行は、[段階 3b の作業](23-network-stage-3b-management-vlan10.md)で済んでいる（2026-11-19）。
+**状態: 実施済み（2026-11-19）。** 段階 3b の残り。Proxmox ホスト（`pve`）の IP を、今の LAN の `192.168.11.10`（`vmbr0`、タグなし）から、Management の `10.77.10.10/24`（タグ付きの `vmbr0.10`）に移す。`vm-omada`・SG2210P・ER605 の移行は、[段階 3b の作業](23-network-stage-3b-management-vlan10.md)で済んでいる（2026-11-19）。
 
 - ホストの設定を変えるだけで、**VM は動き続ける**（ブリッジ `vmbr0` は変えない）。止まるのは、ホストへの接続（Web UI、SSH、Terraform、Prometheus の `pve` の監視、Homepage の表示）だけで、数分。
 - **物理コンソールと、自動で元に戻るタイマーを使う。** 誤ると、SSH も Web UI も使えなくなる。
@@ -143,3 +143,12 @@ systemctl list-timers netrevert.timer   # 何も出ないこと
 
 - 既定の LAN の付け替え（案 A: `10.77.1.0/24`、案 B: VLAN10 に統合）。[ロードマップ 13](../roadmap/13-defer-management-vlan.md#既定の-lan-のアドレス検討中)。
 - ACL を絞る（[ADR-0029](../../adr/0029-stage3-acl-allow-all-then-tighten.md)）。
+
+## 実績（2026-11-19）
+
+- 23:03〜23:07 に実施した（事前確認から、参照先の付け替えの完了まで）。**ホストの切り替え（退避、`ifreload -a`、確認、タイマー停止）は、約 2 分**。参照先の付け替えを含めて、約 5 分。見込み（30〜45 分）より、かなり短かった。
+- 事前の確認（読み取りだけ）: `pveversion`（9.1.7）、`ifupdown2`（3.3.0）、VM の状態、実行中のタスクが 0 件、`dmesg` に `Hardware Unit Hang` が無いこと。設定は、iCloud Drive にも退避した。
+- `ifreload -a` から、約 50 秒で、新しい IP に届いた（SSH の初回の接続は、鍵の指定が足りず、拒否された。`ssh pve`（`~/.ssh/config` の `HostName` を一時的に上書き）で入り直した）。`ifreload -a` は、設定を書き換えたあと、バックグラウンドで実行した（SSH が切れても、実行が続くようにするため）。
+- 確認はすべて通った: 既定の経路が `10.77.10.1`（`vmbr0.10` 経由）、`hostname -i` が `10.77.10.10`、`pveproxy` などが active、VM は動き続けた、`vmbr0` 自身が VLAN 1 と 10 のメンバー、Web UI が 200、`omada.lab.kanare.dev`・`home.lab.kanare.dev` も変わらず。
+- 参照先: Terraform の `plan` は、変更 0 件。Ansible は、`failed=0`（Caddy、Prometheus、Homepage を反映。Prometheus の `proxmox` が `10.77.10.10:9100` で up）。`~/.ssh/config` を直した（退避: `~/.ssh/config.bk-20261119b`）。
+- **補正**: `ifreload -a` を実行する SSH のセッションは、切れる。`nohup ... &` で、バックグラウンドに回すと、確実。タイマーは、止めるまで 10 分あれば十分だった（確認に、約 2 分）。

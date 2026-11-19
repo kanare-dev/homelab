@@ -36,7 +36,7 @@
 
 ### A. Proxmox ホストの交換（ハードウェア更新）
 
-1. 新ホストに Proxmox VE を入れ、IP を `192.168.11.10` にする。
+1. 新ホストに Proxmox VE を入れ、IP を `10.77.10.10`（`vmbr0.10`、VLAN10）にする。
 2. テンプレート VM（9000）と API トークンを作り直す（`terraform/proxmox/README.md`）。
 3. `make setup-proxmox` で PVE の設定（収集スクリプトなど）を反映する。
 4. `terraform apply` で VM を作り、`make setup` で全 VM を構成する。順序は `vm-infra` → `vm-monitoring` → 残り。

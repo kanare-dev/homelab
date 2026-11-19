@@ -29,7 +29,7 @@ LAN 内サービスへのリンクと、状態のウィジェットを 1 画面�
 
 | タイル / 情報 | 取得元 | 認証 |
 | --- | --- | --- |
-| Proxmox VE | `https://192.168.11.10:8006`（API トークン `homepage@pve!homepage-token`） | SOPS（`homepage_proxmox_token`） |
+| Proxmox VE | `https://10.77.10.10:8006`（API トークン `homepage@pve!homepage-token`） | SOPS（`homepage_proxmox_token`） |
 | AdGuard Home | `http://10.77.20.10:3000` | SOPS（`homepage_adguard_password`） |
 | Hosts（`pve`、`vm-infra`、`vm-monitoring`、`vm-apps`、`vm-code`） | Prometheus の `node_exporter` から、CPU・メモリ・ディスク（`/`）の使用率を出す（アイコンは Ubuntu、`pve` は Proxmox）。手動起動の `vm-dev` は、停止中に値が取れないため含めない。Grafana のダッシュボードと同じ元データで、こちらは現在値の一覧向き | なし |
 | Prometheus | `https://prometheus.lab.kanare.dev`。監視対象の up / down 数。手動起動の `vm-dev` は down に数えない（`TargetDown` と同じ条件） | なし |

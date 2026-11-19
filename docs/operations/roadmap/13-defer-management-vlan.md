@@ -6,7 +6,7 @@
 
 - **採用（未適用）**: 段階 3 の範囲の変更。決めたことは [ADR-0028](../../adr/0028-defer-management-vlan10.md)、[VLAN 設計](../../architecture/08-vlan-design.md#切り替え方式-一斉切り替え)、[移行計画](10-er605-sg2210p-migration-plan.md)の段階 3 に移した。この文書には、二重に書かない。
 - **採用（実施済み。2026-11-19）**: 段階 3b の順序（**機器を先に VLAN10 へ移し、そのあとコントローラーを移す**。[ADR-0031](../../adr/0031-stage3b-devices-before-controller.md)、手順は[段階 3b の作業](../runbooks/23-network-stage-3b-management-vlan10.md)）。下の「確かめる順序」の記録は、この決定に至った経緯。
-- **検討中**: 段階 3b の残り（Proxmox ホストの移動、既定の LAN の付け替え）と、ACL を絞る日の前に決める未決事項（[ADR-0029](../../adr/0029-stage3-acl-allow-all-then-tighten.md)）。下に書く。
+- **検討中**: 段階 3b の残り（既定のネットワークの VLAN10 への統合。ADR-0032 で採用、未適用）と、ACL を絞る日の前に決める未決事項（[ADR-0029](../../adr/0029-stage3-acl-allow-all-then-tighten.md)）。下に書く。
 
 ## 最終形（確定）
 
@@ -126,7 +126,8 @@
 - **最終形にした**: Terraform で、`vm-omada` を NIC 1 枚（`eth0` が `10.77.10.3/24`、VLAN10、GW・DNS `10.77.10.1`）にした（22:19:12 `apply`、VM が再起動。cloud-init が再実行され、SSH のホスト鍵が変わった）。**事前に、一時的な UFW のルール（`deny in on eth0` など）を、すべて消した**（残すと、NIC が 1 枚になった `eth0`（VLAN10）の機器向けポートを、全部塞ぐため）。Ansible で、UFW の旧 LAN 全体の許可（`192.168.11.0/24`）を、**ER605 の LAN の住所（`192.168.11.1`）1 台**に絞った（ER605 が、この住所を送信元にするため）。Caddy（`omada.lab.kanare.dev`）と Prometheus の宛先を、`10.77.10.3` に付け替えた。`~/.ssh/config` も直した。22:21:45 に、ER605・SG2210P が、`10.77.10.3` に再接続した。
 - 確認: ER605（`192.168.11.1`）・SG2210P（`10.77.10.2`）とも、画面で「接続しました」。`omada.lab.kanare.dev`・`home.lab.kanare.dev` が 200、`grafana.lab.kanare.dev` が 302。Prometheus で `vm-omada` が up（down は、停止中の `vm-dev` だけ）。
 - 分かったこと: **ER605 は、導入のときの住所を覚える。** 導入を旧 LAN で発見させると、旧住所を覚えて、「デバイス管理アクセス」で配った新しい住所に付いてこない。VLAN10 側だけで導入させると、`10.77.10.3` を覚える。SG2210P は、旧住所で導入されても、新しい住所に付いてきた（機器ごとに、動きが違う）。
-- **残り**: Proxmox ホストの `vmbr0.10` への移動、既定の LAN の付け替え（`10.77.1.0/24`。ER605 の送信元の住所が変わるので、UFW の `192.168.11.1` も直す）、ACL を絞る。as-is 構成図は、削除せず、実機に追従させる（方針。2026-11-19）。
+- **Proxmox ホストの移動（2026-11-19 夜、同日の実施）**: `vmbr0.10`（`10.77.10.10`）に移した（[手順書 24](../runbooks/24-pve-move-to-vmbr0-10.md)）。ホストの切り替えは約 2 分。VM は動き続けた。
+- **残り**: 既定のネットワークの VLAN10 への統合（[ADR-0032](../../adr/0032-merge-default-network-into-management-vlan10.md)、[手順書 25](../runbooks/25-merge-default-network-into-vlan10.md)）、ACL を絞る。as-is 構成図は、削除せず、実機に追従させる（方針。2026-11-19）。
 
 以下は、実施の前に書いた手順の案（計画）。
 

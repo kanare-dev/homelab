@@ -18,7 +18,7 @@ Terraform + Ansible による infrastructure as code の全体フローと、CI 
 flowchart LR
     dev["💻 開発者 (Mac)"]
     github["🐙 GitHub\nkanare-dev/homelab"]
-    proxmox["🖥️ Proxmox VE\n192.168.11.10"]
+    proxmox["🖥️ Proxmox VE\n10.77.10.10"]
     vms["📦 VMs\nvm-infra / vm-monitoring / vm-apps / vm-dev / vm-code"]
 
     dev -->|git push| github
