@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""現状（as-is）の構成図を、単体の HTML で作る。段階 3 の後（2026-11-17〜）の、実機のとおりの構成。`vm-omada`（`10.77.10.3`）と SG2210P（`10.77.10.2`）は、2026-11-19 に Management（VLAN10）へ移った（ADR-0031）。Proxmox ホストと ER605 の既定の LAN は、今の LAN（VLAN1、`192.168.11.0/24`）に残っている。
+"""現状（as-is）の構成図を、単体の HTML で作る。段階 3 の後（2026-11-17〜）の、実機のとおりの構成。`vm-omada`（`10.77.10.3`）と SG2210P（`10.77.10.2`）は、2026-11-19 に Management（VLAN10）へ移った（ADR-0031）。Proxmox ホスト（`10.77.10.10`）も、2026-11-19 に VLAN10 へ移った。ER605 の既定の LAN だけが、今の LAN（VLAN1、`192.168.11.0/24`）に残っている。
 
 最終形（to-be）は ../to-be-diagram/。この図は、to-be-diagram のスクリプトを写して、配置と文字を現状に合わせたもの。見た目の決まりと部品は同じ。
 実機を変えたら（IP、VLAN、ポート）、この図を直す。この図は、削除せず、常に実機の状態を表す。to-be-diagram（目指す姿。随時更新する）を追いかけ、実機が追いつくと、ほぼ同じ形になる。
@@ -321,7 +321,7 @@ def layout():
     # 今の LAN（VLAN1）: VM は無い。Proxmox ホスト（pve）と ER605 の LAN だけ（段階 3b の残り）
     zone(1, rx, y, 340, 110)
     text("<b>VLAN1 今の LAN</b>（VM なし）", rx + 10, y + 5, 330, 30)
-    text("Proxmox ホストと ER605 の LAN だけ。<br>vmbr0.10 への移動と、10.77.1.0/24 への付け替えが残る", rx + 20, y + 40, 310, 60)
+    text("ER605 の既定の LAN だけ。<br>VLAN10 への統合が残る（ADR-0032）", rx + 20, y + 40, 310, 60)
     y += 110 + 20
     # Lab
     h1 = vm(40, rx + 20, y + 50, "vm-dev", "10.77.40.10", "Ubuntu Server 24.04", [("row", *NODE)])
@@ -338,10 +338,10 @@ def layout():
     left_bottom = sy + servers_h
     gh = max(left_bottom, y) - gy + 20 + 60
     grp = []
-    frame(gx, gy, 1060, gh, "z z1", to=grp)  # Proxmox ホストは今の LAN（VLAN1）の色
+    frame(gx, gy, 1060, gh, "z z10", to=grp)  # Proxmox ホストは Management（VLAN10）の色
     back.insert(gi, grp[0])
     icon("platform/proxmox.png", gx + 20, gy + 20, 40, 40, max_px=120)
-    text(f"{name_ip('pve', '192.168.11.10')}<br><i>vmbr0</i>（untagged: VLAN1。VLAN-aware）<br>Proxmox 9.1（Debian 13 ベース）", gx + 70, gy + 20, 303, 60)
+    text(f"{name_ip('pve', '10.77.10.10')}<br><i>vmbr0.10</i>（tagged: VLAN10）<br>Proxmox 9.1（Debian 13 ベース）", gx + 70, gy + 20, 303, 60)
     icon(None, 780, 620, 40, 40, svg=mono_pair(ethernet_svg))
     text("nic0", 830, 635, 60, 20)
     row(*NODE, gx + 20, gy + gh - 50, 220)
