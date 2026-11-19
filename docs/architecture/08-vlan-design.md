@@ -15,7 +15,6 @@ TP-Link（ルーター + Managed Switch + AP、Omada 管理）への移行と同
 - 設定の大半は Omada コントローラーの中に入り、今は Git で管理していない。バックアップが唯一の記録になる。Open API とコミュニティ製の Terraform プロバイダーでコード化できる可能性がある（未検証。[バックログ](../operations/roadmap/01-backlog.md)）。
 - 現在は二重 NAT 環境（集合住宅で、建物の共用ルーターの下に Buffalo を置いている）。外からポート開放ができないため、外出先からのアクセスは Tailscale に頼っている。数年のうちに引っ越す予定があり、新居の上流ネットワークは分からない。
 - 家に AirPlay と Google Cast（Google TV）に対応したテレビがある。現在は有線で接続している。VLAN をまたぐと機器の発見（mDNS）が届かなくなるため、設計に織り込む（後述）。
-- ESP32 は現在使っていない。Wi-Fi 接続で、最終的には使えるようにしたい。
 
 ## 設計判断と根拠
 
@@ -143,7 +142,7 @@ AirPlay も Google Cast も、機器の発見に mDNS を使う。mDNS の呼び
   - `vm-infra` → Lab の SSH(22)、mosh(UDP 60000–61000)、Web(80/443)。外出先から Tailscale 経由で `vm-dev` に入る通信は、subnet router（`vm-infra`）が送信元になって Lab に届くため、この許可が要る。
   - `vm-monitoring`（Prometheus）→ Lab の `:9100`（node_exporter）。
   - Lab からサーバーへの取得は許可しない（DNS を除く）。Lab の VM が Servers の何かを必要とするときは、その都度、宛先とポートを限って追加する。
-- **Servers → IoT**: `vm-monitoring` → ESP32 `:80`（メトリクスの取得）。IoT からサーバーへの取得は許可しない。
+- **Servers → IoT**: 今は、許可するものがない（IoT に置く機器が決まったら、その都度、宛先とポートを限って追加する）。IoT からサーバーへの取得は許可しない。
 - **全 VLAN → `vm-infra:53`**: どの VLAN も DNS は AdGuard に向ける。DHCP が配る DNS サーバーは `10.77.20.10`。例外は Management の緊急用プールで、ルーターの `10.77.10.1` を配る（[ADR-0027](../adr/0027-servers-octet-bands-and-emergency-dns.md)）。
 - **インターネット → DMZ**: Tunnel（`cloudflared`）の外向き接続で届く通信が基本。ポート転送で受ける場合は、公開するポートだけ許可する（[DMZ と外部公開](../operations/roadmap/07-dmz.md)）。
 - **Lab・Guests・IoT・DMZ の隔離**: 他の VLAN のプライベートアドレス（`10.0.0.0/8`、`172.16.0.0/12`、`192.168.0.0/16`）への通信は、DNS と上記の例外を除きすべて拒否する。
@@ -254,7 +253,6 @@ Omada コントローラー（`omada.lab.kanare.dev`）と Proxmox（`pve.lab.ka
 - **管理系（Proxmox ホスト、`vm-omada`、ER605・SG2210P）は、今の LAN（`192.168.11.0/24`）のまま残す**（[ADR-0028](../adr/0028-defer-management-vlan10.md)）。VLAN10 への移行は、段階 3b で別に行う。
 - 有線の VLAN（Management / Servers / Trusted / Lab と、必要なら IoT のポート）を使う。Wi-Fi は Buffalo（AP）が出す 1 つの SSID で、Trusted に入る。
 - テレビ（有線）は IoT のポートにつなぎ、ゲートウェイの mDNS 中継（Trusted ↔ IoT）を試す。動かなければ、段階 4 まで Trusted に置く。
-- ESP32 は使っていないので、この段階では扱わない。
 - **ACL は、当日は全許可のまま切り替え、許可表の内容に絞るのは別の日に行う**（[ADR-0029](../adr/0029-stage3-acl-allow-all-then-tighten.md)）。段階 3 のあと数日動かして落ち着いてから、段階 3 の完了から 2 週間以内を目安に、優先して絞る（段階 4 は当面来ない見込みなので、段階 4 を期限にしない）。
 - 戻し方: 段階 2 の状態（ER605 + スイッチ、`192.168.11.0/24`）に戻す。Omada のバックアップと `terraform state` を事前に保存しておく。
 
@@ -268,7 +266,6 @@ Omada コントローラー（`omada.lab.kanare.dev`）と Proxmox（`pve.lab.ka
 **段階 4: AP 導入**
 
 - IoT・Guests の SSID を作り、Buffalo と置き換える。IP は変わらない。
-- 使うときに ESP32 を IoT に移す。Prometheus（Servers）から ESP32（IoT）への取得は、許可表の「Servers → IoT」で通る。
 - 戻し方: Buffalo（AP モード）に繋ぎ直す。
 
 ### Buffalo の位置づけ
