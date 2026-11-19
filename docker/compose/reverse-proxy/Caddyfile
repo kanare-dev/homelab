@@ -95,7 +95,7 @@ cloudcli.lab.kanare.dev {
 }
 
 omada.lab.kanare.dev {
-	reverse_proxy https://192.168.11.12:8043 {
+	reverse_proxy https://10.77.10.3:8043 {
 		transport http {
 			tls_insecure_skip_verify
 		}
