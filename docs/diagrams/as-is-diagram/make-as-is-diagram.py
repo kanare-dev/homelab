@@ -269,7 +269,7 @@ def layout():
     text("ER605 p2 ⇔ SG2210P p1: trunk（untagged: VLAN1 / tagged: VLAN10/20/30/40/50/60/70）", 890, 320, 700, 40, cls="el")
 
     icon("hardware/tplink-sg2210p.png", 760, 380, 240, 80, max_px=700)
-    text(f"<b>TP-Link SG2210P</b><br>{ip('10.77.10.2')}（VLAN10。2026-11-19〜）＋ {ip('192.168.11.x')}（旧。残している）<br>p1: ER605 / p2: pve / p3: Buffalo / p4: Dell U2725QE /<br>p5: 空き / p6: 緊急用の入口（native VLAN1）/ p7–p8: 空き", 1010, 380, 690, 80)
+    text(f"<b>TP-Link SG2210P</b><br>{ip('10.77.10.2')}（VLAN10。2026-11-19〜）＋ {ip('192.168.11.x')}（旧。残している）<br>p1: ER605 / p2: pve / p3: Buffalo / p4: Dell U2725QE /<br>p5–p7: 空き / p8: 緊急用の入口（native VLAN1）", 1010, 380, 690, 80)
 
     # Proxmox ---------------------------------------------------------------------------
     gx, gy = 40, 640

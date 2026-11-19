@@ -27,8 +27,8 @@
   | ポート | native |
   | --- | --- |
   | p2（Proxmox のトランク） | `Blackhole`（[ADR-0023](0023-proxmox-trunk-all-tagged.md) の「タグなしは、どこの VLAN にも入らない」を、VLAN1 に代えて、`Blackhole` で守る。タグ付きは、Management・Servers・Lab・IoT・DMZ ほか） |
-  | p5・p7・p8（空き） | `Blackhole`（タグは全ブロック。いまは native VLAN1・タグ全許可で、開いている） |
-  | p6（緊急用の入口） | Management（意図した入口。緊急用の DHCP プールがある） |
+  | p5・p6・p7（空き） | `Blackhole`（タグは全ブロック。いまは native VLAN1・タグ全許可で、開いている） |
+  | p8（緊急用の入口） | Management（意図した入口。緊急用の DHCP プールがある。ER605 が止まっている間は DHCP も止まるので、Mac は静的アドレス）。2026-11-10 に p6 としたが、空きの PoE ポート（p5〜p8）を連続させるため、2026-11-19 に p8 に変えた |
   | p1（ER605 との接続） | Management（untagged VLAN10。ER605 側も、同じ VLAN10 の untagged） |
   | p3・p4（アクセス） | 変えない（Trusted、VLAN30） |
 
@@ -38,7 +38,7 @@
 ## 理由
 
 - 管理系（ER605、SG2210P、`vm-omada`、Proxmox）が、すべて `10.77.10.x` にそろう。コントローラーの画面の ER605 の住所も、`10.77.10.1` になる。
-- 「使わない VLAN1」が無くなる。VLAN1 は、工場出荷時の機器や、設定を間違えたポートの、既定の面になりやすい。案 B は、native を `Blackhole` にして、**意図した場所（p6）だけを Management にする**ので、いまの「空きポートが VLAN1 で開いている」状態より、むしろ締まる。
+- 「使わない VLAN1」が無くなる。VLAN1 は、工場出荷時の機器や、設定を間違えたポートの、既定の面になりやすい。案 B は、native を `Blackhole` にして、**意図した場所（p8）だけを Management にする**ので、いまの「空きポートが VLAN1 で開いている」状態より、むしろ締まる。
 - 公式の資料が、既定のネットワークを管理 VLAN として使うことを、勧めている。
 
 ## 代替案
