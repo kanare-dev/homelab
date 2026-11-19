@@ -108,7 +108,7 @@ AdGuard を使いたいコンテナは `docker-compose.yml` の `dns:` で個別
 - Caddy から `vm-omada` までは HTTPS。自己署名証明書のため、`tls_insecure_skip_verify` を付ける（`pve` と同じ形）。`vm-omada` の UFW は、8043 を Caddy（`vm-infra`）から許可している（`ansible/inventory/group_vars/omada/vars.yml`）。
 - Buffalo（AP モード）の画面は、`http://10.77.30.50` を直接開く（2026-11-17 に `192.168.11.2` から変更）（Caddy は通さない）。
 - Homepage の Omada タイルは `https://omada.lab.kanare.dev` を監視している。
-- 外出先（Tailscale）からも名前を引ける。Tailscale の subnet route が `10.77.20.0/24`、`10.77.40.0/24`、`192.168.11.0/24`（旧 LAN。管理系が残る）を通すため、機器の IP にも届く。遮断するには Tailscale の ACL で管理画面を除外する（未実施）。
+- 外出先（Tailscale）からも名前を引ける。Tailscale の subnet route が `10.77.20.0/24`、`10.77.40.0/24` を通すため、Servers・Lab の IP にも届く。Management には届かない（2026-11-19 に、旧経路 `192.168.11.0/24` を外した）。
 
 ### ルーターを付け替えるとき
 
@@ -199,8 +199,8 @@ ansible-playbook playbooks/infra.yml
 | 項目 | 設定 |
 | --- | --- |
 | vm-infra の Tailscale IP | `100.118.14.37` |
-| 起動オプション | `tailscale up --advertise-routes=10.77.20.0/24,10.77.40.0/24,192.168.11.0/24 --accept-dns=false` |
-| Subnet route | Admin Console で `10.77.20.0/24`、`10.77.40.0/24`、`192.168.11.0/24` を承認済み（段階 3 の当日、2026-11-17 に新しい 2 経路を承認。旧経路は管理系が残るので外さない） |
+| 起動オプション | `tailscale up --advertise-routes=10.77.20.0/24,10.77.40.0/24 --accept-dns=false` |
+| Subnet route | Admin Console で `10.77.20.0/24`、`10.77.40.0/24` を承認済み（2026-11-17）。旧経路 `192.168.11.0/24` は、2026-11-19 に広告をやめた（`tailscale set --advertise-routes`。Admin Console に旧経路の承認が残っていれば、外してよい） |
 | Key expiry | vm-infra は無効化（期限切れで外出先から繋がらなくなるのを防ぐ） |
 | Split DNS | Admin Console → DNS → Nameserver `100.118.14.37`、Restrict to domain `lab.kanare.dev` |
 
