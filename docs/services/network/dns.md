@@ -101,7 +101,7 @@ AdGuard を使いたいコンテナは `docker-compose.yml` の `dns:` で個別
 
 ```text
 ブラウザ ─► omada.lab.kanare.dev (10.77.20.10, Caddy が HTTPS で受ける)
-              └─► Caddy ─► https://192.168.11.12:8043 (vm-omada、HTTPS。自己署名証明書)
+              └─► Caddy ─► https://10.77.10.3:8043 (vm-omada、HTTPS。自己署名証明書)
 ```
 
 - 以前は `router.lab.kanare.dev` が Buffalo の管理画面を向いていた。ER605 をコントローラーに採用すると、本体の画面が使えなくなるため、2026-11-06 に `omada.lab.kanare.dev` に付け替え、`router` は廃止した（決定: 運用者）。

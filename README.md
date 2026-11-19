@@ -26,7 +26,7 @@ Proxmox 上に複数 VM を構築し、Terraform + Ansible + Docker Compose で�
 | `vm-infra` | `111` | `10.77.20.10` | 常時起動 | インフラ基盤 | AdGuard Home, Unbound, CoreDNS, Caddy, Tailscale |
 | `vm-monitoring` | `113` | `10.77.20.11` | 常時起動 | 監視 | Prometheus, Alertmanager, Grafana, blackbox-exporter |
 | `vm-apps` | `120` | `10.77.20.20` | 常時起動 | アプリ | Homepage, Home Assistant, n8n, FreshRSS |
-| `vm-omada` | `112` | `192.168.11.12` | 常時起動 | ネットワーク機器の管理 | Omada コントローラー |
+| `vm-omada` | `112` | `10.77.10.3` | 常時起動 | ネットワーク機器の管理 | Omada コントローラー |
 | `vm-code` | `122` | `10.77.20.30` | 常時起動 | 常用リモート開発 | Claude Code, CloudCLI, code-server |
 | `vm-dev` | `121` | `10.77.40.10` | 任意起動 | 開発・実験 | playground |
 

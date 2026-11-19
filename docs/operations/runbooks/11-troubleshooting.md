@@ -22,7 +22,7 @@ Mac から `192.168.11.10`（Proxmox）、`.12`（`vm-omada`）、`10.77.20.x`�
 
 1. Proxmox の LAN ケーブルを、SG2210P の p2 から外し、**ER605 の LAN ポート**（WAN/LAN3 など。Native が Default で、タグなし）に、直接挿す。SG2210P を迂回する。
 2. `ping -c 3 192.168.11.1`（ホストから）。届けば、原因は SG2210P 側。`vm-omada` も戻る。
-3. コントローラーに、**IP で**入る（`https://192.168.11.12:8043`。証明書の警告は進む。`omada.lab` は DNS に依存するので、DNS が落ちているときは使えない）。
+3. コントローラーに、**SSH のトンネルで**入る（`ssh -N -L 18043:localhost:8043 vm-omada` を実行して、`https://localhost:18043` を開く。証明書の警告は進む）。`omada.lab` は DNS（と Caddy）に依存するので、DNS が落ちているときは使えない。`vm-omada` の UFW は、8043 を Caddy（`vm-infra`）と Management・ER605 だけに許可していて、Trusted の Mac から `https://10.77.10.3:8043` に直接は入れない（2026-11-19 に確認）。
 4. SG2210P の p1〜p4 の VLAN Configuration（Devices → `sg2210p` → Ports → Edit Port）を見て、**Native が Default(1) か、Network Tags が Allow All か**を確認し、直す。
 5. 直したら、ケーブルを p2 に戻し、`ping -c 3 192.168.11.1` を確認する。
 

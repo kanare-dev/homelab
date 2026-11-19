@@ -30,13 +30,13 @@ homelab の全体像。最新の構成図、目的、構成の理由、前提と
 │                                                                                     │
 │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐                               │
 │  │  IoT devices │  │  vm-dev      │  │  vm-omada    │                               │
-│  │  .100~       │  │  .10 任意起動 │  │  .12  3GB    │                              │
+│  │  .100~       │  │  .10 任意起動 │  │  .3   4GB    │                              │
 │  │  ESP32 etc.  │  │  playground  │  │  Omada Ctrl  │                               │
 │  └──────────────┘  └──────────────┘  └──────────────┘                               │
 └─────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
-図の読み方（段階 3 の後。ACL は全許可）: 上段の 4 台は Servers（VLAN20、`10.77.20.0/24`）。`vm-dev` は Lab（VLAN40、`10.77.40.10`）。Proxmox ホスト（`192.168.11.10`）、`vm-omada`（`192.168.11.12`）、ER605・SG2210P は、段階 3b まで今の LAN（VLAN1、`192.168.11.0/24`）に残る（[ADR-0028](../adr/0028-defer-management-vlan10.md)）。Buffalo（AP）は Trusted（VLAN30、`10.77.30.50`）。ESP32 は停止中で、旧アドレスのまま。
+図の読み方（段階 3b の後。ACL は全許可）: 上段の 4 台は Servers（VLAN20、`10.77.20.0/24`）。`vm-dev` は Lab（VLAN40、`10.77.40.10`）。`vm-omada`（`10.77.10.3`）と SG2210P（`10.77.10.2`）は、2026-11-19 に Management（VLAN10）へ移った（[ADR-0031](../adr/0031-stage3b-devices-before-controller.md)）。Proxmox ホスト（`192.168.11.10`）と ER605 の既定の LAN（`192.168.11.1`）は、今の LAN（VLAN1、`192.168.11.0/24`）に残る（ホストの移動と、`10.77.1.0/24` への付け替えは未実施。[ADR-0028](../adr/0028-defer-management-vlan10.md)）。Buffalo（AP）は Trusted（VLAN30、`10.77.30.50`）。ESP32 は停止中で、旧アドレスのまま。
 
 `vm-monitoring` では Prometheus に加えて blackbox-exporter が、Caddy 経由の HTTPS と AdGuard の名前解決を外形監視し、ping（ICMP）でインターネット回線の断・遅延も見る（[監視・アラート](../services/platform/monitoring.md)）。
 
