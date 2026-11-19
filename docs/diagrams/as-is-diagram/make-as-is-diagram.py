@@ -193,7 +193,7 @@ def vm(vlan, x, y, name, addr, os_text, items):
 
 def device(ic, label, x, y, w, size=(40, 30), svg=None, tile=False):
     """端末の行（高さ 60）。アイコンの中心とテキストの中心を同じ高さに置く。
-    tile=True は、サービスのロゴ（SwitchBot、ESP32）。サービスの行と同じ、白いタイル 36 にアイコン 28。"""
+    tile=True は、サービスのロゴ（SwitchBot）。サービスの行と同じ、白いタイル 36 にアイコン 28。"""
     cx, cy = x + 30, y + 30  # アイコンの中心
     if tile:
         out.append(f'<div class="tile" style="{pos(cx - 18, cy - 18, 36, 36)}"></div>')
@@ -370,8 +370,7 @@ def layout():
     iy = ty + 300 + 20
     zone(50, tx, iy, 260, 170)
     text("<b>VLAN50 IoT</b>（未使用）", tx + 10, iy + 5, 240, 30)
-    device("hardware/clients/esp32.svg", f"<i>ESP32 + BME280</i><br>{ip('192.168.11.100')}<br>現在は停止中", tx + 10, iy + 50, 250, size=(52, 52), tile=True)
-    text(f"段階 4（AP 追加）後に使う。<br>将来のアドレス: {ip('10.77.50.50')}", tx + 10, iy + 120, 240, 40)
+    text("段階 4（AP 追加）後に使う。", tx + 10, iy + 50, 240, 40)
     zone(60, tx + 280, iy, 260, 170)
     text("<b>VLAN60 Guests</b>（未使用）", tx + 290, iy + 5, 240, 30)
     device("", f"来客の端末<br>{ip('DHCP')}", tx + 290, iy + 50, 250, size=(40, 40), svg=mono_pair(wifi_svg))
