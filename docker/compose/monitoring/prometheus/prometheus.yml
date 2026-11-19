@@ -21,7 +21,7 @@ scrape_configs:
 
   - job_name: "node"
     static_configs:
-      - targets: ["192.168.11.10:9100"]   # proxmox
+      - targets: ["10.77.10.10:9100"]   # proxmox
         labels:
           env: "homelab"
           host: "pve"
