@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""現状（as-is）の構成図を、単体の HTML で作る。段階 3 の後（2026-11-17〜）の、実機のとおりの構成。管理系（Proxmox ホスト、`vm-omada`、ER605・SG2210P）は、今の LAN（VLAN1、`192.168.11.0/24`）に残っている（段階 3b まで。ADR-0028）。
+"""現状（as-is）の構成図を、単体の HTML で作る。段階 3 の後（2026-11-17〜）の、実機のとおりの構成。`vm-omada`（`10.77.10.3`）と SG2210P（`10.77.10.2`）は、2026-11-19 に Management（VLAN10）へ移った（ADR-0031）。Proxmox ホストと ER605 の既定の LAN は、今の LAN（VLAN1、`192.168.11.0/24`）に残っている。
 
 最終形（to-be）は ../to-be-diagram/。この図は、to-be-diagram のスクリプトを写して、配置と文字を現状に合わせたもの。見た目の決まりと部品は同じ。
 実機を変えたら（IP、VLAN、ポート）、この図を直す。段階 3b が済んだら、to-be-diagram と同じ形になるので、この図とスクリプトは削除する。
@@ -312,17 +312,17 @@ def layout():
     text("<b>VLAN20 Servers</b>", sx + 10, sy + 5, 400, 30)
 
     y = sy
-    # 今の LAN（VLAN1）: 管理系。vm-omada はここ（段階 3b まで）
-    h = vm(1, rx + 20, y + 50, "vm-omada", "192.168.11.12 + 10.77.10.3", "Ubuntu Server 24.04", [("row", "network/omada-controller.png", "Omada Controller")])
+    # Management（VLAN10）: vm-omada（2026-11-19〜。NIC 1 枚。ER605・SG2210P もここにつなぐ）
+    h = vm(10, rx + 20, y + 50, "vm-omada", "10.77.10.3", "Ubuntu Server 24.04", [("row", "network/omada-controller.png", "Omada Controller")])
     mgmt_h = 50 + h + 20
-    zone(1, rx, y, 340, mgmt_h)
-    text("<b>VLAN1 今の LAN</b>　管理系", rx + 10, y + 5, 330, 30)
+    zone(10, rx, y, 340, mgmt_h)
+    text("<b>VLAN10 Management</b>", rx + 10, y + 5, 320, 30)
     y += mgmt_h + 20
-    # Management（VLAN10）: 段階 3b で使う。今は空
-    zone(10, rx, y, 340, 90)
-    text("<b>VLAN10 Management</b>（今は空）", rx + 10, y + 5, 320, 30)
-    text("段階 3b で、管理系を移す", rx + 20, y + 40, 300, 40)
-    y += 90 + 20
+    # 今の LAN（VLAN1）: VM は無い。Proxmox ホスト（pve）と ER605 の LAN だけ（段階 3b の残り）
+    zone(1, rx, y, 340, 110)
+    text("<b>VLAN1 今の LAN</b>（VM なし）", rx + 10, y + 5, 330, 30)
+    text("Proxmox ホストと ER605 の LAN だけ。<br>vmbr0.10 への移動と、10.77.1.0/24 への付け替えが残る", rx + 20, y + 40, 310, 60)
+    y += 110 + 20
     # Lab
     h1 = vm(40, rx + 20, y + 50, "vm-dev", "10.77.40.10", "Ubuntu Server 24.04", [("row", *NODE)])
     lab_h = 50 + h1 + 20
