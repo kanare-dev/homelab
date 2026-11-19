@@ -263,10 +263,10 @@ def layout():
     icon("hardware/tplink-er605.png", 760, 200, 240, 80, max_px=700)
     text(f"<b>TP-Link ER605 V2</b><br>{ip('10.77.10.1')}（VLAN10）<br>各 VLAN の GW（.1）・DHCP・ACL", 1010, 200, 330, 80)
     edge([(880, 280), (880, 380)], width=5)  # p1: trunk（太い線）
-    text("ER605 p2 ⇔ SG2210P p1: trunk（tagged: VLAN10/20/30/40/50/60/70）", 890, 320, 560, 40, cls="el")
+    text("ER605 p2 ⇔ SG2210P p1: trunk（untagged: VLAN10 / tagged: VLAN20/30/40/50/60/70）", 890, 320, 700, 40, cls="el")
 
     icon("hardware/tplink-sg2210p.png", 760, 380, 240, 80, max_px=700)
-    text(f"<b>TP-Link SG2210P</b><br>{ip('10.77.10.2')}（VLAN10）<br>p1: ER605 / p2: pve / p3: AP1 / p4: Dell U2725QE / p5–p6: 予備 / p7–p8: 将来の AP 用（PoE）", 1010, 380, 690, 80)
+    text(f"<b>TP-Link SG2210P</b><br>{ip('10.77.10.2')}（VLAN10）<br>p1: ER605 / p2: pve / p3: AP1 / p4: Dell U2725QE /<br>p5: 予備（native Blackhole）/ p6: 緊急用の入口（native VLAN10）/<br>p7–p8: 将来の AP 用（PoE）", 1010, 380, 690, 100)
 
     # Proxmox ---------------------------------------------------------------------------
     gx, gy = 40, 640
@@ -274,7 +274,7 @@ def layout():
     text("<b>Lenovo ThinkCentre M70q Tiny Gen1</b><br>CPU: Intel Core i5-10400T (6C/12T)<br>RAM: 1 x 8 GB + 1 x 16 GB DDR4-3200<br>"
          "Storage: 1 x 256GB NVMe SSD", 430, 519, 300, 80, align="center")
     edge([(800, 460), (800, 620)], width=5)  # p2: trunk（太い線）
-    text("p2: trunk（tagged: VLAN10/20/40/50/70）", 440, 468, 350, 24, align="right", cls="el")
+    text("p2: trunk（native: Blackhole / tagged: VLAN10/20/40/50/70）", 340, 468, 450, 24, align="right", cls="el")
 
     # 右の列（Management / Lab / DMZ）と、Servers の 2 列を先に配置して高さを決める
     gi = len(back)                      # Proxmox の枠は、中の VLAN 枠より前に入れる
