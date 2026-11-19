@@ -143,18 +143,3 @@ scrape_configs:
         target_label: instance
       - target_label: __address__
         replacement: blackbox-exporter:9115
-
-  # ESP32 (01-esp32) は現在意図的に停止中。再開するときはコメントを外す。
-  # 有効なまま止まっていると TargetDown が発報するため外している。
-  # - job_name: "esp32"
-  #   scrape_interval: 30s
-  #   static_configs:
-  #     - targets: ["192.168.11.100:80"]    # 01-esp32
-  #       labels:
-  #         env: "homelab"
-  #         host: "esp32-01"
-  #         role: "iot"
-  #         device: "esp32-01"
-  #   relabel_configs:
-  #     - source_labels: ["device"]
-  #       target_label: instance
