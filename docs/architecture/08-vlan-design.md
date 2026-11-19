@@ -263,7 +263,7 @@ Omada コントローラー（`omada.lab.kanare.dev`）と Proxmox（`pve.lab.ka
 - 段階 3 のあと、時間のあるときに、単独の作業として行う（[ADR-0028](../adr/0028-defer-management-vlan10.md)）。管理系（Proxmox ホスト、`vm-omada`、ER605・SG2210P）を、今の LAN から Management（VLAN10）へ移す。最終形は、[配置の方針](#配置の方針)と [IP アドレス一覧](09-ip-addresses.md)のとおり。
 - 順序は、**機器を先に VLAN10 へ移し、そのあとコントローラーを移す**（[ADR-0031](../adr/0031-stage3b-devices-before-controller.md)。2026-11-18 の実機の試験で、機器が旧 LAN にいる間にコントローラーの住所だけを動かす方式は、成功しなかったため）。SG2210P（`10.77.10.2`）→「デバイス管理アクセス」で新しい住所を伝える → ER605 → `vm-omada` を VLAN10 の 1 枚にする。手順は[段階 3b の作業](../operations/runbooks/23-network-stage-3b-management-vlan10.md)。時期と、Proxmox ホストの移動は未決（[前提と未決事項](../operations/roadmap/13-defer-management-vlan.md)）。
 - 戻し方: 管理系を今の LAN に戻す。旧アドレスは、移行が済むまで残す。
-- **実施の状況（2026-11-19）**: SG2210P（`10.77.10.2`）、`vm-omada`（`10.77.10.3`、NIC 1 枚）、ER605（コントローラーへの接続先が `10.77.10.3`。ER605 自身の LAN は `192.168.11.1`）を移した。残りは、Proxmox ホスト（`vmbr0.10`）と、既定の LAN の付け替え（`10.77.1.0/24`）。経緯と手順は[ロードマップ 13](../operations/roadmap/13-defer-management-vlan.md)。
+- **実施の状況（2026-11-19）**: SG2210P（`10.77.10.2`）、`vm-omada`（`10.77.10.3`、NIC 1 枚）、ER605（コントローラーへの接続先が `10.77.10.3`。ER605 自身の LAN は `192.168.11.1`）を移した。残りは、Proxmox ホスト（`vmbr0.10`、[手順書 24](../operations/runbooks/24-pve-move-to-vmbr0-10.md)）と、**既定のネットワークの VLAN10 への統合**（[ADR-0032](../adr/0032-merge-default-network-into-management-vlan10.md)。採用、未適用。既定のネットワークを VLAN10 `10.77.10.1/24` にして Management と統合し、VLAN1 を使わない。p2 と空きポートの native は、どこにも繋がない `Blackhole`（VLAN 999）にする。手順は[手順書 25](../operations/runbooks/25-merge-default-network-into-vlan10.md)）。経緯は[ロードマップ 13](../operations/roadmap/13-defer-management-vlan.md)。
 
 **段階 4: AP 導入**
 

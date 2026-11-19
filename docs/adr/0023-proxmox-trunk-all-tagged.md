@@ -1,6 +1,7 @@
 # 0023. Proxmox 向けの trunk は、全 VLAN をタグ付きにする
 
 - ステータス: 採用（VLAN は未適用）
+- 補足（2026-11-19）: 「タグなしの通信は、どこの VLAN にも入らない」という決定は、そのまま有効。p2 の native を、VLAN1 に代えて、どこにも繋がない `Blackhole`（VLAN 999）にする（[ADR-0032](0032-merge-default-network-into-management-vlan10.md)。未適用）。
 - 補足（2026-11-09）: 段階 3 に含める範囲は、[ADR-0028](0028-defer-management-vlan10.md) で変えた（管理系は、段階 3 では今の LAN に残し、VLAN10 への移行は段階 3b）。この ADR の決定そのものは、置き換えていない。
 - 日付: 2026-11-03
 
