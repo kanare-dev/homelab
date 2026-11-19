@@ -72,7 +72,7 @@ Mac を p6 に繋ぎ、`https://10.77.10.3:8043`（サイトのビュー `kanare
 - [ ] Tailscale の経路（`ansible/playbooks/infra.yml` の `--advertise-routes`）から、`192.168.11.0/24` を外す。Admin Console で、旧経路を外す。
 - [ ] **旧 LAN（`192.168.11.0/24`）を許可元にした、UFW のルールを直す**（`ansible/inventory/group_vars/code/vars.yml`、`infra/vars.yml`、ほか。Trusted の `10.77.30.0/24` が、必要なら足す）。
 - [ ] 文書を直す: [VLAN 設計](../../architecture/08-vlan-design.md)、[IP アドレス一覧](../../architecture/09-ip-addresses.md)、[ER605 の設定](../../hardware/er605/settings.md)、[SG2210P の設定](../../hardware/sg2210p/settings.md)（ポート表）、[Omada コントローラー](../../services/network/omada-controller.md)、[システム全体像](../../architecture/01-overview.md)、`README.md`。ロードマップ 13、ADR-0032 のステータスを「採用（実施済み）」に。
-- [ ] as-is の構成図を直す（VLAN1 のゾーンを無くし、ER605 の住所を `10.77.10.1`、p2 の native を `Blackhole` に）。**段階 3b が完了するので、as-is の構成図を削除する**（CLAUDE.md の決まり。`to-be-diagram` を、実機に合わせて見直す）。
+- [ ] as-is の構成図を直す（VLAN1 のゾーンを無くし、ER605 の住所を `10.77.10.1`、p2 の native を `Blackhole` に）。**as-is の構成図は、削除しない**（常に実機の状態を表す）。to-be の構成図（`to-be-diagram/`）も、ADR-0032 の最終形（VLAN1 なし、p2 の native `Blackhole`、p6 の緊急用の入口）に合わせて、更新する。
 
 ## 戻し方
 

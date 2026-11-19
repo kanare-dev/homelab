@@ -16,7 +16,7 @@ Proxmox 上に複数 VM を構築し、Terraform + Ansible + Docker Compose で�
 
 ![現状の構成図](docs/diagrams/as-is-diagram/as-is-diagram.png)
 
-上は、現状（as-is。段階 3 の後。管理系は今の LAN）の構成（段階 3b の完了後に、この図は削除する）。最終形（to-be。管理系も VLAN10）は[to-be の構成図](docs/diagrams/to-be-diagram/to-be-diagram.png)、配線は[物理構成図](docs/diagrams/physical-diagram/physical-diagram.png)にある。
+上は、現状（as-is。常に実機の状態を表す）の構成。目指す姿（to-be。管理系は VLAN10）は[to-be の構成図](docs/diagrams/to-be-diagram/to-be-diagram.png)、配線は[物理構成図](docs/diagrams/physical-diagram/physical-diagram.png)にある。
 
 最新の構成図（テキスト版）と、VM ごとの割当（CPU・メモリ・ディスク）は [システム構成・環境](docs/architecture/01-overview.md) を参照。
 

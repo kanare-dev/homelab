@@ -143,4 +143,3 @@ systemctl list-timers netrevert.timer   # 何も出ないこと
 
 - 既定の LAN の付け替え（案 A: `10.77.1.0/24`、案 B: VLAN10 に統合）。[ロードマップ 13](../roadmap/13-defer-management-vlan.md#既定の-lan-のアドレス検討中)。
 - ACL を絞る（[ADR-0029](../../adr/0029-stage3-acl-allow-all-then-tighten.md)）。
-- as-is の構成図の削除（段階 3b の完了後）。

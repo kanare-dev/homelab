@@ -4,7 +4,7 @@ homelab の全体像。最新の構成図、目的、構成の理由、前提と
 
 ## 構成図
 
-> 構成を変えたら、この図（ASCII）と下の表を同じ変更で更新する。現状の構成図（`docs/diagrams/as-is-diagram/`。段階 3b の完了後に削除する）は、`make-as-is-diagram.py` で生成し直して同じ変更で更新する。食い違っていたら、この ASCII 図が正。
+> 構成を変えたら、この図（ASCII）と下の表を同じ変更で更新する。現状の構成図（`docs/diagrams/as-is-diagram/`。削除せず、常に実機の状態を表す）は、`make-as-is-diagram.py` で生成し直して同じ変更で更新する。食い違っていたら、この ASCII 図が正。
 
 ```text
  External: Healthchecks.io / Slack / Cloudflare / Let's Encrypt / Tailscale / GitHub
@@ -48,7 +48,7 @@ homelab の全体像。最新の構成図、目的、構成の理由、前提と
 
 ![現状の構成図（as-is）](../diagrams/as-is-diagram/as-is-diagram.png)
 
-上は現状（as-is。段階 3 の後）。詳しくは[現状の構成図](../diagrams/README.md#現状の構成図as-is-diagram段階-3b-の完了後に削除予定)。最終形（to-be）は、[to-be の構成図](../diagrams/README.md#to-be-の構成図-vlan-化のあとto-be-diagram)。
+上は現状（as-is。段階 3 の後）。詳しくは[現状の構成図](../diagrams/README.md#現状の構成図as-is-diagram)。最終形（to-be）は、[to-be の構成図](../diagrams/README.md#to-be-の構成図-vlan-化のあとto-be-diagram)。
 
 ## 目的と位置づけ
 

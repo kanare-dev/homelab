@@ -322,7 +322,7 @@ Buffalo WSR-1800AX4P は VLAN に対応していない。AP モードにはで�
 ### 切り替え後
 
 - Prometheus の scrape 対象、アラート、`docs/services/platform/monitoring.md` を更新し、Omada コントローラーの死活監視を追加する。
-- ドキュメントを更新し、旧アドレスを残さない。構成図も直す（to-be の構成図 `to-be-diagram/` を確認し、現状の構成図 `as-is-diagram/` は、段階 3b の完了後に削除する）。
+- ドキュメントを更新し、旧アドレスを残さない。構成図も直す（to-be の構成図 `to-be-diagram/` を確認し、現状の構成図 `as-is-diagram/` は、削除せず、実機に合わせて更新する）。
 - Buffalo は段階 4（AP の導入）まで AP として使い続ける。
 
 ## 未決事項
