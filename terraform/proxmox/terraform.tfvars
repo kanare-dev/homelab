@@ -1,4 +1,4 @@
-proxmox_api_url      = "https://192.168.11.10:8006/api2/json"
+proxmox_api_url      = "https://10.77.10.10:8006/api2/json"
 proxmox_api_token_id = "terraform@pam!terraform-token"
 
 proxmox_node  = "pve"
