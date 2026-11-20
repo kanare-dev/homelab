@@ -16,7 +16,10 @@
 
 ER605 と SG2210P を入れて VLAN に分けた**最終形（to-be）**。管理系も VLAN10 に移した、段階 3b の後の構成。VLAN ごとのアドレス、スイッチのポートの割り当て、通信ポリシーの要約。内容は [ER605・SG2210P の移行計画](../operations/roadmap/10-er605-sg2210p-migration-plan.md)の「段階 3 の後」と [VLAN 設計](../architecture/08-vlan-design.md)による。**目指す姿として、計画・設計が変わったときに、随時更新する。** 現状（as-is）は、次の「現状の構成図」で、この図を追いかける。**本体は、生成スクリプト [`to-be-diagram/make-to-be-diagram.py`](to-be-diagram/make-to-be-diagram.py)**（座標と文字を持つ）。HTML と PNG は、そこから書き出す。
 
-![to-be の構成図](to-be-diagram/to-be-diagram.png)
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="to-be-diagram/to-be-diagram-dark.png">
+  <img alt="to-be の構成図" src="to-be-diagram/to-be-diagram.png">
+</picture>
 
 ダーク版は [`to-be-diagram-dark.png`](to-be-diagram/to-be-diagram-dark.png)、ロゴとフォントを埋め込んだ単体の HTML は [`to-be-diagram.html`](to-be-diagram/to-be-diagram.html)（ブラウザで開ける。OS のダークモードに追従する）。
 
@@ -28,7 +31,10 @@ ER605 と SG2210P を入れて VLAN に分けた**最終形（to-be）**。管�
 
 どの機器のどのポートを、どの機器のどのポートに繋ぐかを、一目で見るための図。段階 3 の完了後の、有線の最終形。機器は四角、ポートは四角（WAN・trunk・access VLAN30・未使用を色で区別）、ケーブルは線（太さと色で種類を区別）で描く。ケーブルの種類（今ある長いケーブル A・B・C と、買い足す短いケーブル）と、ポートごとの VLAN（tagged / untagged）も載せた。VM・サービス・IP は、[to-be の構成図](#to-be-の構成図-vlan-化のあとto-be-diagram)に任せる。内容は、[移行計画](../operations/roadmap/10-er605-sg2210p-migration-plan.md)の「段階 3 の後」「ケーブルと電源」と、[ER605](../hardware/er605/settings.md)・[SG2210P](../hardware/sg2210p/settings.md) のポート表による。**本体は、生成スクリプト [`physical-diagram/make-physical-diagram.py`](physical-diagram/make-physical-diagram.py)**。
 
-![物理構成図](physical-diagram/physical-diagram.png)
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="physical-diagram/physical-diagram-dark.png">
+  <img alt="物理構成図" src="physical-diagram/physical-diagram.png">
+</picture>
 
 ダーク版は [`physical-diagram-dark.png`](physical-diagram/physical-diagram-dark.png)、単体の HTML は [`physical-diagram.html`](physical-diagram/physical-diagram.html)。
 
@@ -41,7 +47,10 @@ ER605 と SG2210P を入れて VLAN に分けた**最終形（to-be）**。管�
 
 **現状（as-is）**の構成。**常に実機の状態を表し、削除しない。** to-be の構成図（`to-be-diagram/`）は目指す姿で、随時更新する。as-is は、それを追いかけて、実機を変えたときに更新する。実機が to-be に追いつけば、2 枚は、ほぼ同じ形になる。違いが残るのは、実機にしかない事情（ACL が全許可か絞ったあとかなど）と、まだ実機に反映していない計画（2026-11-19 時点では、Proxmox ホストの `vmbr0.10` への移動と、既定のネットワークの VLAN10 への統合）。
 
-![現状の構成図](as-is-diagram/as-is-diagram.png)
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="as-is-diagram/as-is-diagram-dark.png">
+  <img alt="現状の構成図" src="as-is-diagram/as-is-diagram.png">
+</picture>
 
 ダーク版は [`as-is-diagram-dark.png`](as-is-diagram/as-is-diagram-dark.png)、単体の HTML は [`as-is-diagram.html`](as-is-diagram/as-is-diagram.html)。
 
@@ -53,7 +62,10 @@ ER605 と SG2210P を入れて VLAN に分けた**最終形（to-be）**。管�
 
 [stack-diagram](https://github.com/caru-ini/stack-diagram)（エージェント用のスキル。公式のロゴで構成図を描く）を試して描いた**例**。内容は移行前の構成で、削除した移行前の構成図（draw.io の SVG）と同じ範囲（外部サービス、Buffalo、Proxmox 上の VM とサービス、LAN の端末）を、日本語で描いた。これは比較用で、構成図の正ではない。ライト・ダークの PNG と、ロゴと文字を埋め込んだ単体の HTML（ブラウザで開ける）がある。
 
-![stack-diagram で描いた構成図の例](stack-diagram-example/homelab.png)
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="stack-diagram-example/homelab-dark.png">
+  <img alt="stack-diagram で描いた構成図の例" src="stack-diagram-example/homelab.png">
+</picture>
 
 ダーク版は [`homelab-dark.png`](stack-diagram-example/homelab-dark.png)、HTML は [`homelab.html`](stack-diagram-example/homelab.html)。
 

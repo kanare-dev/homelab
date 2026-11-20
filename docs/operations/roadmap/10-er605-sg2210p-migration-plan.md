@@ -94,7 +94,10 @@ IP は変えない。Buffalo の Wi-Fi 設定は今のままなので、端末�
                   └─ p7–p8 空き（段階 4 の AP 用に PoE を残す）
 ```
 
-![段階 3 の後の構成図（to-be）](../../diagrams/to-be-diagram/to-be-diagram.png)
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="../../diagrams/to-be-diagram/to-be-diagram-dark.png">
+  <img alt="段階 3 の後の構成図（to-be）" src="../../diagrams/to-be-diagram/to-be-diagram.png">
+</picture>
 
 図（最終形。to-be）は `docs/diagrams/to-be-diagram/make-to-be-diagram.py` で生成する。現状の図は `docs/diagrams/as-is-diagram/`（HTML と PNG。ダーク版と単体の HTML は、同じディレクトリにある）。計画を直したら、この ASCII 図とスクリプトを合わせて直す。
 
