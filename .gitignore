@@ -51,3 +51,9 @@ docs/diagrams/assets/
 
 # 非公開データへのシンボリックリンク（実体は iCloud Drive。公開リポジトリには入れない）
 /private/
+
+# 他の作者の 3D モデル（別のライセンス）は Git 管理しない。出所は models/*/SOURCE.md に残す（手元のファイルは、そのまま置いてよい）
+docs/hardware/future/rack-10inch/models/**/*.stl
+docs/hardware/future/rack-10inch/models/**/*.3mf
+docs/hardware/future/rack-10inch/models/**/*.step
+docs/hardware/future/rack-10inch/models/**/*.stp
