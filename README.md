@@ -117,6 +117,7 @@ homelab/
 │   └── check-md-links.py   # Markdown の内部リンク検査
 └── docs/
     ├── architecture/       # 方式設計
+    ├── assets/logo/        # ロゴ（SVG）と生成スクリプト（make-logo.py）、使い方の README
     ├── diagrams/           # 構成図（現行は draw.io の SVG、VLAN 化後と物理構成図は HTML と PNG）と生成・整形スクリプト、README（更新の手順）。assets/ はアイコン素材（Git 管理外）
     ├── services/           # サービスごとの詳細設計（役割ごとのフォルダ: network/、platform/、apps/、dev/）
     ├── hardware/           # 機器ごとの仕様・資料と設定値（置き方の決まりは README）
