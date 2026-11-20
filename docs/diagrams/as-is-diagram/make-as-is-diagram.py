@@ -433,9 +433,9 @@ i{{font-style:italic}}
 .sw{{border-style:solid;border-radius:4px;border-width:1.5px;background:color-mix(in srgb,var(--f) 85%,transparent)}}
 :root[data-theme=dark] .sw{{background:color-mix(in srgb,var(--l) 35%,transparent)}}
 @media (prefers-color-scheme:dark){{:root:not([data-theme=light]) .sw{{background:color-mix(in srgb,var(--l) 35%,transparent)}}}}
-.ext{{border-radius:16px;border:2px solid color-mix(in srgb,#6c8ebf 70%,transparent);background:color-mix(in srgb,#dae8fc 70%,transparent)}}
-:root[data-theme=dark] .ext{{background:color-mix(in srgb,#6c8ebf 22%,transparent)}}
-@media (prefers-color-scheme:dark){{:root:not([data-theme=light]) .ext{{background:color-mix(in srgb,#6c8ebf 22%,transparent)}}}}
+.ext{{border-radius:16px;border:2px solid color-mix(in srgb,#9c8f73 70%,transparent);background:color-mix(in srgb,#ece6da 70%,transparent)}}
+:root[data-theme=dark] .ext{{background:color-mix(in srgb,#9c8f73 22%,transparent)}}
+@media (prefers-color-scheme:dark){{:root:not([data-theme=light]) .ext{{background:color-mix(in srgb,#9c8f73 22%,transparent)}}}}
 .lan{{border-radius:16px;border:2px dashed color-mix(in srgb,var(--muted) 70%,transparent);background:color-mix(in srgb,var(--paper) 70%,transparent)}}
 .lanlabel{{border-radius:16px;border:2px solid color-mix(in srgb,var(--muted) 70%,transparent);background:var(--paper2)}}
 .legend{{border-radius:10px;border:1px solid var(--rule2);background:var(--card)}}
