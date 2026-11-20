@@ -10,6 +10,7 @@
     logo-graph-{light,dark}.svg    横長。家のネットワーク図 + 文字。サブ
     icon-stack.svg, icon-graph.svg 正方形のアイコン（暗い地 + 縁取り）。favicon、Homepage のタイル用
     gallery.html                   上の一覧（ライトとダークの背景に並べる）。ブラウザで開いて見る
+    social-preview.html            GitHub のソーシャルプレビュー（1280 x 640）の元。PNG は README.md の手順で撮る
 light は、明るい背景用（濃い文字）。dark は、暗い背景用（明るい文字）。背景は透明。
 マークは静止。点滅するのは、横長のロゴの文字の横のカーソルだけ（CSS。`prefers-reduced-motion` のときは止まる）。
 
@@ -258,6 +259,21 @@ h3{{margin:0 0 8px;font-size:12px;font-weight:600;opacity:.55}}h3 code{{font-wei
 """
 
 
+def social_preview():
+    """GitHub のソーシャルプレビュー用（1280 x 640）の HTML。ダークの地に、ダーク版のロゴを中央に置く。
+    PNG にするには、ブラウザで開いて撮る（README.md の「ソーシャルプレビュー」）。"""
+    return f"""<!doctype html>
+<meta charset="utf-8">
+<title>social preview</title>
+<style>
+html,body{{margin:0;width:1280px;height:640px;background:{TILE_BG}}}
+body{{display:flex;align-items:center;justify-content:center}}
+img{{width:820px;height:auto}}
+</style>
+<body><img alt="kanare’s homelab" src="logo-stack-dark.svg"></body>
+"""
+
+
 def main():
     for theme in ("light", "dark"):
         (HERE / f"logo-stack-{theme}.svg").write_text(logo("stack", theme), encoding="utf-8")
@@ -266,6 +282,7 @@ def main():
     for kind in ("stack", "graph"):
         (HERE / f"icon-{kind}.svg").write_text(icon(kind), encoding="utf-8")
     (HERE / "gallery.html").write_text(gallery(), encoding="utf-8")
+    (HERE / "social-preview.html").write_text(social_preview(), encoding="utf-8")
     for p in sorted(HERE.glob("*.svg")):
         print(p.name, p.stat().st_size, "bytes")
 

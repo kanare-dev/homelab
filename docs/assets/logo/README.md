@@ -11,6 +11,7 @@ kanare’s homelab のロゴ（SVG）。`make-logo.py` で作る。マークは�
 | `logo-graph-{light,dark}.svg` | サブ。横長。家の形のネットワーク図（頂点がノード、中央がハブ）+ 文字 |
 | `icon-stack.svg`、`icon-graph.svg` | 正方形のアイコン（暗い地 + 縁取り。どの背景でも使える）。favicon、Homepage のタイル |
 | `gallery.html` | 上の一覧（ライトとダークの背景に並べる）。ブラウザで開いて見る。`make-logo.py` が作る |
+| `social-preview.png`（元: `social-preview.html`） | GitHub のソーシャルプレビュー（リンクを貼ったときに出る画像。1280 × 640、ダークの地にダーク版のロゴ） |
 
 `light` は明るい背景用（濃い文字）、`dark` は暗い背景用（明るい文字）。背景は透明。
 
@@ -48,6 +49,18 @@ SVG の中身をそのまま HTML に入れてよい。色の指定は、SVG ご
 3. `~/.cache/homelab-logo-venv/bin/python docs/assets/logo/make-logo.py`
 
 SVG と `gallery.html` が、同じフォルダに書き出される。
+
+## ソーシャルプレビュー
+
+`make-logo.py` が `social-preview.html` を作る。PNG にするには、ブラウザで 1280 × 640 で撮る。
+
+```bash
+"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --headless=new --hide-scrollbars \
+  --window-size=1280,640 --screenshot="$PWD/docs/assets/logo/social-preview.png" \
+  "file://$PWD/docs/assets/logo/social-preview.html"
+```
+
+GitHub への登録は、**手で行う**（API では設定できない）: リポジトリの Settings → General → Social preview → Edit → Upload an image で、`social-preview.png` を選ぶ。
 
 ## ライセンス
 
