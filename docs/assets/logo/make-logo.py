@@ -9,6 +9,7 @@
     seal-{light,dark}.svg          円形のエンブレム。縁に名前・アドレス・ドメイン、中央に積み重ね
     logo-graph-{light,dark}.svg    横長。家のネットワーク図 + 文字。サブ
     icon-stack.svg, icon-graph.svg 正方形のアイコン（暗い地 + 縁取り）。favicon、Homepage のタイル用
+    gallery.html                   上の一覧（ライトとダークの背景に並べる）。ブラウザで開いて見る
 light は、明るい背景用（濃い文字）。dark は、暗い背景用（明るい文字）。背景は透明。
 マークは静止。点滅するのは、横長のロゴの文字の横のカーソルだけ（CSS。`prefers-reduced-motion` のときは止まる）。
 
@@ -46,9 +47,9 @@ def font(weight):
 THEMES = {
     # ftop / fleft / fright: 積み重ねの機器の、上面・左面・右面（不透明）。froof / fgable: 屋根の斜面・側面
     "light": {"text": "#1c2430", "muted": "#6a7485", "accent": "#3b6fb6",
-              "ftop": "#c9ced6", "fleft": "#7d8796", "fright": "#2a3341", "froof": "#3b6fb6", "fgable": "#2b5591"},
+              "ftop": "#c9ced6", "fleft": "#7d8796", "fright": "#2a3341", "froof": "#3b6fb6", "fgable": "#2b5591", "frback": "#30609f"},
     "dark": {"text": "#e8edf3", "muted": "#98a3b3", "accent": "#7fa8e0",
-             "ftop": "#f1f4f8", "fleft": "#b4bdca", "fright": "#748093", "froof": "#7fa8e0", "fgable": "#5a84bf"},
+             "ftop": "#f1f4f8", "fleft": "#b4bdca", "fright": "#748093", "froof": "#7fa8e0", "fgable": "#5a84bf", "frback": "#6b93cc"},
 }
 TILE_BG = "#0f141a"  # 正方形のアイコンの地の色（暗い。どの背景でも使える）
 TILE_RING = "#3a4555"
@@ -90,7 +91,7 @@ def theme_css(t, uid):
             f".{uid} .tx{{fill:var(--text)}}.{uid} .mu{{fill:var(--muted)}}.{uid} .ac{{fill:var(--accent)}}"
             f".{uid} .stx{{stroke:var(--text)}}"
             f".{uid} .f-top{{fill:{t['ftop']}}}.{uid} .f-left{{fill:{t['fleft']}}}.{uid} .f-right{{fill:{t['fright']}}}"
-            f".{uid} .f-roof{{fill:{t['froof']}}}.{uid} .f-gable{{fill:{t['fgable']}}}")
+            f".{uid} .f-roof{{fill:{t['froof']}}}.{uid} .f-gable{{fill:{t['fgable']}}}.{uid} .f-back{{fill:{t['frback']}}}")
 
 
 def svg(w, h, body, css, title, uid):
@@ -146,6 +147,8 @@ def mark_stack():
     mid = lambda p, q: ((p[0] + q[0]) / 2, (p[1] + q[1]) / 2 - r)
     M1, M2 = mid(A, D), mid(B, C)
     poly = lambda *qs: " ".join(f"{x:.1f},{y:.1f}" for x, y in qs)
+    # 後ろの斜面は、棟（M1–M2）より、画面の上に、細い帯として見える。先に描く（手前の斜面と側面が、その上に重なる）
+    out.append(f'<polygon class="f-back" points="{poly(D, C, M2, M1)}"/>')
     out.append(f'<polygon class="f-gable" points="{poly(A, D, M1)}"/><polygon class="f-roof" points="{poly(A, B, M2, M1)}"/>')
     return f'<g transform="translate(0 -4)">{"".join(out)}</g>'
 
@@ -230,6 +233,31 @@ def seal(theme, kind="stack"):
     return svg(160, 160, body, theme_css(t, uid), "kanare’s homelab", uid)
 
 
+def gallery():
+    """ロゴの一覧（gallery.html）。ライトとダークの背景に並べる。<img> で読み込むので、カーソルの点滅も見える。"""
+    def panel(cls, th):
+        return (f'<div class="p {cls}">'
+                f'<h3>横長（主役）　<code>logo-stack-{th}.svg</code></h3><div class="row"><img src="logo-stack-{th}.svg"></div>'
+                f'<h3>円形のエンブレム　<code>seal-{th}.svg</code></h3><div class="row"><img src="seal-{th}.svg" width="240"></div>'
+                f'<h3>横長（サブ）　<code>logo-graph-{th}.svg</code></h3><div class="row"><img src="logo-graph-{th}.svg"></div></div>')
+    tiles = "".join(
+        '<div class="icons">' + "".join(f'<img src="icon-{k}.svg" width="{w}">' for w in (96, 48, 32, 16)) + "</div>"
+        for k in ("stack", "graph"))
+    return f"""<!doctype html>
+<meta charset="utf-8">
+<title>kanare’s homelab — ロゴ一覧</title>
+<style>
+body{{margin:0;font:14px system-ui}}.g{{display:grid;grid-template-columns:1fr 1fr}}
+.p{{padding:22px 34px 8px}}.l{{background:#fff;color:#222}}.d{{background:#0d1117;color:#ddd}}
+h3{{margin:0 0 8px;font-size:12px;font-weight:600;opacity:.55}}h3 code{{font-weight:400}}
+.row{{margin:0 0 22px}}.row img{{display:block}}.icons{{display:flex;gap:16px;align-items:flex-end;margin:0 0 14px}}.icons img{{display:block}}
+</style>
+<body><div class="g">{panel("l", "light")}{panel("d", "dark")}
+<div class="p l"><h3>正方形のアイコン　<code>icon-stack.svg</code>、<code>icon-graph.svg</code>（96 / 48 / 32 / 16）</h3>{tiles}</div>
+<div class="p d"><h3>正方形のアイコン</h3>{tiles}</div></div></body>
+"""
+
+
 def main():
     for theme in ("light", "dark"):
         (HERE / f"logo-stack-{theme}.svg").write_text(logo("stack", theme), encoding="utf-8")
@@ -237,6 +265,7 @@ def main():
         (HERE / f"seal-{theme}.svg").write_text(seal(theme), encoding="utf-8")
     for kind in ("stack", "graph"):
         (HERE / f"icon-{kind}.svg").write_text(icon(kind), encoding="utf-8")
+    (HERE / "gallery.html").write_text(gallery(), encoding="utf-8")
     for p in sorted(HERE.glob("*.svg")):
         print(p.name, p.stat().st_size, "bytes")
 
