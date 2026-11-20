@@ -6,8 +6,8 @@
 </p>
 
 <p align="center">
-  Proxmox 上の homelab を、Terraform・Ansible・Docker Compose で、再現可能に運用する。<br>
-  24GB RAM の ThinkCentre Tiny 1 台で、DNS・リバースプロキシ・監視・リモート開発環境を常時運用している。
+  Proxmox 上の homelab を、Terraform・Ansible・Docker Compose で、再現可能に運用。<br>
+  24GB RAM の ThinkCentre Tiny 1 台で常時稼働中の、DNS・リバースプロキシ・監視・リモート開発環境。
 </p>
 
 <p align="center">
@@ -20,9 +20,9 @@
 
 <p align="center">
   <a href="#構成">構成</a> ·
-  <a href="docs/README.md">ドキュメント</a> ·
-  <a href="docs/adr/README.md">設計判断（ADR）</a> ·
-  <a href="docs/operations/roadmap/README.md">ロードマップ</a> ·
+  <a href="docs/README.md">documents</a> ·
+  <a href="docs/adr/README.md">ADR</a> ·
+  <a href="docs/operations/roadmap/README.md">Roadmap</a> ·
   <a href="docs/operations/runbooks/README.md">Runbook</a>
 </p>
 
@@ -33,13 +33,11 @@
   </picture>
 </p>
 
-構成はすべてコードで管理し、機密値は SOPS + age で暗号化して公開リポジトリに置いている。
-
 ## 全体方針
 
-- **再現可能性**: すべての構成をコードで管理し、いつでも同じ環境を再構築できる
-- **可観測性**: Prometheus と Grafana で VM やサービスの状態を継続的に可視化し、異常は Slack に通知する
-- **ドキュメント駆動**: このリポジトリ内のドキュメントを読めば、全体構成、設計方針、運用方法等が分かる
+- **Reproducibility**: 構成をコードで管理し、いつでも同じ環境を再構築できる
+- **Observability**: Prometheus と Grafana で VM やサービスの状態を継続的に可視化し、異常は Slack に通知する
+- **Document-Driven**: このリポジトリ内のドキュメントを読めば、全体構成、設計方針、運用方法等が分かる
 
 ## 特徴
 
@@ -51,10 +49,12 @@
 
 ## 構成
 
-上の図は、現状（as-is。常に実機の状態を表す）の構成。目指す姿（to-be。管理系は VLAN10）は[to-be の構成図](docs/diagrams/to-be-diagram/to-be-diagram.png)、配線は[物理構成図](docs/diagrams/physical-diagram/physical-diagram.png)にある。最新の構成図（テキスト版）と、VM ごとの割当（CPU・メモリ・ディスク）は [システム構成・環境](docs/architecture/01-overview.md) を参照。
+上の図は、As-Isの構成。To-Beは[to-be の構成図](docs/diagrams/to-be-diagram/to-be-diagram.png)、配線は[物理構成図](docs/diagrams/physical-diagram/physical-diagram.png)にある。詳細は [システム構成・環境](docs/architecture/01-overview.md) を参照。
 
-| 名前 | VMID | IP | 状態 | 役割 | 主なサービス |
+| ホスト名 | VMID | IP | 状態 | 役割 | 主なサービス |
 | --- | --- | --- | --- | --- | --- |
+| `er605` | - | `10.77.10.1` | 常時起動 | ルータ | - |
+| `sg2210p` | - | `10.77.10.2` | 常時起動 | マネージドスイッチ | - |
 | `pve` | — | `10.77.10.10` | 常時起動 | ハイパーバイザ | Proxmox VE |
 | `vm-infra` | `111` | `10.77.20.10` | 常時起動 | インフラ基盤 | AdGuard Home, Unbound, CoreDNS, Caddy, Tailscale |
 | `vm-monitoring` | `113` | `10.77.20.11` | 常時起動 | 監視 | Prometheus, Alertmanager, Grafana, blackbox-exporter |
