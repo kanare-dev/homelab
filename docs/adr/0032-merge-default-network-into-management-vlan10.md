@@ -1,6 +1,6 @@
 # 0032. 既定のネットワークを Management（VLAN10）に統合し、VLAN1 を使わない
 
-- ステータス: 採用（未適用）
+- ステータス: 採用（実施済み。2026-11-20）
 - 日付: 2026-11-19
 
 ## 背景
@@ -55,5 +55,17 @@
 - ADR-0028 の「今の LAN（VLAN1）」は、この ADR の実施のあと、なくなる。
 - 実施の前に、画面で確かめること（未確認）: (1) SG2210P の管理インターフェースが、「Management」ネットワークに紐づいているか。Management を消したとき、SG2210P の管理 VLAN が、宙に浮いて、コントローラーから切れないか（切れたときは、SG2210P を再採用する。同じ VLAN10 の L2 なので、可能）。(2) Default の VLAN を 10 にしたとき、SG2210P の p1・p2 の untagged と tagged が、期待どおりに変わるか。(3) `Blackhole` を ER605 のポート 0 個で、作れるか（ポートの選択を、空にできるか）。
 - 実施の結果が期待と違うときは、案 A に戻すかを、新しい ADR で決める。
+
+## 実施の結果（2026-11-20）
+
+期待どおりに完了した（ER605 の全面停止は、約 1 時間。予定は 30〜40 分で、超えた）。ER605 の既定のネットワークは `Management(Default)`（VLAN10、`10.77.10.1/24`）。VLAN1 は、なくなった。p2 と空きポート（p5〜p7）の native は `Blackhole`、p8（緊急用の入口）と p1 は native Management。
+
+上の「未確認」の答え:
+
+1. **`Management` は、そのままでは消せない。** スイッチの管理 VLAN と、スイッチのネイティブネットワーク（p8）に紐づいていて、先に外す。消した時点で、**スイッチから VLAN10 が消え、コントローラーから切れた**（想定どおり）。SG2210P の本体の画面（ER605 の DHCP から受けた住所）で、VLAN10 を足して、復旧した。
+2. Default の VLAN を 10 にすると、p1・p8 の native は VLAN10 になった。ただし p2 は、コントローラーのタグ付きに Management を含めていなかったため、VLAN10 が untagged になった。**p2 のタグ付きに Management を含める**ことで直した。
+3. ER605 は、スタンドアロンで、LAN を `10.77.10.1/24`（VLAN は 1 のまま。スイッチ p1 の PVID が 10）にして、Inform URL `10.77.10.3` で採用できた。
+
+詳細は[手順書 25](../operations/runbooks/25-merge-default-network-into-vlan10.md)。
 
 詳細: [手順書 25](../operations/runbooks/25-merge-default-network-into-vlan10.md)、[ロードマップ 13](../operations/roadmap/13-defer-management-vlan.md#案-b-既定のネットワークを-vlan10-に統合する採用2026-11-19-に調査)、[VLAN 設計](../architecture/08-vlan-design.md)

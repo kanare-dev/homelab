@@ -6,7 +6,8 @@
 
 - **採用（未適用）**: 段階 3 の範囲の変更。決めたことは [ADR-0028](../../adr/0028-defer-management-vlan10.md)、[VLAN 設計](../../architecture/08-vlan-design.md#切り替え方式-一斉切り替え)、[移行計画](10-er605-sg2210p-migration-plan.md)の段階 3 に移した。この文書には、二重に書かない。
 - **採用（実施済み。2026-11-19）**: 段階 3b の順序（**機器を先に VLAN10 へ移し、そのあとコントローラーを移す**。[ADR-0031](../../adr/0031-stage3b-devices-before-controller.md)、手順は[段階 3b の作業](../runbooks/23-network-stage-3b-management-vlan10.md)）。下の「確かめる順序」の記録は、この決定に至った経緯。
-- **検討中**: 段階 3b の残り（既定のネットワークの VLAN10 への統合。ADR-0032 で採用、未適用）と、ACL を絞る日の前に決める未決事項（[ADR-0029](../../adr/0029-stage3-acl-allow-all-then-tighten.md)）。下に書く。
+- **採用（実施済み。2026-11-20）**: 既定のネットワークの VLAN10 への統合（案 B。[ADR-0032](../../adr/0032-merge-default-network-into-management-vlan10.md)、[手順書 25](../runbooks/25-merge-default-network-into-vlan10.md)）。段階 3b は、これで完了。
+- **検討中**: ACL を絞る日の前に決める未決事項（[ADR-0029](../../adr/0029-stage3-acl-allow-all-then-tighten.md)）。下に書く。
 
 ## 最終形（確定）
 
@@ -127,7 +128,8 @@
 - 確認: ER605（`192.168.11.1`）・SG2210P（`10.77.10.2`）とも、画面で「接続しました」。`omada.lab.kanare.dev`・`home.lab.kanare.dev` が 200、`grafana.lab.kanare.dev` が 302。Prometheus で `vm-omada` が up（down は、停止中の `vm-dev` だけ）。
 - 分かったこと: **ER605 は、導入のときの住所を覚える。** 導入を旧 LAN で発見させると、旧住所を覚えて、「デバイス管理アクセス」で配った新しい住所に付いてこない。VLAN10 側だけで導入させると、`10.77.10.3` を覚える。SG2210P は、旧住所で導入されても、新しい住所に付いてきた（機器ごとに、動きが違う）。
 - **Proxmox ホストの移動（2026-11-19 夜、同日の実施）**: `vmbr0.10`（`10.77.10.10`）に移した（[手順書 24](../runbooks/24-pve-move-to-vmbr0-10.md)）。ホストの切り替えは約 2 分。VM は動き続けた。
-- **残り**: 既定のネットワークの VLAN10 への統合（[ADR-0032](../../adr/0032-merge-default-network-into-management-vlan10.md)、[手順書 25](../runbooks/25-merge-default-network-into-vlan10.md)）、ACL を絞る。as-is 構成図は、削除せず、実機に追従させる（方針。2026-11-19）。
+- **既定のネットワークの VLAN10 への統合（2026-11-20 に実施済み。[ADR-0032](../../adr/0032-merge-default-network-into-management-vlan10.md)、[手順書 25](../runbooks/25-merge-default-network-into-vlan10.md)）。**
+- **残り**: ACL を絞る。as-is 構成図は、削除せず、実機に追従させる（方針。2026-11-19）。
 
 以下は、実施の前に書いた手順の案（計画）。
 
@@ -201,7 +203,7 @@ ER605 を初期化して、コントローラーに採用し直す案。
 
 案 A: 既定の LAN を `10.77.1.0/24` に付け替える（ER605 は `10.77.1.1`）。切り替えは、既定のネットワークのサブネットを変えるだけで、VLAN10 に触れない（ER605 のコントローラー接続は、送信元が変わるだけ）。VLAN1 は、「使わない VLAN」として残り、ADR-0023 の設計も、そのまま。コントローラーの画面の ER605 の IP は、`10.77.1.1`（VLAN ID に合わせた体系。`10.77.<VLAN>.1`）。
 
-**案 B（既定のネットワークを管理 VLAN にする）を採用した（2026-11-19。[ADR-0032](../../adr/0032-merge-default-network-into-management-vlan10.md)。未適用）。** 「タグなしが Management に入るのは、よいのか」という問いには、native をポートごとに決める設計（下）で対処する。確認の結果: 既定のネットワークの VLAN の番号は、画面で変更できる。「LAN を追加」は、IP/マスクが必須で、L2 だけのネットワークは作れない（ダミーのネットワーク `Blackhole` を作る）。native に選べるのは、既存のネットワークだけ。手順は[手順書 25](../runbooks/25-merge-default-network-into-vlan10.md)（草案）。
+**案 B（既定のネットワークを管理 VLAN にする）を採用した（2026-11-19。[ADR-0032](../../adr/0032-merge-default-network-into-management-vlan10.md)。2026-11-20 に実施済み）。** 「タグなしが Management に入るのは、よいのか」という問いには、native をポートごとに決める設計（下）で対処する。確認の結果: 既定のネットワークの VLAN の番号は、画面で変更できる。「LAN を追加」は、IP/マスクが必須で、L2 だけのネットワークは作れない（ダミーのネットワーク `Blackhole` を作る）。native に選べるのは、既存のネットワークだけ。手順は[手順書 25](../runbooks/25-merge-default-network-into-vlan10.md)（草案）。
 
 案 B の native の設計の下書き（検討中）:
 
