@@ -50,8 +50,22 @@
   - 動機: 今の監視は、`vm-omada` の OS（node_exporter）と、ルーター・回線の ping だけで、Omada が管理する機器（ER605・SG2210P・AP）とクライアントの状態は、Omada の画面でしか見られない。Grafana に載せれば、回線・VM の監視と同じ画面で、推移とアラートが扱える。
   - 見たいもの（**未決定**）: 機器の状態（オンライン・オフライン）、ポートごとのトラフィック、AP ごとの接続端末数、クライアント数など。何を見たいかを先に決めると、方法を選びやすい。
   - 方法の候補（**未調査・未検証**）: (1) コミュニティ製の Omada 用 Prometheus exporter（例: `charlie-haley/omada_exporter`。**コントローラー v6 に対応しているかは未確認**）。(2) コントローラーの Open API（上の「設定のコード化」の項目と同じ API）を呼ぶ自前の exporter。どちらも、コントローラーの閲覧用の認証情報が要り、SOPS に入れる（読み取り専用のユーザーを作る）。
-  - 時期: **移行（段階 1〜3）が落ち着いてから**。VLAN・ポートの設定が固まる前に作ると、見たい単位が変わる。[ネットワーク通信の収集・可視化](06-network-traffic-analysis.md)とは目的が違う（こちらは機器の状態と使用量、06 はパケットレベルの通信）。
+    - 2026-11-20 の調べ（検索のみ。**動かしていない**）: `charlie-haley/omada_exporter` とその派生（Docker イメージ `rcooler/omada-exporter` など。Web API v2 と OpenAPI の両方に対応と説明）がある。Grafana 用のダッシュボードは、[Omada Overview（16343）](https://grafana.com/grafana/dashboards/16343)と [Omada Overview（20854）](https://grafana.com/grafana/dashboards/20854)。**コントローラー 6.3 に対応しているかは、どの資料にも明記がない。** 試して確かめる。
+  - 時期: ~~移行（段階 1〜3）が落ち着いてから~~ → **段階 3b が完了した（2026-11-20）。VLAN・ポートの設定が固まったので、着手できる**（運用者が、やりたいことの 1 つに挙げた、2026-11-20）。[ネットワーク通信の収集・可視化](06-network-traffic-analysis.md)とは目的が違う（こちらは機器の状態と使用量、06 はパケットレベルの通信）。
   - 採用を決めたら、設計書（[監視・アラート](../../services/platform/monitoring.md)、[Omada コントローラー](../../services/network/omada-controller.md)）と ADR に移す。
+- [ ] **検討中**: AdGuard Home のダッシュボードを Grafana で見られるようにする（2026-11-20、運用者の希望。上の Omada と同じ仕組みに載せる）。**採用は未決定**。
+  - 動機: 今の監視は、AdGuard への名前解決の成否（blackbox の `dns-lab`・`dns-external`）だけ。クエリ数、ブロック率、上流の応答時間、クライアントごとの件数などは、AdGuard の画面でしか見られない。
+  - 見たいもの（**未決定**）: クエリ数、ブロックされた件数と率、平均の処理時間、上位のクライアント・ドメイン、保護の有効・無効。
+  - 方法の候補（**未検証**。2026-11-20 に検索で調べただけ）:
+    - (1) `henrywhitaker3/adguard-exporter`（Prometheus の exporter。1 つで複数の AdGuard を見られる。`:9618`）と、Grafana の[ダッシュボード 20799](https://grafana.com/grafana/dashboards/20799)。調べた中で、一番素直な組み合わせ。
+    - (2) `JonanekDev/AdGuardHome-Exporter` と[ダッシュボード 24520](https://grafana.com/grafana/dashboards/24520)（複数の AdGuard 向け）。
+    - (3) GeoIP や、クライアントの地域のパネルが欲しいなら、[ダッシュボード 24856](https://grafana.com/grafana/dashboards/24856)（別の Go の exporter）。
+    - 古い `ebrianne/adguard-exporter` を前提にしたダッシュボード（13330、14038）は、元のプロジェクトが無くなっているので、避ける。
+    - どの exporter も、公開されている最新の状態は、**導入の前に GitHub で確かめる**。
+  - 置き場所: exporter は、`vm-monitoring`（Servers。Prometheus と Grafana がある）に Docker で置き、`vm-infra` の AdGuard の API（`:3000`）を見る案。AdGuard の管理者の認証情報は、SOPS に入れる（読み取りだけの用途でも、管理者のユーザーが要る。専用のユーザーを作れるかは、確かめる）。UFW は、`vm-monitoring` からだけ許可する。
+  - **`vm-infra` の分割（上の項目）との関係**: AdGuard は、DNS の LXC に移る。exporter が見る先の IP が変わるので、**分割の前に入れるなら、移したあとに、`prometheus.yml` の対象を直す**。LXC の IP を、今の `10.77.20.10` から引き継げば、直さずに済む。
+  - 既存の仕組み: Grafana のダッシュボードは `docker/compose/monitoring/grafana/dashboards` と `provisioning` で、コードで入れている。取り込んだダッシュボードも、同じ形（JSON をリポジトリに置く）にする。アラート（Prometheus のルール）を足すかは、実測を見てから決める。
+  - 採用を決めたら、設計書（[監視・アラート](../../services/platform/monitoring.md)、[DNS](../../services/network/dns.md)）と ADR に移す。
 - [ ] **検討中**: ドキュメント体系を整理する（2026-11-09、運用者の希望）。**採用は未決定**。**移行（段階 1〜3）が終わったあとに行う**。移行の最中は構成と文書が頻繁に変わるので、先に整理しても、すぐに崩れる。
   - 文書の種類ごとの書式を決める: 設計書、ADR、Runbook、障害記録、ロードマップ、機器の設定の文書、サービス別の文書。見出しの構成、書く項目、日付・状態の書き方をそろえる。
   - 古くなった文書を削除・統合する: 移行前の構成の記述、完了した計画、役目を終えた検討記録。消す前に、経緯や判断の理由が ADR・障害記録に残っているかを確認し、消すものは一覧にして運用者が確認する。
