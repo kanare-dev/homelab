@@ -44,9 +44,9 @@
 
 更新数は、`/var/lib/update-notifier/updates-available` の「N updates can be applied immediately.」の行から読む。このファイルは、Ubuntu が `apt update` の成功時と、dpkg の実行のたびに更新する。ログイン時に `apt` を動かすと約 2 秒かかるので、ファイルを読むだけにしている。
 
-- 件数の行は 1 行目とは限らない（0 件のときは 1 行目が空）ので、行を探して読む
-- 数字は `apt dist-upgrade` で入る件数。`apt upgrade` では入らない（保留される）ものも含む
-- パッケージ一覧が古いと、更新数も古くなる。標準では一覧の更新が実質 1 日 1 回なので、`common` ロールが 6 時間ごとに更新するよう変えている（下の「配布の仕組み」）
+- 件数の行は、1 行目とは限らない（0 件のときは、1 行目が空になる）。そのため、行を探して読む。
+- 数字は、`apt dist-upgrade` で入る件数である。`apt upgrade` では入らずに保留されるものも、含んでいる。
+- パッケージ一覧が古いと、更新数も古くなる。標準では、一覧の更新が実質的に 1 日 1 回なので、`common` ロールが 6 時間ごとに更新するように変えている（下の「配布の仕組み」）。
 
 ## 配布の仕組み
 
@@ -73,9 +73,9 @@ cd ansible && ansible-playbook playbooks/site.yml --check --diff
 
 フォント（`ansi-shadow`、元の名前は `ANSI Shadow.flf`）は、リポジトリに**置かない**。
 
-- 配布元の [xero/figlet-fonts](https://github.com/xero/figlet-fonts) に、ライセンスの記載が無い（GitHub のライセンス欄が空で、LICENSE ファイルも無い。README は使い方だけ）
-- フォントのファイルの中にも、作者の記載が「Font Author: ?」とあるだけで、再配布の条件が分からない
-- ライセンスが明示されていないものは、既定では再配布できないので、リポジトリには入れない
+- 配布元の [xero/figlet-fonts](https://github.com/xero/figlet-fonts) には、ライセンスの記載がない。GitHub のライセンス欄は空で、LICENSE ファイルもなく、README には使い方しか書かれていない。
+- フォントのファイルの中にも、作者の記載が「Font Author: ?」とあるだけで、再配布の条件が分からない。
+- ライセンスが明示されていないものは、既定では再配布できないので、リポジトリには入れない。
 
 代わりに、取得するコミット（`fbf3b68…`、フォントを最後に変更したコミット）と、ファイルの SHA-256 を固定している。配布元が書き換わっても、中身が変わったら Ansible が失敗する。取得は各 VM が配布元から直接行い、このリポジトリでは再配布しない。
 
@@ -114,8 +114,8 @@ sudo chmod 0755 /usr/share/landscape/landscape-sysinfo.wrapper
 ```
 
 - 以前のタスクは、`find` の結果を `follow: true` で `chmod` していたため、リンク先の権限だけが変わり、パッケージの更新で戻る状態だった（2026-11-01 に実機の `vm-infra`、`vm-monitoring`、`vm-apps`、`vm-code` で、リンク先が `0644` に変わっていることを確認した）。現在のタスクは、通常のファイルだけを `chmod` し、リンクは `dpkg-statoverride` に任せる
-- 標準のスクリプトが増えたときも、`find` が見つけて同じ方法で止める
-- `pve` は `common` ロールの対象外。`/etc/update-motd.d/10-uname` だけがあり、`landscape` の件は関係しない
+- 標準のスクリプトが増えたときも、`find` が見つけて、同じ方法で止める。
+- `pve` は `common` ロールの対象外である。`/etc/update-motd.d/10-uname` だけがあり、`landscape` の件は関係しない。
 
 ## 注意点
 
