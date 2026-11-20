@@ -1,6 +1,6 @@
 # Terraform — Proxmox VM プロビジョニング
 
-Proxmox VE 上に VM を作成する Terraform 構成。
+このディレクトリは、Proxmox VE 上に VM を作成する Terraform の構成である。
 
 ## 前提条件
 

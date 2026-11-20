@@ -55,7 +55,7 @@ e1000e 0000:00:1f.6 nic0: Detected Hardware Unit Hang:
   ...
 ```
 
-- `TDH`（送信ヘッド）が進まない。NIC が送信キューを処理できなくなった状態。
+- `TDH`（送信ヘッド）が進まない。これは、NIC が送信キューを処理できなくなった状態である。
 - 22:29:17 から数秒おきに繰り返し、リンクが戻らないまま強制再起動まで続いた。
 - NIC は Intel I219（`e1000e`、カーネル `6.17.2-1-pve`）。Intel の I219 系で、TSO（TCP セグメンテーションオフロード）を有効にしていると起きる Hardware Unit Hang は、広く知られている。
 - 対応前の設定は `tcp-segmentation-offload: on`、`generic-segmentation-offload: on`、`generic-receive-offload: on`。

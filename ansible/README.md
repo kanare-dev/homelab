@@ -90,7 +90,7 @@ Caddy（リバースプロキシ）は Ansible role ではなく、`infra.yml` �
 
 ## 秘密情報の管理
 
-機密変数は SOPS + age で暗号化した `group_vars/<group>/secrets.sops.yml` に置く。`community.sops` の vars プラグイン（`ansible.cfg` で有効）が実行時に自動で復号するため、パスワードの入力やオプションは不要。
+機密変数は SOPS + age で暗号化した `group_vars/<group>/secrets.sops.yml` に置く。`community.sops` の vars プラグイン（`ansible.cfg` で有効）が実行時に自動で復号するため、パスワードの入力やオプションの指定は必要ない。
 
 ```bash
 # 初回のみ: 必要なコレクションを入れる
