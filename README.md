@@ -6,8 +6,8 @@
 </p>
 
 <p align="center">
-  Proxmox 上の homelab を、Terraform・Ansible・Docker Compose で、再現可能に運用。<br>
-  24GB RAM の ThinkCentre Tiny 1 台で常時稼働中の、DNS・リバースプロキシ・監視・リモート開発環境。
+  Proxmox 上の homelab を、Terraform、Ansible、Docker Compose で、再現できるように運用しています。<br>
+  24GB RAM の ThinkCentre Tiny 1 台の上で、DNS、リバースプロキシ、監視、リモート開発環境を常時動かしています。
 </p>
 
 <p align="center">
@@ -37,7 +37,7 @@
 
 - **Reproducibility**: 構成をコードで管理し、いつでも同じ環境を再構築できる
 - **Observability**: Prometheus と Grafana で VM やサービスの状態を継続的に可視化し、異常は Slack に通知する
-- **Document-Driven**: このリポジトリ内のドキュメントを読めば、全体構成、設計方針、運用方法等が分かる
+- **Document-Driven**: このリポジトリのドキュメントを読めば、全体の構成、設計の方針、運用の方法が分かる
 
 ## 特徴
 
@@ -95,9 +95,9 @@
 
 ## セキュリティ
 
-- 秘密情報は SOPS + age で暗号化して Git 管理する。平文のシークレットはコミットしない
-- SSH は鍵認証のみ。ファイアウォール（`ufw`）で必要なポートだけ開放する
-- LAN 内も Caddy で HTTPS 化する
+- 秘密情報は SOPS + age で暗号化して、Git で管理する。平文のシークレットはコミットしない。
+- SSH は鍵認証だけを許可し、ファイアウォール（`ufw`）では、必要なポートだけを開ける。
+- LAN の内側でも、Caddy を使って HTTPS で通信する。
 
 詳細は [セキュリティ](docs/architecture/05-security.md) を参照。
 
