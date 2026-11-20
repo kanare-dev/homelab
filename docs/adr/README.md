@@ -38,6 +38,7 @@
 | [0030](0030-stage3-no-rollback-deadline.md) | 段階 3 は戻す時刻を決めず、完了するまで作業する | 採用（未適用） | 2026-11-10 |
 | [0031](0031-stage3b-devices-before-controller.md) | 段階 3b は、機器を先に VLAN10 へ移し、そのあとコントローラーを移す | 採用（未適用） | 2026-11-19 |
 | [0032](0032-merge-default-network-into-management-vlan10.md) | 既定のネットワークを Management（VLAN10）に統合し、VLAN1 を使わない | 採用（実施済み） | 2026-11-19 |
+| [0033](0033-docs-first-by-change-type-and-diagram-order.md) | 文書の更新は、変更の種類で「先」か「同時」かを分け、構成図は to-be を先に、as-is は実機の変更ごとに更新する | 採用 | 2026-11-20 |
 
 ## 書き方
 
