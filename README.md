@@ -125,7 +125,11 @@ dig @10.77.20.10 grafana.lab.kanare.dev
 
 ## ライセンス
 
-[MIT](LICENSE)。ただし、`docs/hardware/future/rack-10inch/` に出所を書いた 3D モデルは、他の作者のもの（別のライセンス）で、このリポジトリには含めていない。
+コードと文書は [MIT](LICENSE)。次のものは、対象外です。
+
+- **ロゴ**（`docs/assets/logo/`）: すべての権利は、作者にある。このリポジトリを参考にするときは、自分のものとして使わないこと（生成スクリプト `make-logo.py` は、MIT）。
+- **第三者の資料**: メーカーの公式資料の引用や要約（`docs/hardware/*/spec.md` など）は、それぞれの権利者のもの。
+- **3D モデル**: `docs/hardware/future/rack-10inch/` に出所を書いた 3D モデルは、他の作者のもの（別のライセンス）で、このリポジトリには含めていない。
 
 <p align="center">
   <sub>kanare’s homelab · <a href="https://github.com/kanare-dev">kanare-dev</a></sub>

@@ -64,7 +64,8 @@ GitHub への登録は、**手で行う**（API では設定できない）: リ
 
 ## ライセンス
 
-文字の輪郭は、[JetBrains Mono](https://github.com/JetBrains/JetBrainsMono)（SIL Open Font License 1.1）から作っている。
+- **ロゴ（SVG、PNG、`gallery.html`、`social-preview.*`）は、リポジトリの MIT の対象外。** すべての権利は、作者にある。自分のものとして使わないこと。生成スクリプト `make-logo.py` は、MIT。
+- 文字の輪郭は、[JetBrains Mono](https://github.com/JetBrains/JetBrainsMono)（SIL Open Font License 1.1）から作っている。
 
 ## 作った経緯
 
