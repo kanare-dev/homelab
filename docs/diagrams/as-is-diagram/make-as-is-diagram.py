@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""現状（as-is）の構成図を、単体の HTML で作る。段階 3 の後（2026-11-17〜）の、実機のとおりの構成。`vm-omada`（`10.77.10.3`）と SG2210P（`10.77.10.2`）は、2026-11-19 に Management（VLAN10）へ移った（ADR-0031）。Proxmox ホスト（`10.77.10.10`）も、2026-11-19 に VLAN10 へ移った。ER605 の既定の LAN だけが、VLAN1（`10.77.1.0/24`。2026-11-19 に `192.168.11.0/24` から付け替え）に残っている。
+"""現状（as-is）の構成図を、単体の HTML で作る。段階 3 の後（2026-11-17〜）の、実機のとおりの構成。`vm-omada`（`10.77.10.3`）と SG2210P（`10.77.10.2`）は、2026-11-19 に Management（VLAN10）へ移った（ADR-0031）。Proxmox ホスト（`10.77.10.10`）も、2026-11-19 に VLAN10 へ移った。ER605 の既定のネットワークも、2026-11-20 に Management（VLAN10、`10.77.10.1/24`）に統合した（ADR-0032）。VLAN1 は使わない。p2・空きポートの native は `Blackhole`（VLAN 999）。
 
 最終形（to-be）は ../to-be-diagram/。この図は、to-be-diagram のスクリプトを写して、配置と文字を現状に合わせたもの。見た目の決まりと部品は同じ。
 実機を変えたら（IP、VLAN、ポート）、この図を直す。この図は、削除せず、常に実機の状態を表す。to-be-diagram（目指す姿。随時更新する）を追いかけ、実機が追いつくと、ほぼ同じ形になる。
@@ -40,7 +40,6 @@ W, H = 1720, 1690
 
 # VLAN ごとの色（塗り, 線）
 COLOR = {
-    1: ("#ece6da", "#9c8f73"),  # 今の LAN（VLAN1）
     10: ("#dae8fc", "#6c8ebf"),
     20: ("#ffe6cc", "#d79b00"),
     30: ("#d5e8d4", "#82b366"),
@@ -49,7 +48,7 @@ COLOR = {
     60: ("#eeeeee", "#666666"),
     70: ("#f8cecc", "#b85450"),
 }
-NAME = {1: "既定の LAN（10.77.1.0/24）", 10: "Management", 20: "Servers", 30: "Trusted", 40: "Lab", 50: "IoT", 60: "Guests", 70: "DMZ"}
+NAME = {10: "Management", 20: "Servers", 30: "Trusted", 40: "Lab", 50: "IoT", 60: "Guests", 70: "DMZ"}
 
 back = []  # 背面（枠）。out より先に描く
 out = []   # 前面（アイコン、文字、線）
@@ -210,11 +209,11 @@ NODE = ("monitoring/prometheus.png", svc("node_exporter", ":9100"))
 def layout():
     # 凡例（右上。縦一列。上ほど信頼度が高い） ------------------------------------------
     lx, ly = 1050, 20
-    frame(1040, ly, 660, 244, "legend")  # 凡例は 1 つの四角（左: VLAN 一覧、右: 線と文字）
+    frame(1040, ly, 660, 222, "legend")  # 凡例は 1 つの四角（左: VLAN 一覧、右: 線と文字）
     text(f"<b>VLAN 一覧</b>（{ip('10.77.&lt;VLAN&gt;.0/24')}）", lx - 3, ly + 6, 380, 26)
     text("信頼度", lx - 3, ly + 39, 54, 22, align="center", cls="el")
-    edge([(lx + 24, ly + 66), (lx + 24, ly + 222)], arrow="start")  # 矢じりが上。上ほど信頼度が高い
-    for k, v in enumerate((1, 10, 20, 30, 40, 50, 60, 70)):
+    edge([(lx + 24, ly + 66), (lx + 24, ly + 200)], arrow="start")  # 矢じりが上。上ほど信頼度が高い
+    for k, v in enumerate((10, 20, 30, 40, 50, 60, 70)):
         y = ly + 56 + 22 * k
         frame(lx + 50, y + 2, 30, 18, f"sw z{v}")
         text(f"VLAN{v} {NAME[v]}", lx + 90, y, 340, 22)
@@ -259,17 +258,17 @@ def layout():
 
     # 通信ポリシー（LAN の中、ER605 の左） -----------------------------------------------
     text("<b>通信ポリシー（現状）</b><br>ACL は<b>全許可</b>（段階 3 の当日。絞るのは別の日。ADR-0029）。<br>"
-         f"DNS: VLAN の DHCP は <i>vm-infra</i> {ip('10.77.20.10')}。VLAN1 の DHCP はルーター {ip('10.77.1.1')}。<br>"
+         f"DNS: VLAN の DHCP は <i>vm-infra</i> {ip('10.77.20.10')}。Management の DHCP（緊急用 .240–.250）はルーター {ip('10.77.10.1')}。<br>"
          f"外出先: Tailscale が {ip('10.77.20.0/24')}、{ip('10.77.40.0/24')} だけを広告。",
          40, 250, 640, 140)
 
     icon("hardware/tplink-er605.png", 789, 219, 182, 61, max_px=700)  # 実寸の幅の比（ER605 158mm : SG2210P 209mm ≒ 0.76）。下端は 280 のまま
-    text(f"<b>TP-Link ER605 V2</b><br>{ip('10.77.1.1')}（VLAN1）<br>各 VLAN の GW（{ip('10.77.&lt;VLAN&gt;.1')}）・DHCP・ACL（全許可）", 1010, 200, 420, 80)
+    text(f"<b>TP-Link ER605 V2</b><br>{ip('10.77.10.1')}（VLAN10）<br>各 VLAN の GW（{ip('10.77.&lt;VLAN&gt;.1')}）・DHCP・ACL（全許可）", 1010, 200, 420, 80)
     edge([(880, 280), (880, 380)], width=5)  # p1: trunk（太い線）
-    text("ER605 p2 ⇔ SG2210P p1: trunk（untagged: VLAN1 / tagged: VLAN10/20/30/40/50/60/70）", 890, 320, 700, 40, cls="el")
+    text("ER605 p2 ⇔ SG2210P p1: trunk（untagged: VLAN10 / tagged: VLAN20/30/40/50/60/70）", 890, 320, 700, 40, cls="el")
 
     icon("hardware/tplink-sg2210p.png", 760, 380, 240, 80, max_px=700)
-    text(f"<b>TP-Link SG2210P</b><br>{ip('10.77.10.2')}（VLAN10。2026-11-19〜）＋ {ip('10.77.1.x')}（VLAN1。旧インターフェース、DHCP）<br>p1: ER605 / p2: pve / p3: Buffalo / p4: Dell U2725QE /<br>p5–p7: 空き / p8: 緊急用の入口（native VLAN1）", 1010, 380, 690, 80)
+    text(f"<b>TP-Link SG2210P</b><br>{ip('10.77.10.2')}（VLAN10）<br>p1: ER605 / p2: pve / p3: Buffalo / p4: Dell U2725QE /<br>p5–p7: 空き（native Blackhole）/<br>p8: 緊急用の入口（native VLAN10）", 1010, 380, 690, 80)
 
     # Proxmox ---------------------------------------------------------------------------
     gx, gy = 40, 640
@@ -277,7 +276,7 @@ def layout():
     text("<b>Lenovo ThinkCentre M70q Tiny Gen1</b><br>CPU: Intel Core i5-10400T (6C/12T)<br>RAM: 1 x 8 GB + 1 x 16 GB DDR4-3200<br>"
          "Storage: 1 x 256GB NVMe SSD", 430, 519, 300, 80, align="center")
     edge([(800, 460), (800, 620)], width=5)  # p2: trunk（太い線）
-    text("p2: trunk（untagged: VLAN1 / tagged: VLAN10/20/30/40/50/60/70）", 220, 468, 570, 24, align="right", cls="el")
+    text("p2: trunk（native: Blackhole / tagged: VLAN10/20/30/40/50/60/70）", 220, 468, 570, 24, align="right", cls="el")
 
     # 右の列（Management / Lab / DMZ）と、Servers の 2 列を先に配置して高さを決める
     gi = len(back)                      # Proxmox の枠は、中の VLAN 枠より前に入れる
@@ -318,11 +317,6 @@ def layout():
     zone(10, rx, y, 340, mgmt_h)
     text("<b>VLAN10 Management</b>", rx + 10, y + 5, 320, 30)
     y += mgmt_h + 20
-    # 今の LAN（VLAN1）: VM は無い。Proxmox ホスト（pve）と ER605 の LAN だけ（段階 3b の残り）
-    zone(1, rx, y, 340, 110)
-    text("<b>VLAN1 既定の LAN</b>（VM なし）", rx + 10, y + 5, 330, 30)
-    text("ER605 の既定の LAN だけ。<br>VLAN10 への統合が残る（ADR-0032）", rx + 20, y + 40, 310, 60)
-    y += 110 + 20
     # Lab
     h1 = vm(40, rx + 20, y + 50, "vm-dev", "10.77.40.10", "Ubuntu Server 24.04", [("row", *NODE)])
     lab_h = 50 + h1 + 20
