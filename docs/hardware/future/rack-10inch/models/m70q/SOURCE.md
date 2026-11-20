@@ -18,8 +18,8 @@
 
 配布元のページで、次の表示を 2026-11-01 に確認した。
 
-- 「Attribution-ShareAlike」（CC BY-SA 4.0）
-- 表示の「Remix Culture allowed（改変可）」と「Commercial Use（商用利用可）」が有効
+- ライセンスは「Attribution-ShareAlike」（CC BY-SA 4.0）である。
+- 表示では、「Remix Culture allowed（改変可）」と「Commercial Use（商用利用可）」が、どちらも有効になっている。
 
 CC BY-SA 4.0 は、次の条件で、複製・再配布・改変を認める。
 

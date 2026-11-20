@@ -18,8 +18,8 @@
 
 配布元のページで、次の表示を 2026-11-01 に確認した。
 
-- 「Attribution-NonCommercial」（CC BY-NC 4.0）
-- 「Commercial Use（商用利用）」は**不可**。「Remix Culture allowed（改変可）」は有効
+- ライセンスは「Attribution-NonCommercial」（CC BY-NC 4.0）である。
+- 「Commercial Use（商用利用）」は**不可**である。「Remix Culture allowed（改変可）」は有効になっている。
 
 条件と、このリポジトリでの使い方（非営利であることの確認）は、[../er605/SOURCE.md](../er605/SOURCE.md) と同じ。
 
