@@ -66,7 +66,24 @@
 
 ## ハードウェア・拡張
 
-- [ ] NAS の導入（TrueNAS）。導入後は、PBS / restic による自動バックアップ（[ADR 0001](../../adr/0001-no-vm-backup.md)）と、Home Assistant の `.storage/` と履歴の保護（[ADR 0011](../../adr/0011-home-assistant-on-vm-apps.md) の再検討の条件）も見直す
+- [ ] NAS の導入（TrueNAS）。**将来は、NAS 専用機で TrueNAS を動かしたい**（2026-11-20、運用者の考え）。その前の段階として、下の「USB SSD の NAS」を試す。導入後は、PBS / restic による自動バックアップ（[ADR 0001](../../adr/0001-no-vm-backup.md)）と、Home Assistant の `.storage/` と履歴の保護（[ADR 0011](../../adr/0011-home-assistant-on-vm-apps.md) の再検討の条件）も見直す
+
+- [ ] **検討中**: Proxmox ホストに USB の外付け SSD を付けて、NAS にする（USB SSD の NAS。2026-11-20、運用者の構想。**設計は未決定**）。将来の専用機（上の TrueNAS）の前の段階。
+  - 決めたこと（運用者、2026-11-20）: 用途は、**ファイル共有**と**写真・動画の管理**。方式は、**ホストでマウントして、LXC の Samba で配る**。容量は **1TB 前後**で、消えても困らないものが中心。バックアップ先（vzdump、PBS、restic）は、今回の用途に入れていない。
+  - 前提: ホスト（ThinkCentre M70q Tiny）には PCIe スロットがなく、外付けは USB だけ。内蔵の NVMe は 256GB の 1 枚で、プールの空きは小さい（[ハードウェア](../../hardware/thinkcentre-m70q-tiny/spec.md)）。冗長化はしない（SSD 1 台。壊れたら、データは消える）。
+  - 見立て（**未検証**）:
+    - ディスク: 背面の USB 3.2 Gen 2 に直接つなぐ（ハブを通さない）。UASP 対応のケース。給電と熱に注意。ファイルシステムは **ext4**（ZFS は USB だと不安定になりやすい）。`/etc/fstab` に UUID で書き、**`nofail`** にする（ディスクが外れていても、ホストが起動する）。
+    - LXC: 特権なしの LXC に、ホストのマウント先を bind マウントし、Samba を**パッケージで**入れる。特権なしの LXC は UID がずれるので、共有用の UID・GID の対応（idmap）を決める。メモリは軽い（100〜200MB 程度）。
+    - 置き場所: Servers の未使用の帯（`.40–.49`。[ADR-0027](../../adr/0027-servers-octet-bands-and-emergency-dns.md)）に置く案。VMID は規則（[ADR-0026](../../adr/0026-vmid-from-vlan-and-octet.md)）に従い、`2040` など。Trusted から SMB（445/tcp）で入るので、ACL を絞るときに許可を足す。外出先からは、Tailscale のサブネットルーターが `10.77.20.0/24` を広告しているので、入れる。
+    - 写真・動画: アプリ（Immich など。[サービスカタログ](../../homelab-service-catalog.md)では未検討）は `vm-apps` に置き、**DB は内蔵の NVMe**、原本だけを NAS（SMB か NFS）に置く。
+    - 監視: node_exporter のファイルシステムの使用率、マウントの有無（外れたときのアラート）。SMART は、USB ブリッジ越しに見えないことがある（`smartctl -d sat` を試す）。
+  - **リスクと未決**:
+    - 写真の原本は、取り直せない。「消えても困らない」とのずれがある。写真の原本は、元の端末にも残すか、別の場所に二次バックアップを取るか、決める。
+    - USB の切断（ケーブル・給電・省電力）で、I/O エラーが出る。外れたときの挙動（Samba の LXC が固まらないか）を、試す。
+    - SSD の製品・容量・つなぐ USB ポート。共有の構成（フォルダ、ユーザー）。VLAN・IP（上）。
+  - 将来の専用機（TrueNAS）への引っ越し: 共有名・フォルダの構成・UID を、あとで写せるようにそろえておく（`rsync` でデータを移す）。
+  - 順序: LXC を Terraform・Ansible で管理する流れは、`vm-infra` の分割（上の項目）と共通。**DNS・プロキシは止まると影響が大きいので、止まっても困らない、この NAS の LXC を、最初の LXC として試す**案がある。ACL を絞るあと（運用者の考え）に、どちらを先にするかも決める。
+  - 採用を決めたら、設計書（[インフラ](../../architecture/02-infrastructure.md)、[監視・アラート](../../services/platform/monitoring.md)）と ADR に移す。
 - [ ] UPS 導入と自動シャットダウン
 
 ## ホームオートメーション

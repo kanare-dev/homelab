@@ -204,7 +204,8 @@
 
 | 状況 | ツール | 説明 | 根拠・備考 |
 | --- | --- | --- | --- |
-| 計画中 | truenas/core | NAS 用オープンソース OS | [未着手の項目](operations/roadmap/01-backlog.md) |
+| 計画中 | truenas/core | NAS 用オープンソース OS（将来の NAS 専用機で） | [未着手の項目](operations/roadmap/01-backlog.md) |
+| 検討中 | Samba | USB SSD の NAS（ホストでマウント + LXC で配る） | [未着手の項目](operations/roadmap/01-backlog.md) |
 | 未検討 | nextcloud/nextcloud | セルフホスト型クラウドストレージ | — |
 | 未検討 | linuxserver/duplicati | バックアップ・リストア | — |
 | 未検討 | linuxserver/syncthing | P2P ファイル同期 | — |
