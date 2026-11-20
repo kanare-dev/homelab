@@ -12,6 +12,43 @@
 | [homelab-service-catalog.md](homelab-service-catalog.md) | ホームラボで使えるツールのカタログ（候補集。導入済み・計画中・見送りなどの状況つき。このリポジトリの構成ではない） |
 | screenshots/ | README・監視文書で使う画像 |
 
+## リポジトリ構成
+
+```text
+homelab/
+├── README.md
+├── LICENSE
+├── Makefile                # lint-all、terraform / ansible の実行ショートカット
+├── .sops.yaml              # SOPS の暗号化ルール
+├── .markdownlint-cli2.yaml # Markdown lint のルール
+├── .github/workflows/      # CI（lint）
+├── .githooks/              # pre-push フック（make hooks で有効化）
+├── terraform/
+│   └── proxmox/            # VM のプロビジョニング
+├── ansible/
+│   ├── inventory/
+│   ├── roles/
+│   └── playbooks/
+├── docker/
+│   └── compose/            # dns / freshrss / homeassistant / homepage / monitoring / n8n / omada / reverse-proxy
+├── tools/
+│   └── check-md-links.py   # Markdown の内部リンク検査
+└── docs/
+    ├── architecture/       # 方式設計
+    ├── assets/logo/        # ロゴ（SVG）と生成スクリプト（make-logo.py）、使い方の README
+    ├── diagrams/           # 構成図（現行は draw.io の SVG、VLAN 化後と物理構成図は HTML と PNG）と生成・整形スクリプト、README（更新の手順）。assets/ はアイコン素材（Git 管理外）
+    ├── services/           # サービスごとの詳細設計（役割ごとのフォルダ: network/、platform/、apps/、dev/）
+    ├── hardware/           # 機器ごとの仕様・資料と設定値（置き方の決まりは README）
+    │   ├── thinkcentre-m70q-tiny/  # ThinkCentre M70q Tiny（Proxmox ホスト）。spec.md（公式資料と仕様。Lenovo PSREF）、settings.md（設定値）
+    │   ├── er605/              # ER605 V2。spec.md（データシート V2.2）、settings.md
+    │   ├── sg2210p/            # SG2210P。spec.md（データシート V5.30）、settings.md
+    │   ├── wsr-1800ax4p/       # Buffalo WSR-1800AX4P。spec.md（AP モードの扱いを含む）、settings.md
+    │   └── future/             # 導入前の機器・用品
+    │       └── rack-10inch/    # 10 インチラックの 3D プリント用の出所と配布元リンク（他の作者のモデルのデータは、Git 管理しない）
+    ├── operations/         # Runbook、バックアップ、障害記録、ロードマップ
+    └── adr/                # 設計判断の記録
+```
+
 ## 文書の運用
 
 計画の文書と、現行構成の文書を混ぜないために、内容の状態で書く場所を分ける。

@@ -5,13 +5,35 @@
   </picture>
 </p>
 
-# homelab
+<p align="center">
+  Proxmox 上の homelab を、Terraform・Ansible・Docker Compose で、再現可能に運用する。<br>
+  24GB RAM の ThinkCentre Tiny 1 台で、DNS・リバースプロキシ・監視・リモート開発環境を常時運用している。
+</p>
 
-[![lint](https://github.com/kanare-dev/homelab/actions/workflows/lint.yml/badge.svg)](https://github.com/kanare-dev/homelab/actions/workflows/lint.yml)
+<p align="center">
+  <a href="https://github.com/kanare-dev/homelab/actions/workflows/lint.yml"><img alt="lint" src="https://img.shields.io/github/actions/workflow/status/kanare-dev/homelab/lint.yml?branch=main&style=flat-square&label=lint&labelColor=1c2430"></a>
+  <a href="https://github.com/kanare-dev/homelab/commits/main"><img alt="最終コミット" src="https://img.shields.io/github/last-commit/kanare-dev/homelab?style=flat-square&labelColor=1c2430&color=3b6fb6"></a>
+  <a href="https://www.proxmox.com/"><img alt="Proxmox VE" src="https://img.shields.io/badge/Proxmox_VE-9-3b6fb6?style=flat-square&labelColor=1c2430&logo=proxmox&logoColor=white"></a>
+  <a href="https://www.terraform.io/"><img alt="Terraform" src="https://img.shields.io/badge/Terraform-IaC-3b6fb6?style=flat-square&labelColor=1c2430&logo=terraform&logoColor=white"></a>
+  <a href="https://www.ansible.com/"><img alt="Ansible" src="https://img.shields.io/badge/Ansible-config-3b6fb6?style=flat-square&labelColor=1c2430&logo=ansible&logoColor=white"></a>
+</p>
 
-Proxmox 上に複数 VM を構築し、Terraform + Ansible + Docker Compose で再現可能に運用する homelab リポジトリ。
+<p align="center">
+  <a href="#構成">構成</a> ·
+  <a href="docs/README.md">ドキュメント</a> ·
+  <a href="docs/adr/README.md">設計判断（ADR）</a> ·
+  <a href="docs/operations/roadmap/README.md">ロードマップ</a> ·
+  <a href="docs/operations/runbooks/README.md">Runbook</a>
+</p>
 
-24GB RAM の ThinkCentre Tiny 1 台で、DNS・リバースプロキシ・監視・リモート開発環境を常時運用している。構成はすべてコードで管理し、機密値は SOPS + age で暗号化して公開リポジトリに置いている。
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/diagrams/as-is-diagram/as-is-diagram-dark.png">
+    <img alt="現状の構成図" src="docs/diagrams/as-is-diagram/as-is-diagram.png">
+  </picture>
+</p>
+
+構成はすべてコードで管理し、機密値は SOPS + age で暗号化して公開リポジトリに置いている。
 
 ## 全体方針
 
@@ -19,16 +41,17 @@ Proxmox 上に複数 VM を構築し、Terraform + Ansible + Docker Compose で�
 - **可観測性**: Prometheus と Grafana で VM やサービスの状態を継続的に可視化し、異常は Slack に通知する
 - **ドキュメント駆動**: このリポジトリ内のドキュメントを読めば、全体構成、設計方針、運用方法等が分かる
 
+## 特徴
+
+- **3 層 DNS**: AdGuard Home（フィルタリング）→ CoreDNS（`lab.kanare.dev` の権威）/ Unbound（ルートからの再帰解決）。1.1.1.1 などの外部リゾルバに依存しない（[DNS 構成](docs/services/network/dns.md)）
+- **正規の TLS 証明書**: Caddy が Cloudflare DNS-01 で Let's Encrypt の証明書を取得し、LAN 内でも警告なしで HTTPS（[リバースプロキシと TLS](docs/services/network/reverse-proxy-tls.md)）
+- **二重 NAT でも外出先から接続**: Tailscale を subnet router として動かし、split DNS で `lab.kanare.dev` を引く（[ネットワーク設計](docs/architecture/03-network.md)）
+- **機密情報管理**: SOPS + age で暗号化して Git に置く。CI で gitleaks と暗号化漏れを検査する（[セキュリティ](docs/architecture/05-security.md)）
+- **可観測性**: Prometheus + Alertmanager で、容量枯渇・VM 停止・OOM などを検知して Slack に通知する（[監視・アラート](docs/services/platform/monitoring.md)）
+
 ## 構成
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/diagrams/as-is-diagram/as-is-diagram-dark.png">
-  <img alt="現状の構成図" src="docs/diagrams/as-is-diagram/as-is-diagram.png">
-</picture>
-
-上は、現状（as-is。常に実機の状態を表す）の構成。目指す姿（to-be。管理系は VLAN10）は[to-be の構成図](docs/diagrams/to-be-diagram/to-be-diagram.png)、配線は[物理構成図](docs/diagrams/physical-diagram/physical-diagram.png)にある。
-
-最新の構成図（テキスト版）と、VM ごとの割当（CPU・メモリ・ディスク）は [システム構成・環境](docs/architecture/01-overview.md) を参照。
+上の図は、現状（as-is。常に実機の状態を表す）の構成。目指す姿（to-be。管理系は VLAN10）は[to-be の構成図](docs/diagrams/to-be-diagram/to-be-diagram.png)、配線は[物理構成図](docs/diagrams/physical-diagram/physical-diagram.png)にある。最新の構成図（テキスト版）と、VM ごとの割当（CPU・メモリ・ディスク）は [システム構成・環境](docs/architecture/01-overview.md) を参照。
 
 | 名前 | VMID | IP | 状態 | 役割 | 主なサービス |
 | --- | --- | --- | --- | --- | --- |
@@ -44,13 +67,9 @@ Proxmox 上に複数 VM を構築し、Terraform + Ansible + Docker Compose で�
 
 ## スクリーンショット
 
-### Proxmox VE — VM 稼働状況
-
-![Proxmox VMs Running](docs/screenshots/proxmox-vms-running.png)
-
-### Grafana — Node Exporter ダッシュボード
-
-![Grafana Node Exporter Dashboard](docs/screenshots/grafana-node-exporter-dashboard.png)
+| Proxmox VE — VM 稼働状況 | Grafana — Node Exporter ダッシュボード |
+| --- | --- |
+| ![Proxmox VMs Running](docs/screenshots/proxmox-vms-running.png) | ![Grafana Node Exporter Dashboard](docs/screenshots/grafana-node-exporter-dashboard.png) |
 
 ## 技術スタック
 
@@ -74,29 +93,6 @@ Proxmox 上に複数 VM を構築し、Terraform + Ansible + Docker Compose で�
 | [docs/operations/](docs/operations/runbooks/README.md) | 運用 | [Runbook](docs/operations/runbooks/README.md)、[バックアップの手順](docs/operations/runbooks/06-backup-restore.md)、[障害記録](docs/operations/incidents/README.md)、[ロードマップ](docs/operations/roadmap/README.md) |
 | [docs/adr/](docs/adr/README.md) | ADR | 設計判断の記録 |
 
-## 設計の特徴
-
-- **3 層 DNS**: AdGuard Home（フィルタリング）→ CoreDNS（`lab.kanare.dev` の権威）/ Unbound（ルートからの再帰解決）。1.1.1.1 などの外部リゾルバに依存しない（[DNS 構成](docs/services/network/dns.md)）
-- **正規の TLS 証明書**: Caddy が Cloudflare DNS-01 で Let's Encrypt の証明書を取得し、LAN 内でも警告なしで HTTPS（[リバースプロキシと TLS](docs/services/network/reverse-proxy-tls.md)）
-- **二重 NAT でも外出先から接続**: Tailscale を subnet router として動かし、split DNS で `lab.kanare.dev` を引く（[ネットワーク設計](docs/architecture/03-network.md)）
-- **機密情報管理**: SOPS + age で暗号化して Git に置く。CI で gitleaks と暗号化漏れを検査する（[セキュリティ](docs/architecture/05-security.md)）
-- **可観測性**: Prometheus + Alertmanager で、容量枯渇・VM 停止・OOM などを検知して Slack に通知する（[監視・アラート](docs/services/platform/monitoring.md)）
-
-## 管理画面
-
-| サービス | ドメイン | 備考 |
-| --- | --- | --- |
-| Omada | [https://omada.lab.kanare.dev](https://omada.lab.kanare.dev) | Omada コントローラー（ER605・SG2210P の管理。ドメインは Caddy 経由。[DNS 構成](docs/services/network/dns.md#管理画面omada-コントローラー)） |
-| Proxmox | [https://pve.lab.kanare.dev](https://pve.lab.kanare.dev) | Proxmox VE 管理画面 |
-| Homepage | [https://home.lab.kanare.dev](https://home.lab.kanare.dev) | ランディングダッシュボード（[詳細](docs/services/apps/homepage.md)） |
-| Home Assistant | [https://ha.lab.kanare.dev](https://ha.lab.kanare.dev) | スマートホーム（[詳細](docs/services/apps/home-assistant.md)） |
-| n8n | [https://n8n.lab.kanare.dev](https://n8n.lab.kanare.dev) | ワークフロー自動化（[詳細](docs/services/apps/n8n.md)） |
-| FreshRSS | [https://rss.lab.kanare.dev](https://rss.lab.kanare.dev) | RSS リーダー（[詳細](docs/services/apps/freshrss.md)） |
-| Grafana | [https://grafana.lab.kanare.dev](https://grafana.lab.kanare.dev) | 監視ダッシュボード |
-| Prometheus | [https://prometheus.lab.kanare.dev](https://prometheus.lab.kanare.dev) | メトリクス確認 |
-| Alertmanager | [https://alertmanager.lab.kanare.dev](https://alertmanager.lab.kanare.dev) | 発報中アラートの確認・Silence |
-| AdGuard Home | [https://adguard.lab.kanare.dev](https://adguard.lab.kanare.dev) | DNS フィルタリング・クエリログ |
-
 ## セキュリティ
 
 - 秘密情報は SOPS + age で暗号化して Git 管理する。平文のシークレットはコミットしない
@@ -105,93 +101,32 @@ Proxmox 上に複数 VM を構築し、Terraform + Ansible + Docker Compose で�
 
 詳細は [セキュリティ](docs/architecture/05-security.md) を参照。
 
-## リポジトリ構成
-
-```text
-homelab/
-├── README.md
-├── Makefile                # lint-all、terraform / ansible の実行ショートカット
-├── .sops.yaml              # SOPS の暗号化ルール
-├── .markdownlint-cli2.yaml # Markdown lint のルール
-├── .github/workflows/      # CI（lint）
-├── .githooks/              # pre-push フック（make hooks で有効化）
-├── terraform/
-│   └── proxmox/            # VM のプロビジョニング
-├── ansible/
-│   ├── inventory/
-│   ├── roles/
-│   └── playbooks/
-├── docker/
-│   └── compose/            # dns / freshrss / homeassistant / homepage / monitoring / n8n / omada / reverse-proxy
-├── tools/
-│   └── check-md-links.py   # Markdown の内部リンク検査
-└── docs/
-    ├── architecture/       # 方式設計
-    ├── assets/logo/        # ロゴ（SVG）と生成スクリプト（make-logo.py）、使い方の README
-    ├── diagrams/           # 構成図（現行は draw.io の SVG、VLAN 化後と物理構成図は HTML と PNG）と生成・整形スクリプト、README（更新の手順）。assets/ はアイコン素材（Git 管理外）
-    ├── services/           # サービスごとの詳細設計（役割ごとのフォルダ: network/、platform/、apps/、dev/）
-    ├── hardware/           # 機器ごとの仕様・資料と設定値（置き方の決まりは README）
-    │   ├── thinkcentre-m70q-tiny/  # ThinkCentre M70q Tiny（Proxmox ホスト）。spec.md（公式資料と仕様。Lenovo PSREF）、settings.md（設定値）
-    │   ├── er605/              # ER605 V2。spec.md（データシート V2.2）、settings.md
-    │   ├── sg2210p/            # SG2210P。spec.md（データシート V5.30）、settings.md
-    │   ├── wsr-1800ax4p/       # Buffalo WSR-1800AX4P。spec.md（AP モードの扱いを含む）、settings.md
-    │   └── future/             # 導入前の機器・用品
-    │       └── rack-10inch/    # 10 インチラックの 3D プリント用データ（models/。他の作者のモデルで、別ライセンス）と配布元リンク
-    ├── operations/         # Runbook、バックアップ、障害記録、ロードマップ
-    └── adr/                # 設計判断の記録
-```
-
 ## Quick Start
 
-### 前提条件
-
-- [Terraform](https://www.terraform.io/) >= 1.5
-- [Ansible](https://docs.ansible.com/) >= 2.15
-- Proxmox VE 9.x が `10.77.10.10` で稼働済み
-- 対象 VM に SSH 鍵認証でログインできること
-
-> [!IMPORTANT]
-> Terraform の Proxmox provider には API トークンが必要。`terraform/proxmox/README.md` の手順に従い、事前に Proxmox 側でトークンを発行する。
-
-### 1. リポジトリをクローン
+前提: [Terraform](https://www.terraform.io/) 1.5 以上、[Ansible](https://docs.ansible.com/) 2.15 以上、Proxmox VE 9.x が稼働済みで、対象 VM に SSH 鍵認証で入れること。Proxmox の API トークンを、事前に発行しておく（[`terraform/proxmox/README.md`](terraform/proxmox/README.md)）。
 
 ```bash
-git clone https://github.com/kanare-dev/homelab.git
-cd homelab
-```
+git clone https://github.com/kanare-dev/homelab.git && cd homelab
 
-### 2. Core VM をプロビジョニング
-
-```bash
+# 1. VM をプロビジョニング（VM の定義は terraform.tfvars。秘密は SOPS: docs/operations/runbooks/03-secrets.md）
 cd terraform/proxmox
-# VM の定義は terraform.tfvars（Git 管理）。必要なら編集
-sops secrets.sops.yml   # proxmox_api_token_secret を設定（SOPS の準備は docs/operations/runbooks/03-secrets.md）
-terraform init
-terraform plan
-terraform apply
-```
+sops secrets.sops.yml        # proxmox_api_token_secret を設定
+terraform init && terraform apply
 
-まずは `vm-infra` と `vm-monitoring` を優先し、`vm-dev` は必要になってから追加する。
-
-### 3. VM を構成
-
-```bash
-cd ansible
-# inventory/hosts.yml を環境に合わせて編集
+# 2. VM を構成
+cd ../../ansible
 ansible-playbook playbooks/site.yml
-```
 
-### 4. 動作確認
-
-```bash
-# DNS
+# 3. 動作確認
 dig @10.77.20.10 grafana.lab.kanare.dev
-
-# Grafana
-open http://10.77.20.11:3000
-
-# Prometheus
-open http://10.77.20.11:9090
 ```
 
-各ディレクトリの README（`terraform/proxmox/`、`ansible/`、`docker/compose/`）に、詳細な手順がある。
+詳しい手順は、各ディレクトリの README（[`terraform/proxmox/`](terraform/proxmox/README.md)、[`ansible/`](ansible/README.md)、[`docker/compose/`](docker/compose/README.md)）と、[Runbook](docs/operations/runbooks/README.md) にある。ディレクトリの全体像は、[リポジトリ構成](docs/README.md#リポジトリ構成)。
+
+## ライセンス
+
+[MIT](LICENSE)。ただし、`docs/hardware/future/rack-10inch/` に出所を書いた 3D モデルは、他の作者のもの（別のライセンス）で、このリポジトリには含めていない。
+
+<p align="center">
+  <sub>kanare’s homelab · <a href="https://github.com/kanare-dev">kanare-dev</a></sub>
+</p>
