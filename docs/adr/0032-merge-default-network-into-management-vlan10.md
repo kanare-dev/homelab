@@ -68,4 +68,6 @@
 
 詳細は[手順書 25](../operations/runbooks/25-merge-default-network-into-vlan10.md)。
 
+**呼び名（2026-11-21）**: 「緊急用の入口」（p8）は、以降「**復旧ポート**」と呼ぶ。「緊急用の DHCP プール」は「復旧用プール」。過去の ADR・手順書・ロードマップの本文は、当時の呼び名のまま残す。
+
 詳細: [手順書 25](../operations/runbooks/25-merge-default-network-into-vlan10.md)、[ロードマップ 13](../operations/roadmap/13-defer-management-vlan.md#案-b-既定のネットワークを-vlan10-に統合する採用2026-11-19-に調査)、[VLAN 設計](../architecture/08-vlan-design.md)

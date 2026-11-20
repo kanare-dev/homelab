@@ -258,7 +258,7 @@ def layout():
 
     # 通信ポリシー（LAN の中、ER605 の左） -----------------------------------------------
     text("<b>通信ポリシー（現状）</b><br>ACL は<b>全許可</b>（段階 3 の当日。絞るのは別の日。ADR-0029）。<br>"
-         f"DNS: VLAN の DHCP は <i>vm-infra</i> {ip('10.77.20.10')}。Management の DHCP（緊急用 .240–.250）はルーター {ip('10.77.10.1')}。<br>"
+         f"DNS: VLAN の DHCP は <i>vm-infra</i> {ip('10.77.20.10')}。Management の DHCP（復旧用 .240–.250）はルーター {ip('10.77.10.1')}。<br>"
          f"外出先: Tailscale が {ip('10.77.20.0/24')}、{ip('10.77.40.0/24')} だけを広告。",
          40, 250, 640, 140)
 
@@ -268,7 +268,7 @@ def layout():
     text("ER605 p2 ⇔ SG2210P p1: trunk（untagged: VLAN10 / tagged: VLAN20/30/40/50/60/70）", 890, 320, 700, 40, cls="el")
 
     icon("hardware/tplink-sg2210p.png", 760, 380, 240, 80, max_px=700)
-    text(f"<b>TP-Link SG2210P</b><br>{ip('10.77.10.2')}（VLAN10）<br>p1: ER605 / p2: pve / p3: Buffalo / p4: Dell U2725QE /<br>p5–p7: 空き（native Blackhole）/<br>p8: 緊急用の入口（native VLAN10）", 1010, 380, 690, 80)
+    text(f"<b>TP-Link SG2210P</b><br>{ip('10.77.10.2')}（VLAN10）<br>p1: ER605 / p2: pve / p3: Buffalo / p4: Dell U2725QE /<br>p5–p7: 空き（native Blackhole）/<br>p8: 復旧ポート（native VLAN10）", 1010, 380, 690, 80)
 
     # Proxmox ---------------------------------------------------------------------------
     gx, gy = 40, 640
