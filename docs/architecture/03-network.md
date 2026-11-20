@@ -1,6 +1,6 @@
 # ネットワーク設計
 
-ドメインの命名規約と、外部との接続をまとめる。アドレスの一覧は [IP アドレス一覧](09-ip-addresses.md)。個別のサービスは [DNS 構成](../services/network/dns.md)、[リバースプロキシと TLS](../services/network/reverse-proxy-tls.md)。次期構成は [VLAN 設計](08-vlan-design.md)（未適用）。
+この文書では、ドメインの命名規約と、外部との接続をまとめる。アドレスの一覧は [IP アドレス一覧](09-ip-addresses.md)にあり、個別のサービスの詳細は [DNS 構成](../services/network/dns.md)と[リバースプロキシと TLS](../services/network/reverse-proxy-tls.md)にある。次期構成は [VLAN 設計](08-vlan-design.md)で説明している（未適用）。
 
 ## IP アドレス
 
@@ -8,7 +8,7 @@ IP アドレスの一覧（アドレスの範囲、VLAN、ホスト、FQDN の�
 
 ## ドメイン命名規約
 
-内部 DNS は `lab.kanare.dev` ゾーン（CoreDNS が権威。[DNS 構成](../services/network/dns.md)）。サービスは `<サービス名>.lab.kanare.dev`、VM は `<VM 名>.lab.kanare.dev` で引く。
+内部 DNS では `lab.kanare.dev` ゾーンを使い、CoreDNS が権威サーバーとして応答する（[DNS 構成](../services/network/dns.md)）。サービスは `<サービス名>.lab.kanare.dev`、VM は `<VM 名>.lab.kanare.dev` という名前で引く。
 
 FQDN ごとの宛先（IP とポート。現在と移行後）は、[IP アドレス一覧](09-ip-addresses.md#fqdn-の宛先)にある。
 
@@ -16,10 +16,10 @@ Caddy 経由の FQDN には、証明書を FQDN ごとに取得する（[リバ�
 
 ## 外部接続の方針
 
-判断の記録: [ADR-0005](../adr/0005-tailscale-only-remote-access.md)
+この方針を決めた経緯は [ADR-0005](../adr/0005-tailscale-only-remote-access.md) に残している。
 
 - **外部には何も公開しない。** 自宅の外から入る経路は Tailscale だけにする。**例外**: Omada Cloud（クラウドアクセス）を有効にしているので、Omada コントローラーの管理画面には、TP-Link ID の認証だけで入れる経路が別にある（[外部サービスへの依存](#外部サービスへの依存)）。
-- 公開が必要になるのは、Tailscale を入れていない他人と共有するサービスができたときだけ。その場合も、そのサービスに限って Cloudflare Tunnel を検討する（ロードマップ。現在は保留）。
+- 公開が必要になるのは、Tailscale を入れていない他人と共有するサービスができたときだけである。その場合も、そのサービスに限って Cloudflare Tunnel を使うかどうかを検討する（ロードマップ。現在は保留している）。
 - 外部サービスへの依存は最小にし、依存先が止まったときの影響を把握しておく。
 
 ## 回線と WAN
@@ -47,8 +47,8 @@ Caddy 経由の FQDN には、証明書を FQDN ごとに取得する（[リバ�
 | 秘密情報 | `tailscale_authkey`（SOPS 管理） |
 | 利用例 | スマホ・Mac から `https://home.lab.kanare.dev`、`vm-code` への SSH / mosh / CloudCLI / code-server |
 
-- 設定の詳細と注意点（iOS の DNS、`1.1.1.1` を併記しない理由など）は [DNS 構成](../services/network/dns.md#tailscale-との連携)。
-- VLAN 移行後は、広告するのを Servers（`10.77.20.0/24`）と Lab（`10.77.40.0/24`）のみにする（[VLAN 設計](08-vlan-design.md#外出先からのアクセスtailscale)）。
+- 設定の詳細と注意点（iOS の DNS や、`1.1.1.1` を併記しない理由など）は、[DNS 構成](../services/network/dns.md#tailscale-との連携)に書いている。
+- VLAN への移行後は、広告する範囲を Servers（`10.77.20.0/24`）と Lab（`10.77.40.0/24`）だけにする（[VLAN 設計](08-vlan-design.md#外出先からのアクセスtailscale)）。
 
 ## 外部サービスへの依存
 
@@ -77,7 +77,7 @@ Caddy 経由の FQDN には、証明書を FQDN ごとに取得する（[リバ�
 | NTP | 全 VM | `systemd-timesyncd` |
 | apt / Docker pull | 各 VM | 更新時 |
 
-外向きの通信の制限（egress フィルタ）は、現在はしていない。VLAN 化の際に、Management からの外向きは更新用に限る計画（[VLAN 設計](08-vlan-design.md#通信ポリシー)）。
+外向きの通信を制限する設定（egress フィルタ）は、現在は入れていない。VLAN 化のときに、Management から外へ出る通信を、更新に必要なものだけに絞る計画である（[VLAN 設計](08-vlan-design.md#通信ポリシー)）。
 
 ## 検討中・保留の項目
 

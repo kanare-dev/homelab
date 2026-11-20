@@ -1,6 +1,6 @@
 # VLAN 設計
 
-TP-Link（ルーター + Managed Switch + AP、Omada 管理）への移行と同時に、ネットワークを VLAN で分割する設計書。導入は機器ごとの段階に分ける（[導入の段階](#導入の段階)）。**設計段階で、まだ何も適用していない。** 現在の構成は [README.md](../../README.md) を参照。
+この文書は、TP-Link の機器（ルーター、Managed Switch、AP。Omada で管理する）へ移行するのと同時に、ネットワークを VLAN で分割するための設計書である。導入は、機器ごとの段階に分けて進める（[導入の段階](#導入の段階)）。**設計の段階であり、まだ何も適用していない。** 現在の構成は、[README.md](../../README.md) を参照してほしい。
 
 ## 目的
 
@@ -20,7 +20,7 @@ TP-Link（ルーター + Managed Switch + AP、Omada 管理）への移行と同
 
 ### アドレス体系: `10.77.<VLAN>.0/24`
 
-判断の記録: [ADR-0015](../adr/0015-vlan-address-scheme-10-77.md)（[ADR-0003](../adr/0003-vlan-address-scheme.md) を置き換え）。VLAN の構成と ID の振り直しは [ADR-0022](../adr/0022-vlan-set-and-ids.md)
+この判断は [ADR-0015](../adr/0015-vlan-address-scheme-10-77.md) に記録している（[ADR-0003](../adr/0003-vlan-address-scheme.md) を置き換えた）。VLAN の構成と ID の振り直しは、[ADR-0022](../adr/0022-vlan-set-and-ids.md) に記録している。
 
 **決定**: 各 VLAN を `10.77.<VLAN ID>.0/24` にする（例: Servers は `10.77.20.0/24`）。第 2 オクテット `77` は家に固有の値で固定し、第 3 オクテットを VLAN ID に揃える。家全体は `10.77.0.0/16` に収まる。
 
@@ -35,7 +35,7 @@ TP-Link（ルーター + Managed Switch + AP、Omada 管理）への移行と同
 
 ### 切り替え方式: 一斉切り替え
 
-判断の記録: [ADR-0004](../adr/0004-vlan-cutover-all-at-once.md)
+この判断は [ADR-0004](../adr/0004-vlan-cutover-all-at-once.md) に記録している。
 
 **決定**: アドレスの付け替え（[段階 3](#導入の段階)）は、決めた時間に全ホストを一斉に切り替える。並行構築はしない。機器の導入そのものは段階に分ける（次節）。
 
@@ -91,7 +91,7 @@ TP-Link（ルーター + Managed Switch + AP、Omada 管理）への移行と同
 
 VLAN ID とサブネットの第 3 オクテットを揃える（第 2 オクテットは `77` で固定）。第 4 オクテットは、現在の値を引き継がず、役割で決める（判断の記録: [ADR-0025](../adr/0025-address-octets-by-role.md)）。
 
-VLAN の ID は、信頼度の高い順（内側から外側）に振る。外部に触れるもの（Guests、DMZ）を末尾に置く。判断の記録: [ADR-0022](../adr/0022-vlan-set-and-ids.md)
+VLAN の ID は、信頼度の高い順（内側から外側）に振る。外部に触れるもの（Guests、DMZ）は、末尾に置く。この判断は [ADR-0022](../adr/0022-vlan-set-and-ids.md) に記録している。
 
 VLAN ごとのサブネット・ゲートウェイ・DHCP プール、アドレス帯の区切り、DHCP の決まり、ホストの固定アドレスは、[IP アドレス一覧](09-ip-addresses.md)にまとめた（[VLAN 一覧](09-ip-addresses.md#vlan-一覧)、[アドレス帯の区切り](09-ip-addresses.md#アドレス帯の区切り)、[ホスト別の IP](09-ip-addresses.md#ホスト別の-ip)）。
 
@@ -149,11 +149,11 @@ AirPlay も Google Cast も、機器の発見に mDNS を使う。mDNS の呼び
 
 ### ACL の名前と説明の付け方
 
-Omada のゲートウェイの ACL（LAN → LAN）に作るルールの、名前と説明の決まり。**リハーサル（[Runbook](../operations/runbooks/22-network-stage-3-rehearsal.md)）でも、本番（[段階 3 の Runbook](../operations/runbooks/21-network-cutover-stage-3.md)）でも、同じ書き方にする。**
+ここでは、Omada のゲートウェイの ACL（LAN → LAN）に作るルールについて、名前と説明の付け方を決める。**リハーサル（[Runbook](../operations/runbooks/22-network-stage-3-rehearsal.md)）でも、本番（[段階 3 の Runbook](../operations/runbooks/21-network-cutover-stage-3.md)）でも、同じ書き方にする。**
 
 - **評価は上から順**。順序が分かるように、**名前の頭に番号を付ける**（間を空けて振り、あとで間に足せるようにする）。
   - `1xx`: 個別の許可（許可表の「許可」「のみ」の行）
-  - `9xx`: 末尾の拒否（**必ず最後**。**VLAN ごとに 1 件**。番号は 9 + VLAN ID の十の位: `910`〜`970`）。隔離（Lab・Guests・IoT・DMZ から他の VLAN 宛を拒否）も、これで実現する
+  - `9xx`: 末尾の拒否ルール。**必ず最後に置き、VLAN ごとに 1 件だけ作る。** 番号は、9 に VLAN ID の十の位を続けた `910`〜`970` にする。Lab、Guests、IoT、DMZ から他の VLAN への通信を拒否して隔離するときも、このルールを使う
 - **名前**: `<番号>-<送信元>-to-<宛先>[-<内容>]`。英小文字、数字、ハイフンだけにする（例: `150-trusted-to-servers`）。
 - **説明**: `送信元 → 宛先 : 動作（内容）（根拠）` を 1 行にする。**何のためのルールか**と、**根拠の文書**（この「通信ポリシー」など）を添える。
 - **検証用のルール**（リハーサル）は、名前の頭に `rh-`、説明の頭に `[リハーサル]` を付ける（例: `rh-010-trusted-to-lan`）。リハーサルのあとに、一覧から探して、無効にする。本番のルールには、この印を付けない。

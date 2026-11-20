@@ -1,6 +1,6 @@
 # セキュリティ
 
-脅威の想定、守る対象、現在の対策と未対応の項目を整理する。**リポジトリは公開**であることが設計の前提。機密値の操作手順は [運用 Runbook](../operations/runbooks/03-secrets.md#秘密情報管理) を参照。
+この文書では、想定する脅威、守る対象、現在の対策、未対応の項目を整理する。**リポジトリを公開している**ことが、設計の前提になる。機密値の操作手順は、[運用 Runbook](../operations/runbooks/03-secrets.md#秘密情報管理)を参照してほしい。
 
 ## 想定する脅威
 
@@ -12,7 +12,7 @@
 | 認証情報の窃取 | 端末紛失、SSH 鍵・age 鍵の流出 | 鍵認証のみ、鍵の退避と再発行手順 |
 | ソフトウェアの脆弱性 | OS・コンテナの未更新 | 手動更新（弱点として認識） |
 
-家庭内の個人利用を前提とし、標的型攻撃や物理的な侵入は想定しない。
+家庭内での個人利用を前提にしているので、標的型攻撃や物理的な侵入は想定しない。
 
 ## 守る対象
 
@@ -27,13 +27,13 @@
 
 ## 秘密情報の管理
 
-詳細は [運用 Runbook](../operations/runbooks/03-secrets.md#秘密情報管理) と、リポジトリ直下の `CLAUDE.md`。
+詳しくは、[運用 Runbook](../operations/runbooks/03-secrets.md#秘密情報管理)と、リポジトリ直下の `CLAUDE.md` に書いている。
 
-- 機密値は **SOPS + age** で暗号化して Git に置く（`*.sops.yml`）。キー名は平文、値だけが暗号化される。
+- 機密値は **SOPS + age** で暗号化して、Git に置く（`*.sops.yml`）。キー名は平文のままで、値だけが暗号化される。
 - Ansible は `community.sops` の vars プラグインで、Terraform は `carlpett/sops` プロバイダーで、実行時に復号する。VM 上の `.env` は Ansible がテンプレートから生成する。
-- 平文のシークレットファイルを作らない。`sops -d` の出力を保存しない。値はチャット・ログ・文書に書かない（文字数・ハッシュ・一部の文字も含む）。
-- SOPS 内のシークレットの一覧は Runbook の表が正。SOPS の外にあるものは、非公開の台帳（リポジトリ外）で管理する。
-- CI では復号しない（age 秘密鍵を CI に置かない）。暗号化されていることだけを確認する（[CI/CD](../services/dev/cicd.md)）。
+- 平文のシークレットファイルは作らない。`sops -d` の出力も保存しない。値は、チャット、ログ、文書に書かない（文字数、ハッシュ、一部の文字も書かない）。
+- SOPS 内のシークレットの一覧は、Runbook の表が正である。SOPS の外にあるものは、リポジトリの外にある非公開の台帳で管理する。
+- CI では復号しない。age 秘密鍵を CI に置かず、暗号化されていることだけを確認する（[CI/CD](../services/dev/cicd.md)）。
 
 ### 鍵の保管と退避
 
@@ -76,7 +76,7 @@ Terraform は Proxmox の API トークン（`terraform@pam!terraform-token`）�
 
 ### ファイアウォール（UFW）
 
-全 VM で既定は**受信拒否**。必要なポートだけを `ufw_allowed_ports`（`group_vars/<group>/vars.yml`）で許可する。SSH（22/tcp）は常に許可。
+全 VM で、受信は既定で**拒否**する。必要なポートだけを、`ufw_allowed_ports`（`group_vars/<group>/vars.yml`）で許可する。SSH（22/tcp）は、常に許可する。
 
 | VM | 許可するポート |
 | --- | --- |
@@ -86,33 +86,33 @@ Terraform は Proxmox の API トークン（`terraform@pam!terraform-token`）�
 | `vm-code` | 22。9100 は `vm-monitoring` のみ。8080（code-server）、3001（CloudCLI）、5173（開発用サーバ）、60000–61000/udp（mosh）は Trusted（`10.77.30.0/24`）と `vm-infra`（`10.77.20.10`。Tailscale 経由の接続の送信元）のみ |
 | `vm-dev` | 22。9100 は `vm-monitoring` のみ |
 
-許可元は `from:` で指定する。ufw は定義にないルールを消さないので、旧来の「どこからでも許可」は `ufw_removed_ports` に書いて `common` ロールが削除する。
+許可する送信元は `from:` で指定する。ufw は、定義にないルールを自動では消さない。そのため、以前の「どこからでも許可」というルールは、`ufw_removed_ports` に書いて、`common` ロールに削除させる。
 
 #### Docker の公開ポート
 
-Docker の `ports:` で公開したポートは、NAT で UFW の受信ルールより前に通る。`ufw_allowed_ports` に `from:` を書いても効かない。そこで `ufw_docker` ロールが、`/etc/ufw/after.rules` の `DOCKER-USER` チェーンに「許可元以外の公開ポート宛て接続を破棄する」ルールを入れる。許可は `docker_published_allow`（`group_vars/<group>/vars.yml`）に書く。
+Docker の `ports:` で公開したポートへの通信は、NAT によって、UFW の受信ルールより前に通ってしまう。そのため、`ufw_allowed_ports` に `from:` を書いても効かない。そこで `ufw_docker` ロールが、`/etc/ufw/after.rules` の `DOCKER-USER` チェーンに、許可した送信元以外から公開ポートに来た接続を破棄するルールを入れる。許可する送信元は、`docker_published_allow`（`group_vars/<group>/vars.yml`）に書く。
 
 | VM | 公開ポート | 許可元 |
 | --- | --- | --- |
 | `vm-monitoring` | 3000（Grafana）、9090（Prometheus）、9093（Alertmanager） | `vm-infra`（Caddy）のみ |
 | `vm-apps` | 3001（Homepage）、5678（n8n）、8081（FreshRSS） | `vm-infra`（Caddy）のみ |
 
-- Home Assistant（8123）は host ネットワークで動くので、Docker の公開ポートではない。この絞り込みは効かず、UFW の受信ルールで `vm-infra` だけに許可している。
-- IP とポートの直打ち（例: `http://10.77.20.11:9090`）は届かない。Mac からは `https://<名前>.lab.kanare.dev` で開く。
-- `vm-infra` の 80・443（Caddy）は、入口なので LAN に開けたまま。
-- 確認: `ssh <vm> sudo iptables -S DOCKER-USER`。
+- Home Assistant（8123）は host ネットワークで動くので、Docker の公開ポートには当たらない。この絞り込みは効かないため、UFW の受信ルールで `vm-infra` だけに許可している。
+- IP アドレスとポートを直接指定した接続（例: `http://10.77.20.11:9090`）は届かない。Mac からは、`https://<名前>.lab.kanare.dev` で開く。
+- `vm-infra` の 80 番と 443 番（Caddy）は、全サービスの入口なので、LAN に開けたままにしている。
+- 設定を確認するには、`ssh <vm> sudo iptables -S DOCKER-USER` を実行する。
 
-Proxmox ホストの UFW / Proxmox ファイアウォールの設定は、このリポジトリでは管理していない。
+Proxmox ホストの UFW と Proxmox ファイアウォールの設定は、このリポジトリでは管理していない。
 
 ### 経路と暗号化
 
 - 外部には何も公開しない（二重 NAT でポート開放もしていない）。外出先からは Tailscale（WireGuard）で入る（[外部接続](03-network.md)）。
-- LAN 内の Web は、Caddy が Let's Encrypt の正規証明書で HTTPS 化する。バックエンドへの通信は HTTP の場合がある（ルーター、Homepage など）。
-- Proxmox は自己署名証明書のため、Caddy が `tls_insecure_skip_verify` で接続する。
+- LAN 内の Web サービスは、Caddy が Let's Encrypt の正規の証明書を使って HTTPS で提供する。Caddy からバックエンドへの通信は、HTTP の場合がある（ルーター、Homepage など）。
+- Proxmox は自己署名証明書を使っているので、Caddy は `tls_insecure_skip_verify` を指定して接続する。
 
 ### セグメンテーション
 
-現在（段階 3 の後）は、Trusted（`10.77.30.0/24`）、Servers（`10.77.20.0/24`）、Lab（`10.77.40.0/24`）に分かれている。ただし ACL は全許可で、絞るのは別の日（[ADR-0029](../adr/0029-stage3-acl-allow-all-then-tighten.md)）。管理系（Proxmox、`vm-omada`、ER605・SG2210P）は、段階 3b まで今の LAN（`192.168.11.0/24`）に残る（[ADR-0028](../adr/0028-defer-management-vlan10.md)）。IoT・ゲスト・管理機器の分離は [VLAN 設計](08-vlan-design.md)（ACL を絞る日に適用）。
+現在（段階 3 の後）は、ネットワークを Trusted（`10.77.30.0/24`）、Servers（`10.77.20.0/24`）、Lab（`10.77.40.0/24`）に分けている。ただし ACL は全許可にしてあり、絞るのは別の日である（[ADR-0029](../adr/0029-stage3-acl-allow-all-then-tighten.md)）。管理系（Proxmox、`vm-omada`、ER605、SG2210P）は、段階 3b まで今の LAN（`192.168.11.0/24`）に残す方針だった（[ADR-0028](../adr/0028-defer-management-vlan10.md)）。IoT、ゲスト、管理機器を分離する設計は、[VLAN 設計](08-vlan-design.md)にまとめており、ACL を絞る日に適用する。
 
 ## 監査・検知
 
