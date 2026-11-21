@@ -1,6 +1,6 @@
 # インフラ構成
 
-物理・仮想構成、ソフトウェア構成、資源の配分と拡張の方針をまとめる。全体像と構成図は [システム概要](01-overview.md)。
+この文書では、物理構成と仮想構成、ソフトウェア構成、資源の配分、拡張の方針をまとめる。全体像と構成図は [システム概要](01-overview.md)にある。
 
 ## 物理構成
 
@@ -11,8 +11,8 @@
 | スイッチ | TP-Link SG2210P | — | DHCP（ER605 から） | PoE+ スイッチ。ER605 の p2 に繋ぎ、Proxmox・Buffalo・ディスプレイを収める。Omada コントローラーが管理する |
 | AP | Buffalo WSR-1800AX4P | — | `10.77.30.50`（固定。Trusted。2026-11-17 に `192.168.11.2` から変更） | AP（ブリッジ）モード。Wi-Fi の入口だけを担う（段階 4 で退役予定） |
 
-- 電源は UPS なし。ホスト 1 台に全 VM が載る単一障害点の構成（[可用性](04-reliability.md)）。
-- 次期構成（VLAN 分割）は [VLAN 設計](08-vlan-design.md)。ER605・SG2210P の導入（段階 1・2）は、2026-11-06 に適用した。VLAN 化（段階 3）は未適用。
+- 電源に UPS はない。ホスト 1 台にすべての VM が載っているので、ここが単一障害点になる（[可用性](04-reliability.md)）。
+- 次期構成（VLAN 分割）は [VLAN 設計](08-vlan-design.md)で説明している。ER605 と SG2210P の導入（段階 1・2）は、2026-11-06 に適用した。VLAN 化（段階 3）はまだ適用していない。
 
 ## 論理構成
 
@@ -28,7 +28,7 @@ Proxmox VE 上に Terraform で VM を作り、Ansible で設定し、各 VM で
 | `vm-code` | 122 | `10.77.20.30`（VLAN20） | 2 | 4GB | 30G | 自動（順序 5） | 常用リモート開発 | Claude Code, CloudCLI, code-server, gh, git, mosh, moshi-hook |
 | `ubuntu-cloud` | 9000 | — | — | — | — | — | VM テンプレート | cloud-init 付き Ubuntu |
 
-正の定義は `terraform/proxmox/terraform.tfvars`。IP アドレスの一覧（現在と移行後）は [IP アドレス一覧](09-ip-addresses.md)。起動順序と待機秒数は [運用 Runbook](../operations/runbooks/01-vm-startup-shutdown.md#vm-自動起動停止) を参照。
+VM の定義は `terraform/proxmox/terraform.tfvars` が正である。IP アドレスの一覧（現在と移行後）は [IP アドレス一覧](09-ip-addresses.md)にあり、起動順序と待機秒数は [運用 Runbook](../operations/runbooks/01-vm-startup-shutdown.md#vm-自動起動停止)に書いている。
 
 ## ソフトウェア構成
 
@@ -55,7 +55,7 @@ Proxmox VE 上に Terraform で VM を作り、Ansible で設定し、各 VM で
 
 ## 配分
 
-VM ごとの vCPU・メモリ・ディスクは [論理構成](#論理構成) の表が正。ここでは実使用と、全体の収支を示す。
+VM ごとの vCPU、メモリ、ディスクは、[論理構成](#論理構成)の表が正である。ここでは、実際の使用量と、全体の収支を示す。
 
 | 対象 | 実使用（目安） | 備考 |
 | --- | --- | --- |
@@ -66,17 +66,17 @@ VM ごとの vCPU・メモリ・ディスクは [論理構成](#論理構成) �
 | `vm-omada` | 約 1.5〜2GB（見込み） | MongoDB を含む Java アプリ。機器を採用したあとに実測して直す |
 | `vm-code` / `vm-dev` | — | `vm-dev` は手動起動 |
 
-- 常時起動の VM の割当メモリ合計は 15.5GB（`vm-omada` の 4GB を含む。2026-11-09 に 3GB から増やした。[INC-2026-11-09](../operations/incidents/2026-11-09-omada-memory-exhaustion.md)）。`vm-dev` を加えて 16.5GB、ホストの確保分（約 2GB）を足すと 18.5GB で、24GB に収まる。`vm-windows` は 2026-11-05 に削除した（8GB を使うため、起動すると 24GB を超えていた。作り直す手順は [バックアップの手順](../operations/runbooks/06-backup-restore.md#vm-windows-の削除と作り直し2026-11-05)）
-- vCPU は物理スレッドに対して過剰割当（常時起動分で 10 vCPU、全 VM で 16 vCPU）。常時高負荷の VM がないことを前提にしている。
-- `vm-apps` は Home Assistant、n8n、FreshRSS を載せても割当に余裕がある。
+- 常時起動する VM に割り当てたメモリの合計は 15.5GB である（`vm-omada` の 4GB を含む。`vm-omada` は 2026-11-09 に 3GB から増やした。[INC-2026-11-09](../operations/incidents/2026-11-09-omada-memory-exhaustion.md)）。`vm-dev` を加えると 16.5GB になり、ホストが確保する約 2GB を足すと 18.5GB になるので、24GB に収まる。`vm-windows` は 2026-11-05 に削除した。8GB を使うため、起動すると 24GB を超えていたからである（作り直す手順は[バックアップの手順](../operations/runbooks/06-backup-restore.md#vm-windows-の削除と作り直し2026-11-05)にある）。
+- vCPU は、物理スレッドの数より多く割り当てている（常時起動する VM の合計で 10 vCPU、全 VM の合計で 16 vCPU）。常に高負荷になる VM がないことを前提にしている。
+- `vm-apps` は、Home Assistant、n8n、FreshRSS を載せても、割り当てたメモリに余裕がある。
 
 ## ストレージの設計
 
-- thin provisioning で過剰割当している。割当の合計は 163.5G で、pool（155.6G）の約 1.05 倍（2026-11-05 時点。`vm-windows` の削除と `vm-dev` の 30G → 10G で、1.57 から下げた。`LvmThinPoolOverprovisioned` の閾値は 1.5）。`vm-omada` を追加した 2026-11-03 は、1.44 → 1.57 でアラートが出ていた。
-- 仮想ディスクはすべて `discard` を有効にし、毎週 `fstrim` で未使用ブロックを pool に返す。
-- 使用率は `LvmThinPoolDataHigh`（75%）と `Critical`（90%）で見る。メタデータも同様。
-- VG に未割当の余りは、pool 拡張の余地として使える（`lvextend`）。余りがなければ、ディスク追加か VM ディスクの縮小になる。
-- 詳細は [thin pool 枯渇の障害記録](../operations/incidents/2026-10-22-lvm-thin-exhaustion.md)。
+- thin provisioning を使い、pool の容量より多くのディスクを割り当てている。割り当てた合計は 163.5G で、pool（155.6G）の約 1.05 倍である（2026-11-05 時点）。`vm-windows` を削除し、`vm-dev` のディスクを 30G から 10G に減らしたことで、1.57 倍から下げた。`LvmThinPoolOverprovisioned` の閾値は 1.5 倍である。`vm-omada` を追加した 2026-11-03 には、1.44 倍から 1.57 倍に増えて、アラートが出ていた。
+- 仮想ディスクにはすべて `discard` を有効にし、毎週 `fstrim` を実行して、未使用のブロックを pool に返している。
+- 使用率は、`LvmThinPoolDataHigh`（75%）と `LvmThinPoolDataCritical`（90%）で見張る。メタデータにも、同じ考え方のアラートを置いている。
+- VG に未割り当ての余りがあれば、`lvextend` で pool を拡張できる。余りがなければ、ディスクを追加するか、VM のディスクを縮小する。
+- 詳しくは [thin pool 枯渇の障害記録](../operations/incidents/2026-10-22-lvm-thin-exhaustion.md)を参照してほしい。
 
 ## 資源の見張り方
 
@@ -91,26 +91,26 @@ Grafana の「Storage / Thin Pool」ダッシュボードで、pool と VM デ�
 
 ## 拡張の方針
 
-**垂直拡張（資源の追加）だけを前提にする。** クラスタ化や負荷分散は、個人利用の規模では行わない。
+**拡張は、1 台の資源を増やす垂直拡張だけを前提にする。** クラスタ化や負荷分散は、個人利用の規模では行わない。
 
 | 状況 | 対応 |
 | --- | --- |
-| VM のメモリ・CPU が足りない | `terraform.tfvars` の `memory` / `cores` を変更（再起動を伴う場合は 1 台ずつ） |
-| ディスクが足りない | まず `fstrim` と不要データの整理。足りなければ pool を拡張（VG の余り）、ディスクの追加 |
-| ホストのメモリが足りない | 配分の見直し。常時起動しない VM を止める。SO-DIMM を交換する（最大容量はモデルの仕様を確認する） |
-| 重い構成を載せたい（k3s など） | 学習用に分離して運用する。安定稼働中のサービスは当面 Docker Compose のまま（ロードマップ） |
-| 複数ホストが必要になった | Proxmox クラスタと共有ストレージ（NAS）を検討する。現在の設計の対象外 |
+| VM のメモリ・CPU が足りない | `terraform.tfvars` の `memory` / `cores` を変更する（再起動が必要な場合は 1 台ずつ） |
+| ディスクが足りない | まず `fstrim` と不要データの整理を行う。それでも足りなければ、VG の余りで pool を拡張するか、ディスクを追加する |
+| ホストのメモリが足りない | 配分を見直し、常時起動しない VM を止める。それでも足りなければ SO-DIMM を交換する（最大容量はモデルの仕様を確認する） |
+| 重い構成を載せたい（k3s など） | 学習用として分離して運用する。安定して稼働しているサービスは、当面 Docker Compose のまま動かす（ロードマップ） |
+| 複数ホストが必要になった | Proxmox クラスタと共有ストレージ（NAS）を検討する。現在の設計では対象にしていない |
 
 ### VM を追加する手順
 
-1. `terraform/proxmox/terraform.tfvars` の `vms` に定義を追加し、`terraform plan` / `apply`。
+1. `terraform/proxmox/terraform.tfvars` の `vms` に定義を追加し、`terraform plan` と `terraform apply` を実行する。
 2. `ansible/inventory/hosts.yml` にホストを追加し、`group_vars` / playbook を用意して Ansible で設定する。
-3. 必要なら `dns_records`（`group_vars/infra/vars.yml`）と Caddyfile を追記し、`playbooks/infra.yml` を実行する。
-4. Prometheus の scrape 対象とアラートの対象に加える（`prometheus.yml`）。HTTPS で公開するサービスは、外形監視の `blackbox_http` にも URL を追加する。
-5. 配分の表（この文書と [システム構成・環境](01-overview.md)）と構成図を更新する。
+3. 必要であれば、`dns_records`（`group_vars/infra/vars.yml`）と Caddyfile に追記し、`playbooks/infra.yml` を実行する。
+4. `prometheus.yml` で、Prometheus の scrape 対象とアラートの対象に加える。HTTPS で公開するサービスは、外形監視の `blackbox_http` にも URL を追加する。
+5. 配分の表（この文書と [システム概要](01-overview.md)）と構成図を更新する。
 
 ## 既知の限界
 
-- ストレージが NVMe 1 枚で、容量にも故障にも余裕がない。NAS の導入（TrueNAS）はロードマップの未着手項目。
-- CPU・メモリの実測の推移は、まだ設計の根拠として整理していない。
-- Prometheus の保持上限 5GB は暫定値で、実測で調整する。
+- ストレージが NVMe 1 枚だけなので、容量にも故障にも余裕がない。NAS（TrueNAS）の導入は、ロードマップに載せているが、まだ着手していない。
+- CPU とメモリの実測値の推移は、まだ設計の根拠として整理していない。
+- Prometheus のデータの保持上限 5GB は暫定の値なので、実測しながら調整する。

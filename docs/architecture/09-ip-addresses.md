@@ -1,6 +1,6 @@
 # IP アドレス一覧
 
-homelab の IP アドレスを、1 か所にまとめた一覧。アドレスの範囲、VLAN、ホスト、FQDN の宛先を、**段階 3 の前**と**段階 3 の後**（VLAN に分けたあと。2026-11-17 に、Servers・Lab・Trusted を適用）の両方で示す。**IP アドレスの一覧は、この文書を正とする。**
+この文書は、homelab の IP アドレスを 1 か所にまとめた一覧である。アドレスの範囲、VLAN、ホスト、FQDN の宛先を、**段階 3 の前**と、**段階 3 の後**（VLAN に分けたあと。2026-11-17 に、Servers、Lab、Trusted に適用した）の両方について示す。**IP アドレスについては、この文書が正である。**
 
 - 設計の理由は、[VLAN 設計](08-vlan-design.md)と ADR（[0015](../adr/0015-vlan-address-scheme-10-77.md)、[0022](../adr/0022-vlan-set-and-ids.md)、[0024](../adr/0024-dhcp-dns-single-no-fallback.md)、[0025](../adr/0025-address-octets-by-role.md)、[0026](../adr/0026-vmid-from-vlan-and-octet.md)、[0027](../adr/0027-servers-octet-bands-and-emergency-dns.md)）にある。移行の手順は、[移行計画](../operations/roadmap/10-er605-sg2210p-migration-plan.md)。
 - 実際に設定している値は、VM の IP が `terraform/proxmox/terraform.tfvars`、ホストが `ansible/inventory/`、Caddy の転送先が `docker/compose/reverse-proxy/Caddyfile`、DNS のレコードが CoreDNS のゾーンにある（[更新のしかた](#更新のしかた)）。
