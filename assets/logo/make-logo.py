@@ -2,7 +2,7 @@
 """homelab のロゴ（SVG）を作る。文字は、フォントの輪郭（パス）に変換して入れる（`<img>` の SVG は、フォントを読み込めないため）。
 
 使い方（fontTools と、JetBrains Mono のフォントが要る。詳しくは README.md）:
-    ~/.cache/homelab-logo-venv/bin/python docs/assets/logo/make-logo.py
+    ~/.cache/homelab-logo-venv/bin/python assets/logo/make-logo.py
 
 出力（このスクリプトと同じフォルダ）:
     logo-stack-{light,dark}.svg    横長。積み重ね（3 枚の機器 + 屋根）+ kanare’s homelab + 10.77.0.0/16 · lab.kanare.dev。主役

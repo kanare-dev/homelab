@@ -1,7 +1,7 @@
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/logo/logo-stack-dark.svg">
-    <img alt="kanare’s homelab" src="docs/assets/logo/logo-stack-light.svg" width="480">
+    <source media="(prefers-color-scheme: dark)" srcset="assets/logo/logo-stack-dark.svg">
+    <img alt="kanare’s homelab" src="assets/logo/logo-stack-light.svg" width="480">
   </picture>
 </p>
 
@@ -69,7 +69,7 @@
 
 | Proxmox VE — VM 稼働状況 | Grafana — Node Exporter ダッシュボード |
 | --- | --- |
-| ![Proxmox VMs Running](docs/screenshots/proxmox-vms-running.png) | ![Grafana Node Exporter Dashboard](docs/screenshots/grafana-node-exporter-dashboard.png) |
+| ![Proxmox VMs Running](assets/screenshots/proxmox-vms-running.png) | ![Grafana Node Exporter Dashboard](assets/screenshots/grafana-node-exporter-dashboard.png) |
 
 ## 技術スタック
 
@@ -127,7 +127,7 @@ dig @10.77.20.10 grafana.lab.kanare.dev
 
 コードと文書は [MIT](LICENSE)。次のものは、対象外です。
 
-- **ロゴ**（`docs/assets/logo/`）: すべての権利は、作者にある。このリポジトリを参考にするときは、自分のものとして使わないこと（生成スクリプト `make-logo.py` は、MIT）。
+- **ロゴ**（`assets/logo/`）: すべての権利は、作者にある。このリポジトリを参考にするときは、自分のものとして使わないこと（生成スクリプト `make-logo.py` は、MIT）。
 - **第三者の資料**: メーカーの公式資料の引用や要約（`docs/architecture/lld/hardware/<型番>.md` など）は、それぞれの権利者のもの。
 - **3D モデル**: `docs/architecture/lld/hardware/future/rack-10inch/` に出所を書いた 3D モデルは、他の作者のもの（別のライセンス）で、このリポジトリには含めていない。
 
