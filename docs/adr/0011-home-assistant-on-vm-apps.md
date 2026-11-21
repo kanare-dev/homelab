@@ -36,7 +36,7 @@ SwitchBot（Hub あり）などの機器を一か所で操作・自動化し、S
 - **失うもの**: VM を失うと、ユーザー、統合の登録、ダッシュボード、機器の名前、履歴が消える。統合のトークンは再発行して入れ直す。手順は [Home Assistant](../architecture/lld/apps/home-assistant.md#復旧)。
 - **設定の運用**: 画面から編集した自動化は、`make ha-config-pull` で Git に取り込まないと守られない。
 - **HTTP の設定**: Home Assistant 2026.10 以降、`http:` は初回だけ YAML から取り込まれ、以後は `.storage/http` が使われる。Caddy を信頼する設定は、初期値のファイルを Git に置いて与える。
-- **機器の検出と VLAN**: 現在は同一 LAN で mDNS が届く。[VLAN 設計](../architecture/08-vlan-design.md)に移行すると、Servers の `vm-apps` から Clients・IoT の機器が見えなくなる。クラウド経由の統合は影響しない。Cast や Matter を使うときに、mDNS の中継か、置き場所の変更を決める。
+- **機器の検出と VLAN**: 現在は同一 LAN で mDNS が届く。[第5章 ネットワーク](../architecture/hld/05-network.md)に移行すると、Servers の `vm-apps` から Clients・IoT の機器が見えなくなる。クラウド経由の統合は影響しない。Cast や Matter を使うときに、mDNS の中継か、置き場所の変更を決める。
 - **同居のリスク**: Homepage と同じ VM を共有する。
 - **再検討の条件**: 次のいずれかになったら見直す。
   - アドオンが必要になった（HA OS の専用 VM を検討する）。

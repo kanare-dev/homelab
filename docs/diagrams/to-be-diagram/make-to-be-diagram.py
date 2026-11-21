@@ -12,7 +12,7 @@ Markdown から参照する PNG（to-be-diagram.png、ダーク版は to-be-diag
 フォントは ../fonts/（Geist と JetBrains Mono。OFL。物理構成図と共通）を HTML に埋め込む。
 アイコン素材 `docs/diagrams/assets/icons/` は Git 管理外。無ければ取得する。
 内容は docs/operations/roadmap/10-er605-sg2210p-migration-plan.md の「段階 3 の後」と
-docs/architecture/08-vlan-design.md の VLAN 一覧に合わせる。食い違ったら、文書のほうが正。
+docs/architecture/lld/network/ip-addresses.md の VLAN 一覧に合わせる。食い違ったら、文書のほうが正。
 
 見た目の決まり（座標は 10px グリッド。背景の方眼は 20px）:
   - 背景は方眼。文字は Geist（日本語は Hiragino / Noto Sans JP）、IP・ポート・線のラベルは JetBrains Mono。ライト・ダーク両対応。

@@ -2,7 +2,7 @@
 
 VLAN を有効にし、全ホストの IP を `192.168.11.x` から `10.77.<VLAN>.x` に付け替える日の手順。**ホストのアドレス付け替えは 1 回だけ**（[ADR-0004](../../adr/0004-vlan-cutover-all-at-once.md)）。段階 1・2（[当日の作業](20-network-cutover-stage-1-2.md)）が済んでいることが前提。作業時間は、数時間を見込む。
 
-- 当日の順にチェックしながら進めるための文書。手順の根拠と、決めた経緯は[移行計画](../roadmap/10-er605-sg2210p-migration-plan.md)の「段階 3」と、[VLAN 設計](../../architecture/08-vlan-design.md)にある。手順を変えたら、計画も同じ変更で直す。
+- 当日の順にチェックしながら進めるための文書。手順の根拠と、決めた経緯は[移行計画](../roadmap/10-er605-sg2210p-migration-plan.md)の「段階 3」と、[第5章 ネットワーク](../../architecture/hld/05-network.md)にある。手順を変えたら、計画も同じ変更で直す。
 - 新しい IP は [IP アドレス一覧](../../architecture/lld/network/ip-addresses.md)、設定の対応表（ER605 の VLAN インターフェース、SG2210P のポート、Proxmox）は計画の「3-B」にある。
 - 秘密の値と、機器の MAC アドレスは、この文書に書かない（台帳へ。[シークレット](03-secrets.md)）。
 - **管理系（Proxmox ホスト、`vm-omada`、ER605・SG2210P）は、段階 3 では動かさない**（[ADR-0028](../../adr/0028-defer-management-vlan10.md)）。手順 3・4 は、段階 3b に移した（この文書では行わない。下書きとして残す）。今の LAN（VLAN1）は、止めず、消さない。
@@ -18,7 +18,7 @@ VLAN を有効にし、全ホストの IP を `192.168.11.x` から `10.77.<VLAN
   - DHCP が VLAN ごとに配る（DNS は `10.77.20.10`）。
 - **（段階 3b の前提に移した。段階 3 では不要）コントローラーの IP 変更への追従を確かめる**: `vm-omada` が `192.168.11.12` から `10.77.10.3` に変わったとき、ER605 と SG2210P が付いてくる。付いてこない場合の手順（接続先の再設定、または機器のリセットと再採用）を、リハーサルで確かめて書いてある。
 - [x] **Proxmox の準備が済んでいる**（[ADR-0023](../../adr/0023-proxmox-trunk-all-tagged.md)）: `vmbr0` が VLAN-aware（IP は `192.168.11.10`・タグなしのまま）。SG2210P p2 に tagged 10/20/40/50/70 を足してある。1 つの検証用 VM をタグ付きで繋いで、動作を確かめた。（2026-11-17 までに確認した。`vmbr0` は VLAN-aware、p2 の tagged は 2026-11-11、タグ付きの VM は `vm-dev` のリハーサルと、手順 5 の全 VM）
-- [x] **コードの準備が済んでいる**: 別ブランチで、Terraform（`vlan_id` は必須で、全 VM に指定。`vm-omada` は、段階 3b まで、タグなし（VLAN1）を明示する）、Ansible、Caddyfile、Prometheus、Homepage、ドキュメントを、新アドレスに書き換えてある（一覧は[設計書](../../architecture/08-vlan-design.md#影響を受けるリポジトリ内の箇所)）。 UFW の許可元も、新しいアドレスに直す（`vm-infra` の 8043、`vm-monitoring` の 9100。`vm-omada` は段階 3 で動かさないので、**直し忘れやすい**。[ロードマップ 13](../roadmap/13-defer-management-vlan.md)）。（2026-11-17。手順 5・6 で実機に流した）
+- [x] **コードの準備が済んでいる**: 別ブランチで、Terraform（`vlan_id` は必須で、全 VM に指定。`vm-omada` は、段階 3b まで、タグなし（VLAN1）を明示する）、Ansible、Caddyfile、Prometheus、Homepage、ドキュメントを、新アドレスに書き換えてある（一覧は[設計書](../roadmap/10-er605-sg2210p-migration-plan.md)）。 UFW の許可元も、新しいアドレスに直す（`vm-infra` の 8043、`vm-monitoring` の 9100。`vm-omada` は段階 3 で動かさないので、**直し忘れやすい**。[ロードマップ 13](../roadmap/13-defer-management-vlan.md)）。（2026-11-17。手順 5・6 で実機に流した）
 - [x] **新アドレスのコードを、現行のブランチに取り込んだ**（2026-11-17。作業用のブランチ `stage3/new-addresses` は、取り込んだあと削除した）。`terraform plan` が、5 台の in-place 更新（`vm-omada` は変わらない）になっている。
 - [x] **Omada に本番の設定を作ってある（有効にはしていない）**（2026-11-11。一覧は[移行計画](../roadmap/10-er605-sg2210p-migration-plan.md#omada-の本番設定の一覧段階-3-の準備画面操作)）: VLAN 10/20/30/40/50/60/70（端末は繋いでいない）、DHCP、mDNS の中継（無効のまま）、スイッチのポートプロファイル `access-trusted`（どのポートにも未割り当て）。**ACL は作っていない**（当日は全許可。[ADR-0029](../../adr/0029-stage3-acl-allow-all-then-tighten.md)）。設定したあとのバックアップ: `omada_backup_...2026-11-11_21-48-24.cfg` と `sitebackup_...2026-11-11_21-48-31.cfg`（iCloud Drive）。
 - [x] **今の LAN の DHCP の DNS をルーターにした**（2026-11-17。変更後に確認した。運用者の報告）。手順の確認:（決定済み。変えるのは、手順 2 で Wi-Fi の端末が Trusted に移ったあと）。
@@ -174,7 +174,7 @@ p2 のスイッチ側の設定は、準備（手順 0）のまま（untagged VLA
 - [ ] **今の LAN（VLAN1）の ACL を作って、実機で確かめた**（[ADR-0028](../../adr/0028-defer-management-vlan10.md)）: 段階 3b までの暫定。ルールの案は[ロードマップ 13](../roadmap/13-defer-management-vlan.md#今の-lan-の-acl段階-3b-までの暫定)にある。
 - [ ] **緊急用の入口を決めて、届くことを確かめた**（[ADR-0028](../../adr/0028-defer-management-vlan10.md)）: `vm-infra` が止まったとき、または ACL を絞り間違えたときに、直接 Proxmox・`vm-omada`・ER605 に入れる口。空きポートを 1 つ決める（今は p5〜p8 が、今の LAN に入る設定）。そのポートに繋いだ端末が、今の LAN の DHCP でアドレスを受け取り、`192.168.11.10`（Proxmox）、`192.168.11.12`（`vm-omada`）、`192.168.11.1`（ER605）に届く。決めたポート: **p6**（決定 2026-11-10）
 
-ACL を、[通信ポリシー](../../architecture/08-vlan-design.md#通信ポリシー)の許可表の内容に絞る。**ログを見ながら、1 つずつ絞る**。絞るたびに、手順 7 の主な項目を確かめる。ルールの名前と説明は、[ACL の名前と説明の付け方](../../architecture/08-vlan-design.md#acl-の名前と説明の付け方)に従う（リハーサルの `rh-` のルールは、ここで削除し、本番のルールを作る）。絞り間違えて Trusted から管理系に届かなくなったら、緊急用の入口から `vm-omada` に入り、そのルールを無効にする。
+ACL を、[通信ポリシー](../../architecture/hld/05-network.md#通信ポリシー)の許可表の内容に絞る。**ログを見ながら、1 つずつ絞る**。絞るたびに、手順 7 の主な項目を確かめる。ルールの名前と説明は、[ACL の名前と説明の付け方](../../architecture/lld/network/acl.md)に従う（リハーサルの `rh-` のルールは、ここで削除し、本番のルールを作る）。絞り間違えて Trusted から管理系に届かなくなったら、緊急用の入口から `vm-omada` に入り、そのルールを無効にする。
 
 - [ ] 拒否すべき通信が拒否される（Lab・Guests・IoT・DMZ から内部へ。IoT → Trusted。Trusted → Guests）（**確認は、運用者の Mac では行わない**。Mac は Tailscale 経由で ER605 の ACL を通らないため、「拒否されるはずなのに通る」と見える。Trusted のスマホ、Lab の `vm-dev` など、Mac 以外の端末で確かめる。手順 7 の決定）
 - [ ] 許可すべき通信が通る（Trusted → Servers、Servers → 今の LAN（管理系）の Caddy と node_exporter、Tailscale 経由の Lab）
@@ -187,7 +187,7 @@ ACL を、[通信ポリシー](../../architecture/08-vlan-design.md#通信ポリ
 
 ## 10. 作業の後始末
 
-1. **同じ変更で直す**（[設計書](../../architecture/08-vlan-design.md#切り替え後)）:
+1. **同じ変更で直す**（[設計書](../roadmap/10-er605-sg2210p-migration-plan.md)）:
    - Prometheus の scrape 対象とアラート、[監視・アラート](../../architecture/lld/platform/monitoring.md)を更新し、Omada コントローラーの死活監視を足す。
    - 各文書に残る旧アドレス（`192.168.11.`）を直す。[IP アドレス一覧](../../architecture/lld/network/ip-addresses.md)の「現在」を「移行後」に合わせる（移行が済んだことを書く）。
    - 構成図: to-be の構成図（`to-be-diagram/`）を確認する。現状の構成図（`as-is-diagram/`）は、実機に合わせて更新する（段階 3 の分は、2026-11-17 に作成した）。`as-is-diagram/` は、削除せず、実機の状態に保つ（2026-11-19 に方針を変えた）。

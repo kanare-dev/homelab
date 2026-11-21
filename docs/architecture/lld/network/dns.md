@@ -103,9 +103,9 @@ AdGuard を使いたいコンテナは `docker-compose.yml` の `dns:` で個別
 
 - 以前は `router.lab.kanare.dev` が Buffalo の管理画面を向いていた。ER605 をコントローラーに採用すると、本体の画面が使えなくなるため、2026-11-06 に `omada.lab.kanare.dev` に付け替え、`router` は廃止した（決定: 運用者）。
 - Caddy から `vm-omada` までは HTTPS。自己署名証明書のため、`tls_insecure_skip_verify` を付ける（`pve` と同じ形）。`vm-omada` の UFW は、8043 を Caddy（`vm-infra`）から許可している（`ansible/inventory/group_vars/omada/vars.yml`）。
-- Buffalo（AP モード）の画面は、`http://10.77.30.50` を直接開く（2026-11-17 に `192.168.11.2` から変更）（Caddy は通さない）。
+- Buffalo（AP モード）の画面は、`http://10.77.30.50` を直接開く（Caddy は通さない）。
 - Homepage の Omada タイルは `https://omada.lab.kanare.dev` を監視している。
-- 外出先（Tailscale）からも名前を引ける。Tailscale の subnet route が `10.77.20.0/24`、`10.77.40.0/24` を通すため、Servers・Lab の IP にも届く。Management には届かない（2026-11-19 に、旧経路 `192.168.11.0/24` を外した）。
+- 外出先（Tailscale）からも名前を引ける。Tailscale の subnet route が `10.77.20.0/24`、`10.77.40.0/24` を通すため、Servers・Lab の IP にも届く。Management には届かない。
 
 ### ルーターを付け替えるとき
 
@@ -197,7 +197,7 @@ ansible-playbook playbooks/infra.yml
 | --- | --- |
 | vm-infra の Tailscale IP | `100.118.14.37` |
 | 起動オプション | `tailscale up --advertise-routes=10.77.20.0/24,10.77.40.0/24 --accept-dns=false` |
-| Subnet route | Admin Console で `10.77.20.0/24`、`10.77.40.0/24` を承認済み（2026-11-17）。旧経路 `192.168.11.0/24` は、2026-11-19 に広告をやめた（`tailscale set --advertise-routes`。Admin Console に旧経路の承認が残っていれば、外してよい） |
+| Subnet route | Admin Console で `10.77.20.0/24`、`10.77.40.0/24` を承認済み |
 | Key expiry | vm-infra は無効化（期限切れで外出先から繋がらなくなるのを防ぐ） |
 | Split DNS | Admin Console → DNS → Nameserver `100.118.14.37`、Restrict to domain `lab.kanare.dev` |
 

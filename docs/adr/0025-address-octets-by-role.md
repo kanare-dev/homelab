@@ -47,4 +47,4 @@
 - Management に、自動でアドレスを得られる口ができる。Management に出せるのは SG2210P の物理ポートだけなので、使わないポートは Management にしない。
 - 実機の確認で、緊急用プールが不要と分かったら、新しい ADR で外す。
 
-詳細: [VLAN 設計](../architecture/08-vlan-design.md)、[ER605・SG2210P の移行計画](../operations/roadmap/10-er605-sg2210p-migration-plan.md)
+詳細: [第5章 ネットワーク](../architecture/hld/05-network.md)、[ER605・SG2210P の移行計画](../operations/roadmap/10-er605-sg2210p-migration-plan.md)

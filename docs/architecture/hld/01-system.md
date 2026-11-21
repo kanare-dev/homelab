@@ -13,7 +13,7 @@
   </picture>
 </p>
 
-この図は現状（as-is。段階 3 の後）を表している。詳しくは[現状の構成図](../../diagrams/README.md#現状の構成図as-is-diagram)を参照してほしい。最終形（to-be）の図は、[to-be の構成図](../../diagrams/README.md#to-be-の構成図-vlan-化のあとto-be-diagram)にある。
+この図は現状（as-is）を表している。詳しくは[現状の構成図](../../diagrams/README.md#現状の構成図as-is-diagram)を参照してほしい。最終形（to-be）の図は、[to-be の構成図](../../diagrams/README.md#to-be-の構成図-vlan-化のあとto-be-diagram)にある。
 
 - ER605（`10.77.10.1`）は、既定のネットワーク Management（VLAN10）に属する。
 - `vm-infra`、`vm-monitoring`、`vm-apps`、`vm-code` は、常時起動を前提とし、 VLAN20（Servers）に所属させる。
@@ -61,12 +61,12 @@
 | 機器 | モデル | スペック | IP | 備考 |
 | --- | --- | --- | --- | --- |
 | サーバー | Lenovo ThinkCentre M70q Tiny | i5-10400T / 24GB RAM / 256GB NVMe | `10.77.10.10`（VLAN10） | Proxmox VE ホスト。物理 NIC は 1 つ |
-| ルーター | TP-Link ER605 V2 | — | `10.77.10.1`（既定のネットワーク。Management、VLAN10。2026-11-20 に、VLAN1 の `10.77.1.1` から統合） | 集合住宅の共用ルーターの下に置く（二重 NAT）。2026-11-06 に、Buffalo から交換した。Omada コントローラー（`vm-omada`）が管理する |
-| スイッチ | TP-Link SG2210P | — | DHCP（ER605 から） | PoE+ スイッチ。ER605 の p2 に繋ぎ、Proxmox・Buffalo・ディスプレイを収める。Omada コントローラーが管理する |
-| AP | Buffalo WSR-1800AX4P | — | `10.77.30.50`（固定。Trusted。2026-11-17 に `192.168.11.2` から変更） | AP（ブリッジ）モード。Wi-Fi の入口だけを担う（段階 4 で退役予定） |
+| ルーター | TP-Link ER605 V2 | — | `10.77.10.1`（既定のネットワーク。Management、VLAN10） | 集合住宅の共用ルーターの下に置く（二重 NAT）。Omada コントローラー（`vm-omada`）が管理する |
+| スイッチ | TP-Link SG2210P | — | `10.77.10.2`（固定。Management、VLAN10） | PoE+ スイッチ。ER605 の p2 に繋ぎ、Proxmox・Buffalo・ディスプレイを収める。Omada コントローラーが管理する |
+| AP | Buffalo WSR-1800AX4P | — | `10.77.30.50`（固定。Trusted） | AP（ブリッジ）モード。Wi-Fi の入口だけを担う（Omada の AP を導入したら退役する予定） |
 
 - 電源に UPS はない。ホスト 1 台にすべての VM が載っているので、ここが単一障害点になる（[可用性](02-reliability.md)）。
-- 次期構成（VLAN 分割）は [VLAN 設計](../08-vlan-design.md)で説明している。ER605 と SG2210P の導入（段階 1・2）は、2026-11-06 に適用した。VLAN 化（段階 3）はまだ適用していない。
+- ネットワークの分割（VLAN）は、[第5章 ネットワーク](05-network.md)で説明している。
 
 ## 論理構成
 

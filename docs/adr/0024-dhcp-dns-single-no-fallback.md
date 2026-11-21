@@ -9,7 +9,7 @@ Buffalo は、DHCP で DNS を 2 つ配っている。`192.168.11.11`（AdGuard�
 
 - `vm-infra`（DNS・Caddy・Tailscale）は 1 台で、止まると家の名前解決が止まる（[INC-2026-10-22](../operations/incidents/README.md)）。
 - 運用者は、仕事用の Windows PC を家のネットワークで使う。会社の方針で、PC の DNS の設定を変えられない。会社の VPN の接続先がホスト名なら、VPN に繋ぎ直すときに、家の DNS が要る（接続先の種類は未確認）。
-- [VLAN 設計](../architecture/08-vlan-design.md)は、全 VLAN で `10.77.20.11` だけを配る方針だった。
+- [第5章 ネットワーク](../architecture/hld/05-network.md)は、全 VLAN で `10.77.20.11` だけを配る方針だった。
 
 ## 決定
 
@@ -44,4 +44,4 @@ ER605 の DHCP が配る DNS は、`vm-infra`（段階 1 は `192.168.11.11`、V
   - 仕事用 PC の VPN の接続先が IP アドレスだと分かり、家の DNS が不要だと確認できた（この場合は、リスクが小さくなる）。
   - 別のホストを導入した（C を現実的にできる）。
 
-詳細: [VLAN 設計](../architecture/08-vlan-design.md)、[ER605・SG2210P の移行計画](../operations/roadmap/10-er605-sg2210p-migration-plan.md)、[障害時切り分け](../operations/runbooks/11-troubleshooting.md)
+詳細: [第5章 ネットワーク](../architecture/hld/05-network.md)、[ER605・SG2210P の移行計画](../operations/roadmap/10-er605-sg2210p-migration-plan.md)、[障害時切り分け](../operations/runbooks/11-troubleshooting.md)

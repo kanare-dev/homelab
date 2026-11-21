@@ -10,13 +10,13 @@ Omada コントローラーの詳細設計。ER605・SG2210P・将来の AP を�
 - コントローラーまたは機器の設定を変えたら、**同じ変更でこの文書（と、機器の文書）を更新**し、[変更履歴](#変更履歴)に 1 行足す。
 - 設定を変えたあとは、手動バックアップを取る。画面の Settings > Maintenance の「Backup & Restore」で保存する（メニューの名前は 6.3 で未確認）。保存先は iCloud Drive の `homelab/`（暗号化なし。運用者が受け入れ。[バックログ](../../../operations/roadmap/01-backlog.md)）。ファイル名は `omada-bk-YYYYMMDD.cfg`（案）。直近の 3 世代ほどを残す。
 - 自動バックアップは、毎週日曜 03:00（`vm-omada` の `/opt/omada/data/autobackup`）。VM のディスクの中なので、VM が壊れると一緒に失われる。
-- 画面には、`ssh -L 8043:localhost:8043 vm-omada` のあと `https://localhost:8043` で入る（`omada.lab.kanare.dev` は未作成。段階 1・2 のあとに作る）。
+- 画面には、`https://omada.lab.kanare.dev`（Caddy が `10.77.10.3:8043` に転送する）で入る。Caddy が使えないときは、`ssh -L 8043:localhost:8043 vm-omada` のあと `https://localhost:8043` で入る。
 
 ## 構成
 
 | 項目 | 値 |
 | --- | --- |
-| VM | `vm-omada`（VMID 112、`10.77.10.3`、VLAN10、NIC 1 枚。2026-11-19 に、旧 `192.168.11.12` から移した）。2 vCPU、メモリ 4GB（2026-11-09 に 3GB から増やした）、ディスク 20G。起動は自動（順序 6） |
+| VM | `vm-omada`（VMID 112、`10.77.10.3`、VLAN10、NIC 1 枚）。2 vCPU、メモリ 4GB（2026-11-09 に 3GB から増やした）、ディスク 20G。起動は自動（順序 6） |
 | コントローラー | Omada Controller 6.3.0.111。Docker（`mbentley/omada-controller:6.3.0.111`、host ネットワーク）。`docker/compose/omada/docker-compose.yml`、Ansible の `omada.yml` |
 | メモリの上限 | Java ヒープ最大 768MB（`JAVA_MAX_HEAP_SIZE`）、MongoDB の WiredTiger キャッシュ 0.25GB（`MONGOD_EXTRA_ARGS`）、コンテナ全体で 2.5GB（`mem_limit`）。VM にスワップは無い。上限の根拠は [INC-2026-11-09](../../../operations/incidents/2026-11-09-omada-memory-exhaustion.md) |
 | データ | `/opt/omada/data`、ログ `/opt/omada/logs` |
@@ -30,10 +30,10 @@ Omada コントローラーの詳細設計。ER605・SG2210P・将来の AP を�
 | --- | --- |
 | ユーザー（Accounts） | ローカルユーザー `homelab-owner`（Owner。日常に使う）と `homelab-admin`（Super Admin。予備）。Cloud User（TP-Link ID 名義の Owner。**名前は変更できない仕様**）は Omada Cloud 用。パスワードは Keychain（名前は台帳）。**ローカルユーザーの名前を、メールアドレスの形にしない**（下の注） |
 | サイト | 1 つ。名前は `kanare-homelab`（2026-11-06 に決めた） |
-| LAN（Settings > Wired Networks > LAN） | 既定のネットワークは `Management(Default)`（VLAN10、`10.77.10.1/24`。2026-11-20 に、VLAN1 の `10.77.1.1/24` から統合した。[ADR-0032](../../../adr/0032-merge-default-network-into-management-vlan10.md)）、DHCP `.240`〜`.250`（緊急用）、リース 60 分、DNS `10.77.10.1`。VLAN1 は使わない。`Blackhole`（VLAN 999、`10.77.99.1/24`、DHCP 無効、ER605 のポートなし）も、あわせて作った |
-| VLAN のネットワーク（段階 3 の準備。2026-11-11 に作成） | 10・20・30・40・50・60・70 の 7 つ（値は[ER605 の設定](../../../hardware/er605/settings.md#vlan-のネットワーク段階-3-の準備)）。端末・ホストは、まだ繋がっていない。当日（段階 3）に、ポートと端末を移す。ACL は作らない（全許可。[ADR-0029](../../../adr/0029-stage3-acl-allow-all-then-tighten.md)） |
-| mDNS の中継（Settings > 一般設定 > mDNS） | ルール `mdns-trusted-iot`（2026-11-11 に作成。**無効**のまま）。Bonjour サービスは AirPlay と Google Cast（一覧に無いので、`Google Cast` / `_googlecast._tcp.local` を追加した。サービス ID は `_A._B.local` の形）。バンド VLAN は「VLAN ID 別」、サービスネットワーク VLAN は 50（IoT）、クライアントネットワーク VLAN は 30（Trusted）。有効にして実機で確かめるのは、段階 4（テレビを IoT に移すとき）。Google Cast が中継できるか、`_googlezone._tcp` などの追加が要るかは、そのとき確認する |
-| スイッチのポートプロファイル（デバイス設定 > ポートプロファイル） | 標準の Disable・All・Default のほかに、`access-trusted`（2026-11-11 に作成。VLAN 設定オン、ネイティブネットワーク Trusted(30)、ネットワークタグ設定は全てブロック。PoE は機器の設定を保持）。**どのポートにも割り当てていない**。当日（段階 3）に、p3（Buffalo）と p4（ディスプレイ）へ割り当てる |
+| LAN（Settings > Wired Networks > LAN） | 既定のネットワークは `Management(Default)`（VLAN10、`10.77.10.1/24`。[ADR-0032](../../../adr/0032-merge-default-network-into-management-vlan10.md)）、DHCP `.240`〜`.250`（緊急用）、リース 60 分、DNS `10.77.10.1`。VLAN1 は使わない。`Blackhole`（VLAN 999、`10.77.99.1/24`、DHCP 無効、ER605 のポートなし）も、あわせて作った |
+| VLAN のネットワーク | 10・20・30・40・50・60・70 の 7 つ（値は[ER605 の設定](../../../hardware/er605/settings.md#vlan-のネットワーク段階-3-の準備)）。Servers・Lab・Trusted には、ホストと端末を繋いでいる。ACL は作っていない（全許可。[ADR-0029](../../../adr/0029-stage3-acl-allow-all-then-tighten.md)） |
+| mDNS の中継（Settings > 一般設定 > mDNS） | ルール `mdns-trusted-iot`（**無効**のまま）。Bonjour サービスは AirPlay と Google Cast（一覧に無いので、`Google Cast` / `_googlecast._tcp.local` を追加した。サービス ID は `_A._B.local` の形）。バンド VLAN は「VLAN ID 別」、サービスネットワーク VLAN は 50（IoT）、クライアントネットワーク VLAN は 30（Trusted）。有効にして実機で確かめるのは、テレビを IoT に移すとき。Google Cast が中継できるか、`_googlezone._tcp` などの追加が要るかは、そのとき確認する |
+| スイッチのポートプロファイル（デバイス設定 > ポートプロファイル） | 標準の Disable・All・Default のほかに、`access-trusted`（VLAN 設定オン、ネイティブネットワーク Trusted(30)、ネットワークタグ設定は全てブロック。PoE は機器の設定を保持）。p3（Buffalo）と p4（ディスプレイ）に割り当てている（「VLAN設定」は「プロファイルに従う」） |
 | 採用している機器 | ER605（JP 版 2.4.2）と SG2210P（5.30.7）。2026-11-06 に採用した。デバイス名は、型番ベースの小文字（`er605`、`sg2210p`。AP を足すときも、同じ付け方で `eap-xxx` など）（2026-11-03 に、ER605 を一度採用して更新し、取り外していた） |
 | Omada Cloud（クラウドアクセス） | **有効**（試用中。最終的に無効にするかもしれない。[外部サービスの表](../../hld/05-network.md#外部サービスへの依存)）。TP-Link ID は台帳 |
 | Open API | 使っていない |

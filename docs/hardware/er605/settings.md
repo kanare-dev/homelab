@@ -1,6 +1,6 @@
 # ER605（TP-Link ルーター）
 
-TP-Link ER605 V2 の設定値（詳細設計）。段階 1・2（2026-11-06）で Buffalo と入れ替えた。**この文書を、設定値の正とする。** 製品の仕様とファームウェアは[ER605 の資料](spec.md)、コントローラーは[Omada コントローラー](../../architecture/lld/network/omada-controller.md)、VLAN 化のあとの設定は[VLAN 設計](../../architecture/08-vlan-design.md)、移行の手順は[移行計画](../../operations/roadmap/10-er605-sg2210p-migration-plan.md)にある。
+TP-Link ER605 V2 の設定値（詳細設計）。段階 1・2（2026-11-06）で Buffalo と入れ替えた。**この文書を、設定値の正とする。** 製品の仕様とファームウェアは[ER605 の資料](spec.md)、コントローラーは[Omada コントローラー](../../architecture/lld/network/omada-controller.md)、VLAN 化のあとの設定は[第5章 ネットワーク](../../architecture/hld/05-network.md)、移行の手順は[移行計画](../../operations/roadmap/10-er605-sg2210p-migration-plan.md)にある。
 
 > [!NOTE]
 > 作成日は 2026-11-03。**秘密の値（管理者のパスワード）と、機器の MAC アドレスは書かない**（リポジトリは公開）。

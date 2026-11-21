@@ -20,7 +20,7 @@ homelab の設計書。**基本設計（HLD）**と**詳細設計（LLD）**に�
 | [第5章 ネットワーク](hld/05-network.md) | ドメイン命名規約、外部接続 |
 | [第6章 セキュリティ](hld/06-security.md) | 脅威の想定、秘密情報、アクセス制御、未対応の項目 |
 
-VLAN の設計は、[VLAN 設計](08-vlan-design.md)にある（第5章へ統合する予定）。IP アドレスは [IP アドレス一覧](lld/network/ip-addresses.md)が正である。
+VLAN の設計は第5章にある。IP アドレスは [IP アドレス一覧](lld/network/ip-addresses.md)が正である。
 
 ## 運用ルール
 

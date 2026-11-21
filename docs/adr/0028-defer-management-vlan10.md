@@ -48,4 +48,4 @@
 - 段階 3b の順序と手段は、[ADR-0031](0031-stage3b-devices-before-controller.md) で決めた（機器を先に VLAN10 へ移し、そのあとコントローラーを移す。2026-11-19）。時期は未決。
 - 機器の接続先を直す手段が見つかり、C-2 が解決したら、管理系を段階 3 に含める案を、再検討する（新しい ADR で置き換える）。
 
-詳細: [VLAN 設計](../architecture/08-vlan-design.md)、[移行計画](../operations/roadmap/10-er605-sg2210p-migration-plan.md)の 3-A、[段階 3b の前提と未決事項](../operations/roadmap/13-defer-management-vlan.md)、[リハーサルの C-2](../operations/runbooks/22-network-stage-3-rehearsal.md)
+詳細: [第5章 ネットワーク](../architecture/hld/05-network.md)、[移行計画](../operations/roadmap/10-er605-sg2210p-migration-plan.md)の 3-A、[段階 3b の前提と未決事項](../operations/roadmap/13-defer-management-vlan.md)、[リハーサルの C-2](../operations/runbooks/22-network-stage-3-rehearsal.md)

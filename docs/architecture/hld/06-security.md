@@ -112,7 +112,7 @@ Proxmox ホストの UFW と Proxmox ファイアウォールの設定は、こ�
 
 ### セグメンテーション
 
-現在（段階 3 の後）は、ネットワークを Trusted（`10.77.30.0/24`）、Servers（`10.77.20.0/24`）、Lab（`10.77.40.0/24`）に分けている。ただし ACL は全許可にしてあり、絞るのは別の日である（[ADR-0029](../../adr/0029-stage3-acl-allow-all-then-tighten.md)）。管理系（Proxmox、`vm-omada`、ER605、SG2210P）は、段階 3b まで今の LAN（`192.168.11.0/24`）に残す方針だった（[ADR-0028](../../adr/0028-defer-management-vlan10.md)）。IoT、ゲスト、管理機器を分離する設計は、[VLAN 設計](../08-vlan-design.md)にまとめており、ACL を絞る日に適用する。
+ネットワークは、Management（`10.77.10.0/24`）、Servers（`10.77.20.0/24`）、Trusted（`10.77.30.0/24`）、Lab（`10.77.40.0/24`）などの VLAN に分けている。ただし ACL は全許可のままで、絞り込みは未実施である（[ADR-0029](../../adr/0029-stage3-acl-allow-all-then-tighten.md)）。IoT、ゲスト、管理機器を分離する設計は、[第5章 ネットワーク](05-network.md)にまとめており、ACL を絞るときに適用する。
 
 ## 監査・検知
 
@@ -129,7 +129,7 @@ Proxmox ホストの UFW と Proxmox ファイアウォールの設定は、こ�
 | --- | --- | --- |
 | Proxmox ホストの node_exporter（9100）・SSH・8006 | ファイアウォールが無効で、LAN からどこからでも届く | 上の「Proxmox ホストのファイアウォール」と合わせて方針を決める |
 | `vm-infra` の 51820/udp | `# WireGuard` のコメント付きで許可しているが、WireGuard 単体は構成に含まれない（VPN は Tailscale） | 用途を確認し、不要なら閉じる |
-| Tailscale の ACL | 既定のまま。`192.168.11.1`（ルーター）にも届く | ACL で管理画面を除外する（未実施。[DNS 構成](../lld/network/dns.md#管理画面omada-コントローラー)） |
+| Tailscale の ACL | 既定のまま。Caddy 経由で、Omada コントローラーと Proxmox の管理画面のログイン画面に届く | ACL で管理画面を除外する（未実施。[DNS 構成](../lld/network/dns.md#管理画面omada-コントローラー)） |
 | 認証の一元化 | Prometheus・Homepage は認証なし | 導入しない（[ADR 0008](../../adr/0008-no-authelia.md)）。ポートの許可元の絞り込みは別途検討 |
 | OS・コンテナの更新 | 手動。コンテナイメージは `latest` | 定期更新の手順とタイミングを決める |
 | ルーターへの通信 | Caddy からの転送が平文 HTTP | LAN 内のみのため受け入れ。TP-Link への移行で再設計 |
@@ -138,5 +138,5 @@ Proxmox ホストの UFW と Proxmox ファイアウォールの設定は、こ�
 ## 関連
 
 - [運用 Runbook: 秘密情報管理](../../operations/runbooks/03-secrets.md#秘密情報管理)
-- [VLAN 設計](../08-vlan-design.md)
+- [第5章 ネットワーク](05-network.md)
 - [外部接続](05-network.md)

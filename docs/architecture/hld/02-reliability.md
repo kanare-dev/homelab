@@ -126,7 +126,7 @@
 | --- | --- | --- |
 | ホスト・監視 VM の停止が Slack に通知されない | 外部 Heartbeat で補完している（[ADR-0010](../../adr/0010-external-heartbeat.md)、旧判断は [ADR-0002](../../adr/0002-no-external-monitoring.md)） | Healthchecks.io の無料枠の条件が変わったとき |
 | 停電でホストが止まる | 受け入れ（UPS 未導入） | ロードマップの「UPS 導入と自動シャットダウン」に着手するとき |
-| `vm-infra` への集中 | 受け入れ | DNS を別ホスト（Raspberry Pi など）に分けるとき。VLAN 化で影響範囲がさらに広がる（[VLAN 設計](../08-vlan-design.md#前提と制約)） |
+| `vm-infra` への集中 | 受け入れ | DNS を別ホスト（Raspberry Pi など）に分けるとき。VLAN 化で影響範囲がさらに広がる（[第5章 ネットワーク](05-network.md#前提と制約)） |
 
 ## 災害対策
 
@@ -195,12 +195,12 @@
 前提として、Mac（または別の端末）で GitHub からクローンでき、age 秘密鍵が使えるものとする。
 
 1. **端末を用意する**: `brew install sops age terraform ansible`、`ansible-galaxy collection install -r ansible/requirements.yml`。age 秘密鍵を `~/Library/Application Support/sops/age/keys.txt` に復元し、`make secrets-check` で確認する（[運用 Runbook](../../operations/runbooks/03-secrets.md#別の-mac-で復元する)）。SSH 鍵も復元する。
-2. **Proxmox VE を入れる**: 新しいハードウェアに Proxmox VE 8.x をインストールし、IP を `10.77.10.10`（タグ付きの `vmbr0.10`、VLAN10。[手順書 24](../../operations/runbooks/24-pve-move-to-vmbr0-10.md)）にする。`/etc/hosts` の `pve` の行も同じ IP にする。ストレージは `local-lvm`（thin pool）が使える構成にする。
+2. **Proxmox VE を入れる**: 新しいハードウェアに Proxmox VE 9.x をインストールし、IP を `10.77.10.10`（タグ付きの `vmbr0.10`、VLAN10。[手順書 24](../../operations/runbooks/24-pve-move-to-vmbr0-10.md)）にする。`/etc/hosts` の `pve` の行も同じ IP にする。ストレージは `local-lvm`（thin pool）が使える構成にする。
 3. **テンプレートと API トークンを作る**: `terraform/proxmox/README.md` の手順で、cloud-init テンプレート（VMID 9000）と `terraform@pam` の API トークンを作る。トークンの値は `sops terraform/proxmox/secrets.sops.yml` で更新する。
 4. **ホストを構成する**: `make setup-proxmox`（収集スクリプト、node_exporter）。
 5. **VM を作る**: `terraform init && terraform plan && terraform apply`。state がない場合は新規作成になる（既存の VM が残っていると衝突するため、事前に確認する）。
 6. **基盤を構成する**: `make setup-infra`（DNS、Caddy、Tailscale）→ `make setup-monitoring` → `make setup-apps` → `make setup-code`。全体は `make setup`。
-7. **Tailscale を再登録する**: `tailscale_authkey` で登録し、管理画面で subnet route（`10.77.20.0/24`、`10.77.40.0/24`、`192.168.11.0/24`）の承認と、`vm-infra` の key expiry 無効化、split DNS の設定を確認する（[DNS 構成](../lld/network/dns.md#tailscale-との連携)）。
+7. **Tailscale を再登録する**: `tailscale_authkey` で登録し、管理画面で subnet route（`10.77.20.0/24`、`10.77.40.0/24`）の承認と、`vm-infra` の key expiry 無効化、split DNS の設定を確認する（[DNS 構成](../lld/network/dns.md#tailscale-との連携)）。
 8. **確認する**: `dig @10.77.20.10 grafana.lab.kanare.dev`、`https://grafana.lab.kanare.dev`、Prometheus の Targets、Slack のテスト通知（[運用 Runbook](../../operations/runbooks/05-slack-alerts.md#slack-アラート通知)）、外出先（モバイル回線）からの接続。
 9. **記録する**: 障害記録を `docs/operations/incidents/` に書く。台帳に変更があれば更新する。
 

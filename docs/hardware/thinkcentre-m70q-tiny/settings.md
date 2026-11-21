@@ -1,6 +1,6 @@
 # ThinkCentre M70q Tiny の設定
 
-Proxmox ホスト（`pve`）の、ホスト単体の設定値（詳細設計）。**この文書を、ホストの設定値の正とする。** 機器の仕様と公式資料は [spec.md](spec.md)。VM ごとの割当と、ホストの資源の収支は[システム構成・環境](../../architecture/hld/01-system.md)、VLAN のブリッジとポートは [VLAN 設計](../../architecture/08-vlan-design.md)、監視は[監視・アラート](../../architecture/lld/platform/monitoring.md)にある。
+Proxmox ホスト（`pve`）の、ホスト単体の設定値（詳細設計）。**この文書を、ホストの設定値の正とする。** 機器の仕様と公式資料は [spec.md](spec.md)。VM ごとの割当と、ホストの資源の収支は[システム構成・環境](../../architecture/hld/01-system.md)、VLAN のブリッジとポートは [第5章 ネットワーク](../../architecture/hld/05-network.md)、監視は[監視・アラート](../../architecture/lld/platform/monitoring.md)にある。
 
 - 設定を変えたら、**同じ変更でこの文書を更新**し、[変更履歴](#変更履歴)に 1 行足す。
 - ホストの設定は Ansible（`ansible/roles/proxmox/`）と、手で入れた設定（`/etc/network/interfaces` など）に分かれる。Ansible にあるものは、その旨を「管理」の列に書く。
@@ -37,4 +37,4 @@ BIOS の設定は、この文書にまだ無い。次を、本体の BIOS 画面
 | 日付 | 内容 |
 | --- | --- |
 | 2026-11-19 | **IP を `192.168.11.10`（`vmbr0`、タグなし）から `10.77.10.10/24`（`vmbr0.10`、VLAN10、GW `10.77.10.1`）に移した**（段階 3b の残り。23:03〜23:05）。`/etc/network/interfaces` で `vmbr0` を `inet manual` にし、`vmbr0.10` を足した。`/etc/hosts` の `pve` の行も直した。`ifreload -a` で反映し、SSH は約 50 秒で、新しい IP から再接続できた。VM は動き続けた。10 分後に元に戻すタイマーを仕掛けたが、確認が通ったので止めた。事前に、設定を iCloud Drive に退避した（`pve-interfaces-bk-20261119.txt`、`pve-hosts-bk-20261119.txt`）。詳細は[手順書 24](../../operations/runbooks/24-pve-move-to-vmbr0-10.md)（運用者の指示。Claude Code が実施） |
-| 2026-11-06 | この文書を作成した。[システム構成・環境](../../architecture/hld/01-system.md)、[VLAN 設計](../../architecture/08-vlan-design.md)、Ansible の `proxmox` ロール、Runbook に分かれていたホスト単体の設定を集約した（値の変更は無い） |
+| 2026-11-06 | この文書を作成した。[システム構成・環境](../../architecture/hld/01-system.md)、[第5章 ネットワーク](../../architecture/hld/05-network.md)、Ansible の `proxmox` ロール、Runbook に分かれていたホスト単体の設定を集約した（値の変更は無い） |

@@ -43,7 +43,7 @@ Mac / スマホ ─ HTTPS ─> Caddy（vm-infra :443） ─ HTTP ─> vm-apps :8
 Home Assistant 2026.10 以降、`http:` の設定は初回起動のときだけ YAML から `.storage/http` に取り込まれる。以後は YAML が**無視される**ので、`configuration.yaml` に `trusted_proxies` を書いても効かない。信頼する Caddy の IP は `storage/http` の初期値で与える。
 
 - 初期値を変えて既存のインスタンスに反映するには、コンテナを止め、`/opt/homeassistant/config/.storage/http` を退避してから、`make deploy-apps APP=homeassistant` を実行する（無ければ初期値が置かれる）。
-- **Caddy の IP が変わったときは、実機の `.storage/http` の `trusted_proxies` を手で直す**（Ansible は、無いときだけ置くので、既存のファイルは直らない）。2026-11-17 に、段階 3 で Caddy が `192.168.11.11` から `10.77.20.10` に移ったとき、直し忘れて Caddy 経由が HTTP 400 になった。直し方: バックアップを取り、コンテナを止めて、`trusted_proxies` を直し、コンテナを起動する。
+- **Caddy の IP が変わったときは、実機の `.storage/http` の `trusted_proxies` を手で直す**（Ansible は、無いときだけ置くので、既存のファイルは直らない）。Caddy の IP を変えたときに、直し忘れて、Caddy 経由が HTTP 400 になったことがある（2026-11-17）。直し方: バックアップを取り、コンテナを止めて、`trusted_proxies` を直し、コンテナを起動する。
 - 設定が合っていないと、Caddy 経由は HTTP 400 になる。ログに `your HTTP integration is not set-up for reverse proxies` が出る。
 
 ### Git に入らないもの
@@ -67,7 +67,7 @@ Home Assistant 2026.10 以降、`http:` の設定は初回起動のときだけ 
 
 ## 機器の検出と VLAN
 
-現在は全機器が同じ LAN にあるため、mDNS / SSDP の検出が届く。[VLAN 設計](../../08-vlan-design.md) に移行すると、`vm-apps`（Servers）から Trusted・IoT の機器が見えなくなる。
+現在は全機器が同じ LAN にあるため、mDNS / SSDP の検出が届く。[第5章 ネットワーク](../../hld/05-network.md) に移行すると、`vm-apps`（Servers）から Trusted・IoT の機器が見えなくなる。
 
 - SwitchBot Cloud と Spotify はクラウド経由なので影響しない。
 - Google Cast（テレビ）や Matter、LAN 内の機器を使うときは、次のどちらかを決める必要がある（未決。[ロードマップ](../../../operations/roadmap/01-backlog.md)）。
