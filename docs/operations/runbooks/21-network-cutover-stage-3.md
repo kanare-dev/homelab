@@ -191,7 +191,7 @@ ACL を、[通信ポリシー](../../architecture/hld/05-network.md#通信ポリ
    - Prometheus の scrape 対象とアラート、[監視・アラート](../../architecture/lld/platform/monitoring.md)を更新し、Omada コントローラーの死活監視を足す。
    - 各文書に残る旧アドレス（`192.168.11.`）を直す。[IP アドレス一覧](../../architecture/lld/network/ip-addresses.md)の「現在」を「移行後」に合わせる（移行が済んだことを書く）。
    - 構成図: to-be の構成図（`to-be-diagram/`）を確認する。現状の構成図（`as-is-diagram/`）は、実機に合わせて更新する（段階 3 の分は、2026-11-17 に作成した）。`as-is-diagram/` は、削除せず、実機の状態に保つ（2026-11-19 に方針を変えた）。
-2. 機器の設定文書を、実際の値に合わせる: [ER605](../../hardware/er605/settings.md)、[SG2210P](../../hardware/sg2210p/settings.md)、[Buffalo](../../hardware/wsr-1800ax4p/settings.md)、[ThinkCentre](../../hardware/thinkcentre-m70q-tiny/settings.md)。変更履歴に 1 行ずつ足す。
+2. 機器の設定文書を、実際の値に合わせる: [ER605](../../architecture/lld/hardware/er605/settings.md)、[SG2210P](../../architecture/lld/hardware/sg2210p/settings.md)、[Buffalo](../../architecture/lld/hardware/wsr-1800ax4p/settings.md)、[ThinkCentre](../../architecture/lld/hardware/thinkcentre-m70q-tiny/settings.md)。変更履歴に 1 行ずつ足す。
 3. 実際の所要時間と、リハーサルや当日の結果（追従の可否、`vmbr0.10`、既定の LAN を消せたか）を、[移行計画](../roadmap/10-er605-sg2210p-migration-plan.md)に記録する。
 4. Buffalo は、段階 4（AP の導入）まで、AP として使い続ける。
 

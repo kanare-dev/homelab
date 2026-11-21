@@ -1,6 +1,6 @@
 # SG2210P（TP-Link スイッチ）
 
-TP-Link SG2210P V5.30 の設定値（詳細設計）。段階 1・2 で ER605 の下に入れ、段階 3 で VLAN の trunk と access を設定する。**この文書を、設定値の正とする。** 製品の仕様は[SG2210P の資料](spec.md)、コントローラーは[Omada コントローラー](../../architecture/lld/network/omada-controller.md)、VLAN のポートの割り当ては[第5章 ネットワーク](../../architecture/hld/05-network.md)、移行の手順は[移行計画](../../operations/roadmap/10-er605-sg2210p-migration-plan.md)にある。
+TP-Link SG2210P V5.30 の設定値（詳細設計）。段階 1・2 で ER605 の下に入れ、段階 3 で VLAN の trunk と access を設定する。**この文書を、設定値の正とする。** 製品の仕様は[SG2210P の資料](spec.md)、コントローラーは[Omada コントローラー](../../network/omada-controller.md)、VLAN のポートの割り当ては[第5章 ネットワーク](../../../hld/05-network.md)、移行の手順は[移行計画](../../../../operations/roadmap/10-er605-sg2210p-migration-plan.md)にある。
 
 > [!NOTE]
 > 作成日は 2026-11-03。**秘密の値と、機器の MAC アドレスは書かない**（リポジトリは公開）。
@@ -15,7 +15,7 @@ TP-Link SG2210P V5.30 の設定値（詳細設計）。段階 1・2 で ER605 �
 
 ## 運用
 
-- 設定を変えたら、**同じ変更でこの文書を更新**し、[変更履歴](#変更履歴)に 1 行足す。変更したあとは、コントローラーのバックアップを取る（[手順](../../architecture/lld/network/omada-controller.md#運用)）。
+- 設定を変えたら、**同じ変更でこの文書を更新**し、[変更履歴](#変更履歴)に 1 行足す。変更したあとは、コントローラーのバックアップを取る（[手順](../../network/omada-controller.md#運用)）。
 
 ## 設定値
 
@@ -33,7 +33,7 @@ TP-Link SG2210P V5.30 の設定値（詳細設計）。段階 1・2 で ER605 �
 注: 2026-11-20 より前は、p1・p2・p5〜p8 が、ネイティブ Default(1)・タグ全許可だった（VLAN1。空きポートでも、タグ付きの通信は、すべての VLAN に入れた）。
 | p9–p10 | SFP（使わない） | |
 
-段階 3 のあとの VLAN とポートの設定は、[第5章 ネットワーク](../../architecture/hld/05-network.md)の表を正とし、適用したらここに書き写す。
+段階 3 のあとの VLAN とポートの設定は、[第5章 ネットワーク](../../../hld/05-network.md)の表を正とし、適用したらここに書き写す。
 
 ### 管理
 
@@ -57,9 +57,9 @@ TP-Link SG2210P V5.30 の設定値（詳細設計）。段階 1・2 で ER605 �
 
 | 日付 | 内容 |
 | --- | --- |
-| 2026-11-20 | **既定のネットワークの VLAN10 への統合（案 B、[ADR-0032](../../adr/0032-merge-default-network-into-management-vlan10.md)、[手順書 25](../../operations/runbooks/25-merge-default-network-into-vlan10.md)）。** (1) `Blackhole`（VLAN 999）を作り、p1 のタグから `Blackhole` を外した。(2) p8 を native Management に、p2 を native `Blackhole` に、p5〜p7 を native `Blackhole`・タグ全ブロックにした。(3) 管理 VLAN を `Default`（VLAN1）に付け替え、`Management` ネットワークを削除し、`Default` を `Management`（VLAN10、`10.77.10.1/24`）にした。**削除の時点で、スイッチから VLAN10 が消え、コントローラー（VLAN10）から切れた**（想定どおり）。(4) 復旧は、本体の画面（ER605 の DHCP から受けた `192.168.0.100`）で、802.1Q VLAN に VLAN10（tagged p1・p2・p8）を足して、L3 Interface に VLAN10 の静的 `10.77.10.2` を足した。(5) **コントローラーの p2 の設定が、タグ付きに Management を含めていなかったため、p2 の VLAN10 が untagged になっていた**（配信のあと、本体の画面で気づいた）。タグ付きに Management を足して直した。(6) コントローラー側の管理インターフェースを、静的 `10.77.10.2/24`（GW・DNS `10.77.10.1`）にした。再接続のあと、設定結果の「失敗」の通知は、切断中の古い記録だった |
+| 2026-11-20 | **既定のネットワークの VLAN10 への統合（案 B、[ADR-0032](../../../../adr/0032-merge-default-network-into-management-vlan10.md)、[手順書 25](../../../../operations/runbooks/25-merge-default-network-into-vlan10.md)）。** (1) `Blackhole`（VLAN 999）を作り、p1 のタグから `Blackhole` を外した。(2) p8 を native Management に、p2 を native `Blackhole` に、p5〜p7 を native `Blackhole`・タグ全ブロックにした。(3) 管理 VLAN を `Default`（VLAN1）に付け替え、`Management` ネットワークを削除し、`Default` を `Management`（VLAN10、`10.77.10.1/24`）にした。**削除の時点で、スイッチから VLAN10 が消え、コントローラー（VLAN10）から切れた**（想定どおり）。(4) 復旧は、本体の画面（ER605 の DHCP から受けた `192.168.0.100`）で、802.1Q VLAN に VLAN10（tagged p1・p2・p8）を足して、L3 Interface に VLAN10 の静的 `10.77.10.2` を足した。(5) **コントローラーの p2 の設定が、タグ付きに Management を含めていなかったため、p2 の VLAN10 が untagged になっていた**（配信のあと、本体の画面で気づいた）。タグ付きに Management を足して直した。(6) コントローラー側の管理インターフェースを、静的 `10.77.10.2/24`（GW・DNS `10.77.10.1`）にした。再接続のあと、設定結果の「失敗」の通知は、切断中の古い記録だった |
 | 2026-11-19 | 緊急用の入口を、p6 から p8 に変える方針にした（設定は変えていない。p5〜p8 は同じ設定。空きの PoE ポート p5〜p7 を連続させるため。ADR-0032、手順書 25） |
-| 2026-11-19 | 段階 3b の手順 1: 「デバイス → sg2210p → 設定 → インターフェース」の Management（VLAN10）で、管理 VLAN を有効にし、IP を静的（`10.77.10.2/24`、GW・プライマリ DNS `10.77.10.1`）にした。保存のポップアップの「以前の管理 VLAN のインターフェースを無効にする」は、チェックを入れなかった。約 1 分で再接続した。手順 2 で、コントローラーの住所（デバイス管理アクセス）を `10.77.10.3` にして、SG2210P が `10.77.10.3` 宛てに接続することを確認した。事前に Omada のバックアップを取った（運用者の報告）。詳細は[ロードマップ 13](../../operations/roadmap/13-defer-management-vlan.md) |
+| 2026-11-19 | 段階 3b の手順 1: 「デバイス → sg2210p → 設定 → インターフェース」の Management（VLAN10）で、管理 VLAN を有効にし、IP を静的（`10.77.10.2/24`、GW・プライマリ DNS `10.77.10.1`）にした。保存のポップアップの「以前の管理 VLAN のインターフェースを無効にする」は、チェックを入れなかった。約 1 分で再接続した。手順 2 で、コントローラーの住所（デバイス管理アクセス）を `10.77.10.3` にして、SG2210P が `10.77.10.3` 宛てに接続することを確認した。事前に Omada のバックアップを取った（運用者の報告）。詳細は[ロードマップ 13](../../../../operations/roadmap/13-defer-management-vlan.md) |
 | 2026-11-17 | p5〜p8 の設定を、Omada の画面で確認した（設定は変えていない。すべて同じ。上のポートの表の注）。p6（緊急用の入口）は、native VLAN1 のままで、計画どおり（運用者の確認） |
 | 2026-11-17 | 段階 3 の当日の手順 2 で、p4（ディスプレイ）と p3（Buffalo）にプロファイル `access-trusted` を割り当てた（access VLAN30）。**「VLAN設定」が「カスタム」のままだと、プロファイルを選んでも Native が Default(1) のままで VLAN30 にならない**ので、「プロファイルに従う」にした。割り当て後、Mac の有線・Wi-Fi が `10.77.30.x` を受け取り、ER605 経由で今の LAN（Proxmox、`vm-omada`）に届くことを確認した。p1 は untagged VLAN1・tagged 10〜70 で問題なし（運用者の確認）。p2 には触っていない |
 | 2026-11-11 | ポートプロファイル `access-trusted`（ネイティブ Trusted(30)、タグ付きなし）を作った。どのポートにも割り当てていない。当日、p3・p4 に割り当てる（運用者の報告） |

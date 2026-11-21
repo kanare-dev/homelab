@@ -49,7 +49,7 @@ ADR-0025 で、Servers の VM を `.10`〜`.13` の連番にした（`vm-infra`�
 
 ## 影響と再検討の条件
 
-- 緊急用プールを使うときは、`*.lab.kanare.dev` を引けない。管理機器は IP で開く（[ER605](../hardware/er605/settings.md)、[Proxmox](../architecture/lld/network/ip-addresses.md) など）。
+- 緊急用プールを使うときは、`*.lab.kanare.dev` を引けない。管理機器は IP で開く（[ER605](../architecture/lld/hardware/er605/settings.md)、[Proxmox](../architecture/lld/network/ip-addresses.md) など）。
 - 要確認: ER605 の DNS プロキシ（上流への転送）が、Management で有効か。段階 3 の確認の項目に入れる。
 - 書き換えの対象: [IP アドレス一覧](../architecture/lld/network/ip-addresses.md)、[第5章 ネットワーク](../architecture/hld/05-network.md)、[移行計画](../operations/roadmap/10-er605-sg2210p-migration-plan.md)、[Runbook 21](../operations/runbooks/21-network-cutover-stage-3.md)、構成図（`docs/diagrams/to-be-diagram/`）。
 - 段階 3 の前に、Ansible・Terraform・Caddy・Prometheus の IP を、新しい値（`vm-apps` が `10.77.20.20`、`vm-code` が `10.77.20.30`）で用意する。

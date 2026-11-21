@@ -1,6 +1,6 @@
 # Omada コントローラー（vm-omada）
 
-Omada コントローラーの詳細設計。ER605・SG2210P・将来の AP を一元管理する。設定の大半はコントローラーの中にあり、Git では管理しない（Open API でのコード化は[検討中](../../../operations/roadmap/01-backlog.md)）。**この文書を、設定値の正とする。** 製品の仕様は[ER605](../../../hardware/er605/spec.md)・[SG2210P](../../../hardware/sg2210p/spec.md)の資料、機器ごとの設定は[ER605 の設定](../../../hardware/er605/settings.md)・[SG2210P の設定](../../../hardware/sg2210p/settings.md)、移行の手順は[移行計画](../../../operations/roadmap/10-er605-sg2210p-migration-plan.md)にある。
+Omada コントローラーの詳細設計。ER605・SG2210P・将来の AP を一元管理する。設定の大半はコントローラーの中にあり、Git では管理しない（Open API でのコード化は[検討中](../../../operations/roadmap/01-backlog.md)）。**この文書を、設定値の正とする。** 製品の仕様は[ER605](../hardware/er605/spec.md)・[SG2210P](../hardware/sg2210p/spec.md)の資料、機器ごとの設定は[ER605 の設定](../hardware/er605/settings.md)・[SG2210P の設定](../hardware/sg2210p/settings.md)、移行の手順は[移行計画](../../../operations/roadmap/10-er605-sg2210p-migration-plan.md)にある。
 
 > [!NOTE]
 > 作成日は 2026-11-03。**秘密の値（管理者のパスワード、バックアップの暗号化の鍵、TP-Link ID のパスワード）と、機器の MAC アドレスは書かない**（リポジトリは公開）。Keychain の名前は `private/secrets-inventory.md`（台帳）にある。
@@ -31,7 +31,7 @@ Omada コントローラーの詳細設計。ER605・SG2210P・将来の AP を�
 | ユーザー（Accounts） | ローカルユーザー `homelab-owner`（Owner。日常に使う）と `homelab-admin`（Super Admin。予備）。Cloud User（TP-Link ID 名義の Owner。**名前は変更できない仕様**）は Omada Cloud 用。パスワードは Keychain（名前は台帳）。**ローカルユーザーの名前を、メールアドレスの形にしない**（下の注） |
 | サイト | 1 つ。名前は `kanare-homelab`（2026-11-06 に決めた） |
 | LAN（Settings > Wired Networks > LAN） | 既定のネットワークは `Management(Default)`（VLAN10、`10.77.10.1/24`。[ADR-0032](../../../adr/0032-merge-default-network-into-management-vlan10.md)）、DHCP `.240`〜`.250`（緊急用）、リース 60 分、DNS `10.77.10.1`。VLAN1 は使わない。`Blackhole`（VLAN 999、`10.77.99.1/24`、DHCP 無効、ER605 のポートなし）も、あわせて作った |
-| VLAN のネットワーク | 10・20・30・40・50・60・70 の 7 つ（値は[ER605 の設定](../../../hardware/er605/settings.md#vlan-のネットワーク段階-3-の準備)）。Servers・Lab・Trusted には、ホストと端末を繋いでいる。ACL は作っていない（全許可。[ADR-0029](../../../adr/0029-stage3-acl-allow-all-then-tighten.md)） |
+| VLAN のネットワーク | 10・20・30・40・50・60・70 の 7 つ（値は[ER605 の設定](../hardware/er605/settings.md#vlan-のネットワーク段階-3-の準備)）。Servers・Lab・Trusted には、ホストと端末を繋いでいる。ACL は作っていない（全許可。[ADR-0029](../../../adr/0029-stage3-acl-allow-all-then-tighten.md)） |
 | mDNS の中継（Settings > 一般設定 > mDNS） | ルール `mdns-trusted-iot`（**無効**のまま）。Bonjour サービスは AirPlay と Google Cast（一覧に無いので、`Google Cast` / `_googlecast._tcp.local` を追加した。サービス ID は `_A._B.local` の形）。バンド VLAN は「VLAN ID 別」、サービスネットワーク VLAN は 50（IoT）、クライアントネットワーク VLAN は 30（Trusted）。有効にして実機で確かめるのは、テレビを IoT に移すとき。Google Cast が中継できるか、`_googlezone._tcp` などの追加が要るかは、そのとき確認する |
 | スイッチのポートプロファイル（デバイス設定 > ポートプロファイル） | 標準の Disable・All・Default のほかに、`access-trusted`（VLAN 設定オン、ネイティブネットワーク Trusted(30)、ネットワークタグ設定は全てブロック。PoE は機器の設定を保持）。p3（Buffalo）と p4（ディスプレイ）に割り当てている（「VLAN設定」は「プロファイルに従う」） |
 | 採用している機器 | ER605（JP 版 2.4.2）と SG2210P（5.30.7）。2026-11-06 に採用した。デバイス名は、型番ベースの小文字（`er605`、`sg2210p`。AP を足すときも、同じ付け方で `eap-xxx` など）（2026-11-03 に、ER605 を一度採用して更新し、取り外していた） |
@@ -65,7 +65,7 @@ Omada コントローラーの詳細設計。ER605・SG2210P・将来の AP を�
 | 2026-11-17 | 全体の設定（システム設定）の「デバイス管理アクセス」を有効にし、デバイス管理ホスト名/IP を `192.168.11.12`（今の `vm-omada` の住所）にした。段階 3b で、機器がコントローラーの新しい住所に付いてくるかを確かめるための、低リスクの確認（機器に伝わる住所は変わらない）。10 分間の監視で、切断は無く、ER605・SG2210P は接続済みのまま（運用者の画面と、Claude の疎通確認）。保存の確認（再読み込み）は未了。これで、デバイスの追加の「手動で追加」も使える状態になる。詳細は[ロードマップ 13](../../../operations/roadmap/13-defer-management-vlan.md) |
 | 2026-11-17 | 既定の LAN（`192.168.11.0/24`）の DHCP の DNS を、`192.168.11.11`（旧 `vm-infra`）から、ルーター（`192.168.11.1`）に変えた。変更後に確認した（運用者の報告） |
 | 2026-11-17 | 段階 3 の手順 5・6 のあと、Omada のバックアップを取り直した（`omada_backup_...2026-11-17_22-01-59.cfg`、`sitebackup_...2026-11-17_22-01-49.cfg`。iCloud Drive）。p3・p4 の `access-trusted` の割り当てが入った状態（運用者の報告） |
-| 2026-11-17 | 段階 3 の当日の手順 2 で、SG2210P の p3・p4 にポートプロファイル `access-trusted` を割り当てた（詳細は[SG2210P](../../../hardware/sg2210p/settings.md)の変更履歴）。事前に、Omada のバックアップを取り直した（`omada_backup_...2026-11-17_20-55-01.cfg`、`sitebackup_...2026-11-17_20-55-17.cfg`。iCloud Drive）。バックアップは、p3・p4 を割り当てる前の状態 |
+| 2026-11-17 | 段階 3 の当日の手順 2 で、SG2210P の p3・p4 にポートプロファイル `access-trusted` を割り当てた（詳細は[SG2210P](../hardware/sg2210p/settings.md)の変更履歴）。事前に、Omada のバックアップを取り直した（`omada_backup_...2026-11-17_20-55-01.cfg`、`sitebackup_...2026-11-17_20-55-17.cfg`。iCloud Drive）。バックアップは、p3・p4 を割り当てる前の状態 |
 | 2026-11-11 | 段階 3 の準備として、mDNS のルール `mdns-trusted-iot`（無効）と、ポートプロファイル `access-trusted`（未割り当て）を作った（運用者の報告） |
 | 2026-11-11 | 段階 3 の準備として、VLAN のネットワーク 7 つ（10〜70）を、設計書の値にそろえた（Servers・Lab・Guests・DMZ を新規に作成。Management の DNS を `10.77.10.1`、Trusted のリースを 48 時間に修正）。端末は繋いでいない（運用者の報告） |
 | 2026-11-09 | ローカルの Owner の名前を、TP-Link ID と同じメール形式から `homelab-owner` に変えた。`omada.lab.kanare.dev` でユーザー設定（言語・テーマ）が `Account unauthorized` で保存できなかったため。予備に `homelab-admin`（Super Admin）を作った（運用者の報告） |

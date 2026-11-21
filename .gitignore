@@ -53,7 +53,7 @@ docs/diagrams/assets/
 /private/
 
 # 他の作者の 3D モデル（別のライセンス）は Git 管理しない。出所は models/*/SOURCE.md に残す（手元のファイルは、そのまま置いてよい）
-docs/hardware/future/rack-10inch/models/**/*.stl
-docs/hardware/future/rack-10inch/models/**/*.3mf
-docs/hardware/future/rack-10inch/models/**/*.step
-docs/hardware/future/rack-10inch/models/**/*.stp
+docs/architecture/lld/hardware/future/rack-10inch/models/**/*.stl
+docs/architecture/lld/hardware/future/rack-10inch/models/**/*.3mf
+docs/architecture/lld/hardware/future/rack-10inch/models/**/*.step
+docs/architecture/lld/hardware/future/rack-10inch/models/**/*.stp

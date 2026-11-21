@@ -1,6 +1,6 @@
 # 詳細設計（LLD）
 
-サービスごとの詳細設計と、IP アドレスのような具体的な値をまとめる。構成、設定、運用上の注意、制約を扱う。全体の方式は[基本設計](../hld/README.md)、手順は [運用 Runbook](../../operations/runbooks/README.md)、設計判断は [ADR](../../adr/README.md) に書く。機器（ルーター、スイッチ、Proxmox ホストなど）の設定値は、[hardware/](../../hardware/README.md) にある。
+サービスごとの詳細設計と、IP アドレスのような具体的な値をまとめる。構成、設定、運用上の注意、制約を扱う。全体の方式は[基本設計](../hld/README.md)、手順は [運用 Runbook](../../operations/runbooks/README.md)、設計判断は [ADR](../../adr/README.md) に書く。機器（ルーター、スイッチ、Proxmox ホストなど）の設定値は、[hardware/](hardware/README.md) にある。
 
 役割ごとにフォルダを分け、ファイル名は `<サービス名>.md`（番号は付けない）にする。
 

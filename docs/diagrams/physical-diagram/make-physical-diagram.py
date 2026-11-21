@@ -14,7 +14,7 @@ PNG（physical-diagram.png、ダーク版は physical-diagram-dark.png）も書�
 必要なもの: --png には Google Chrome（ヘッドレスで撮る。Playwright は要らない）。
 フォントは ../fonts/（Geist と JetBrains Mono。OFL。VLAN 化のあとの図と共通）を HTML に埋め込む。
 内容は docs/operations/roadmap/10-er605-sg2210p-migration-plan.md の「段階 3 の後」「ケーブルと電源」、
-docs/hardware/er605/settings.md・docs/hardware/sg2210p/settings.md のポート表、docs/architecture/hld/05-network.md に合わせる。
+docs/architecture/lld/hardware/er605/settings.md・docs/architecture/lld/hardware/sg2210p/settings.md のポート表、docs/architecture/hld/05-network.md に合わせる。
 食い違ったら、docs/ の文書のほうが正。
 
 見た目の決まり（座標は 10px グリッド。背景の方眼は 20px。スタイルは ../to-be-diagram/make-to-be-diagram.py と同じ）:
