@@ -121,7 +121,7 @@ systemctl list-timers netrevert.timer   # 何も出ないこと
 実機の設定を変えたので、同じ変更で直す（CLAUDE.md の決まり）。
 
 - [ ] [ThinkCentre の設定](../../hardware/thinkcentre-m70q-tiny/settings.md)（IP、Web UI の転送先、変更履歴）。
-- [ ] [IP アドレス一覧](../../architecture/lld/network/ip-addresses.md)、[インフラ構成](../../architecture/02-infrastructure.md)、[システム全体像](../../architecture/01-overview.md)（as-is の図と注釈）、[VLAN 設計](../../architecture/08-vlan-design.md)、`README.md`（ホストの IP）。
+- [ ] [IP アドレス一覧](../../architecture/lld/network/ip-addresses.md)、[システム構成・環境](../../architecture/hld/01-system.md)、[システム構成・環境](../../architecture/hld/01-system.md)（as-is の図と注釈）、[VLAN 設計](../../architecture/08-vlan-design.md)、`README.md`（ホストの IP）。
 - [ ] 手順書: [VM 自動起動・停止](01-vm-startup-shutdown.md)、[トラブルシュート](11-troubleshooting.md)（`ssh root@192.168.11.10` を `10.77.10.10` に）。
 - [ ] 監視: [監視・アラート](../../architecture/lld/platform/monitoring.md)（`curl` の宛先）、Homepage の文書。
 - [ ] as-is の構成図（`pve` の IP、`vmbr0.10`）。`docs/diagrams/as-is-diagram/make-as-is-diagram.py` を直し、PNG を書き出して確認する。

@@ -31,7 +31,7 @@
 
 | 状況 | 意味 | 根拠 |
 | --- | --- | --- |
-| 導入済み | 現行構成で稼働している | [インフラ構成](architecture/02-infrastructure.md) |
+| 導入済み | 現行構成で稼働している | [システム構成・環境](architecture/hld/01-system.md) |
 | 計画中 | 導入を決めて、ロードマップに載せている | [未着手の項目](operations/roadmap/01-backlog.md)、大型計画 |
 | 検討中 | 導入するか、条件が整ったら着手するかを検討している | [ロードマップ](operations/roadmap/README.md)、[ADR](adr/README.md) |
 | 見送り | 検討して導入しないと決めた | [見送り中の項目](operations/roadmap/03-deferred.md)、[ADR](adr/README.md) |
@@ -52,7 +52,7 @@
 
 | 状況 | ツール | 説明 | 根拠・備考 |
 | --- | --- | --- | --- |
-| 導入済み | Lenovo ThinkCentre Tiny | 省スペース型デスクトップ PC | [インフラ構成](architecture/02-infrastructure.md) |
+| 導入済み | Lenovo ThinkCentre Tiny | 省スペース型デスクトップ PC | [システム構成・環境](architecture/hld/01-system.md) |
 | 未検討 | Dell Optiplex Micro | 省スペース型デスクトップ PC | — |
 | 未検討 | HP EliteDesk Mini | 省スペース型デスクトップ PC | — |
 | 未検討 | Raspberry Pi | シングルボードコンピュータ | — |
@@ -66,7 +66,7 @@
 
 | 状況 | ツール | 説明 | 根拠・備考 |
 | --- | --- | --- | --- |
-| 導入済み | Proxmox VE | オープンソースの仮想化・コンテナ基盤 | [インフラ構成](architecture/02-infrastructure.md) |
+| 導入済み | Proxmox VE | オープンソースの仮想化・コンテナ基盤 | [システム構成・環境](architecture/hld/01-system.md) |
 | 未検討 | XCP-ng | Xen ベースのオープンソースハイパーバイザー | — |
 | 未検討 | Harvester | Rancher 製 Kubernetes ネイティブハイパーバイザー | — |
 
@@ -98,7 +98,7 @@
 
 | 状況 | ツール | 説明 | 根拠・備考 |
 | --- | --- | --- | --- |
-| 導入済み | Docker | コンテナランタイム・デーモン | [インフラ構成](architecture/02-infrastructure.md) |
+| 導入済み | Docker | コンテナランタイム・デーモン | [システム構成・環境](architecture/hld/01-system.md) |
 | 未検討 | containerd | OCI 準拠コンテナランタイム | — |
 | 未検討 | nerdctl | containerd 向け Docker 互換 CLI | — |
 | 未検討 | Podman | daemon レス・ルートレス対応コンテナツール | — |
@@ -110,15 +110,15 @@
 | 未検討 | Cockpit | サーバー管理 Web UI | — |
 | 未検討 | virt-manager | 仮想マシン管理 GUI | — |
 | 未検討 | libvirt | 仮想化管理 API・ライブラリ | — |
-| 導入済み | Terraform | 宣言型インフラ管理 | [インフラ構成](architecture/02-infrastructure.md) |
-| 導入済み | Ansible | 構成管理・自動化 | [インフラ構成](architecture/02-infrastructure.md) |
+| 導入済み | Terraform | 宣言型インフラ管理 | [システム構成・環境](architecture/hld/01-system.md) |
+| 導入済み | Ansible | 構成管理・自動化 | [システム構成・環境](architecture/hld/01-system.md) |
 
 ### 2.7 VM テンプレート・プロビジョニング
 
 | 状況 | ツール | 説明 | 根拠・備考 |
 | --- | --- | --- | --- |
 | 見送り | Packer | マルチクラウド対応 VM イメージビルダー | [見送り中の項目](operations/roadmap/03-deferred.md#方針のない候補) |
-| 導入済み | cloud-init | クラウド / VM 初回起動時の初期化 | [インフラ構成](architecture/02-infrastructure.md) |
+| 導入済み | cloud-init | クラウド / VM 初回起動時の初期化 | [システム構成・環境](architecture/hld/01-system.md) |
 
 ### 2.8 コンテナ管理
 
@@ -134,7 +134,7 @@
 
 | 状況 | ツール | 説明 | 根拠・備考 |
 | --- | --- | --- | --- |
-| 導入済み | Ubuntu | Debian 系 Linux ディストリビューション。VM は 24.04 LTS | [ADR 0021](adr/0021-ubuntu-lts-for-vms.md)、[インフラ構成](architecture/02-infrastructure.md) |
+| 導入済み | Ubuntu | Debian 系 Linux ディストリビューション。VM は 24.04 LTS | [ADR 0021](adr/0021-ubuntu-lts-for-vms.md)、[システム構成・環境](architecture/hld/01-system.md) |
 | 見送り | Debian | 汎用 Linux ディストリビューション。PVE ホストは Debian 13 ベース | [ADR 0021](adr/0021-ubuntu-lts-for-vms.md)、[見送り中の項目](operations/roadmap/03-deferred.md) |
 | 未検討 | Arch | ロールリリース型 Linux ディストリビューション | — |
 | 未検討 | openSUSE | SUSE 系 Linux ディストリビューション | — |
@@ -186,7 +186,7 @@
 | 状況 | ツール | 説明 | 根拠・備考 |
 | --- | --- | --- | --- |
 | 未検討 | Ubiquiti UniFi | ネットワーク機器・管理プラットフォーム | — |
-| 計画中 | TP-Link Omada | ネットワーク機器・管理プラットフォーム | [Omada 導入・VLAN 化](operations/roadmap/04-network-omada-vlan.md)。コントローラーは `vm-omada` で稼働中（2026-11-03、[インフラ構成](architecture/02-infrastructure.md)）。ER605・SG2210P の本設置はこれから（[移行計画](operations/roadmap/10-er605-sg2210p-migration-plan.md)） |
+| 計画中 | TP-Link Omada | ネットワーク機器・管理プラットフォーム | [Omada 導入・VLAN 化](operations/roadmap/04-network-omada-vlan.md)。コントローラーは `vm-omada` で稼働中（2026-11-03、[システム構成・環境](architecture/hld/01-system.md)）。ER605・SG2210P の本設置はこれから（[移行計画](operations/roadmap/10-er605-sg2210p-migration-plan.md)） |
 | 未検討 | terraform-provider-omada（コミュニティ製） | Omada の設定を Terraform で管理する | [バックログ](operations/roadmap/01-backlog.md)。対応範囲は未確認。公式のプロバイダーはない |
 | 検討中 | omada_exporter（コミュニティ製。例: charlie-haley/omada_exporter） | Omada の機器・クライアントのメトリクスを Prometheus に出し、Grafana で見る。コントローラー v6 への対応は未確認 | [バックログ](operations/roadmap/01-backlog.md)。Open API の自前 exporter も候補 |
 | 検討中 | Omada Cloud | Omada コントローラーをクラウド経由で開く機能 | 2026-11-03 から有効にして試用中。最終的に無効にするかもしれない（[検討中の項目](operations/roadmap/01-backlog.md)） |

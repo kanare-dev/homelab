@@ -1,22 +1,22 @@
-# ネットワーク設計
+# 第5章 ネットワーク
 
-この文書では、ドメインの命名規約と、外部との接続をまとめる。アドレスの一覧は [IP アドレス一覧](lld/network/ip-addresses.md)にあり、個別のサービスの詳細は [DNS 構成](lld/network/dns.md)と[リバースプロキシと TLS](lld/network/reverse-proxy-tls.md)にある。次期構成は [VLAN 設計](08-vlan-design.md)で説明している（未適用）。
+この章では、ドメインの命名規約と、外部との接続をまとめる。アドレスの一覧は [IP アドレス一覧](../lld/network/ip-addresses.md)にあり、個別のサービスの詳細は [DNS 構成](../lld/network/dns.md)と[リバースプロキシと TLS](../lld/network/reverse-proxy-tls.md)にある。次期構成は [VLAN 設計](../08-vlan-design.md)で説明している（未適用）。
 
 ## IP アドレス
 
-IP アドレスの一覧（アドレスの範囲、VLAN、ホスト、FQDN の宛先。現在と移行後）は、[IP アドレス一覧](lld/network/ip-addresses.md)にまとめた。
+IP アドレスの一覧（アドレスの範囲、VLAN、ホスト、FQDN の宛先。現在と移行後）は、[IP アドレス一覧](../lld/network/ip-addresses.md)にまとめた。
 
 ## ドメイン命名規約
 
-内部 DNS では `lab.kanare.dev` ゾーンを使い、CoreDNS が権威サーバーとして応答する（[DNS 構成](lld/network/dns.md)）。サービスは `<サービス名>.lab.kanare.dev`、VM は `<VM 名>.lab.kanare.dev` という名前で引く。
+内部 DNS では `lab.kanare.dev` ゾーンを使い、CoreDNS が権威サーバーとして応答する（[DNS 構成](../lld/network/dns.md)）。サービスは `<サービス名>.lab.kanare.dev`、VM は `<VM 名>.lab.kanare.dev` という名前で引く。
 
-FQDN ごとの宛先（IP とポート。現在と移行後）は、[IP アドレス一覧](lld/network/ip-addresses.md#fqdn-の宛先)にある。
+FQDN ごとの宛先（IP とポート。現在と移行後）は、[IP アドレス一覧](../lld/network/ip-addresses.md#fqdn-の宛先)にある。
 
-Caddy 経由の FQDN には、証明書を FQDN ごとに取得する（[リバースプロキシと TLS](lld/network/reverse-proxy-tls.md)）。
+Caddy 経由の FQDN には、証明書を FQDN ごとに取得する（[リバースプロキシと TLS](../lld/network/reverse-proxy-tls.md)）。
 
 ## 外部接続の方針
 
-この方針を決めた経緯は [ADR-0005](../adr/0005-tailscale-only-remote-access.md) に残している。
+この方針を決めた経緯は [ADR-0005](../../adr/0005-tailscale-only-remote-access.md) に残している。
 
 - **外部には何も公開しない。** 自宅の外から入る経路は Tailscale だけにする。**例外**: Omada Cloud（クラウドアクセス）を有効にしているので、Omada コントローラーの管理画面には、TP-Link ID の認証だけで入れる経路が別にある（[外部サービスへの依存](#外部サービスへの依存)）。
 - 公開が必要になるのは、Tailscale を入れていない他人と共有するサービスができたときだけである。その場合も、そのサービスに限って Cloudflare Tunnel を使うかどうかを検討する（ロードマップ。現在は保留している）。
@@ -29,7 +29,7 @@ Caddy 経由の FQDN には、証明書を FQDN ごとに取得する（[リバ�
 | 構成 | 建物の共用ルーター → Buffalo ルーター → 自宅 LAN（二重 NAT） |
 | ポート開放 | できない（上流を制御できない） |
 | グローバル IP | 利用しない（固定でも、自分で使える形でもない） |
-| 引っ越し | 数年のうちに予定あり。新居の上流は未定のため、WAN 側の設計は VLAN 設計と切り離している（[VLAN 設計](08-vlan-design.md#wan-側は設計から切り離す)） |
+| 引っ越し | 数年のうちに予定あり。新居の上流は未定のため、WAN 側の設計は VLAN 設計と切り離している（[VLAN 設計](../08-vlan-design.md#wan-側は設計から切り離す)） |
 
 ## 外出先からのアクセス（Tailscale）
 
@@ -47,8 +47,8 @@ Caddy 経由の FQDN には、証明書を FQDN ごとに取得する（[リバ�
 | 秘密情報 | `tailscale_authkey`（SOPS 管理） |
 | 利用例 | スマホ・Mac から `https://home.lab.kanare.dev`、`vm-code` への SSH / mosh / CloudCLI / code-server |
 
-- 設定の詳細と注意点（iOS の DNS や、`1.1.1.1` を併記しない理由など）は、[DNS 構成](lld/network/dns.md#tailscale-との連携)に書いている。
-- VLAN への移行後は、広告する範囲を Servers（`10.77.20.0/24`）と Lab（`10.77.40.0/24`）だけにする（[VLAN 設計](08-vlan-design.md#外出先からのアクセスtailscale)）。
+- 設定の詳細と注意点（iOS の DNS や、`1.1.1.1` を併記しない理由など）は、[DNS 構成](../lld/network/dns.md#tailscale-との連携)に書いている。
+- VLAN への移行後は、広告する範囲を Servers（`10.77.20.0/24`）と Lab（`10.77.40.0/24`）だけにする（[VLAN 設計](../08-vlan-design.md#外出先からのアクセスtailscale)）。
 
 ## 外部サービスへの依存
 
@@ -59,7 +59,7 @@ Caddy 経由の FQDN には、証明書を FQDN ごとに取得する（[リバ�
 | Let's Encrypt | `*.lab.kanare.dev` 各 FQDN の証明書 | なし | 同上 |
 | Slack | アラート通知（Incoming Webhook） | Webhook URL（SOPS） | 通知が届かない。`AlertmanagerNotificationsFailing` は Slack に出ない |
 | Omada Cloud（クラウドアクセス。試用中で、有効にしている） | `vm-omada` のコントローラーを、クラウド経由で外から開く | TP-Link ID | クラウド経由でコントローラーを開けなくなる。コントローラー自体と LAN の通信には影響しない（機器は設定を持ったまま動く） |
-| Healthchecks.io | 外部 Heartbeat。`Watchdog` の途絶を検知する（[ADR-0010](../adr/0010-external-heartbeat.md)） | ping URL（SOPS） | 監視 VM・ホスト・回線の停止を外から検知できなくなる。サービス自体は影響なし |
+| Healthchecks.io | 外部 Heartbeat。`Watchdog` の途絶を検知する（[ADR-0010](../../adr/0010-external-heartbeat.md)） | ping URL（SOPS） | 監視 VM・ホスト・回線の停止を外から検知できなくなる。サービス自体は影響なし |
 | GitHub | リポジトリ、CI（lint のみ） | 個人アカウント | 構成の取得・push ができない。稼働中のサービスは影響なし |
 | NTP（`ntp.nict.jp`、`time.google.com`） | 時刻同期 | なし | 時刻がずれる。TLS・ログの時刻に影響 |
 | DNS ルートサーバー | Unbound の再帰解決（`root.hints`） | なし | 外部ドメインが引けない。fallback（`1.1.1.1` / `9.9.9.9`）は、接続できない場合だけ働く |
@@ -77,13 +77,13 @@ Caddy 経由の FQDN には、証明書を FQDN ごとに取得する（[リバ�
 | NTP | 全 VM | `systemd-timesyncd` |
 | apt / Docker pull | 各 VM | 更新時 |
 
-外向きの通信を制限する設定（egress フィルタ）は、現在は入れていない。VLAN 化のときに、Management から外へ出る通信を、更新に必要なものだけに絞る計画である（[VLAN 設計](08-vlan-design.md#通信ポリシー)）。
+外向きの通信を制限する設定（egress フィルタ）は、現在は入れていない。VLAN 化のときに、Management から外へ出る通信を、更新に必要なものだけに絞る計画である（[VLAN 設計](../08-vlan-design.md#通信ポリシー)）。
 
 ## 検討中・保留の項目
 
 | 項目 | 状況 |
 | --- | --- |
 | Cloudflare Tunnel + Split-Horizon DNS で外部公開 | 保留（共有したい具体的なニーズが出てから） |
-| 外部監視（Heartbeat） | 導入済み（[ADR-0010](../adr/0010-external-heartbeat.md)、[監視・アラート](lld/platform/monitoring.md#外部-heartbeat)） |
+| 外部監視（Heartbeat） | 導入済み（[ADR-0010](../../adr/0010-external-heartbeat.md)、[監視・アラート](../lld/platform/monitoring.md#外部-heartbeat)） |
 | Tailscale の ACL で管理画面を除外 | 未実施 |
-| 引っ越し後の上流ネットワーク対応 | 未定（[移行性](06-migration.md)） |
+| 引っ越し後の上流ネットワーク対応 | 未定（[移行性](03-operations.md)） |

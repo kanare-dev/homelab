@@ -90,7 +90,7 @@ Cowrie → Alloy / Vector など（収集・正規化） → Loki（保存・検
 
 ## ホストが侵害されたときの影響（検討中）
 
-**状況**: 採用前の検討。採用したら、`docs/architecture/04-reliability.md` などの設計書に移し、必要なら ADR を追加する（[文書の運用](../../README.md#文書の運用)）。
+**状況**: 採用前の検討。採用したら、`docs/architecture/hld/02-reliability.md` などの設計書に移し、必要なら ADR を追加する（[文書の運用](../../README.md#文書の運用)）。
 
 DMZ の VM から Proxmox ホストが侵害された場合（VM 脱出など）の影響範囲と、同じホストに置く間の緩和策。最終的にはホストを分ける（[ADR 0016](../../adr/0016-dmz-placement.md)）。
 

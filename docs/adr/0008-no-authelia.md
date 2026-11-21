@@ -5,7 +5,7 @@
 
 ## 背景
 
-Web 画面の認証がサービスごとにばらばらで、Prometheus・Alertmanager・Homepage は認証がない（[セキュリティ](../architecture/05-security.md#web-画面)）。ロードマップにあった Authelia（Caddy の `forward_auth` によるログインの一元化と 2 要素認証）を入れるかどうかを検討した。
+Web 画面の認証がサービスごとにばらばらで、Prometheus・Alertmanager・Homepage は認証がない（[セキュリティ](../architecture/hld/06-security.md#web-画面)）。ロードマップにあった Authelia（Caddy の `forward_auth` によるログインの一元化と 2 要素認証）を入れるかどうかを検討した。
 
 ## 決定
 
@@ -25,7 +25,7 @@ Authelia は導入しない。認証のない画面は、当面そのままに�
 | Authelia（Caddy の `forward_auth`） | 見送り（上記） |
 | Caddy の `basic_auth` | 必要になったら第一候補。数行で足り、部品が増えない。2 要素認証はない |
 | Authentik / Keycloak | 1.5GB の `vm-infra` と 1 人の利用に対して過剰 |
-| バックエンドのポートを UFW で `vm-infra` からだけ許可する | Authelia と独立に効果がある。[セキュリティ](../architecture/05-security.md#未対応要確認の項目)の未対応項目として扱う |
+| バックエンドのポートを UFW で `vm-infra` からだけ許可する | Authelia と独立に効果がある。[セキュリティ](../architecture/hld/06-security.md#未対応要確認の項目)の未対応項目として扱う |
 
 ## 影響と再検討の条件
 
@@ -36,4 +36,4 @@ Authelia は導入しない。認証のない画面は、当面そのままに�
   - 管理画面（Omada など）に、2 要素認証を前段でかけたくなった（[VLAN 設計](../architecture/08-vlan-design.md#管理画面への外部到達リスクを受け入れる)）。
 - VLAN の導入後は、Tailscale の ACL で端末ごと・宛先ごとにアクセスを絞る方針が、同じ脅威への対策になる。
 
-詳細: [セキュリティ](../architecture/05-security.md)
+詳細: [セキュリティ](../architecture/hld/06-security.md)

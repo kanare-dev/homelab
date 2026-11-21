@@ -1,30 +1,52 @@
-# 移行性
+# 第3章 運用・保守
 
-この文書では、環境を別のハードウェア、ネットワーク、バージョンへ移すときの、前提、影響範囲、手順を整理する。構成をコードで管理しているので、**移行の基本は、新しい環境でコードを流し直すこと**である。ネットワークの移行（VLAN 化やルーターの交換）の詳細は、[VLAN 設計](08-vlan-design.md)が正である。
+この章では、日々の運用の進め方、OS やミドルウェアの更新方針、環境を別のハードウェアやバージョンへ移すときの考え方（移行性）をまとめる。個人の homelab なので、運用は 1 人で行い、手順は Runbook に残して、迷わず再現できるようにする。
 
-## 方針
+## 運用の方針
+
+- 構成は Terraform、Ansible、Docker Compose で管理し、運用者の Mac から SSH、Terraform、Ansible で操作する。自動デプロイはしない。
+- 手順は [運用 Runbook](../../operations/runbooks/README.md) に残す。日常の起動・停止は [01](../../operations/runbooks/01-vm-startup-shutdown.md)、更新は [02](../../operations/runbooks/02-updates.md)、障害の切り分けは [11](../../operations/runbooks/11-troubleshooting.md) にある。
+- 監視とアラートは、Prometheus、Alertmanager、Grafana で行い、通知は Slack に送る（[監視・アラート](../lld/platform/monitoring.md)）。監視が止まったときは、外部の Heartbeat が知らせる（[第2章](02-reliability.md#障害の検知)）。
+- 変更の前後で確かめる仕組みは、[第2章](02-reliability.md#変更時の信頼性確保)にまとめている。push する前に `make lint-all` を通す。
+- バックアップと復旧の方針は、[第2章の災害対策](02-reliability.md#災害対策)に書いている。
+- 障害が起きたら、[障害記録](../../operations/incidents/)に残し、再発防止を設計書に反映する。重要な設計判断は [ADR](../../adr/README.md) に、これからの計画は[ロードマップ](../../operations/roadmap/README.md)に書く。
+
+## 更新の方針
+
+| 対象 | 現状 | 備考 |
+| --- | --- | --- |
+| Ubuntu（ゲスト） | テンプレート 9000 から作成。更新は `apt` で手動 | LTS の入れ替えは、新しいテンプレートから VM を作り直す形が基本 |
+| Docker イメージ | `latest`。更新は `docker compose pull` で手動 | バージョン固定は未実施（[信頼性](02-reliability.md#既知の弱点と対応状況)） |
+| Terraform Provider | `3.0.2-rc07`（RC を固定） | 更新は `terraform init -upgrade` と `plan` で確認 |
+| Ansible・コレクション | `ansible/requirements.yml` | CI の ansible-lint で検査 |
+
+## 移行性
+
+この文書では、環境を別のハードウェア、ネットワーク、バージョンへ移すときの、前提、影響範囲、手順を整理する。構成をコードで管理しているので、**移行の基本は、新しい環境でコードを流し直すこと**である。ネットワークの移行（VLAN 化やルーターの交換）の詳細は、[VLAN 設計](../08-vlan-design.md)が正である。
+
+### 方針
 
 - VM とサービスは、Terraform と Ansible でいつでも作り直せるようにしておく。ディスクをコピーして移行することはしない。
 - 環境に固有の値（IP、ゲートウェイ、ドメイン）は、変数にまとめる。ただし、まとめきれていない箇所があるので、一覧にして管理する。
 - 引き継ぐ必要があるのは、**コードに入っていないデータ**だけである。どのようなデータがあるかを、先に把握しておく。
 
-## 環境に依存するもの
+### 環境に依存するもの
 
 | 種類 | 内容 | 定義場所 |
 | --- | --- | --- |
 | IP・ゲートウェイ・DNS | VM ごとの `ip`・`gateway`・`nameserver`・`vlan_id`、`ansible_host`、`static_ip` | `terraform/proxmox/terraform.tfvars`、`ansible/inventory/hosts.yml`、`host_vars` |
 | ドメイン | `lab.kanare.dev`（`domain`） | `group_vars/all/vars.yml`、`dns_records`、Caddyfile |
 | Proxmox | ノード名 `pve`、テンプレート `ubuntu-cloud`（VMID 9000）、ストレージ `local-lvm` | `terraform.tfvars`、`terraform/proxmox/README.md` |
-| ルーターの IP | 構成表、管理画面のリンク、Caddy の転送先 | [DNS 構成](lld/network/dns.md#ルーターを付け替えるとき) の表 |
+| ルーターの IP | 構成表、管理画面のリンク、Caddy の転送先 | [DNS 構成](../lld/network/dns.md#ルーターを付け替えるとき) の表 |
 | 外部サービスのアカウント | Cloudflare、Tailscale、Slack | SOPS（値）と各サービスの管理画面（設定） |
 
-## コードに入っていないデータ
+### コードに入っていないデータ
 
 | データ | 場所 | 移行の扱い |
 | --- | --- | --- |
-| age 秘密鍵 | 運用者の Mac（iCloud Keychain に退避） | 必須。新しい Mac には、[運用 Runbook](../operations/runbooks/03-secrets.md#別の-mac-で復元する)の手順で復元する |
+| age 秘密鍵 | 運用者の Mac（iCloud Keychain に退避） | 必須。新しい Mac には、[運用 Runbook](../../operations/runbooks/03-secrets.md#別の-mac-で復元する)の手順で復元する |
 | SSH 鍵 | 運用者の Mac（`~/.ssh/id_ed25519_homelab` など） | 必須。Terraform が VM に公開鍵を配る |
-| Terraform の state | Mac のローカル（`terraform.tfstate`） | 新しい環境を作り直すなら不要。既存の VM を引き継ぐなら必要（[災害対策](07-disaster-recovery.md#リポジトリの外にあるもの)） |
+| Terraform の state | Mac のローカル（`terraform.tfstate`） | 新しい環境を作り直すなら不要。既存の VM を引き継ぐなら必要（[災害対策](02-reliability.md#リポジトリの外にあるもの)） |
 | Proxmox のテンプレート VM（9000） | Proxmox ホスト | 手順書から再作成（`terraform/proxmox/README.md`） |
 | Tailscale の登録 | Tailscale 側と `vm-infra` | 再登録（`tailscale_authkey`）。subnet route の承認と split DNS は管理画面で設定 |
 | Prometheus の履歴 | `vm-monitoring` のボリューム | 引き継がなくてもよい（保持 30 日） |
@@ -32,9 +54,9 @@
 | Caddy の証明書 | `vm-infra` のボリューム | 新環境で再取得される |
 | `vm-code` の未 push の作業 | `vm-code` | 置かない運用。移行前に push する |
 
-## 移行シナリオ
+### 移行シナリオ
 
-### A. Proxmox ホストの交換（ハードウェア更新）
+#### A. Proxmox ホストの交換（ハードウェア更新）
 
 1. 新ホストに Proxmox VE を入れ、IP を `10.77.10.10`（`vmbr0.10`、VLAN10）にする。
 2. テンプレート VM（9000）と API トークンを作り直す（`terraform/proxmox/README.md`）。
@@ -44,43 +66,34 @@
 6. DNS、Grafana、アラート、外出先からの接続が動くことを確認する。
 7. 旧ホストを止める。
 
-この手順は、[災害対策](07-disaster-recovery.md)の再構築手順と共通である。詳しくはそちらを参照してほしい。
+この手順は、[災害対策](02-reliability.md)の再構築手順と共通である。詳しくはそちらを参照してほしい。
 
-### B. ルーターの交換・VLAN 化
+#### B. ルーターの交換・VLAN 化
 
-[VLAN 設計](08-vlan-design.md)の段階に従って進める（設計の段階であり、未適用）。
+[VLAN 設計](../08-vlan-design.md)の段階に従って進める（設計の段階であり、未適用）。
 
 - 全ホストのアドレスを `10.77.<VLAN>.0/24` に変える。一斉に切り替えるので、事前の準備と、切り戻しの手順を用意しておく。
-- 影響を受ける箇所の一覧は、[VLAN 設計: 影響を受けるリポジトリ内の箇所](08-vlan-design.md#影響を受けるリポジトリ内の箇所)にある。
-- ルーターだけを付け替える場合（IP が変わるとき）は、[DNS 構成](lld/network/dns.md#ルーターを付け替えるとき)を参照してほしい。
+- 影響を受ける箇所の一覧は、[VLAN 設計: 影響を受けるリポジトリ内の箇所](../08-vlan-design.md#影響を受けるリポジトリ内の箇所)にある。
+- ルーターだけを付け替える場合（IP が変わるとき）は、[DNS 構成](../lld/network/dns.md#ルーターを付け替えるとき)を参照してほしい。
 
-### C. 引っ越し（上流ネットワークが変わる）
+#### C. 引っ越し（上流ネットワークが変わる）
 
 - LAN の内側（`192.168.11.0/24`、または VLAN 化後のアドレス）は、変えずに新居へ持ち込める。変わるのは WAN 側だけである。
 - 新居の上流が `192.168.11.0/24` と重なると、Tailscale 経由の接続が不安定になる。重なる場合は、VLAN 化後の `10.77.x.x` に移行してから引っ越す。
-- 二重 NAT でなくなっても、外部には公開しない方針は変えない（[外部接続](03-network.md)）。
+- 二重 NAT でなくなっても、外部には公開しない方針は変えない（[外部接続](05-network.md)）。
 
-### D. Proxmox VE のバージョンアップ
+#### D. Proxmox VE のバージョンアップ
 
 - 現在は 8.x を使っている。メジャーアップグレードは、公式の手順に従って、ホスト上で行う。
 - 作業の前に、`ansible/roles/proxmox/` のパッチ（Web UI の警告の除去）が、新しいバージョンのコードと一致しないことを確認する。一致しない場合、パッチは何もしない作りになっている。
 - 作業の前に、`terraform/proxmox` の Provider（`telmate/proxmox`）が、新しいバージョンに対応しているかを確認する。
 - 再起動が必要になるので、サービスを止めてよい時間帯に行う。
 
-### E. ハイパーバイザーの変更（Proxmox 以外へ）
+#### E. ハイパーバイザーの変更（Proxmox 以外へ）
 
 Proxmox 以外に移すことは、想定していない。移す場合は、VM を作る部分（`terraform/proxmox/`）だけを差し替える。Ansible と Docker Compose の層は、Ubuntu が動けば、そのまま使える。
 
-## OS・ミドルウェアの更新方針
-
-| 対象 | 現状 | 備考 |
-| --- | --- | --- |
-| Ubuntu（ゲスト） | テンプレート 9000 から作成。更新は `apt` で手動 | LTS の入れ替えは、新しいテンプレートから VM を作り直す形が基本 |
-| Docker イメージ | `latest`。更新は `docker compose pull` で手動 | バージョン固定は未実施（[信頼性](04-reliability.md#既知の弱点と対応状況)） |
-| Terraform Provider | `3.0.2-rc07`（RC を固定） | 更新は `terraform init -upgrade` と `plan` で確認 |
-| Ansible・コレクション | `ansible/requirements.yml` | CI の ansible-lint で検査 |
-
-## 移行前のチェックリスト
+### 移行前のチェックリスト
 
 - [ ] 移行対象の VM に、コードにないデータがないか確認した（上の表）
 - [ ] `vm-code` / `vm-dev` の未 push の作業を push した

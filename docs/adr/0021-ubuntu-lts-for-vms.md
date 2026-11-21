@@ -5,7 +5,7 @@
 
 ## 背景
 
-全 VM は、cloud-init 付きの Ubuntu Server 24.04 LTS（Noble）のテンプレート（VMID 9000）から Terraform で作っている（[インフラ構成](../architecture/02-infrastructure.md)、[`terraform/proxmox/README.md`](../../terraform/proxmox/README.md)）。選んだ理由が残っていなかった。Debian 13 は選択肢になりえた。また Ubuntu 26.04 LTS が 2026-04-23 に出て、26.04.1（2026-08）以降は 24.04 からのアップグレード経路も開いている。PVE ホストは Debian 13 ベースで、VM と OS の系統が異なる。
+全 VM は、cloud-init 付きの Ubuntu Server 24.04 LTS（Noble）のテンプレート（VMID 9000）から Terraform で作っている（[システム構成・環境](../architecture/hld/01-system.md)、[`terraform/proxmox/README.md`](../../terraform/proxmox/README.md)）。選んだ理由が残っていなかった。Debian 13 は選択肢になりえた。また Ubuntu 26.04 LTS が 2026-04-23 に出て、26.04.1（2026-08）以降は 24.04 からのアップグレード経路も開いている。PVE ホストは Debian 13 ベースで、VM と OS の系統が異なる。
 
 ## 決定
 
@@ -32,4 +32,4 @@
 - Debian を再検討する条件は、snap が実際の問題になったとき、VM のメモリが足りなくなって OS 本体の使用量が効いてきたとき、PVE ホストと揃えて運用を単純にしたくなったときである。
 - VM のバックアップ（`vzdump` など）を導入したら、その場更新も選べるようになる。
 
-詳細: [インフラ構成](../architecture/02-infrastructure.md)、[見送り中の項目](../operations/roadmap/03-deferred.md)
+詳細: [システム構成・環境](../architecture/hld/01-system.md)、[見送り中の項目](../operations/roadmap/03-deferred.md)

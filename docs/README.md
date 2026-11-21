@@ -2,8 +2,8 @@
 
 | ディレクトリ | 内容 |
 | --- | --- |
-| [architecture/](architecture/README.md) | 方式設計。構成図、インフラ、ネットワーク、可用性・信頼性、セキュリティ、移行性、災害対策 |
-| [services/](architecture/lld/README.md) | サービスごとの詳細設計。役割ごとのフォルダ（`network/`: DNS・リバースプロキシと TLS・Omada コントローラー、`platform/`: 監視・アラート・MOTD、`apps/`: Homepage・Home Assistant・n8n・FreshRSS、`dev/`: CI/CD・vm-code） |
+| [architecture/hld/](architecture/hld/README.md) | 基本設計（HLD）。第1章 システム構成・環境、第2章 信頼性、第3章 運用・保守、第4章 性能・拡張性、第5章 ネットワーク、第6章 セキュリティ |
+| [architecture/lld/](architecture/lld/README.md) | 詳細設計（LLD）。サービスごとの詳細と IP アドレス一覧。役割ごとのフォルダ（`network/`: DNS・リバースプロキシと TLS・Omada コントローラー・IP アドレス一覧、`platform/`: 監視・アラート・MOTD、`apps/`: Homepage・Home Assistant・n8n・FreshRSS、`dev/`: CI/CD・vm-code） |
 | [operations/](operations/runbooks/README.md) | 運用。[Runbook](operations/runbooks/README.md)、[バックアップの手順](operations/runbooks/06-backup-restore.md)、[障害記録](operations/incidents/README.md)、[ロードマップ](operations/roadmap/README.md)（[Omada・VLAN](operations/roadmap/04-network-omada-vlan.md)、[OPNsense](operations/roadmap/08-network-opnsense.md)、[GPU 搭載 PC](operations/roadmap/05-gpu-pc.md)、[通信の収集・可視化](operations/roadmap/06-network-traffic-analysis.md)、[DMZ と外部公開](operations/roadmap/07-dmz.md)、[ラック](operations/roadmap/09-rack.md)、[ER605・SG2210P の移行計画](operations/roadmap/10-er605-sg2210p-migration-plan.md)、[構成レビューの改善案](operations/roadmap/11-design-review-ideas.md)、[IP 割り当てと DHCP の見直し](operations/roadmap/12-ip-address-and-dhcp-review.md)、[見送り中の項目](operations/roadmap/03-deferred.md)） |
 | [assets/logo/](assets/logo/README.md) | ロゴ（SVG。横長、円形のエンブレム、正方形のアイコン）と、生成スクリプト |
 | [diagrams/](diagrams/README.md) | 構成図（現行は draw.io の SVG、VLAN 化のあとと物理構成図は HTML と PNG）と、生成・整形スクリプト、更新の手順 |
@@ -34,10 +34,11 @@ homelab/
 ├── tools/
 │   └── check-md-links.py   # Markdown の内部リンク検査
 └── docs/
-    ├── architecture/       # 方式設計
+    ├── architecture/       # 設計書
+    │   ├── hld/            # 基本設計（第1章〜第6章）
+    │   └── lld/            # 詳細設計（役割ごとのフォルダ: network/、platform/、apps/、dev/）
     ├── assets/logo/        # ロゴ（SVG）と生成スクリプト（make-logo.py）、使い方の README
     ├── diagrams/           # 構成図（現行は draw.io の SVG、VLAN 化後と物理構成図は HTML と PNG）と生成・整形スクリプト、README（更新の手順）。assets/ はアイコン素材（Git 管理外）
-    ├── services/           # サービスごとの詳細設計（役割ごとのフォルダ: network/、platform/、apps/、dev/）
     ├── hardware/           # 機器ごとの仕様・資料と設定値（置き方の決まりは README）
     │   ├── thinkcentre-m70q-tiny/  # ThinkCentre M70q Tiny（Proxmox ホスト）。spec.md（公式資料と仕様。Lenovo PSREF）、settings.md（設定値）
     │   ├── er605/              # ER605 V2。spec.md（データシート V2.2）、settings.md
@@ -57,7 +58,7 @@ homelab/
 | --- | --- | --- |
 | 検討中 | [ロードマップ](operations/roadmap/README.md)（大型計画は 04 以降、小さな項目は 01） | 案、選択肢、リスク、緩和策の候補。**設計書・ADR にはまだ書かない** |
 | 見送り | [見送り中の項目](operations/roadmap/03-deferred.md) | 理由と、再検討する条件 |
-| 採用（未適用） | `architecture/` `services/` の設計書と ADR（ステータスは「採用（未適用）」） | 決めたことを、同じ変更で設計書と ADR に移す。設計書の冒頭に「未適用」と明記する |
+| 採用（未適用） | `architecture/hld/` `architecture/lld/` の設計書と ADR（ステータスは「採用（未適用）」） | 決めたことを、同じ変更で設計書と ADR に移す。設計書の冒頭に「未適用」と明記する |
 | 適用済み | 同じ設計書・ADR、構成図、`README.md` | 「未適用」の表記を外し、ADR のステータスを「採用」にする。構成図と README を更新し、[完了済みの項目](operations/roadmap/02-completed.md)に一行残す |
 
 - 「採用」にするかは、ユーザーが決める。Claude は、会話で案が出ただけのものを設計書や ADR に書かない。案はロードマップに「検討中」と明記して書く。

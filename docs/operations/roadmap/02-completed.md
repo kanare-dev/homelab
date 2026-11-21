@@ -10,7 +10,7 @@
 - [x] 秘密情報の管理方針を、SOPS と age に決めた（[secrets Runbook](../runbooks/03-secrets.md)）。
 - [x] バックアップの方針を決めた。VM 全体は取らず、VM の外にある再現できないデータだけを、台帳で守る（[ADR 0001](../../adr/0001-no-vm-backup.md)）。
 - [x] CI を導入した。lint だけを実行し、`plan` と `apply` は自動化しない（[ADR 0006](../../adr/0006-ci-lint-only.md)、[CI/CD](../../architecture/lld/dev/cicd.md)）。
-- [x] 現状（AS-IS）の構成図を作った（[概要](../../architecture/01-overview.md)の ASCII 図と、`docs/diagrams/`）。
+- [x] 現状（AS-IS）の構成図を作った（[概要](../../architecture/hld/01-system.md)の ASCII 図と、`docs/diagrams/`）。
 
 ## サービス
 

@@ -121,7 +121,7 @@ scrape_configs:
 
   # 外形監視: 疎通と遅延（ICMP）。ルーター → 建物の共用ルーター → インターネットの順に、
   # どこまで届くかを切り分ける。建物の共用ルーター（172.22.0.1）は traceroute の 2 ホップ目。
-  # 引っ越しなどで上流が変わったら、このアドレスを直す（docs/architecture/03-network.md）
+  # 引っ越しなどで上流が変わったら、このアドレスを直す（docs/architecture/hld/05-network.md）
   - job_name: "blackbox_icmp"
     metrics_path: /probe
     params:

@@ -28,8 +28,8 @@ VM 全体のバックアップは当面取らない。守る対象は **VM の�
 ## 影響と再検討の条件
 
 - 例外: Home Assistant の設定の YAML と n8n のワークフローの JSON は Git で守る（[ADR-0011](0011-home-assistant-on-vm-apps.md)、[ADR-0012](0012-n8n-on-vm-apps.md)）。VM のバックアップではない。
-- ホストやディスクを失うと、VM は再構築になる（[災害対策](../architecture/07-disaster-recovery.md)）。
+- ホストやディスクを失うと、VM は再構築になる（[災害対策](../architecture/hld/02-reliability.md)）。
 - `vm-windows` は、2026-11-05 に削除した（バックアップは残していない。必要になったら ISO から作り直す。[手順書](../operations/runbooks/06-backup-restore.md#vm-windows-の削除と作り直し2026-11-05)）。
 - 次のいずれかになったら再検討する: NAS や外部ストレージを追加した、VM に再現できないデータを置くようになった、`vm-windows` を作り直して実用に使い始めた。
 
-何を守り、何を守らないか: [災害対策](../architecture/07-disaster-recovery.md#バックアップの状況)。手順: [バックアップの手順](../operations/runbooks/06-backup-restore.md)
+何を守り、何を守らないか: [災害対策](../architecture/hld/02-reliability.md#バックアップの状況)。手順: [バックアップの手順](../operations/runbooks/06-backup-restore.md)

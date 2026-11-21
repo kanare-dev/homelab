@@ -1,20 +1,26 @@
 # アーキテクチャ
 
-homelab の方式設計。構成の全体像から読み、必要な観点へ進む。サービスごとの詳細は [services/](lld/README.md)、設計判断の経緯は [adr/](../adr/README.md)、運用手順は [operations/](../operations/runbooks/README.md)。
+homelab の設計書。**基本設計（HLD）**と**詳細設計（LLD）**に分けている。構成の全体像から読み、必要な観点へ進む。設計判断の経緯は [ADR](../adr/README.md)、運用手順は [operations](../operations/runbooks/README.md) にある。
 
 ## 目次
 
-| 文書 | 内容 |
+| 区分 | 内容 |
 | --- | --- |
-| [システム概要](01-overview.md) | 構成図、目的、この構成にした理由、前提と制約 |
-| [インフラ構成](02-infrastructure.md) | 物理・論理構成、ソフトウェア構成、資源の配分、拡張の方針 |
-| [ネットワーク](03-network.md) | ドメイン命名規約、外部接続（Tailscale、外部サービスへの依存） |
-| [可用性・信頼性](04-reliability.md) | 単一障害点、起動順序、変更の確かさ、障害の検知、再発防止 |
-| [セキュリティ](05-security.md) | 脅威の想定、秘密情報、アクセス制御、未対応の項目 |
-| [移行性](06-migration.md) | ハード・ネットワーク・バージョンの移行シナリオ |
-| [災害対策](07-disaster-recovery.md) | 想定する災害、バックアップの状況、再構築の手順 |
-| [VLAN 設計](08-vlan-design.md) | 次期のネットワーク分割（設計段階。未適用） |
-| [IP アドレス一覧](lld/network/ip-addresses.md) | 現在と移行後の IP（アドレスの範囲、VLAN、ホスト、FQDN の宛先、DHCP） |
+| [基本設計（HLD）](hld/README.md) | 方式に関わる方針と構成。6 つの章に分けている |
+| [詳細設計（LLD）](lld/README.md) | サービスごとの詳細と、IP アドレスのような具体的な値 |
+
+基本設計の章は、次のとおり。
+
+| 章 | 内容 |
+| --- | --- |
+| [第1章 システム構成・環境](hld/01-system.md) | 構成図、目的、前提と制約、物理構成、論理構成、ソフトウェア構成 |
+| [第2章 信頼性](hld/02-reliability.md) | 単一障害点、起動順序、障害の検知、再発防止、災害対策 |
+| [第3章 運用・保守](hld/03-operations.md) | 運用の方針、更新の方針、移行性 |
+| [第4章 性能・拡張性](hld/04-performance.md) | 資源の配分、ストレージの設計、拡張の方針 |
+| [第5章 ネットワーク](hld/05-network.md) | ドメイン命名規約、外部接続 |
+| [第6章 セキュリティ](hld/06-security.md) | 脅威の想定、秘密情報、アクセス制御、未対応の項目 |
+
+VLAN の設計は、[VLAN 設計](08-vlan-design.md)にある（第5章へ統合する予定）。IP アドレスは [IP アドレス一覧](lld/network/ip-addresses.md)が正である。
 
 ## 運用ルール
 

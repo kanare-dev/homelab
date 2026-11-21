@@ -5,7 +5,7 @@
 ## ネットワーク・DNS
 
 - 方針: 自分だけが使うアクセスは、Tailscale だけで完結させる（[ADR 0005](../../adr/0005-tailscale-only-remote-access.md)）。Cloudflare Tunnel で外部に公開するのは、Tailscale を入れていない他の人と共有したいという具体的なニーズが出たサービスに限る。そのニーズが出るまでは、Cloudflare Tunnel と Split-Horizon DNS には着手しない。
-- [ ] **検討中**: Omada Cloud（クラウドアクセス）を使い続けるか、無効にするか。2026-11-03 から、便利そうなので当面は有効にして試している。最終的に無効にするかもしれない。判断の材料は、使い勝手と、リスク（Tailscale と Caddy を通らず、TP-Link ID の認証だけで、コントローラーの管理画面に外から入れる経路が増える。[VLAN 設計](../../architecture/08-vlan-design.md#管理画面への外部到達リスクを受け入れる)）。決めたら ADR に残し、無効にするときは、[外部サービスの表](../../architecture/03-network.md#外部サービスへの依存)・[構成図](../../diagrams/as-is-diagram/make-as-is-diagram.py)・[システム概要](../../architecture/01-overview.md)の Omada Cloud と、「外から入る経路は Tailscale だけ」の例外の記述（`03-network.md`、`05-security.md`、`01-overview.md`）を消す
+- [ ] **検討中**: Omada Cloud（クラウドアクセス）を使い続けるか、無効にするか。2026-11-03 から、便利そうなので当面は有効にして試している。最終的に無効にするかもしれない。判断の材料は、使い勝手と、リスク（Tailscale と Caddy を通らず、TP-Link ID の認証だけで、コントローラーの管理画面に外から入れる経路が増える。[VLAN 設計](../../architecture/08-vlan-design.md#管理画面への外部到達リスクを受け入れる)）。決めたら ADR に残し、無効にするときは、[外部サービスの表](../../architecture/hld/05-network.md#外部サービスへの依存)・[構成図](../../diagrams/as-is-diagram/make-as-is-diagram.py)・[システム構成・環境](../../architecture/hld/01-system.md)の Omada Cloud と、「外から入る経路は Tailscale だけ」の例外の記述（`03-network.md`、`05-security.md`、`01-overview.md`）を消す
 - [x] Wi-Fi の SSID の名前を `Onda` と `Onda-Forte` に変える（**2026-11-03 に実施**。移行の前に、運用者が変えた。[VLAN 設計](../../architecture/08-vlan-design.md)に記録）。SwitchBot Hub 2 は繋ぎ直し済み（`Onda` に接続）。WPA3 の名前は `Onda-Forte` で設定済み。残り: テレビと仕事用 PC は、運用者が気づいたときに繋ぎ直す（段階 1 の確認の前に、繋ぎ直しておく）。Buffalo 本体のバックアップの取り直しは、運用者が行う。理由は、名前が長くて打ち込みにくいこと、飽きたこと、もう少し homelab らしい名前にしたいこと。**あわせて、バンドステアリング Lite（2.4GHz と 5GHz で共通の SSID にする Buffalo の機能）を使いたい**。調べた範囲では、Lite は信号の強さだけで帯域を切り替え、ルーター全体の設定で、端末ごとには指定できず、既定は無効。使うには共通の SSID を設定する。**共通 SSID の名前を自由に決められるかは未確認**（第三者の記事では `Buffalo-XXXX` と `Buffalo-XXXX-WPA3` という名前になる。このリポジトリの設定の記録にも、共通 SSID は MAC アドレス由来の既定名とある）。AP モードで使えるか、WPA2 と WPA3 の組み合わせがどうなるかも未確認。Buffalo の画面で、バンドステアリング Lite の項目に、名前の入力欄があるかを見る。今の `Ceci n'est pas un Wi-Fi [2.4]` / `[5]` / `[2.4+]` / `[5+]` の 4 つは、WPA2 の 2 つも残す（[VLAN 設計](../../architecture/08-vlan-design.md)）。時期は、**移行（段階 1〜3）が落ち着いてから**。移行の最中に変えると、不具合の原因が、ネットワークの変更なのか、SSID の変更なのか、切り分けられなくなる。変えると、全端末が繋ぎ直しになる。SwitchBot Hub は、Wi-Fi の設定をアプリでやり直す必要がある可能性が高い（未確認）。段階 4 で Omada の AP を入れるときは、VLAN ごとの SSID（Trusted / IoT / Guest）を作り直すので、**そこで使う名前を今のうちに決めて、Buffalo に先に付けておけば、端末は 1 回の繋ぎ直しで済む**（AP を替えても、SSID とパスワードが同じなら、端末は設定を変えずに繋がる）。名前の案は、Trusted は今の名前の系統、IoT と Guest は空白や記号のない ASCII（IoT は 2.4GHz のみ）。
 - [x] Servers・Lab の VM が、内部の名前（`*.lab.kanare.dev`）を引けないのは、**既定の設計**（2026-11-17 に確認。[ADR-0007](../../adr/0007-vm-host-dns-is-router.md)）。VM のホスト DNS はルーター（Terraform の `nameserver`。段階 3 で `10.77.20.1`、`10.77.40.1`）にし、AdGuard が要るコンテナだけ、`docker-compose.yml` の `dns:` で `10.77.20.10` を指定している（`homepage`、`n8n`、`freshrss`、`monitoring`）。段階 3 の手順 7 で、`vm-monitoring` から `getent hosts omada.lab.kanare.dev` が何も返さないことに気づいたが、ADR-0007 のとおりの動き。外形監視（blackbox）のアラートは、コンテナの `dns:` のおかげで、正常に動いている。新しく困る場面が出たら、そのとき見直す（案: ER605 の DNS プロキシで `lab.kanare.dev` を `vm-infra` に転送する。Omada の画面で設定できるかは未確認）。
 - Omada 導入・VLAN 化と OPNsense 導入は、それぞれ大型計画として扱う（下の「大型計画」）
@@ -14,7 +14,7 @@
 
 - [x] `docs/architecture/lld/` の文書を、役割ごとにフォルダ分けした（**2026-11-06 に実施**。`network/`、`platform/`、`apps/`、`dev/`。番号は外した。機器の設定値は `docs/hardware/<機器>/settings.md` に移した。[lld/README.md](../../architecture/lld/README.md)、[hardware/README.md](../../hardware/README.md)）
 - [ ] **検討中**: `vm-infra` の役割を分ける。DNS、リバースプロキシ、Tailscale を、別々に置き、**DNS とリバースプロキシは LXC にする**（2026-11-20、運用者がやりたいことを決めた。**設計は未決定**。次の作業の候補）。
-  - 今の構成: `vm-infra`（`10.77.20.10`、Servers）の 1 台に、DNS（AdGuard Home、Unbound、CoreDNS）、リバースプロキシ（Caddy、[ADR 0019](../../adr/0019-caddy-reverse-proxy.md)）、Tailscale（サブネットルーター）が同居している（[構成図](../../architecture/01-overview.md)）。
+  - 今の構成: `vm-infra`（`10.77.20.10`、Servers）の 1 台に、DNS（AdGuard Home、Unbound、CoreDNS）、リバースプロキシ（Caddy、[ADR 0019](../../adr/0019-caddy-reverse-proxy.md)）、Tailscale（サブネットルーター）が同居している（[構成図](../../architecture/hld/01-system.md)）。
   - やりたいこと: (1) DNS、リバースプロキシ、Tailscale を、別々の置き場所に分ける。(2) DNS とリバースプロキシは、VM でなく LXC にする。
   - 動機（運用者）: (1) 構成を綺麗にする。(2) LXC にすることで、リソースを節約できるかもしれない。**節約は小さい見込み**: `vm-infra` は、1.5GB の割り当てのうち約 0.5GB を使っている（2026-11-20）。LXC は、ホストのカーネルを共有するので、VM ごとの OS のぶんは減るが、ホストは 24GB で余裕があり、効くのは数百 MB 程度。主な利点は、構成の分かりやすさと、起動の速さ。
   - Tailscale（2026-11-20 の見立て。**未決定**）: 今は、サブネットルーターとして使っている（`10.77.20.0/24` と `10.77.40.0/24` を広告。外出先から、Servers・Lab の VM に IP で入る）。置き場所は、**小さな VM** を推す。理由: 外（tailnet）からの入口なので、ホストのカーネルを共有しない VM のほうが、境界がはっきりする。LXC では、`/dev/net/tun` の受け渡しと設定（特権・cgroup）が要る。LXC にもできる（資源は、さらに軽い）。どちらにするかは、DNS・プロキシの LXC を試したあとで決めてもよい。なお、Mac は、家でも、Servers・Lab を Tailscale の経路（`utun`）で引く（2026-11-20 の観測）。**ER605 の ACL を通らない**ので、ACL を絞るときの試験は、Tailscale を切って行う。
@@ -28,7 +28,7 @@
   - 決めること（未決）: Tailscale の置き場所（上）。LXC の VLAN と IP（[IP の規則](../../adr/0025-address-octets-by-role.md)、VMID の規則 [ADR-0026](../../adr/0026-vmid-from-vlan-and-octet.md)）。移行の順序と戻し方（DNS が止まると、`*.lab.kanare.dev` と、Tailscale 経由の入口が止まる）。
   - VMID: 分割で作る LXC は、最初から新しい VMID の規則（`VLAN ID × 100 + 第 4 オクテット`。[ADR-0026](../../adr/0026-vmid-from-vlan-and-octet.md)）で作れる（付け替えが要らない）。今の `vm-infra`（VMID 111。付け替えると 2010）は、LXC に置き換わって、なくなる。VMID の付け替え（下の別の項目）の対象が、1 台減る。
   - 順序（運用者の考え、2026-11-20）: **ACL を絞ってから**行う。ACL の許可元・許可先が、役割ごとの IP（[ADR-0025](../../adr/0025-address-octets-by-role.md)）で書ければ、あとで置き場所を変えても、IP を引き継げば、ACL を直さずに済む（DNS・プロキシの新しい LXC に、今の `10.77.20.10` を引き継ぐか、新しい IP にして ACL を直すかは、そのとき決める）。
-  - 採用を決めたら、設計書（[インフラ](../../architecture/02-infrastructure.md)、[DNS](../../architecture/lld/network/dns.md)）と ADR に移す。
+  - 採用を決めたら、設計書（[システム構成・環境](../../architecture/hld/01-system.md)、[DNS](../../architecture/lld/network/dns.md)）と ADR に移す。
 - [ ] **検討中**: Omada コントローラー（`vm-omada`）を、Proxmox の外（別のハード）に移す（2026-11-08、運用者の考え。別のハードを買ったときに検討する）。理由: コントローラーが、管理する機器（SG2210P）の先の Proxmox の上にあるので、Proxmox が LAN から消えると、コントローラーも消え、スイッチの設定を直せない（[INC-2026-11-08](../incidents/2026-11-08-sg2210p-native-vlan-overwrite.md)）。当面は、IP（`https://192.168.11.12:8043`）でのアクセスと、ER605 の LAN ポートへの直結の切り戻し（[障害時切り分け](../runbooks/11-troubleshooting.md#proxmox-ホストと全-vm-にlan-から届かない)）で補う。
 - [ ] 学習用に Traefik を `vm-apps` 上で試す。既存の入口（`vm-infra` の Caddy、[ADR 0019](../../adr/0019-caddy-reverse-proxy.md)）は置き換えず、`vm-apps` のコンテナ向けの別の入口として並べる。Docker ラベルによる自動検出、ダッシュボード、ミドルウェアを触るのが目的。Caddy を置き換えるかは、試したあとに新しい ADR で判断する
 - [ ] VM の OS を Ubuntu 26.04 LTS に移行する（[ADR 0021](../../adr/0021-ubuntu-lts-for-vms.md)）。新しい cloud image で `ubuntu-cloud`（VMID 9000）を作り直し、まず `vm-dev` で Ansible が通るか確認してから、VM を 1 台ずつ作り直す。その場更新はしない。24.04 のサポートは 2029 年 4 月までなので急がない
@@ -94,7 +94,7 @@
     - 止まったときの扱い: Authentik が落ちると、連携した画面に入れなくなる。各サービスのローカル管理者のログインを残す（緊急用）。特に Proxmox と Grafana。`vm-omada` を別のハードへ移す検討（上の項目）と同じ、依存の向きの問題。
     - 秘密値: クライアントの鍵と Authentik の初期設定は SOPS に入れる。バックアップは、DB と設定をどうするか（[ADR 0001](../../adr/0001-no-vm-backup.md) の方針と合わせる）。
   - 時期: **移行（段階 1〜3）が落ち着いてから**。アドレスと VLAN が固まる前に置くと、作り直しになる。
-  - 採用するなら、新しい ADR で ADR 0008 を置き換える（ステータスを「置き換え済み」にする）。そのあとで、設計書（[セキュリティ](../../architecture/05-security.md)）に移す。
+  - 採用するなら、新しい ADR で ADR 0008 を置き換える（ステータスを「置き換え済み」にする）。そのあとで、設計書（[セキュリティ](../../architecture/hld/06-security.md)）に移す。
 - [ ] k3s などのクラスタ構成を検討する（学習用クラスタとして分離運用し、Grafana / PVE / AdGuard Home 等の安定稼働中サービスは当面 Docker Compose のまま維持する）。より重いワークロードや複数アプリの分離運用もここで扱う
 
 ## ハードウェア・拡張
@@ -116,7 +116,7 @@
     - SSD の製品・容量・つなぐ USB ポート。共有の構成（フォルダ、ユーザー）。VLAN・IP（上）。
   - 将来の専用機（TrueNAS）への引っ越し: 共有名・フォルダの構成・UID を、あとで写せるようにそろえておく（`rsync` でデータを移す）。
   - 順序: LXC を Terraform・Ansible で管理する流れは、`vm-infra` の分割（上の項目）と共通。**DNS・プロキシは止まると影響が大きいので、止まっても困らない、この NAS の LXC を、最初の LXC として試す**案がある。ACL を絞るあと（運用者の考え）に、どちらを先にするかも決める。
-  - 採用を決めたら、設計書（[インフラ](../../architecture/02-infrastructure.md)、[監視・アラート](../../architecture/lld/platform/monitoring.md)）と ADR に移す。
+  - 採用を決めたら、設計書（[システム構成・環境](../../architecture/hld/01-system.md)、[監視・アラート](../../architecture/lld/platform/monitoring.md)）と ADR に移す。
 - [ ] UPS 導入と自動シャットダウン
 
 ## ホームオートメーション

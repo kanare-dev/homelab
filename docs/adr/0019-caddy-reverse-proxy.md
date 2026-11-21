@@ -36,7 +36,7 @@ LAN 内の Web 画面（Grafana、Proxmox、AdGuard Home など）を、`https:/
 
 ## 影響と再検討の条件
 
-- 入口は `vm-infra` の Caddy に集約され、その障害は全 Web 入口に影響する（[可用性](../architecture/04-reliability.md)）。
+- 入口は `vm-infra` の Caddy に集約され、その障害は全 Web 入口に影響する（[信頼性](../architecture/hld/02-reliability.md)）。
 - Cloudflare プラグイン入りのイメージを自前でビルドするため、Caddy 本体の更新時にビルドが要る。
 - 次のいずれかになったら、再検討する（新しい ADR を追加して、この ADR を置き換える）。
   - コンテナが頻繁に増減し、ラベルによる自動検出が欲しくなった（Traefik）。
