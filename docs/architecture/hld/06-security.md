@@ -1,6 +1,6 @@
-# セキュリティ
+# 第6章 セキュリティ
 
-この文書では、想定する脅威、守る対象、現在の対策、未対応の項目を整理する。**リポジトリを公開している**ことが、設計の前提になる。機密値の操作手順は、[運用 Runbook](../operations/runbooks/03-secrets.md#秘密情報管理)を参照してほしい。
+この章では、想定する脅威、守る対象、現在の対策、未対応の項目を整理する。**リポジトリを公開している**ことが、設計の前提になる。機密値の操作手順は、[運用 Runbook](../../operations/runbooks/03-secrets.md#秘密情報管理)を参照してほしい。
 
 ## 想定する脅威
 
@@ -27,13 +27,13 @@
 
 ## 秘密情報の管理
 
-詳しくは、[運用 Runbook](../operations/runbooks/03-secrets.md#秘密情報管理)と、リポジトリ直下の `CLAUDE.md` に書いている。
+詳しくは、[運用 Runbook](../../operations/runbooks/03-secrets.md#秘密情報管理)と、リポジトリ直下の `CLAUDE.md` に書いている。
 
 - 機密値は **SOPS + age** で暗号化して、Git に置く（`*.sops.yml`）。キー名は平文のままで、値だけが暗号化される。
 - Ansible は `community.sops` の vars プラグインで、Terraform は `carlpett/sops` プロバイダーで、実行時に復号する。VM 上の `.env` は Ansible がテンプレートから生成する。
 - 平文のシークレットファイルは作らない。`sops -d` の出力も保存しない。値は、チャット、ログ、文書に書かない（文字数、ハッシュ、一部の文字も書かない）。
 - SOPS 内のシークレットの一覧は、Runbook の表が正である。SOPS の外にあるものは、リポジトリの外にある非公開の台帳で管理する。
-- CI では復号しない。age 秘密鍵を CI に置かず、暗号化されていることだけを確認する（[CI/CD](../services/dev/cicd.md)）。
+- CI では復号しない。age 秘密鍵を CI に置かず、暗号化されていることだけを確認する（[CI/CD](../lld/dev/cicd.md)）。
 
 ### 鍵の保管と退避
 
@@ -41,7 +41,7 @@
 | --- | --- |
 | age 秘密鍵 | Mac の `~/Library/Application Support/sops/age/keys.txt`（`chmod 600`）。リポジトリに入れない |
 | 退避先 | iCloud Keychain（Mac が壊れても復元できるようにする） |
-| 別の Mac での復元・ローテーション | [運用 Runbook](../operations/runbooks/03-secrets.md#別の-mac-で復元する) |
+| 別の Mac での復元・ローテーション | [運用 Runbook](../../operations/runbooks/03-secrets.md#別の-mac-で復元する) |
 | 鍵が漏れたとき | 鍵の差し替えに加え、**各シークレット自体を再発行する**（Git 履歴に旧鍵で復号できる暗号文が残る） |
 
 ## アクセス制御
@@ -51,7 +51,7 @@
 | 項目 | 設定 | 管理場所 |
 | --- | --- | --- |
 | SSH | 鍵認証のみ（`PasswordAuthentication no`）、root ログイン禁止 | `ansible/roles/common/`、`group_vars/all/vars.yml` |
-| VM のパスワード | `ubuntu` に全 VM 共通のパスワードを設定（ハッシュは SOPS）。使うのはコンソールと `sudo -v` だけで、SSH のパスワード認証は無効のまま。`root` はロック（[ADR-0013](../adr/0013-vm-console-password.md)） | `ansible/roles/common/`、[秘密情報管理](../operations/runbooks/03-secrets.md) |
+| VM のパスワード | `ubuntu` に全 VM 共通のパスワードを設定（ハッシュは SOPS）。使うのはコンソールと `sudo -v` だけで、SSH のパスワード認証は無効のまま。`root` はロック（[ADR-0013](../../adr/0013-vm-console-password.md)） | `ansible/roles/common/`、[秘密情報管理](../../operations/runbooks/03-secrets.md) |
 | コンソール | Proxmox のコンソールから `ubuntu` でログインできる。`root` は入れない（`sudo -i` で昇格する） | 同上 |
 
 ### Web 画面
@@ -66,7 +66,7 @@
 | Homepage | 認証なし | 同上 |
 | ルーター | ルーターのログイン | Caddy から転送先まで HTTP（LAN 内） |
 
-ログインの一元化（Authelia）は導入しない（[ADR 0008](../adr/0008-no-authelia.md)）。
+ログインの一元化（Authelia）は導入しない（[ADR 0008](../../adr/0008-no-authelia.md)）。
 
 ### Terraform の権限
 
@@ -106,13 +106,13 @@ Proxmox ホストの UFW と Proxmox ファイアウォールの設定は、こ�
 
 ### 経路と暗号化
 
-- 外部には何も公開しない（二重 NAT でポート開放もしていない）。外出先からは Tailscale（WireGuard）で入る（[外部接続](03-network.md)）。
+- 外部には何も公開しない（二重 NAT でポート開放もしていない）。外出先からは Tailscale（WireGuard）で入る（[外部接続](05-network.md)）。
 - LAN 内の Web サービスは、Caddy が Let's Encrypt の正規の証明書を使って HTTPS で提供する。Caddy からバックエンドへの通信は、HTTP の場合がある（ルーター、Homepage など）。
 - Proxmox は自己署名証明書を使っているので、Caddy は `tls_insecure_skip_verify` を指定して接続する。
 
 ### セグメンテーション
 
-現在（段階 3 の後）は、ネットワークを Trusted（`10.77.30.0/24`）、Servers（`10.77.20.0/24`）、Lab（`10.77.40.0/24`）に分けている。ただし ACL は全許可にしてあり、絞るのは別の日である（[ADR-0029](../adr/0029-stage3-acl-allow-all-then-tighten.md)）。管理系（Proxmox、`vm-omada`、ER605、SG2210P）は、段階 3b まで今の LAN（`192.168.11.0/24`）に残す方針だった（[ADR-0028](../adr/0028-defer-management-vlan10.md)）。IoT、ゲスト、管理機器を分離する設計は、[VLAN 設計](08-vlan-design.md)にまとめており、ACL を絞る日に適用する。
+ネットワークは、Management（`10.77.10.0/24`）、Servers（`10.77.20.0/24`）、Trusted（`10.77.30.0/24`）、Lab（`10.77.40.0/24`）などの VLAN に分けている。ただし ACL は全許可のままで、絞り込みは未実施である（[ADR-0029](../../adr/0029-stage3-acl-allow-all-then-tighten.md)）。IoT、ゲスト、管理機器を分離する設計は、[第5章 ネットワーク](05-network.md)にまとめており、ACL を絞るときに適用する。
 
 ## 監査・検知
 
@@ -129,14 +129,14 @@ Proxmox ホストの UFW と Proxmox ファイアウォールの設定は、こ�
 | --- | --- | --- |
 | Proxmox ホストの node_exporter（9100）・SSH・8006 | ファイアウォールが無効で、LAN からどこからでも届く | 上の「Proxmox ホストのファイアウォール」と合わせて方針を決める |
 | `vm-infra` の 51820/udp | `# WireGuard` のコメント付きで許可しているが、WireGuard 単体は構成に含まれない（VPN は Tailscale） | 用途を確認し、不要なら閉じる |
-| Tailscale の ACL | 既定のまま。`192.168.11.1`（ルーター）にも届く | ACL で管理画面を除外する（未実施。[DNS 構成](../services/network/dns.md#管理画面omada-コントローラー)） |
-| 認証の一元化 | Prometheus・Homepage は認証なし | 導入しない（[ADR 0008](../adr/0008-no-authelia.md)）。ポートの許可元の絞り込みは別途検討 |
+| Tailscale の ACL | 既定のまま。Caddy 経由で、Omada コントローラーと Proxmox の管理画面のログイン画面に届く | ACL で管理画面を除外する（未実施。[DNS 構成](../lld/network/dns.md#管理画面omada-コントローラー)） |
+| 認証の一元化 | Prometheus・Homepage は認証なし | 導入しない（[ADR 0008](../../adr/0008-no-authelia.md)）。ポートの許可元の絞り込みは別途検討 |
 | OS・コンテナの更新 | 手動。コンテナイメージは `latest` | 定期更新の手順とタイミングを決める |
 | ルーターへの通信 | Caddy からの転送が平文 HTTP | LAN 内のみのため受け入れ。TP-Link への移行で再設計 |
 | Proxmox ホストのファイアウォール | リポジトリで管理していない | 現状を確認し、方針を決める |
 
 ## 関連
 
-- [運用 Runbook: 秘密情報管理](../operations/runbooks/03-secrets.md#秘密情報管理)
-- [VLAN 設計](08-vlan-design.md)
-- [外部接続](03-network.md)
+- [運用 Runbook: 秘密情報管理](../../operations/runbooks/03-secrets.md#秘密情報管理)
+- [第5章 ネットワーク](05-network.md)
+- [外部接続](05-network.md)

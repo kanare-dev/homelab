@@ -9,12 +9,12 @@
 | 採用したモデル、実機での報告、ライセンスの判断、ラックの候補と相性 | [10 インチラックマウント](../../hardware/future/rack-10inch/README.md) |
 | 印刷業者の比較、選び方、素材・造形方式の注意点 | [印刷の依頼先と、素材・造形方式の注意点](../../hardware/future/rack-10inch/printing-services.md) |
 | STL と出所（作者・ライセンス・SHA-256） | [models/](../../hardware/future/rack-10inch/models/README.md) |
-| 機器の選定（SG2210P を選んだ理由と版数の注意） | [VLAN 設計](../../architecture/08-vlan-design.md#導入の段階) |
+| 機器の選定（SG2210P を選んだ理由と版数の注意） | [ER605・SG2210P の移行計画](10-er605-sg2210p-migration-plan.md) |
 | VM の停止・起動の順序 | [VM 自動起動・停止](../runbooks/01-vm-startup-shutdown.md) |
 
 ## 目的
 
-3 台（M70q、ER605、SG2210P）を 10 インチラックにまとめて、配線と置き場所を整える。引っ越しや模様替えのときに、持ち運びしやすい形にすることも目的である（[VLAN 設計](../../architecture/08-vlan-design.md)の「物理設置」の未決事項）。さらに、後から足す機器（OPNsense 用の PC、通信の受信用ホスト、NAS、UPS）の置き場所も確保しておく。
+3 台（M70q、ER605、SG2210P）を 10 インチラックにまとめて、配線と置き場所を整える。引っ越しや模様替えのときに、持ち運びしやすい形にすることも目的である（[第5章 ネットワーク](../../architecture/hld/05-network.md)の「物理設置」の未決事項）。さらに、後から足す機器（OPNsense 用の PC、通信の受信用ホスト、NAS、UPS）の置き場所も確保しておく。
 
 ## 前提
 

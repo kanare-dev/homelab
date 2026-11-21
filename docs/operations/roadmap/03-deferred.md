@@ -6,12 +6,12 @@
 
 見送り中（2026-10-27 時点では導入しない）。
 
-- 現状: HTTPS と DNS の外形監視は blackbox-exporter と Alertmanager で行っている。停止の検知は、外部 Heartbeat（Healthchecks.io）が担当する（[monitoring.md](../../services/platform/monitoring.md)）。
+- 現状: HTTPS と DNS の外形監視は blackbox-exporter と Alertmanager で行っている。停止の検知は、外部 Heartbeat（Healthchecks.io）が担当する（[monitoring.md](../../architecture/lld/platform/monitoring.md)）。
 - 見送る理由: 死活監視と通知の役割が blackbox-exporter と重なり、二重に管理することになる。Alertmanager の `inhibit_rules`（VM の停止や DNS の障害のときに、通知を抑える仕組み）が使えないので、障害のたびに通知が増える。また、vm-apps に置くと、監視される側と同じホストで動くことになり、ホストが停止しても検知できない。
 - 再検討する条件:
   - 家族など Grafana を見ない人向けに、ステータスページが必要になった
   - 外形監視のターゲット追加（`prometheus.yml` の編集とデプロイ）が負担になった
-  - 回線断・停電を家の外から検知したくなり、外部の VPS を用意できた（[monitoring.md](../../services/platform/monitoring.md) の案 C）
+  - 回線断・停電を家の外から検知したくなり、外部の VPS を用意できた（[monitoring.md](../../architecture/lld/platform/monitoring.md) の案 C）
 
 ## Loki + Grafana Alloy（ログ収集基盤）
 
@@ -30,7 +30,7 @@
 
 見送り中（2026-11-01 時点では導入しない）。
 
-- 現状: 回線の断絶と遅延は、blackbox-exporter の ICMP（30 秒ごと）で見ている（[monitoring.md](../../services/platform/monitoring.md#回線の疎通遅延の監視)、[ADR 0018](../../adr/0018-internet-speed-monitoring.md)）。
+- 現状: 回線の断絶と遅延は、blackbox-exporter の ICMP（30 秒ごと）で見ている（[monitoring.md](../../architecture/lld/platform/monitoring.md#回線の疎通遅延の監視)、[ADR 0018](../../adr/0018-internet-speed-monitoring.md)）。
 - 見送る理由: Speedtest は、測定のたびに 30〜60 秒、回線を使い切る。仕事中のビデオ会議などに影響が出るうえ、建物の共用回線にも負荷をかける。建物側の混雑は、遅延とパケットロスを見るだけでも、多くの場合に検知できる。
 - 再検討する条件:
   - 「遅いのに ping の遅延・ロスに出ていない」状況が起きた
@@ -42,7 +42,7 @@
 
 見送り中（2026-10-30 時点では導入しない）。
 
-- 現状: Homepage の Hosts では、Prometheus の `node_exporter` から取得した CPU、メモリ、ディスクの使用率を、数値で表示している（[Homepage](../../services/apps/homepage.md)）。バーで表示できるのは、Homepage が動いている `vm-apps` 自身だけを測る `resources` ウィジェットだけである。
+- 現状: Homepage の Hosts では、Prometheus の `node_exporter` から取得した CPU、メモリ、ディスクの使用率を、数値で表示している（[Homepage](../../architecture/lld/apps/homepage.md)）。バーで表示できるのは、Homepage が動いている `vm-apps` 自身だけを測る `resources` ウィジェットだけである。
 - 見送る理由: 全 VM に Glances を入れる必要がある（Ansible のロールを作り、公開ポートに対する `DOCKER-USER` と UFW の許可を追加する）。また、`node_exporter` と同じ情報を、二重に集めることになる。今の数値の表示で足りている。
 - 再検討する条件: 数値では状況をつかみにくく、バーで見たい場面が増えたとき。
 - 導入するときの方針（案）: 全 VM に Glances を入れ、Homepage の Glances ウィジェットで表示する。`vm-apps` の `resources` ウィジェットとは併用しない。

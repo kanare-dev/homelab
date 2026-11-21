@@ -27,7 +27,7 @@ VLAN を含めない規則は、VLAN をまたぐと衝突する（`vm-infra` �
    - 例: `10.77.20.10` の VM は `2010`、`10.77.10.3` の VM は `1003`、`10.77.40.10` の VM は `4010`。
    - 第 4 オクテットは 2 桁（`.1–.99`）に収まる。VM の固定アドレスは `.10–.49`、予約は `.50–.99` なので、問題ない。
 2. 段階 3（一斉切り替え）では、VMID を変えない。VM を作り直すとき（[Ubuntu LTS の入れ替え](../operations/roadmap/01-backlog.md)など）に、新しい VMID に付け替える。新しい VM は、最初から新しい規則で作る。
-3. 付け替えるまでは、[IP アドレス一覧](../architecture/09-ip-addresses.md#ホスト別の-ip)の VMID の列（現在と移行後）を正とする。
+3. 付け替えるまでは、[IP アドレス一覧](../architecture/lld/network/ip-addresses.md#ホスト別の-ip)の VMID の列（現在と移行後）を正とする。
 4. テンプレート `ubuntu-cloud`（9000）は変えない。VLAN ID に 90 を使うときは、範囲（`9000–9099`）が被るので、再検討する。
 
 付け替えの対応:
@@ -60,7 +60,7 @@ VLAN を含めない規則は、VLAN をまたぐと衝突する（`vm-infra` �
 - 第 4 オクテットが VMID に固定される。IP の番号を変えるときは、VM の作り直し（VMID の付け替え）を伴う。
 - VM を別の VLAN に移すと、VMID も変わる（例: `vm-code` を Lab に移すと、2030 から 4011 になる）。
 - 付け替えの手順は未検証。(1) 状態を持たない VM は、Terraform の作り直しで済む。(2) データを持つ VM は、`qm clone` で新しい VMID に複製し、Terraform の state を付け替える方法がある。VM のバックアップは取らない方針（[ADR-0001](0001-no-vm-backup.md)）なので、データを持つ VM は、先に `vm-dev` で手順を試す。
-- 付け替えのたびに、Terraform の `terraform.tfvars`、[Runbook 01](../operations/runbooks/01-vm-startup-shutdown.md) のように VMID を直接書いている手順、[IP アドレス一覧](../architecture/09-ip-addresses.md)、各サービスの文書（`vm-omada` と `vm-code` の VMID の記述）を同じ変更で直す。
+- 付け替えのたびに、Terraform の `terraform.tfvars`、[Runbook 01](../operations/runbooks/01-vm-startup-shutdown.md) のように VMID を直接書いている手順、[IP アドレス一覧](../architecture/lld/network/ip-addresses.md)、各サービスの文書（`vm-omada` と `vm-code` の VMID の記述）を同じ変更で直す。
 - 付け替えが面倒になったら、A に戻す（新しい ADR）。
 
-詳細: [IP アドレス一覧](../architecture/09-ip-addresses.md)、[IP 割り当てと DHCP の見直し](../operations/roadmap/12-ip-address-and-dhcp-review.md)
+詳細: [IP アドレス一覧](../architecture/lld/network/ip-addresses.md)、[IP 割り当てと DHCP の見直し](../operations/roadmap/12-ip-address-and-dhcp-review.md)

@@ -81,14 +81,14 @@ F-11 は HTTPS で URL のパス、検索キーワード、ページ本文が暗
 - [ ] 前提として、Omada の段階 1〜2（ER605、Buffalo の AP モード化、SG2210P）を終える
 - [ ] 上の表から取得方式を決める（SG2210P のポートミラーリング、AP の構成、TAP を比較する）
 - [ ] 収集する範囲、保存期間、HTTPS の扱い、監視対象者への周知を決め、ADR に残す
-- [ ] ミラーポートに使う SG2210P のポートと、受信用ホストを置く VLAN を決め、[VLAN 設計](../../architecture/08-vlan-design.md)に反映する
+- [ ] ミラーポートに使う SG2210P のポートと、受信用ホストを置く VLAN を決め、[第5章 ネットワーク](../../architecture/hld/05-network.md)に反映する
 - [ ] 受信用ホストを決める。第一候補は、Proxmox に USB NIC を足さず、NIC が 2 つ以上ある別の小型 PC（受信専用と管理用。Intel 製 NIC を優先）。OPNsense 用や DMZ 専用の機器とは兼用しない
 - [ ] Wi-Fi 端末を含めて、端末を区別できることを確認する
 
 ### Phase 3: 監視・分析の高度化
 
 - [ ] 必要に応じて Zeek、Arkime、Suricata、Grafana を追加し、履歴の検索、異常検知、通知を実装する
-- [ ] 通信統計と PCAP の保存期間と容量を決め、[監視](../../services/platform/monitoring.md)の「容量の上限設定」に追記する
+- [ ] 通信統計と PCAP の保存期間と容量を決め、[監視](../../architecture/lld/platform/monitoring.md)の「容量の上限設定」に追記する
 
 ### Phase 4: OPNsense との統合
 

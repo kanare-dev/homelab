@@ -5,7 +5,7 @@
 
 ## 背景
 
-LAN 内の Web 画面（Grafana、Proxmox、AdGuard Home など）を、`https://<name>.lab.kanare.dev` の正規の証明書で開けるようにする入口が要る（[リバースプロキシと TLS](../services/network/reverse-proxy-tls.md)）。Caddy を採用して稼働しているが、nginx、Nginx Proxy Manager、Traefik、Cloudflare Tunnel と比べた記録が残っていなかったため、選んだ理由を明文化する。導入当時の検討記録は無く、以下は現在の要件に照らして評価し直したもの。
+LAN 内の Web 画面（Grafana、Proxmox、AdGuard Home など）を、`https://<name>.lab.kanare.dev` の正規の証明書で開けるようにする入口が要る（[リバースプロキシと TLS](../architecture/lld/network/reverse-proxy-tls.md)）。Caddy を採用して稼働しているが、nginx、Nginx Proxy Manager、Traefik、Cloudflare Tunnel と比べた記録が残っていなかったため、選んだ理由を明文化する。導入当時の検討記録は無く、以下は現在の要件に照らして評価し直したもの。
 
 要件は次のとおり。
 
@@ -36,11 +36,11 @@ LAN 内の Web 画面（Grafana、Proxmox、AdGuard Home など）を、`https:/
 
 ## 影響と再検討の条件
 
-- 入口は `vm-infra` の Caddy に集約され、その障害は全 Web 入口に影響する（[可用性](../architecture/04-reliability.md)）。
+- 入口は `vm-infra` の Caddy に集約され、その障害は全 Web 入口に影響する（[信頼性](../architecture/hld/02-reliability.md)）。
 - Cloudflare プラグイン入りのイメージを自前でビルドするため、Caddy 本体の更新時にビルドが要る。
 - 次のいずれかになったら、再検討する（新しい ADR を追加して、この ADR を置き換える）。
   - コンテナが頻繁に増減し、ラベルによる自動検出が欲しくなった（Traefik）。
   - Caddy にない機能（高度な負荷分散、WAF など）が要る。
   - Caddy のプラグインのビルドや更新が負担になった。
 
-詳細: [リバースプロキシと TLS](../services/network/reverse-proxy-tls.md)
+詳細: [リバースプロキシと TLS](../architecture/lld/network/reverse-proxy-tls.md)

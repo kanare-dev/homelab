@@ -1,6 +1,6 @@
 # hardware
 
-機器ごとの、仕様・公式資料と、この家での設定値。全体の方式は [architecture/](../architecture/README.md)、サービスの設計は [services/](../services/README.md)、配線の全体像は[物理構成図](../diagrams/physical-diagram/physical-diagram.png)にある。
+機器ごとの、仕様・公式資料と、この家での設定値。全体の方式は [architecture/](../architecture/README.md)、サービスの設計は [services/](../architecture/lld/README.md)、配線の全体像は[物理構成図](../diagrams/physical-diagram/physical-diagram.png)にある。
 
 ## 機器
 
@@ -14,7 +14,7 @@
 機器ではないものは、次に置く。
 
 - [future/](future/rack-10inch/README.md): 導入前の機器・用品。今は 10 インチラック（機器を収める 3D プリント用マウント）だけ。導入して設定を持つようになったら、機器ごとのディレクトリ（`<型番>/`）に移す。
-- Omada コントローラー: `vm-omada` 上のソフトウェアなので、[services/network/](../services/network/omada-controller.md) に置く。ネットワーク機器（ER605・SG2210P）の設定の入口でもある。
+- Omada コントローラー: `vm-omada` 上のソフトウェアなので、[services/network/](../architecture/lld/network/omada-controller.md) に置く。ネットワーク機器（ER605・SG2210P）の設定の入口でもある。
 
 ## 置き方の決まり
 

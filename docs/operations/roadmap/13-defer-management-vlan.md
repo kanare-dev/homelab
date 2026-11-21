@@ -4,7 +4,7 @@
 
 **状態:**
 
-- **採用（未適用）**: 段階 3 の範囲の変更。決めたことは [ADR-0028](../../adr/0028-defer-management-vlan10.md)、[VLAN 設計](../../architecture/08-vlan-design.md#切り替え方式-一斉切り替え)、[移行計画](10-er605-sg2210p-migration-plan.md)の段階 3 に移した。この文書には、二重に書かない。
+- **採用（未適用）**: 段階 3 の範囲の変更。決めたことは [ADR-0028](../../adr/0028-defer-management-vlan10.md)、[ADR-0004](../../adr/0004-vlan-cutover-all-at-once.md)、[移行計画](10-er605-sg2210p-migration-plan.md)の段階 3 に移した。この文書には、二重に書かない。
 - **採用（実施済み。2026-11-19）**: 段階 3b の順序（**機器を先に VLAN10 へ移し、そのあとコントローラーを移す**。[ADR-0031](../../adr/0031-stage3b-devices-before-controller.md)、手順は[段階 3b の作業](../runbooks/23-network-stage-3b-management-vlan10.md)）。下の「確かめる順序」の記録は、この決定に至った経緯。
 - **採用（実施済み。2026-11-20）**: 既定のネットワークの VLAN10 への統合（案 B。[ADR-0032](../../adr/0032-merge-default-network-into-management-vlan10.md)、[手順書 25](../runbooks/25-merge-default-network-into-vlan10.md)）。段階 3b は、これで完了。
 - **検討中**: ACL を絞る日の前に決める未決事項（[ADR-0029](../../adr/0029-stage3-acl-allow-all-then-tighten.md)）。下に書く。
@@ -229,9 +229,9 @@ ER605 を初期化して、コントローラーに採用し直す案。
 
 ### 今の LAN の ACL（段階 3b までの暫定）
 
-**検討中（案）。** 管理系が今の LAN（VLAN1、`192.168.11.0/24`）に残る間だけ使う、暫定のルール。[通信ポリシー](../../architecture/08-vlan-design.md#通信ポリシー)の許可表の「Management」を、「今の LAN」に読み替える。最終形のルールは設計書のとおりで、段階 3b で、VLAN10 向けに作り直す（下の「段階 3b での書き直し」）。暫定なので、設計書と ADR には書かず、ここに置く（運用者の判断。2026-11-10）。
+**検討中（案）。** 管理系が今の LAN（VLAN1、`192.168.11.0/24`）に残る間だけ使う、暫定のルール。[通信ポリシー](../../architecture/hld/05-network.md#通信ポリシー)の許可表の「Management」を、「今の LAN」に読み替える。最終形のルールは設計書のとおりで、段階 3b で、VLAN10 向けに作り直す（下の「段階 3b での書き直し」）。暫定なので、設計書と ADR には書かず、ここに置く（運用者の判断。2026-11-10）。
 
-名前と説明は、[ACL の名前と説明の付け方](../../architecture/08-vlan-design.md#acl-の名前と説明の付け方)に従う。宛先の「今の LAN」は、`mgmt` の代わりに `lan` と書く。説明の頭に `[暫定]` を付け、段階 3b のあとに探して消せるようにする。
+名前と説明は、[ACL の名前と説明の付け方](../../architecture/lld/network/acl.md)に従う。宛先の「今の LAN」は、`mgmt` の代わりに `lan` と書く。説明の頭に `[暫定]` を付け、段階 3b のあとに探して消せるようにする。
 
 | 順 | 動作 | 名前 | 送信元 | 宛先 | 中身 |
 | --- | --- | --- | --- | --- | --- |

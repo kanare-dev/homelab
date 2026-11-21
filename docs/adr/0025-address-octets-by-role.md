@@ -19,7 +19,7 @@
 
 1. 第 4 オクテットを、役割で決める。区切りは全 VLAN 共通。
    - `.1` ゲートウェイ、`.2–.9` ネットワーク機器（Management のみ）、`.10–.49` 固定、`.50–.99` DHCP 予約、`.100–.149` または `.100–.199` DHCP プール、`.200–.254` 予備。
-   - ホストの割り当ては [IP アドレス一覧](../architecture/09-ip-addresses.md#ホスト別の-ip)の表のとおり。`vm-infra` は `10.77.20.10`、`vm-monitoring` は `.11`、`vm-apps` は `.12`、`vm-code` は `.13`、`vm-dev` は `10.77.40.10`、Buffalo は `10.77.30.50`。
+   - ホストの割り当ては [IP アドレス一覧](../architecture/lld/network/ip-addresses.md#ホスト別の-ip)の表のとおり。`vm-infra` は `10.77.20.10`、`vm-monitoring` は `.11`、`vm-apps` は `.12`、`vm-code` は `.13`、`vm-dev` は `10.77.40.10`、Buffalo は `10.77.30.50`。
 2. DHCP が配る DNS は `10.77.20.10`（`vm-infra`）になる（[ADR 0024](0024-dhcp-dns-single-no-fallback.md) の判断は変わらず、アドレスだけ変わる）。
 3. DHCP の範囲とリースを、VLAN ごとに決める。
    - Management: `.240–.250`（緊急用、リース 1 時間）。Trusted: `.100–.199`（24〜48 時間）。Lab と IoT: `.100–.149`（24 時間）。Guests: `.100–.199`（4 時間）。Servers・DMZ: なし。
@@ -47,4 +47,4 @@
 - Management に、自動でアドレスを得られる口ができる。Management に出せるのは SG2210P の物理ポートだけなので、使わないポートは Management にしない。
 - 実機の確認で、緊急用プールが不要と分かったら、新しい ADR で外す。
 
-詳細: [VLAN 設計](../architecture/08-vlan-design.md)、[ER605・SG2210P の移行計画](../operations/roadmap/10-er605-sg2210p-migration-plan.md)
+詳細: [第5章 ネットワーク](../architecture/hld/05-network.md)、[ER605・SG2210P の移行計画](../operations/roadmap/10-er605-sg2210p-migration-plan.md)

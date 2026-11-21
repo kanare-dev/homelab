@@ -1,6 +1,6 @@
 # FreshRSS
 
-RSS / Atom のフィードを集めて読む、セルフホストのリーダー。`vm-apps` に Docker Compose で置く。判断の記録: [ADR-0014](../../adr/0014-freshrss-on-vm-apps.md)。
+RSS / Atom のフィードを集めて読む、セルフホストのリーダー。`vm-apps` に Docker Compose で置く。判断の記録: [ADR-0014](../../../adr/0014-freshrss-on-vm-apps.md)。
 
 ## 構成
 
@@ -22,9 +22,9 @@ Mac / スマホ ─ HTTPS ─> Caddy（vm-infra :443） ─ HTTP ─> vm-apps :8
 
 - `vm-apps` の 8081 は Docker の公開ポートなので、UFW では絞れない。`ufw_docker` ロールの `DOCKER-USER` が、`vm-infra` 以外からの新規接続を破棄する（`group_vars/apps/vars.yml` の `docker_published_allow`）。IP とポートの直打ち（`http://10.77.20.20:8081`）は届かない。
 - Caddy の裏で動かすため、`BASE_URL=https://rss.lab.kanare.dev` と `TRUSTED_PROXY=10.77.20.10`（Caddy の IP）を設定している。
-- コンテナは `dns:` で AdGuard（`10.77.20.10`）を指定し、2 つ目にルーター（`10.77.20.1`）を置く（[ADR-0007](../../adr/0007-vm-host-dns-is-router.md)）。フィードの取得は外部のサイトへ出るので、ルーターだけでも引ける。
-- 外部には公開しない。外出先からは Tailscale 経由で使う（[ADR-0005](../../adr/0005-tailscale-only-remote-access.md)）。
-- 認証は FreshRSS のログインのみ。Authelia は使わない（[ADR-0008](../../adr/0008-no-authelia.md)）。
+- コンテナは `dns:` で AdGuard（`10.77.20.10`）を指定し、2 つ目にルーター（`10.77.20.1`）を置く（[ADR-0007](../../../adr/0007-vm-host-dns-is-router.md)）。フィードの取得は外部のサイトへ出るので、ルーターだけでも引ける。
+- 外部には公開しない。外出先からは Tailscale 経由で使う（[ADR-0005](../../../adr/0005-tailscale-only-remote-access.md)）。
+- 認証は FreshRSS のログインのみ。Authelia は使わない（[ADR-0008](../../../adr/0008-no-authelia.md)）。
 
 ## 設定とデータ
 
@@ -85,5 +85,5 @@ VM を作り直したとき、または `/opt/freshrss` を失ったとき。
 
 ## 既知の制約
 
-- 既読、スター、記事はバックアップしていない（[ADR-0014](../../adr/0014-freshrss-on-vm-apps.md)）。
+- 既読、スター、記事はバックアップしていない（[ADR-0014](../../../adr/0014-freshrss-on-vm-apps.md)）。
 - `vm-apps` の他のコンテナ（Homepage、Home Assistant、n8n）と同じ VM を共有する。FreshRSS の異常がメモリを使い切ると、他にも影響する。

@@ -1,6 +1,6 @@
 # 障害記録
 
-障害の経緯・原因・再発防止を残す。復旧の手順は [Runbook](../runbooks/README.md)、設計の変更は [architecture/](../../architecture/01-overview.md) と [ADR](../../adr/README.md) に書き、ここには**何が起きたか**だけを書く。
+障害の経緯・原因・再発防止を残す。復旧の手順は [Runbook](../runbooks/README.md)、設計の変更は [architecture/](../../architecture/hld/01-system.md) と [ADR](../../adr/README.md) に書き、ここには**何が起きたか**だけを書く。
 
 ## 一覧
 
@@ -19,4 +19,4 @@
 - **確定（観測した事実）**、**推定**、**未確認**を区別する。時刻が分からないときは推測せず「未確認」と書く。
 - blameless。個人ではなく仕組みを対象にする。
 - 機密値（トークン、パスワードなど）は書かない。
-- 記録を追加したら、この表と [docs/README.md](../../README.md)、[Runbook の README](../runbooks/README.md) の障害記録へのリンクを更新する。再発防止で構成を変えたら [04-reliability.md](../../architecture/04-reliability.md) の表にも足す。
+- 記録を追加したら、この表と [docs/README.md](../../README.md)、[Runbook の README](../runbooks/README.md) の障害記録へのリンクを更新する。再発防止で構成を変えたら [04-reliability.md](../../architecture/hld/02-reliability.md) の表にも足す。

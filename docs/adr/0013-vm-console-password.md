@@ -42,4 +42,4 @@ VM は cloud-init で作っており、`ubuntu` のパスワードはロック�
 - **増えるもの**: 管理するシークレットが1つ。[03-secrets.md](../operations/runbooks/03-secrets.md) の表と、Keychain の項目に載せる。
 - **漏れたとき**: 新しいパスワードのハッシュを作って SOPS を書き換え、`site.yml` を流し直す。Git 履歴に旧ハッシュが残るので、旧パスワードは使わない。
 - **再検討の条件**: VM に別のユーザーが増えるとき。外部から VM に入れる経路（SSH のパスワード認証など）を開けるとき。
-- 手順は [障害時切り分け](../operations/runbooks/11-troubleshooting.md#vm-が応答しない)。方式は [セキュリティ](../architecture/05-security.md#ホストへのログイン)。
+- 手順は [障害時切り分け](../operations/runbooks/11-troubleshooting.md#vm-が応答しない)。方式は [セキュリティ](../architecture/hld/06-security.md#ホストへのログイン)。

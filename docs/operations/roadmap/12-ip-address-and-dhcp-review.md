@@ -2,9 +2,9 @@
 
 [ロードマップ](README.md)の記録。2026-11-05 に、運用者が「to-be の第 4 オクテットが現行の値を引き継ぐ方針を見直したい。必要なら DHCP の範囲も」と述べたことから、一斉切り替え（段階 3）の前に設計で決めておくために、案をまとめた。
 
-**状態: 採用（2026-11-05）。** 下の「方針案」で決め、設計書・ADR に反映した（[ADR-0025](../../adr/0025-address-octets-by-role.md)、[VLAN 設計](../../architecture/08-vlan-design.md)）。2026-11-09 に、VMID の規則、Servers の番号、緊急用プールの DNS を追加で決めた（下の「追加の見直し」。[ADR-0026](../../adr/0026-vmid-from-vlan-and-octet.md)、[ADR-0027](../../adr/0027-servers-octet-bands-and-emergency-dns.md)）。この文書は、検討の経緯と、選択肢の比較の記録として残す。未確認の項目だけが、実機で確かめるまで残る。
+**状態: 採用（2026-11-05）。** 下の「方針案」で決め、設計書・ADR に反映した（[ADR-0025](../../adr/0025-address-octets-by-role.md)、[第5章 ネットワーク](../../architecture/hld/05-network.md)）。2026-11-09 に、VMID の規則、Servers の番号、緊急用プールの DNS を追加で決めた（下の「追加の見直し」。[ADR-0026](../../adr/0026-vmid-from-vlan-and-octet.md)、[ADR-0027](../../adr/0027-servers-octet-bands-and-emergency-dns.md)）。この文書は、検討の経緯と、選択肢の比較の記録として残す。未確認の項目だけが、実機で確かめるまで残る。
 
-現行の設計は [VLAN 設計](../../architecture/08-vlan-design.md)（[ADR-0015](../../adr/0015-vlan-address-scheme-10-77.md)）。第 3 オクテット = VLAN ID は変えない。この文書が扱うのは、第 4 オクテットと DHCP の範囲だけ。
+現行の設計は [第5章 ネットワーク](../../architecture/hld/05-network.md)（[ADR-0015](../../adr/0015-vlan-address-scheme-10-77.md)）。第 3 オクテット = VLAN ID は変えない。この文書が扱うのは、第 4 オクテットと DHCP の範囲だけ。
 
 ## 見直す理由
 
@@ -97,15 +97,15 @@ Management に、`.240–.250` の小さなプールを置く。平時は使わ�
 
 ## 反映の手順（実施済み。2026-11-05）
 
-1. [VLAN 設計](../../architecture/08-vlan-design.md)の「VLAN 一覧」「アドレス帯の区切り」「固定アドレス」と、Tailscale・Ansible・UFW の IP の記述を更新する。
+1. [第5章 ネットワーク](../../architecture/hld/05-network.md)の「VLAN 一覧」「アドレス帯の区切り」「固定アドレス」と、Tailscale・Ansible・UFW の IP の記述を更新する。
 2. [ADR-0015](../../adr/0015-vlan-address-scheme-10-77.md) の方針（第 4 オクテットの引き継ぎ）を置き換える新しい ADR を足し、古い方を「置き換え済み」にする。ADR-0024 の DNS アドレスを直す。
-3. [ER605・SG2210P の移行計画](10-er605-sg2210p-migration-plan.md)の TO-BE の IP（`vm-omada`、Buffalo、各 VM）、[ネットワーク設計](../../architecture/03-network.md)の IP 表、構成図（`to-be-diagram/make-to-be-diagram.py` の「配置」を直して再生成する）を更新する。
-4. [Omada コントローラー](../../services/network/omada-controller.md)・[ER605](../../hardware/er605/settings.md) の設定値のうち、段階 3 の DHCP の記述を更新し、変更履歴に 1 行足す。
+3. [ER605・SG2210P の移行計画](10-er605-sg2210p-migration-plan.md)の TO-BE の IP（`vm-omada`、Buffalo、各 VM）、[ネットワーク](../../architecture/hld/05-network.md)の IP 表、構成図（`to-be-diagram/make-to-be-diagram.py` の「配置」を直して再生成する）を更新する。
+4. [Omada コントローラー](../../architecture/lld/network/omada-controller.md)・[ER605](../../hardware/er605/settings.md) の設定値のうち、段階 3 の DHCP の記述を更新し、変更履歴に 1 行足す。
 5. [サービスカタログ](../../homelab-service-catalog.md)に影響は無い見込み（ツールの採否は変わらない）。
 
 ## 追加の見直し（採用。2026-11-09）
 
-2026-11-09 に、運用者が「VLAN 移行後に VMID と IP の対応が取れなくなる件」と「移行後の IP 設計が妥当か」を見直したいと述べた。決めたことは、次のとおり。上の表の `vm-apps`（`10.77.20.12`）と `vm-code`（`10.77.20.13`）は、ここで置き換わった（正は [IP アドレス一覧](../../architecture/09-ip-addresses.md#ホスト別の-ip)）。
+2026-11-09 に、運用者が「VLAN 移行後に VMID と IP の対応が取れなくなる件」と「移行後の IP 設計が妥当か」を見直したいと述べた。決めたことは、次のとおり。上の表の `vm-apps`（`10.77.20.12`）と `vm-code`（`10.77.20.13`）は、ここで置き換わった（正は [IP アドレス一覧](../../architecture/lld/network/ip-addresses.md#ホスト別の-ip)）。
 
 | 項目 | 決定 | 記録 |
 | --- | --- | --- |

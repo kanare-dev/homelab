@@ -12,8 +12,8 @@ LAN 内サービスへのリンクと、状態のウィジェットを 1 画面�
 | URL | `https://home.lab.kanare.dev`（Caddy 経由）。`HOMEPAGE_ALLOWED_HOSTS` でこのホスト名だけを許可している |
 | 定義 | `docker/compose/homepage/`（`config/`、`icons/`）、`ansible/playbooks/apps.yml`、`ansible/playbooks/templates/homepage.env.j2` |
 
-- コンテナは `dns:` で AdGuard（`10.77.20.10`）を指定している。ホストの DNS（ルーター）は `*.lab.kanare.dev` を引けず、指定しないと `siteMonitor` とウィジェットが失敗する（[ADR-0007](../../adr/0007-vm-host-dns-is-router.md)）。
-- 外部には公開しない。認証はない（LAN 内と Tailscale 経由のみ。[ADR-0005](../../adr/0005-tailscale-only-remote-access.md)、[ADR-0008](../../adr/0008-no-authelia.md)）。
+- コンテナは `dns:` で AdGuard（`10.77.20.10`）を指定している。ホストの DNS（ルーター）は `*.lab.kanare.dev` を引けず、指定しないと `siteMonitor` とウィジェットが失敗する（[ADR-0007](../../../adr/0007-vm-host-dns-is-router.md)）。
+- 外部には公開しない。認証はない（LAN 内と Tailscale 経由のみ。[ADR-0005](../../../adr/0005-tailscale-only-remote-access.md)、[ADR-0008](../../../adr/0008-no-authelia.md)）。
 - 設定ファイルを変えたら `make deploy-apps APP=homepage` で反映する。Ansible がファイルを配置し、変更があったときだけコンテナを再起動する。
 
 ## 画面の構成
@@ -39,7 +39,7 @@ LAN 内サービスへのリンクと、状態のウィジェットを 1 画面�
 | 天気 | Open-Meteo（東京の座標。リポジトリが公開なので、市区町村レベルに留める） | なし（キー不要） |
 
 - Prometheus は、`vm-apps` から `9090` に直接届かない（`vm-monitoring` の `DOCKER-USER` が Caddy だけを許可している）。そのため Caddy 経由の URL を使う。
-- シークレットは `homepage.env.j2` が `/opt/homepage/.env` に `HOMEPAGE_VAR_*` として書き出し、`services.yaml` が `{{HOMEPAGE_VAR_*}}` で参照する。値は Git に入れない（[秘密情報管理](../../operations/runbooks/03-secrets.md)）。
+- シークレットは `homepage.env.j2` が `/opt/homepage/.env` に `HOMEPAGE_VAR_*` として書き出し、`services.yaml` が `{{HOMEPAGE_VAR_*}}` で参照する。値は Git に入れない（[秘密情報管理](../../../operations/runbooks/03-secrets.md)）。
 
 ### ウィジェットを足すとき
 
@@ -51,7 +51,7 @@ LAN 内サービスへのリンクと、状態のウィジェットを 1 画面�
 ### 見送ったもの
 
 - **Tailscale のウィジェット**: API キーの有効期間が最長 90 日で、失効するとウィジェットが黙って壊れる。OAuth クライアントのトークンは短命で、Homepage が受け付けない。更新の手間に見合わないので入れていない。
-- **バー表示**: Prometheus 経由のウィジェットは数値しか出せない。VM ごとのバー表示には Glances が要るため、見送っている（[ロードマップ](../../operations/roadmap/03-deferred.md)）。
+- **バー表示**: Prometheus 経由のウィジェットは数値しか出せない。VM ごとのバー表示には Glances が要るため、見送っている（[ロードマップ](../../../operations/roadmap/03-deferred.md)）。
 - **Grafana のウィジェット**: 認証情報が増える割に、画面で得られる情報が少ないため見送った。
 
 ## 注意点

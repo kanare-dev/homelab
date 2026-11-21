@@ -33,7 +33,7 @@ VLAN を次の 7 本にする。ID は信頼度の高い順（内側から外側
 - 外出先から `vm-dev` に入れるように、Tailscale の subnet route は Servers と Lab の 2 つを広告する。この通信は subnet router（`vm-infra`）が送信元になるため、Servers → Lab の許可が要る。
 - コンテナ・K8s 用の VLAN（Containers）は作らない。
 
-詳細: [VLAN 設計](../architecture/08-vlan-design.md#vlan-一覧)
+詳細: [IP アドレス一覧](../architecture/lld/network/ip-addresses.md#vlan-一覧)
 
 ## 理由
 

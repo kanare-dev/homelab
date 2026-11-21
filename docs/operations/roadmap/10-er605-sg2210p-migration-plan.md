@@ -2,7 +2,7 @@
 
 [ロードマップ](README.md)の大型計画 [Omada 導入・VLAN 化](04-network-omada-vlan.md)の段階 1〜3 を、実機を手に入れた前提で具体化した計画。AS-IS と TO-BE の構成図、機器の設定、配線の付け替えを段階ごとに書く。
 
-**状態: 検討中（未適用）。** 方針（段階の分け方、`10.77.<VLAN>.0/24`、一斉切り替え、ER605 を先に導入）は採用済みで、[VLAN 設計](../../architecture/08-vlan-design.md)と ADR（[0004](../../adr/0004-vlan-cutover-all-at-once.md)、[0009](../../adr/0009-router-er605-first.md)、[0015](../../adr/0015-vlan-address-scheme-10-77.md)、[0022](../../adr/0022-vlan-set-and-ids.md)）が正。この文書の「ポートの割り当て」「作業の順序」「戻し方」は、まだ採用していない案。採用したら、設計書の該当箇所に移し、ここは設計書へのリンクに置き換える（[文書の運用](../../README.md#文書の運用)）。
+**状態: 検討中（未適用）。** 方針（段階の分け方、`10.77.<VLAN>.0/24`、一斉切り替え、ER605 を先に導入）は採用済みで、[第5章 ネットワーク](../../architecture/hld/05-network.md)と ADR（[0004](../../adr/0004-vlan-cutover-all-at-once.md)、[0009](../../adr/0009-router-er605-first.md)、[0015](../../adr/0015-vlan-address-scheme-10-77.md)、[0022](../../adr/0022-vlan-set-and-ids.md)）が正。この文書の「ポートの割り当て」「作業の順序」「戻し方」は、まだ採用していない案。採用したら、設計書の該当箇所に移し、ここは設計書へのリンクに置き換える（[文書の運用](../../README.md#文書の運用)）。
 
 **2026-11-09 に採用: 段階 3 では、管理系（Proxmox ホスト、`vm-omada`、ER605・SG2210P）を今の LAN に残し、VLAN10 への移行は「段階 3b」として別に行う**（[ADR-0028](../../adr/0028-defer-management-vlan10.md)）。リハーサルの C-2 で、機器がコントローラーの住所の変更に付いてこない見込みが強まったため。以下の「段階 3」は、この範囲で読む。
 
@@ -99,9 +99,9 @@ IP は変えない。Buffalo の Wi-Fi 設定は今のままなので、端末�
   <img alt="段階 3 の後の構成図（to-be）" src="../../diagrams/to-be-diagram/to-be-diagram.png">
 </picture>
 
-図（最終形。to-be）は `docs/diagrams/to-be-diagram/make-to-be-diagram.py` で生成する。現状の図は `docs/diagrams/as-is-diagram/`（HTML と PNG。ダーク版と単体の HTML は、同じディレクトリにある）。計画を直したら、この ASCII 図とスクリプトを合わせて直す。
+図（最終形。to-be）は `docs/diagrams/to-be-diagram/make-to-be-diagram.py` で生成する。現状の図は `docs/diagrams/as-is-diagram/`（HTML と PNG。ダーク版と単体の HTML は、同じディレクトリにある）。計画を直したら、この図とスクリプトを合わせて直す。
 
-各ホストの IP は、[IP アドレス一覧](../../architecture/09-ip-addresses.md#ホスト別の-ip)と [ADR-0025](../../adr/0025-address-octets-by-role.md) のとおり（役割ベース。2026-11-05 に決定）。
+各ホストの IP は、[IP アドレス一覧](../../architecture/lld/network/ip-addresses.md#ホスト別の-ip)と [ADR-0025](../../adr/0025-address-octets-by-role.md) のとおり（役割ベース。2026-11-05 に決定）。
 
 ### 段階 4 の後
 
@@ -154,7 +154,7 @@ AP を SG2210P の p7（PoE）に繋ぎ、SSID を 3 つ（Trusted / IoT / Guest
   - **適用すると、thin pool の過剰割当が 1.5 を超えてアラートが出た**（2026-11-03 に適用し、1.44 → 1.57）。2026-11-05 に、`vm-dev` の縮小と `vm-windows` の削除で解消した（約 1.05。[未着手の項目](01-backlog.md)）。
   - 適用する手順: `terraform apply -target='module.vm["vm-omada"]'`（**`-target` を付ける**。付けないと、手動起動の `vm-dev` も `running` にする差分が一緒に適用される）→ `make setup-omada` → 管理画面（初回は `ssh -L 8043:localhost:8043 vm-omada` で `https://localhost:8043`）で初期設定。
   - バックアップの保存先: **当面は Mac と iCloud Drive（決定 2026-11-03）**。暗号化はしない（運用者が、今の段階では厳密さを求めないと判断。バックアップには、コントローラーの設定と認証情報が入る）。コントローラーの自動バックアップは `/opt/omada/data/autobackup`（VM のローカルディスク）に出るので、そこから Mac に取り出して置く。Mac 以外（S3 など）にするかは検討中（[バックログ](01-backlog.md)）。Mac だけだと、Mac と `vm-omada` が同時に失われたときに戻せない。この間は、Mac と同時に壊れにくい別の場所への写しは、まだ無い。
-- [ ] `vm-omada` のホスト DNS と、バックアップ、監視（Prometheus の scrape、死活監視）を設計に加える。**文書と構成図の反映は済み（2026-11-03）**: [インフラ構成](../../architecture/02-infrastructure.md)の表と割当、[起動順序](../runbooks/01-vm-startup-shutdown.md)、[信頼性](../../architecture/04-reliability.md)、[システム概要](../../architecture/01-overview.md)の図、README、[ネットワーク設計](../../architecture/03-network.md)の IP 表と外部サービス（Omada Cloud）、[VLAN 設計](../../architecture/08-vlan-design.md)のリスク、構成図（SVG）。Prometheus の scrape 対象（`192.168.11.12:9100`）は、**2026-11-03 に追加して反映した**（`TargetDown` の対象。Omada の画面の外形監視は、`omada.lab.kanare.dev` を足したあと。[バックログ](01-backlog.md)）。**残り**: Caddy と DNS の `omada.lab.kanare.dev`、バックアップの保存先、ホスト DNS。反映の対象は次のとおり: `terraform.tfvars` の反映に合わせた[インフラ構成](../../architecture/02-infrastructure.md)の表と[起動順序](../runbooks/01-vm-startup-shutdown.md)、Prometheus の scrape 対象（`192.168.11.12:9100`）、Caddy と DNS の `omada.lab.kanare.dev`（段階 1 の「同じ変更で直すもの」）、構成図。あわせて、**Omada Cloud（コントローラーをクラウド経由で開く外部依存）を、[ネットワーク設計](../../architecture/03-network.md#外部サービスへの依存)の表と構成図の外部サービスに足す**（止まっても、コントローラーと LAN の通信には影響しない見込み。管理画面の外部到達の経路が 1 つ増えるので、[VLAN 設計](../../architecture/08-vlan-design.md#管理画面への外部到達リスクを受け入れる)のリスクの記述にも足す）。
+- [ ] `vm-omada` のホスト DNS と、バックアップ、監視（Prometheus の scrape、死活監視）を設計に加える。**文書と構成図の反映は済み（2026-11-03）**: [システム構成・環境](../../architecture/hld/01-system.md)の表と割当、[起動順序](../runbooks/01-vm-startup-shutdown.md)、[信頼性](../../architecture/hld/02-reliability.md)、[システム構成・環境](../../architecture/hld/01-system.md)の図、README、[ネットワーク](../../architecture/hld/05-network.md)の IP 表と外部サービス（Omada Cloud）、[第5章 ネットワーク](../../architecture/hld/05-network.md)のリスク、構成図（SVG）。Prometheus の scrape 対象（`192.168.11.12:9100`）は、**2026-11-03 に追加して反映した**（`TargetDown` の対象。Omada の画面の外形監視は、`omada.lab.kanare.dev` を足したあと。[バックログ](01-backlog.md)）。**残り**: Caddy と DNS の `omada.lab.kanare.dev`、バックアップの保存先、ホスト DNS。反映の対象は次のとおり: `terraform.tfvars` の反映に合わせた[システム構成・環境](../../architecture/hld/01-system.md)の表と[起動順序](../runbooks/01-vm-startup-shutdown.md)、Prometheus の scrape 対象（`192.168.11.12:9100`）、Caddy と DNS の `omada.lab.kanare.dev`（段階 1 の「同じ変更で直すもの」）、構成図。あわせて、**Omada Cloud（コントローラーをクラウド経由で開く外部依存）を、[ネットワーク](../../architecture/hld/05-network.md#外部サービスへの依存)の表と構成図の外部サービスに足す**（止まっても、コントローラーと LAN の通信には影響しない見込み。管理画面の外部到達の経路が 1 つ増えるので、[第5章 ネットワーク](../../architecture/hld/05-network.md#管理画面への外部到達リスクを受け入れる)のリスクの記述にも足す）。
 - [x] ケーブルを用意する（**2026-11-03 に用意済み**。ER605 と Proxmox 用、ER605 と SG2210P p1 用の短いケーブル）。
 - [x] 停止してよい時間帯を決める → **決めない（決定 2026-11-03）**。決まった時間帯は設けず、作業できるタイミングで行う。段階 1 は 30 分〜1 時間の見込みなので、その時間を続けて取れるときにする。開始する前に、「ここまでに終わらなければ戻す」という時刻だけ決める（[戻し方](#段階-12-の戻し方)）。
 
@@ -175,7 +175,7 @@ ER605 と SG2210P は同時に購入済みで、すでに繋いである（ER605
 見直しで見つかった抜けを、ここに集めた（2026-11-03）。
 
 - [x] **EasyMesh を無効にして、Wi-Fi の SSID が今のとおり効くか確認する（確認済み、バックアップも取得済み。2026-11-03）**（Buffalo はルーターモードのまま）。EasyMesh が有効だと、画面に「SSID1 と SSID2 の設定は反映されません」と出る（[WSR-1800AX4P の設定](../../hardware/wsr-1800ax4p/settings.md)）。AP モードに替えてから原因を探すと、切り分けが難しい。**2026-11-03 に無効にした。** 残りは、SSID が今のとおり効くかの確認と、本体のバックアップの取り直し（[Buffalo の設定](../../hardware/wsr-1800ax4p/settings.md)の変更履歴にも記録する）。
-- [x] **固定リース（`192.168.11.60`）は、ER605 に移さない（決定 2026-11-03）。** Buffalo の固定割り当ては 1 件ある。MAC の先頭（メーカーを示す部分）は Espressif で、今も無線で繋がっている。正体は、SwitchBot Hub 2 の可能性がある（未確認）。固定した理由は、運用者も覚えていない。Home Assistant は SwitchBot Cloud で繋いでいて、IP に依存しない（[Home Assistant](../../services/apps/home-assistant.md)）。**段階 1 のあと、この端末は DHCP の動的割り当てで、別のアドレスになる。** 固定が必要だと分かったら、VLAN 化のあとの新しいアドレス体系で、改めて固定する。
+- [x] **固定リース（`192.168.11.60`）は、ER605 に移さない（決定 2026-11-03）。** Buffalo の固定割り当ては 1 件ある。MAC の先頭（メーカーを示す部分）は Espressif で、今も無線で繋がっている。正体は、SwitchBot Hub 2 の可能性がある（未確認）。固定した理由は、運用者も覚えていない。Home Assistant は SwitchBot Cloud で繋いでいて、IP に依存しない（[Home Assistant](../../architecture/lld/apps/home-assistant.md)）。**段階 1 のあと、この端末は DHCP の動的割り当てで、別のアドレスになる。** 固定が必要だと分かったら、VLAN 化のあとの新しいアドレス体系で、改めて固定する。
 - [x] **Buffalo の WAN 側の MAC アドレスは、事前には控えない（決定 2026-11-03）。** 建物の共用ルーターが、壁の LAN ポートに繋がった機器の MAC アドレスを接続の条件にしていると、MAC が違う ER605 は IP を取れない（集合住宅の共用ネットワークで、最初に繋いだ機器の MAC を覚える例がある）。Buffalo は自分で買ったもので、可能性は低いと見る。**ER605 が IP を取れなかったときだけ**、ER605 の WAN の MAC の設定に、Buffalo の WAN の MAC を入れる（ER605 を Buffalo だと思わせるため）。そのとき MAC が分からなければ、Buffalo の画面か、本体のラベルで見る（Buffalo は手元に残るので、後からでも見られる。事前の準備は要らない）。
 - [x] **Buffalo の AP モードでの設定画面の入り方を決める（決定 2026-11-03）。** Buffalo の公式 FAQ の「エアステーション設定ツール」の手順は Windows だけで、Mac の手順は見つからなかった（[FAQ](https://www.buffalo.jp/support/faq/detail/129.html)）。Mac では、**ER605 の DHCP の貸出一覧（コントローラーのクライアント一覧）で Buffalo の IP を見て、ブラウザで開く**。AP モードの既定の IP は公式には書かれていない（第三者の記事では `192.168.11.100`。未確認）。
 - [x] **コントローラーの LAN の設定を、ER605 の今の設定に合わせる（2026-11-03 に実施済み。運用者の報告で、値は未確認）**（公式の手順: [How to add an Omada Gateway to the network? (Controller 4.4.3 or above)](https://support.omadanetworks.com/eg/document/13067/)）。公式の順序は、(1) コントローラーの Settings > Wired Networks > LAN で、LAN のゲートウェイ／サブネットを目的のものに変える（「Update DHCP range」を押して保存）、(2) ER605 をスタンドアロンで同じサブネットにする、(3) ルーターを入れ替える、(4) コントローラーで採用する。**(2) は済んでいるので、(1) が残っている。** 合わせる値は、LAN `192.168.11.1/24`、DHCP `.60`〜`.99`、リース 48 時間、DNS は `192.168.11.11` だけ。合わないと、採用が失敗する、または採用の直後に届かなくなる。採用前は LAN の編集ができないという報告がある（未確認）。編集できなかったときは、その画面の状態を記録して、手順を決め直す。採用には、**スタンドアロンで決めた管理者のアカウント**（Keychain の `homelab / er605 admin`）が要る。
@@ -216,12 +216,12 @@ ER605 と SG2210P は同時に購入済みで、すでに繋いである（ER605
 
 ### 同じ変更で直すもの
 
-[DNS 構成の「ルーターを付け替えるとき」](../../services/network/dns.md#ルーターを付け替えるとき)に従う。
+[DNS 構成の「ルーターを付け替えるとき」](../../architecture/lld/network/dns.md#ルーターを付け替えるとき)に従う。
 
 - `docker/compose/reverse-proxy/Caddyfile`: `router.lab.kanare.dev` を廃止し、`omada.lab.kanare.dev`（Omada コントローラーの管理画面。HTTPS、`tls_insecure_skip_verify`）を新設する（決定 2026-11-06）。
-- Homepage の Router タイルと `siteMonitor`、`docs/architecture/02-infrastructure.md` の機器表、`README.md`、`docs/architecture/01-overview.md` の構成図（ASCII と SVG）。
+- Homepage の Router タイルと `siteMonitor`、`docs/architecture/hld/01-system.md` の機器表と構成図、`README.md`（as-is の図）。
 - Prometheus の `blackbox_icmp`（`192.168.11.1` は ER605 の IP になるだけで、そのまま動く）。
-- [ネットワーク設計](../../architecture/03-network.md)の IP 表: `192.168.11.2` を Buffalo（AP モード、固定）として足す。
+- [ネットワーク](../../architecture/hld/05-network.md)の IP 表: `192.168.11.2` を Buffalo（AP モード、固定）として足す。
 
 ### 確認
 
@@ -263,7 +263,7 @@ ER605 と SG2210P は同時に購入済みで、すでに繋いである（ER605
   - **ホストの `vmbr0.10` を試す（リハーサル済み。2026-11-09。本番の `vmbr0.10` は段階 3b）**: ER605 に VLAN10 を作ったうえで、`vmbr0.10` に `10.77.10.10/24` を足し（旧 `192.168.11.10` は残す）、Mac から届くことを確かめる。届かなければ、`vmbr0.10` を外す。
   - 全 VM は、VLAN ID を指定する（`vm-omada` は、段階 3b まで、タグなし（VLAN1）を明示する）。
   - `bridge-vlan-aware` への変更は、物理コンソールから行う。
-- [x] **コードの準備**: 別ブランチで Terraform・Ansible・Caddyfile・Prometheus・Homepage・ドキュメントを新アドレスに書き換える（一覧は[設計書](../../architecture/08-vlan-design.md#影響を受けるリポジトリ内の箇所)）。`vlan_id` を Terraform の VM モジュールに追加する。**必須（既定値なし）にして、全 VM に指定する**（`vm-omada` は、段階 3b まで、タグなし（VLAN1）を明示する）。 UFW の許可元も、新しいアドレスに直す（`vm-infra` の 8043、`vm-monitoring` の 9100。`vm-omada` は段階 3 で動かさないので、**直し忘れやすい**。[ロードマップ 13](13-defer-management-vlan.md)）。（2026-11-17。実機に流した）
+- [x] **コードの準備**: 別ブランチで Terraform・Ansible・Caddyfile・Prometheus・Homepage・ドキュメントを新アドレスに書き換える（一覧は[設計書](10-er605-sg2210p-migration-plan.md)）。`vlan_id` を Terraform の VM モジュールに追加する。**必須（既定値なし）にして、全 VM に指定する**（`vm-omada` は、段階 3b まで、タグなし（VLAN1）を明示する）。 UFW の許可元も、新しいアドレスに直す（`vm-infra` の 8043、`vm-monitoring` の 9100。`vm-omada` は段階 3 で動かさないので、**直し忘れやすい**。[ロードマップ 13](13-defer-management-vlan.md)）。（2026-11-17。実機に流した）
 - [x] **Omada に本番設定を作る（有効にしない）**: VLAN 10/20/30/40/50/60/70、DHCP、mDNS、スイッチのポートプロファイル（ACL は、絞る日に作る）。画面で行う項目は、[Omada の本番設定の一覧](#omada-の本番設定の一覧段階-3-の準備画面操作)にある。（2026-11-11。下の一覧のとおり）
 - [x] **バックアップ**: Omada、Proxmox の `/etc/network/interfaces`、`terraform.tfstate`、Buffalo の設定を、Mac 以外にも保存する（Omada は当面 Mac だけ。[バックログ](01-backlog.md)）。（2026-11-11 と 2026-11-17。iCloud Drive）
 - [x] **戻しの手順**（下記）を書く。**戻す時刻は決めない（決定 2026-11-10、[ADR-0030](../../adr/0030-stage3-no-rollback-deadline.md)）**: 完了するまで作業する。作業中にインターネットが要るときは、建物（壁）の Wi-Fi に繋ぐ。（3-E に書いた）
@@ -271,7 +271,7 @@ ER605 と SG2210P は同時に購入済みで、すでに繋いである（ER605
 
 ### Omada の本番設定の一覧（段階 3 の準備。画面操作）
 
-3-A の「Omada に本番設定を作る」を、画面で行う項目に分けた。値は、設計書（[IP アドレス一覧](../../architecture/09-ip-addresses.md)、[VLAN 設計](../../architecture/08-vlan-design.md)）と、3-B の表が正。**今の LAN の通信を変えないものだけを、事前に作る。ポートの切り替えと、端末の移動は、当日にする。** ACL は、段階 3 の当日は作らず、絞る日に作る（[ADR-0029](../../adr/0029-stage3-acl-allow-all-then-tighten.md)）。
+3-A の「Omada に本番設定を作る」を、画面で行う項目に分けた。値は、設計書（[IP アドレス一覧](../../architecture/lld/network/ip-addresses.md)、[第5章 ネットワーク](../../architecture/hld/05-network.md)）と、3-B の表が正。**今の LAN の通信を変えないものだけを、事前に作る。ポートの切り替えと、端末の移動は、当日にする。** ACL は、段階 3 の当日は作らず、絞る日に作る（[ADR-0029](../../adr/0029-stage3-acl-allow-all-then-tighten.md)）。
 
 **1. ネットワーク（Settings > Wired Networks > LAN）**
 
@@ -311,7 +311,7 @@ ER605 と SG2210P は同時に購入済みで、すでに繋いである（ER605
 **5. 終わったあと**
 
 - [x] Omada のバックアップを取り直す（`omada_backup_...` と `sitebackup_...`。iCloud Drive。2026-11-11 21:48）。
-- [x] 設定書を、同じ変更で更新する: `docs/services/network/omada-controller.md`、`docs/hardware/er605/settings.md`、`docs/hardware/sg2210p/settings.md`（変更履歴に 1 行）。
+- [x] 設定書を、同じ変更で更新する: `docs/architecture/lld/network/omada-controller.md`、`docs/hardware/er605/settings.md`、`docs/hardware/sg2210p/settings.md`（変更履歴に 1 行）。
 - [x] 手順書の前提「Omada に本番の設定を作ってある」に印を付ける（[当日の手順書](../runbooks/21-network-cutover-stage-3.md)）。
 
 **決定（2026-11-11）**: Trusted のリースは 48 時間（今の ER605 と同じ。日常端末は入れ替わりが少ない）。DHCP 予約（`.50–.99`）は、段階 3 では作らない（Mac などは、プールのアドレスで困らない）。固定が要るテレビ・ESP32 は、段階 4 で IoT に移すときに予約する（MAC は台帳に書く）。
@@ -330,7 +330,7 @@ ER605 と SG2210P は同時に購入済みで、すでに繋いである（ER605
 | 60 | Guests | `10.77.60.1` | `.100–.199`（リース 4 時間） | `10.77.20.10` |
 | 70 | DMZ | `10.77.70.1` | なし | — |
 
-通信の許可は[通信ポリシー](../../architecture/08-vlan-design.md#通信ポリシー)の表のとおり。既定の LAN（VLAN1、`192.168.11.0/24`）は、切り替えが終わるまで旧ネットワークとして残す（切り替え中の戻り先と、機器への到達に使う）。**既定の LAN は、段階 3b まで、管理系（Proxmox ホスト、`vm-omada`、ER605・SG2210P）が使うので、DHCP を止めず、消さない**（[ADR-0028](../../adr/0028-defer-management-vlan10.md)）。VLAN10（Management）は、作ってあるが、段階 3b まで使わない。段階 3b のあとに、既定の LAN を消せるか確かめる。
+通信の許可は[通信ポリシー](../../architecture/hld/05-network.md#通信ポリシー)の表のとおり。既定の LAN（VLAN1、`192.168.11.0/24`）は、切り替えが終わるまで旧ネットワークとして残す（切り替え中の戻り先と、機器への到達に使う）。**既定の LAN は、段階 3b まで、管理系（Proxmox ホスト、`vm-omada`、ER605・SG2210P）が使うので、DHCP を止めず、消さない**（[ADR-0028](../../adr/0028-defer-management-vlan10.md)）。VLAN10（Management）は、作ってあるが、段階 3b まで使わない。段階 3b のあとに、既定の LAN を消せるか確かめる。
 
 **SG2210P（ポートプロファイル）**
 
@@ -357,7 +357,7 @@ ER605 と SG2210P は同時に購入済みで、すでに繋いである（ER605
 ### 3-C. 当日の作業
 
 1. 最終のバックアップを取る。`vm-dev` を止める。
-2. Omada: 本番の設定を有効にする（VLAN、DHCP。**ACL は全許可のまま**。[ADR-0029](../../adr/0029-stage3-acl-allow-all-then-tighten.md)）。SG2210P の p1・p3 を新しい設定にする。Buffalo は Trusted に入り、Wi-Fi の端末は `10.77.30.x` を受け取る。**Buffalo の IP は `192.168.11.2` のまま残るので、管理画面には Trusted から届かなくなる**（Wi-Fi の中継は、IP と関係なく動く）。落ち着いてから、Mac を Buffalo の LAN ポートに直接繋ぎ、Mac に `192.168.11.x` の固定 IP を一時的に振って画面を開き、Buffalo の IP を `10.77.30.50/24`（ゲートウェイ `10.77.30.1`、DNS `10.77.20.10`）に変える（決定 2026-11-10。[IP アドレス一覧](../../architecture/09-ip-addresses.md)のとおり）。
+2. Omada: 本番の設定を有効にする（VLAN、DHCP。**ACL は全許可のまま**。[ADR-0029](../../adr/0029-stage3-acl-allow-all-then-tighten.md)）。SG2210P の p1・p3 を新しい設定にする。Buffalo は Trusted に入り、Wi-Fi の端末は `10.77.30.x` を受け取る。**Buffalo の IP は `192.168.11.2` のまま残るので、管理画面には Trusted から届かなくなる**（Wi-Fi の中継は、IP と関係なく動く）。落ち着いてから、Mac を Buffalo の LAN ポートに直接繋ぎ、Mac に `192.168.11.x` の固定 IP を一時的に振って画面を開き、Buffalo の IP を `10.77.30.50/24`（ゲートウェイ `10.77.30.1`、DNS `10.77.20.10`）に変える（決定 2026-11-10。[IP アドレス一覧](../../architecture/lld/network/ip-addresses.md)のとおり）。
 3. （段階 3b に移した。段階 3 では行わない。）Proxmox（物理コンソールで）: `vmbr0` の IP を外し、タグ付きの `vmbr0.10` に `10.77.10.10/24`（GW `10.77.10.1`）を設定して、ネットワークを再起動する。p2 は 3-A のまま（untagged VLAN1、tagged 10/20/40/50/70）で、スイッチ側の変更は要らない。
 4. （段階 3b に移した。`vm-omada` は `192.168.11.12` のまま。）`vm-omada` を `10.77.10.3` にする。ER605・SG2210P が追従することを確かめる。
 5. `terraform apply` で VM の IP と VLAN を変える（`vm-omada` は変えない）。**`vm-infra` を最初にする**（DNS を先に戻す）。今の LAN の DHCP が配る DNS は、ルーター（`192.168.11.1`）にする（決定。[ADR-0028](../../adr/0028-defer-management-vlan10.md)。Wi-Fi の端末が Trusted に移ったあとに変える。今は、Wi-Fi の端末が AdGuard を外れるので、変えない）。

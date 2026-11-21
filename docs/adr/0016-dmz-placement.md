@@ -5,7 +5,7 @@
 
 ## 背景
 
-ハニーポットや公開用の Web サーバーなど、外部に触れるものを置く場所として、DMZ の VLAN を足したい（[DMZ と外部公開](../operations/roadmap/07-dmz.md)）。Proxmox ホスト（ThinkCentre）の NIC は 1 つで、DMZ の VM は同じ VLAN-aware ブリッジに載る。VLAN 分離だけでは、ホスト自体が侵害されるリスクは消えない。また、管理画面（Omada、Proxmox）は現在、Tailscale と Caddy 経由で外出先から届く（[ADR 0005](0005-tailscale-only-remote-access.md)、[VLAN 設計](../architecture/08-vlan-design.md#管理画面への外部到達リスクを受け入れる)）。
+ハニーポットや公開用の Web サーバーなど、外部に触れるものを置く場所として、DMZ の VLAN を足したい（[DMZ と外部公開](../operations/roadmap/07-dmz.md)）。Proxmox ホスト（ThinkCentre）の NIC は 1 つで、DMZ の VM は同じ VLAN-aware ブリッジに載る。VLAN 分離だけでは、ホスト自体が侵害されるリスクは消えない。また、管理画面（Omada、Proxmox）は現在、Tailscale と Caddy 経由で外出先から届く（[ADR 0005](0005-tailscale-only-remote-access.md)、[第5章 ネットワーク](../architecture/hld/05-network.md#管理画面への外部到達リスクを受け入れる)）。
 
 ## 決定
 
@@ -31,4 +31,4 @@
 - 外部に公開する前に、別の機器に移すかどうかを再検討する。同じホストで公開する場合は、新しい ADR に、リスクを受け入れたことを記録する。
 - 公開用の Web サーバーを Cloudflare Tunnel で公開するときは、ADR 0005 を置き換える新しい ADR を追加する。
 
-詳細: [DMZ と外部公開](../operations/roadmap/07-dmz.md)、[VLAN 設計](../architecture/08-vlan-design.md)
+詳細: [DMZ と外部公開](../operations/roadmap/07-dmz.md)、[第5章 ネットワーク](../architecture/hld/05-network.md)

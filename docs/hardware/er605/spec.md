@@ -1,6 +1,6 @@
 # TP-Link ER605 V2.30
 
-Omada のギガビット VPN ルーター（ゲートウェイ）。移行では、Buffalo に替わって家の入口のルーターになり、VLAN のゲートウェイ・DHCP・ACL を担う。公式の資料へのリンクと、データシートの仕様をまとめる。移行の手順は[ER605・SG2210P の移行計画](../../operations/roadmap/10-er605-sg2210p-migration-plan.md)、VLAN の設計は[VLAN 設計](../../architecture/08-vlan-design.md)、ルーターを選んだ判断は[ADR-0009](../../adr/0009-router-er605-first.md)にある。
+Omada のギガビット VPN ルーター（ゲートウェイ）。移行では、Buffalo に替わって家の入口のルーターになり、VLAN のゲートウェイ・DHCP・ACL を担う。公式の資料へのリンクと、データシートの仕様をまとめる。移行の手順は[ER605・SG2210P の移行計画](../../operations/roadmap/10-er605-sg2210p-migration-plan.md)、VLAN の設計は[第5章 ネットワーク](../../architecture/hld/05-network.md)、ルーターを選んだ判断は[ADR-0009](../../adr/0009-router-er605-first.md)にある。
 
 > [!NOTE]
 > 確認日は 2026-11-03。購入したのは **ER605 V2.30**。**底面のラベルは `UN` / `2.30` だが、出荷時のファームウェアは日本向け（JP）版**（2.2.8 Build 20260128 Rel.11283）で、更新に使えるのも JP 版のファイルだけ（[ファームウェアの更新](#ファームウェアの更新解決済み)）。仕様は、公式サイトで最新のデータシート（2025-09-02 掲載、グローバル版の V2.2）による。JP 版 V2.30 のデータシートは、見つけられなかった。同じ V2 系なので、数値は近いと見るが、差は未確認。数値は原文のまま載せている。
@@ -30,7 +30,7 @@ Omada のギガビット VPN ルーター（ゲートウェイ）。移行では
 | グローバル版（UN）との違い | UN 版の最新は 2.4.10 Build 20260916。**JP 版の個体に、UN 版のファイルは入れられない**（検証で拒否される）。JP 版は、UN 版より遅れて公開される |
 | 更新条件（JP 版 2.4.2） | 更新元は 2.2.8 Build 20260128 Rel.11283 以降（リリースノート） |
 | コントローラーとの対応 | JP 版 2.4.2 のリリースノートの推奨は 6.2.0.17。`vm-omada` は 6.3.0.111 で、採用と更新に問題はなかった。ER605 が動く最低のコントローラーの版は、公式の資料に見つけられなかった |
-| 動作モード | スタンドアロン（本体の GUI で設定）とコントローラーモード（Omada で設定）。**コントローラーに採用すると、本体の GUI は使えなくなる**（[VLAN 設計](../../architecture/08-vlan-design.md)） |
+| 動作モード | スタンドアロン（本体の GUI で設定）とコントローラーモード（Omada で設定）。**コントローラーに採用すると、本体の GUI は使えなくなる**（[第5章 ネットワーク](../../architecture/hld/05-network.md)） |
 
 JP 版 2.4.2 の新機能: V6plus/DS-Lite のダイヤルアップ、DHCP サーバーの IP プールの複数範囲、コントローラーでの DHCP クライアント一覧の表示、コントローラーから切断したときの本体 UI での設定、SIP ALG のポート設定。
 
@@ -126,10 +126,10 @@ JP 版 2.4.2 の新機能: V6plus/DS-Lite のダイヤルアップ、DHCP サー
 
 | 論点 | データシートから分かること |
 | --- | --- |
-| ポート数 | WAN × 1、LAN/WAN × 2、LAN × 2。WAN を 1 つ使っても、LAN は 3 つ以上確保できる（[VLAN 設計](../../architecture/08-vlan-design.md)）。移行計画では、LAN の 1 本を SG2210P の p1（trunk）に使う。段階 1 の間は、Proxmox と Buffalo も ER605 の LAN に繋ぐ |
+| ポート数 | WAN × 1、LAN/WAN × 2、LAN × 2。WAN を 1 つ使っても、LAN は 3 つ以上確保できる（[第5章 ネットワーク](../../architecture/hld/05-network.md)）。移行計画では、LAN の 1 本を SG2210P の p1（trunk）に使う。段階 1 の間は、Proxmox と Buffalo も ER605 の LAN に繋ぐ |
 | 回線の速度 | NAT のスループットが約 940 Mbps で、家の回線（下り約 530 Mbps、上り約 600 Mbps）に足りる（[ADR-0009](../../adr/0009-router-er605-first.md)） |
-| mDNS の中継 | mDNS リピーターに対応。Trusted ↔ IoT の中継に使う。必要なコントローラーの版（ゲートウェイの mDNS は v5.6 以降）は[VLAN 設計](../../architecture/08-vlan-design.md)の未決事項にある |
-| VLAN 間の通信の制限 | ステートフル ACL と IP ベースのアクセス制御に対応。コントローラーモードの Gateway ACL で、LAN → LAN を制限できるかは、実機で確認する（[VLAN 設計](../../architecture/08-vlan-design.md)の未決事項） |
+| mDNS の中継 | mDNS リピーターに対応。Trusted ↔ IoT の中継に使う。必要なコントローラーの版（ゲートウェイの mDNS は v5.6 以降）は[第5章 ネットワーク](../../architecture/hld/05-network.md)の未決事項にある |
+| VLAN 間の通信の制限 | ステートフル ACL と IP ベースのアクセス制御に対応。コントローラーモードの Gateway ACL で、LAN → LAN を制限できるかは、実機で確認する（[第5章 ネットワーク](../../architecture/hld/05-network.md)の未決事項） |
 | IPv6 | 本機は対応するが、家では IPv6 を無効にする方針（[ADR-0017](../../adr/0017-ipv6-disabled.md)） |
 | VPN | Tailscale を使うので、本機の VPN 機能は使わない。参考までに、WireGuard は 82.62 Mbps |
 | ポートミラーリング | 管理機能にポートミラーリングの記載があるが、使える範囲は未確認。通信の取得は、SG2210P のミラーリングを第一候補にしている（[ネットワーク通信の収集・可視化](../../operations/roadmap/06-network-traffic-analysis.md)） |

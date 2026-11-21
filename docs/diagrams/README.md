@@ -14,7 +14,7 @@
 
 ### to-be の構成図: VLAN 化のあと（`to-be-diagram/`）
 
-ER605 と SG2210P を入れて VLAN に分けた**最終形（to-be）**。管理系も VLAN10 に移した、段階 3b の後の構成。VLAN ごとのアドレス、スイッチのポートの割り当て、通信ポリシーの要約。内容は [ER605・SG2210P の移行計画](../operations/roadmap/10-er605-sg2210p-migration-plan.md)の「段階 3 の後」と [VLAN 設計](../architecture/08-vlan-design.md)による。**目指す姿として、計画・設計が変わったときに、随時更新する。** 現状（as-is）は、次の「現状の構成図」で、この図を追いかける。**本体は、生成スクリプト [`to-be-diagram/make-to-be-diagram.py`](to-be-diagram/make-to-be-diagram.py)**（座標と文字を持つ）。HTML と PNG は、そこから書き出す。
+ER605 と SG2210P を入れて VLAN に分けた**最終形（to-be）**。管理系も VLAN10 に移した、段階 3b の後の構成。VLAN ごとのアドレス、スイッチのポートの割り当て、通信ポリシーの要約。内容は [ER605・SG2210P の移行計画](../operations/roadmap/10-er605-sg2210p-migration-plan.md)の「段階 3 の後」と [第5章 ネットワーク](../architecture/hld/05-network.md)による。**目指す姿として、計画・設計が変わったときに、随時更新する。** 現状（as-is）は、次の「現状の構成図」で、この図を追いかける。**本体は、生成スクリプト [`to-be-diagram/make-to-be-diagram.py`](to-be-diagram/make-to-be-diagram.py)**（座標と文字を持つ）。HTML と PNG は、そこから書き出す。
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="to-be-diagram/to-be-diagram-dark.png">
@@ -55,7 +55,7 @@ ER605 と SG2210P を入れて VLAN に分けた**最終形（to-be）**。管�
 ダーク版は [`as-is-diagram-dark.png`](as-is-diagram/as-is-diagram-dark.png)、単体の HTML は [`as-is-diagram.html`](as-is-diagram/as-is-diagram.html)。
 
 - スクリプト（`make-as-is-diagram.py`）は、`to-be-diagram/make-to-be-diagram.py` を写して、配置と文字を現状に合わせたもの。部品と見た目の決まりは同じ。実機を変えたら（IP、VLAN、ポート）、スクリプトの「配置」を直して、`python3 docs/diagrams/as-is-diagram/make-as-is-diagram.py --png` を実行する。
-- 内容の正は、[IP アドレス一覧](../architecture/09-ip-addresses.md)と、`docs/hardware/*/settings.md`。食い違ったら、文書のほうが正。
+- 内容の正は、[IP アドレス一覧](../architecture/lld/network/ip-addresses.md)と、`docs/hardware/*/settings.md`。食い違ったら、文書のほうが正。
 - **段階 3b（管理系を VLAN10 へ）が済んだら、現状と to-be が同じになるので、このディレクトリごと削除する。**
 
 ### stack-diagram で描いた構成図の例（`stack-diagram-example/`）

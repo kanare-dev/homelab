@@ -76,7 +76,7 @@ Mac を p6 に繋ぎ、`https://10.77.10.3:8043`（サイトのビュー `kanare
 ## 6. 後始末
 
 - [ ] `vm-omada` の UFW から、`10.77.1.1`（ER605 の今の LAN の住所）の許可を消す（`ansible/inventory/group_vars/omada/vars.yml`。ER605 の送信元が、`10.77.10.1`（`10.77.10.0/24` の許可の中）になったため）。
-- [ ] 文書を直す: [VLAN 設計](../../architecture/08-vlan-design.md)、[IP アドレス一覧](../../architecture/09-ip-addresses.md)、[ER605 の設定](../../hardware/er605/settings.md)、[SG2210P の設定](../../hardware/sg2210p/settings.md)（ポート表）、[Omada コントローラー](../../services/network/omada-controller.md)、[システム全体像](../../architecture/01-overview.md)、`README.md`。ロードマップ 13、ADR-0032 のステータスを「採用（実施済み）」に。
+- [ ] 文書を直す: [第5章 ネットワーク](../../architecture/hld/05-network.md)、[IP アドレス一覧](../../architecture/lld/network/ip-addresses.md)、[ER605 の設定](../../hardware/er605/settings.md)、[SG2210P の設定](../../hardware/sg2210p/settings.md)（ポート表）、[Omada コントローラー](../../architecture/lld/network/omada-controller.md)、[システム構成・環境](../../architecture/hld/01-system.md)、`README.md`。ロードマップ 13、ADR-0032 のステータスを「採用（実施済み）」に。
 - [ ] as-is の構成図を直す（VLAN1 のゾーンを無くし、ER605 の住所を `10.77.10.1`、p2 の native を `Blackhole` に）。**as-is の構成図は、削除しない**（常に実機の状態を表す）。to-be の構成図（`to-be-diagram/`）も、ADR-0032 の最終形（VLAN1 なし、p2 の native `Blackhole`、p6 の緊急用の入口）に合わせて、更新する。
 
 ## 戻し方
@@ -119,5 +119,5 @@ Mac を p6 に繋ぎ、`https://10.77.10.3:8043`（サイトのビュー `kanare
 ### 後始末（2026-11-20 に実施）
 
 - `vm-omada` の UFW から、`10.77.1.1` の許可を消した（Ansible。ER605 の接続は、`10.77.10.0/24` の許可の中で、そのまま繋がっている）。
-- 文書: [ER605 の設定](../../hardware/er605/settings.md)、[SG2210P の設定](../../hardware/sg2210p/settings.md)、[Omada コントローラー](../../services/network/omada-controller.md)、[VLAN 設計](../../architecture/08-vlan-design.md)、[IP アドレス一覧](../../architecture/09-ip-addresses.md)、[システム全体像](../../architecture/01-overview.md)、[インフラ](../../architecture/02-infrastructure.md)、ロードマップ 13、ADR-0032（実施済み）。構成図も直した。
+- 文書: [ER605 の設定](../../hardware/er605/settings.md)、[SG2210P の設定](../../hardware/sg2210p/settings.md)、[Omada コントローラー](../../architecture/lld/network/omada-controller.md)、[第5章 ネットワーク](../../architecture/hld/05-network.md)、[IP アドレス一覧](../../architecture/lld/network/ip-addresses.md)、[システム構成・環境](../../architecture/hld/01-system.md)、[システム構成・環境](../../architecture/hld/01-system.md)、ロードマップ 13、ADR-0032（実施済み）。構成図も直した。
 - 残り（未確認）: `Blackhole` の確認（p2 にタグなしの VM を繋いだとき、どこにも出られないこと）。Trusted（`10.77.30.1`）が ping に応えない件（ICMP の仕様の可能性。端末の通信は、確認する）。ER605 のクラウド管理を無効にする。ER605 の管理者のパスワードを、台帳に控える。

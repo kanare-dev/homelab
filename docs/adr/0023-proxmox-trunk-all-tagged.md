@@ -7,7 +7,7 @@
 
 ## 背景
 
-[VLAN 設計](../architecture/08-vlan-design.md)の初版は、SG2210P の Proxmox 向けポート（p2）を、Management を native（untagged）、そのほかの VLAN をタグ付きにする trunk としていた。Proxmox ホストは `vmbr0` に直接 IP を付け、ホストが落ちたときに、タグなしで届くようにするためだった。
+[第5章 ネットワーク](../architecture/hld/05-network.md)の初版は、SG2210P の Proxmox 向けポート（p2）を、Management を native（untagged）、そのほかの VLAN をタグ付きにする trunk としていた。Proxmox ホストは `vmbr0` に直接 IP を付け、ホストが落ちたときに、タグなしで届くようにするためだった。
 
 [移行計画](../operations/roadmap/10-er605-sg2210p-migration-plan.md)の検討で、次の問題が見えた。
 
@@ -41,4 +41,4 @@ p2 は、**通す VLAN のすべてをタグ付き**にする（「全 VLAN」�
 - Terraform の VM モジュールに `vlan_id` を必須で追加する。既存の VM は、切り替え当日に、VLAN ID を指定して適用する。
 - ホストが届かなくなる事故が繰り返される場合は、native に戻す（新しい ADR で置き換える）。
 
-詳細: [VLAN 設計](../architecture/08-vlan-design.md#配置の方針)
+詳細: [第5章 ネットワーク](../architecture/hld/05-network.md#配置の方針)

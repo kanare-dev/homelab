@@ -7,7 +7,7 @@
 | 内容 | 参照先 |
 | --- | --- |
 | ルーターは ER605 を先に、OPNsense は後にする判断 | [ADR 0009](../../adr/0009-router-er605-first.md) |
-| VLAN・アドレスの設計（OPNsense の扱いは「未決事項」） | [VLAN 設計](../../architecture/08-vlan-design.md) |
+| VLAN・アドレスの設計（OPNsense の扱いは「未決事項」） | [第5章 ネットワーク](../../architecture/hld/05-network.md) |
 
 ## 目的
 

@@ -34,4 +34,4 @@ ADR 0003 は `10.<VLAN ID>.0.0/24`（例: Servers は `10.20.0.0/24`）と決め
 - VLAN 設計、通信ポリシー、Tailscale の広告範囲（`10.77.20.0/24`）、Terraform、Ansible、DNS、Caddy、Prometheus に書いた IP は、段階 3 でアドレスを付け替えるときに、まとめて直す。
 - k3s の既定のアドレス（`10.42.0.0/16` と `10.43.0.0/16`）とは重ならない。
 
-詳細: [VLAN 設計](../architecture/08-vlan-design.md#設計判断と根拠)
+詳細: [第5章 ネットワーク](../architecture/hld/05-network.md)
