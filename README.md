@@ -6,8 +6,8 @@
 </p>
 
 <p align="center">
-  Proxmox 上の homelab を、Terraform、Ansible、Docker Compose で、再現できるように運用しています。<br>
-  24GB RAM の ThinkCentre Tiny 1 台の上で、DNS、リバースプロキシ、監視、リモート開発環境を常時動かしています。
+  Proxmox 上の homelab を、Terraform、Ansible、Docker Compose で、再現できるように運用している。<br>
+  24GB RAM の ThinkCentre Tiny 1 台の上で、DNS、リバースプロキシ、監視、リモート開発環境を常時動かしている。
 </p>
 
 <p align="center">
@@ -41,15 +41,15 @@
 
 ## 特徴
 
-- **3 層 DNS**: AdGuard Home（フィルタリング）→ CoreDNS（`lab.kanare.dev` の権威）/ Unbound（ルートからの再帰解決）。1.1.1.1 などの外部リゾルバに依存しない（[DNS 構成](docs/architecture/lld/network/dns.md)）
-- **正規の TLS 証明書**: Caddy が Cloudflare DNS-01 で Let's Encrypt の証明書を取得し、LAN 内でも警告なしで HTTPS（[リバースプロキシと TLS](docs/architecture/lld/network/reverse-proxy-tls.md)）
-- **二重 NAT でも外出先から接続**: Tailscale を subnet router として動かし、split DNS で `lab.kanare.dev` を引く（[ネットワーク](docs/architecture/hld/05-network.md)）
-- **機密情報管理**: SOPS + age で暗号化して Git に置く。CI で gitleaks と暗号化漏れを検査する（[セキュリティ](docs/architecture/hld/06-security.md)）
-- **可観測性**: Prometheus + Alertmanager で、容量枯渇・VM 停止・OOM などを検知して Slack に通知する（[監視・アラート](docs/architecture/lld/platform/monitoring.md)）
+- **3 層の DNS**: AdGuard Home が広告などをフィルタリングし、`lab.kanare.dev` の問い合わせは CoreDNS に、それ以外は Unbound に渡す。Unbound はルートから再帰解決するので、1.1.1.1 などの外部リゾルバに依存しない（[DNS 構成](docs/architecture/lld/network/dns.md)）。
+- **正規の TLS 証明書**: Caddy が Cloudflare DNS-01 で Let's Encrypt の証明書を取得する。LAN の中でも、警告なしで HTTPS にアクセスできる（[リバースプロキシと TLS](docs/architecture/lld/network/reverse-proxy-tls.md)）。
+- **二重 NAT でも外出先から接続**: Tailscale を subnet router として動かし、split DNS で `lab.kanare.dev` を引く（[ネットワーク](docs/architecture/hld/05-network.md)）。
+- **機密情報の管理**: SOPS + age で暗号化して Git に置く。CI では、gitleaks で秘密の混入を、別の検査で暗号化漏れを調べる（[セキュリティ](docs/architecture/hld/06-security.md)）。
+- **可観測性**: Prometheus と Alertmanager が、容量の枯渇、VM の停止、OOM などを検知して Slack に通知する（[監視・アラート](docs/architecture/lld/platform/monitoring.md)）。
 
 ## 構成
 
-上の図は、As-Isの構成。To-Beは[to-be の構成図](docs/diagrams/to-be-diagram/to-be-diagram.png)、配線は[物理構成図](docs/diagrams/physical-diagram/physical-diagram.png)にある。詳細は [システム構成・環境](docs/architecture/hld/01-system.md) を参照。
+上の図は、現状（As-Is）の構成を表している。最終形（To-Be）は [to-be の構成図](docs/diagrams/to-be-diagram/to-be-diagram.png)に、配線は[物理構成図](docs/diagrams/physical-diagram/physical-diagram.png)に載せている。詳しくは[システム構成・環境](docs/architecture/hld/01-system.md)を参照。
 
 | ホスト名 | VMID | IP | 状態 | 役割 | 主なサービス |
 | --- | --- | --- | --- | --- | --- |
@@ -125,7 +125,7 @@ dig @10.77.20.10 grafana.lab.kanare.dev
 
 ## ライセンス
 
-コードと文書は [MIT](LICENSE)。次のものは、対象外です。
+コードと文書は [MIT](LICENSE)。次のものは、対象外である。
 
 - **ロゴ**（`assets/logo/`）: すべての権利は、作者にある。このリポジトリを参考にするときは、自分のものとして使わないこと（生成スクリプト `make-logo.py` は、MIT）。
 - **第三者の資料**: メーカーの公式資料の引用や要約（`docs/architecture/lld/hardware/<型番>.md` など）は、それぞれの権利者のもの。
