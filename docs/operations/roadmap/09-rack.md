@@ -2,13 +2,13 @@
 
 [ロードマップ](README.md)の大型計画である。10 インチラックを買い、ThinkCentre M70q（Proxmox）、ER605、SG2210P を載せる。機器を固定するマウントは、3D プリントで作る。自宅に 3D プリンターはないので、印刷は業者に頼むか、Etsy で印刷済みの品を買う。ケーブルの整理には、パッチパネルを使う。ラックは、候補を選んだ段階で、まだ購入しておらず、着手もしていない。
 
-詳しい内容は `docs/hardware/future/rack-10inch/` にある。この文書には、進める順序とチェック項目だけを書く。
+詳しい内容は `docs/architecture/lld/hardware/future/rack-10inch/` にある。この文書には、進める順序とチェック項目だけを書く。
 
 | 内容 | 参照先 |
 | --- | --- |
-| 採用したモデル、実機での報告、ライセンスの判断、ラックの候補と相性 | [10 インチラックマウント](../../hardware/future/rack-10inch/README.md) |
-| 印刷業者の比較、選び方、素材・造形方式の注意点 | [印刷の依頼先と、素材・造形方式の注意点](../../hardware/future/rack-10inch/printing-services.md) |
-| STL と出所（作者・ライセンス・SHA-256） | [models/](../../hardware/future/rack-10inch/models/README.md) |
+| 採用したモデル、実機での報告、ライセンスの判断、ラックの候補と相性 | [10 インチラックマウント](../../architecture/lld/hardware/future/rack-10inch/README.md) |
+| 印刷業者の比較、選び方、素材・造形方式の注意点 | [印刷の依頼先と、素材・造形方式の注意点](../../architecture/lld/hardware/future/rack-10inch/printing-services.md) |
+| STL と出所（作者・ライセンス・SHA-256） | [models/](../../architecture/lld/hardware/future/rack-10inch/models/README.md) |
 | 機器の選定（SG2210P を選んだ理由と版数の注意） | [ER605・SG2210P の移行計画](10-er605-sg2210p-migration-plan.md) |
 | VM の停止・起動の順序 | [VM 自動起動・停止](../runbooks/01-vm-startup-shutdown.md) |
 
@@ -36,7 +36,7 @@
 
 ### Phase 1: 方式の決定とラックの購入
 
-- [ ] ラックの機種を決める。候補は DeskPi RackMate T1（8U、税込 21,999 円）。4U の T0 とも比べる（[候補と相性](../../hardware/future/rack-10inch/README.md#ラックの候補)）
+- [ ] ラックの機種を決める。候補は DeskPi RackMate T1（8U、税込 21,999 円）。4U の T0 とも比べる（[候補と相性](../../architecture/lld/hardware/future/rack-10inch/README.md#ラックの候補)）
 - [ ] ラックのネジの規格（M5 か #10-32）と付属品を確認する。足りないネジは別に買う
 - [ ] 電源の置き場所を決める（M70q、ER605、SG2210P は AC アダプター。ラックに電源タップ用の棚は無い）
 - [ ] ラックを購入する
@@ -72,7 +72,7 @@
 - [ ] ケーブルの長さと取り回しを整える（M70q の背面の LAN からキーストーンまで、約 30 cm）
 - [ ] 通気を確認する（ラックの後ろに 10 cm 程度の空間、M70q の発熱）
 - [ ] 設計書・構成図を更新する（物理設置の未決事項を決定に変える。必要なら ADR に残す）
-- [ ] 使った業者、素材、金額、合わなかった点を `docs/hardware/future/rack-10inch/` に記録する
+- [ ] 使った業者、素材、金額、合わなかった点を `docs/architecture/lld/hardware/future/rack-10inch/` に記録する
 - [ ] 完了したら [02-completed.md](02-completed.md) に一行残し、01 の項目を消す
 
 ## 費用の目安

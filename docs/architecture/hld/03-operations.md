@@ -70,7 +70,7 @@
 
 #### B. ルーターの交換
 
-- VLAN とアドレスの体系（[第5章 ネットワーク](05-network.md)）はルーターの LAN 側で決まるので、新しいルーターにも、同じ VLAN とアドレスを設定する。設定の記録は、[ER605 の設定](../../hardware/er605/settings.md)と [Omada コントローラー](../lld/network/omada-controller.md)にある。
+- VLAN とアドレスの体系（[第5章 ネットワーク](05-network.md)）はルーターの LAN 側で決まるので、新しいルーターにも、同じ VLAN とアドレスを設定する。設定の記録は、[ER605 の設定](../lld/network/omada-controller.md#er605ルーター)と [Omada コントローラー](../lld/network/omada-controller.md)にある。
 - ルーターだけを付け替える場合（IP が変わるとき）は、[DNS 構成](../lld/network/dns.md#ルーターを付け替えるとき)を参照してほしい。
 
 #### C. 引っ越し（上流ネットワークが変わる）

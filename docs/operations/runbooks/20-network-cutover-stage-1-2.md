@@ -12,7 +12,7 @@ Buffalo を ER605 に交換し、Buffalo を AP（ブリッジ）モードにし
 
 - [x] `vm-omada` が動いていて、コントローラーの画面に入れる（`ssh -L 8043:localhost:8043 vm-omada` のあと `https://localhost:8043`）
 - [x] コントローラーの LAN の設定が、ER605 の LAN（`192.168.11.1/24`）に合っている（[Omada コントローラー](../../architecture/lld/network/omada-controller.md)）
-- [x] ER605 が、スタンドアロンで設定済み（LAN `192.168.11.1/24`、DHCP `.60`〜`.99`・リース 48 時間・DNS `192.168.11.11` だけ。[ER605 の設定](../../hardware/er605/settings.md)）
+- [x] ER605 が、スタンドアロンで設定済み（LAN `192.168.11.1/24`、DHCP `.60`〜`.99`・リース 48 時間・DNS `192.168.11.11` だけ。[ER605 の設定](../../architecture/lld/network/omada-controller.md#er605ルーター)）
 - [x] Buffalo の設定のバックアップ（`wsr-1800ax4p-bk-YYYYMMDD.bin`）と、コントローラーのバックアップがある（iCloud Drive）。EasyMesh は無効にしてある
 - [x] 短いケーブルが 2 本ある（ER605 p2 ↔ SG2210P p1 は接続済み、SG2210P p2 ↔ Proxmox は SG2210P 側だけ挿してある）。長いケーブル A・B・C は、今の配線のまま
 - [x] 手元に、物理コンソール（キーボードとモニター。Proxmox に繋ぐ）と、Mac（有線で繋げる口）がある
@@ -76,7 +76,7 @@ SG2210P、Proxmox、Buffalo を繋ぐ**前**に、ER605 単体で動くことを
 Mac を p3 から外し、次の順で付け替える。ケーブルの両端にラベルを貼る（`ER605-LAN1` など）。
 
 1. **Proxmox**: SG2210P の p2 に挿してある短いケーブルの、Proxmox 側の端を、Proxmox に挿す。
-2. **Buffalo**: ケーブル B の Proxmox 側の端を外し、SG2210P の p3 に挿す（Buffalo 側の端は、そのまま）。Buffalo の接続先のポートは、取扱説明書に指定がなく、公式 FAQ では AP モードで INTERNET も LAN として動く（[Buffalo の資料](../../hardware/wsr-1800ax4p/spec.md)）。計画と物理構成図では INTERNET ポートにしている。
+2. **Buffalo**: ケーブル B の Proxmox 側の端を外し、SG2210P の p3 に挿す（Buffalo 側の端は、そのまま）。Buffalo の接続先のポートは、取扱説明書に指定がなく、公式 FAQ では AP モードで INTERNET も LAN として動く（[Buffalo の資料](../../architecture/lld/hardware/wsr-1800ax4p.md)）。計画と物理構成図では INTERNET ポートにしている。
 3. **メインディスプレイ**（Dell U2725QE）: ケーブル C の Buffalo 側の端を外し、SG2210P の p4 に挿す。
 
 | 区間 | ケーブル |
@@ -119,7 +119,7 @@ Buffalo の IP を調べて、ブラウザで開く。AP モードにすると�
 
 ## 8. SG2210P を採用する
 
-1. コントローラーで、SG2210P を採用する。**ファームウェアの更新は、手順 9 の確認が通ってからにする**（再起動で全ポートが一時的に止まり、Proxmox のリンクも切れる。ファイルの地域は、コントローラーに表示される今の版に合わせる。ER605 では、地域の違う UN 版が拒否された）。更新したら、Proxmox のリンクと e1000e を物理コンソールで確認し、版を [SG2210P の設定](../../hardware/sg2210p/settings.md)に書く。
+1. コントローラーで、SG2210P を採用する。**ファームウェアの更新は、手順 9 の確認が通ってからにする**（再起動で全ポートが一時的に止まり、Proxmox のリンクも切れる。ファイルの地域は、コントローラーに表示される今の版に合わせる。ER605 では、地域の違う UN 版が拒否された）。更新したら、Proxmox のリンクと e1000e を物理コンソールで確認し、版を [SG2210P の設定](../../architecture/lld/network/omada-controller.md#sg2210pスイッチ)に書く。
 2. ポートの割り当てを設定する（VLAN なしなので、全ポートが既定の VLAN）。
 
    | ポート | 接続先 | 備考 |
@@ -154,7 +154,7 @@ Buffalo の IP を調べて、ブラウザで開く。AP モードにすると�
    - Homepage の Router タイルと `siteMonitor`（`docker/compose/homepage/config/services.yaml`）。
    - `docs/architecture/hld/01-system.md` の機器表と構成図、`README.md`（as-is の図）。
    - [IP アドレス一覧](../../architecture/lld/network/ip-addresses.md): `192.168.11.2` を Buffalo（AP モード、固定）として確認する。
-3. **機器の設定文書の「未確認」を埋める**: [ER605](../../hardware/er605/settings.md)（p2 が LAN として動くか、上流が MAC で絞っていたか、採用後の値）、[SG2210P](../../hardware/sg2210p/settings.md)（標準の設定でスイッチとして動いたか）、[Buffalo](../../hardware/wsr-1800ax4p/settings.md)（AP モードでの IP と入り方、SSID が残ったか）。変更履歴に 1 行ずつ足す。
+3. **機器の設定文書の「未確認」を埋める**: [ER605](../../architecture/lld/network/omada-controller.md#er605ルーター)（p2 が LAN として動くか、上流が MAC で絞っていたか、採用後の値）、[SG2210P](../../architecture/lld/network/omada-controller.md#sg2210pスイッチ)（標準の設定でスイッチとして動いたか）、[Buffalo](../../architecture/lld/network/wsr-1800ax4p.md)（AP モードでの IP と入り方、SSID が残ったか）。変更履歴に 1 行ずつ足す。
 4. 切り分けの結果（SG2210P を疑ったかなど）と、実際の所要時間を、[移行計画](../roadmap/10-er605-sg2210p-migration-plan.md)に記録する。
 
 ## 戻し方

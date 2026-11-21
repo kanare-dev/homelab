@@ -124,4 +124,4 @@
 - [段階 3 のリハーサル](../runbooks/22-network-stage-3-rehearsal.md)（警告を追記）
 - [障害時切り分け](../runbooks/11-troubleshooting.md)
 - [INC-2026-10-25](2026-10-25-nic-hardware-unit-hang.md)（症状が似た前回の障害）
-- [SG2210P の設定](../../hardware/sg2210p/settings.md)、[Omada コントローラー](../../architecture/lld/network/omada-controller.md)
+- [SG2210P の設定](../../architecture/lld/network/omada-controller.md#sg2210pスイッチ)、[Omada コントローラー](../../architecture/lld/network/omada-controller.md)

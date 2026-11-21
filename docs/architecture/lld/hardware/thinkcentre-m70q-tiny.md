@@ -1,6 +1,6 @@
 # Lenovo ThinkCentre M70q Tiny
 
-Proxmox ホスト（`pve`、`10.77.10.10`）のミニ PC。全 VM がこの 1 台に載る。公式の資料へのリンクと、Lenovo の仕様書（PSREF）の仕様をまとめる。このホストの設定値は [settings.md](settings.md)、使い方は[システム構成・環境](../../architecture/hld/01-system.md)、ネットワークの接続は[第5章 ネットワーク](../../architecture/hld/05-network.md)、ラックへの収納は[10 インチラック](../future/rack-10inch/README.md)にある。
+Proxmox ホスト（`pve`、`10.77.10.10`）のミニ PC。全 VM がこの 1 台に載る。公式の資料へのリンクと、Lenovo の仕様書（PSREF）の仕様をまとめる。このホストの設定値は [Proxmox ホストの設定](../platform/proxmox-host.md)、使い方は[システム構成・環境](../../hld/01-system.md)、ネットワークの接続は[第5章 ネットワーク](../../hld/05-network.md)、ラックへの収納は[10 インチラック](future/rack-10inch/README.md)にある。
 
 > [!NOTE]
 > 確認日は 2026-11-03。仕様は Lenovo PSREF の ThinkCentre M70q（2023-09-27 版）による。PSREF は M70q のすべての構成をまとめた資料で、搭載できる部品の候補を載せている。**この機体の構成は、下の「この機体」にまとめた。** マシンタイプは 11DU（SKU は `SG6P00`）。PSREF は、構成ごとの違いをマシンタイプ別には載せていないので、この機体の部品は PSREF の表と突き合わせていない。
@@ -16,7 +16,7 @@ PSREF の Web ページは、表示にブラウザーが要る（取得は PDF �
 
 ## この機体
 
-構成の正は、[システム構成・環境](../../architecture/hld/01-system.md)。ここは PSREF と突き合わせるための要約。
+構成の正は、[システム構成・環境](../../hld/01-system.md)。ここは PSREF と突き合わせるための要約。
 
 | 項目 | 内容 | PSREF との関係 |
 | --- | --- | --- |
@@ -74,9 +74,9 @@ PSREF の Web ページは、表示にブラウザーが要る（取得は PDF �
 
 | 論点 | 分かること |
 | --- | --- |
-| NIC の増設 | PCIe スロットがなく、増設用の LAN もない（M.2 は WLAN 用と SSD 用）。OPNsense 用には別の PC が要る（[OPNsense 導入](../../operations/roadmap/08-network-opnsense.md)）。通信の取得でも、Proxmox に USB NIC を足さない方針（[ネットワーク通信の収集・可視化](../../operations/roadmap/06-network-traffic-analysis.md)） |
-| 単一の NIC と VLAN | NIC は 1 つで、SG2210P の p2 を trunk にして使う（[移行計画](../../operations/roadmap/10-er605-sg2210p-migration-plan.md)）。この NIC（I219）では `e1000e` の送信停止が起きた（[INC-2026-10-25](../../operations/incidents/2026-10-25-nic-hardware-unit-hang.md)）。ポートを付け替えるたびに再発を確認する |
-| ストレージの余地 | M.2 の NVMe は 1 枚で、2.5 インチ HDD のベイが 1 つある（この機体で空いているかは未確認）。冗長化はしない方針（[システム構成・環境](../../architecture/hld/01-system.md#前提と制約)） |
+| NIC の増設 | PCIe スロットがなく、増設用の LAN もない（M.2 は WLAN 用と SSD 用）。OPNsense 用には別の PC が要る（[OPNsense 導入](../../../operations/roadmap/08-network-opnsense.md)）。通信の取得でも、Proxmox に USB NIC を足さない方針（[ネットワーク通信の収集・可視化](../../../operations/roadmap/06-network-traffic-analysis.md)） |
+| 単一の NIC と VLAN | NIC は 1 つで、SG2210P の p2 を trunk にして使う（[移行計画](../../../operations/roadmap/10-er605-sg2210p-migration-plan.md)）。この NIC（I219）では `e1000e` の送信停止が起きた（[INC-2026-10-25](../../../operations/incidents/2026-10-25-nic-hardware-unit-hang.md)）。ポートを付け替えるたびに再発を確認する |
+| ストレージの余地 | M.2 の NVMe は 1 枚で、2.5 インチ HDD のベイが 1 つある（この機体で空いているかは未確認）。冗長化はしない方針（[システム構成・環境](../../hld/01-system.md#前提と制約)） |
 | メモリの速度 | 3200MHz のメモリを載せていても、i5-10400T では 2666MHz で動く（PSREF の注記） |
-| ラックへの収納 | 本体の幅は 179mm。10 インチラックに収まる（[10 インチラック](../future/rack-10inch/README.md)）。動作温度は 35 ℃ まで。ラックの中で熱がこもらないようにする |
-| 電源 | 外付けアダプター。ラックに電源タップ用の棚は無い（[ラックの導入](../../operations/roadmap/09-rack.md)） |
+| ラックへの収納 | 本体の幅は 179mm。10 インチラックに収まる（[10 インチラック](future/rack-10inch/README.md)）。動作温度は 35 ℃ まで。ラックの中で熱がこもらないようにする |
+| 電源 | 外付けアダプター。ラックに電源タップ用の棚は無い（[ラックの導入](../../../operations/roadmap/09-rack.md)） |

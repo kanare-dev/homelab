@@ -12,7 +12,7 @@
 
 ## インフラ・IaC・運用
 
-- [x] `docs/architecture/lld/` の文書を、役割ごとにフォルダ分けした（**2026-11-06 に実施**。`network/`、`platform/`、`apps/`、`dev/`。番号は外した。機器の設定値は `docs/hardware/<機器>/settings.md` に移した。[lld/README.md](../../architecture/lld/README.md)、[hardware/README.md](../../hardware/README.md)）
+- [x] `docs/architecture/lld/` の文書を、役割ごとにフォルダ分けした（**2026-11-06 に実施**。`network/`、`platform/`、`apps/`、`dev/`。番号は外した。機器の設定値は、機器ごとの文書に移した（その後、`lld/network/` と `lld/platform/` の文書に統合した）。[lld/README.md](../../architecture/lld/README.md)、[hardware/README.md](../../architecture/lld/hardware/README.md)）
 - [ ] **検討中**: `vm-infra` の役割を分ける。DNS、リバースプロキシ、Tailscale を、別々に置き、**DNS とリバースプロキシは LXC にする**（2026-11-20、運用者がやりたいことを決めた。**設計は未決定**。次の作業の候補）。
   - 今の構成: `vm-infra`（`10.77.20.10`、Servers）の 1 台に、DNS（AdGuard Home、Unbound、CoreDNS）、リバースプロキシ（Caddy、[ADR 0019](../../adr/0019-caddy-reverse-proxy.md)）、Tailscale（サブネットルーター）が同居している（[構成図](../../architecture/hld/01-system.md)）。
   - やりたいこと: (1) DNS、リバースプロキシ、Tailscale を、別々の置き場所に分ける。(2) DNS とリバースプロキシは、VM でなく LXC にする。
@@ -68,7 +68,7 @@
   - 採用を決めたら、設計書（[監視・アラート](../../architecture/lld/platform/monitoring.md)、[DNS](../../architecture/lld/network/dns.md)）と ADR に移す。
 - [ ] **検討中**: 詳細設計書を整備し、「文書が先」の運用にする（2026-11-20、運用者の希望）。**運用の分け方と構成図の運用は、採用し、`CLAUDE.md` に反映した（2026-11-20）。抽出スクリプト、詳細設計書の置き場所、差分の検査は、未決定**。
   - やりたいこと: (1) Omada、Tailscale、AdGuard Home などの設定値を、詳細設計書として文書にする。(2) 構成を変えるときは、文書を更新してから変える。(3) Omada のバックアップファイルから、スクリプトで設定値を抽出して、詳細設計書を作れないか。
-  - 今ある文書: 機器の設定値は `docs/hardware/<機器>/settings.md`、Omada は [Omada コントローラー](../../architecture/lld/network/omada-controller.md)、DNS と Tailscale は [DNS 構成](../../architecture/lld/network/dns.md)。今の決まり（`CLAUDE.md`）は、「設定を変えたら、**同じ変更で**文書を更新する」。足りないのは、(a) 全項目をそろえること、(b) 実機との**差分の検査**、(c) 「先に書く」変更の線引き。
+  - 今ある文書: 機器の設定値は `docs/architecture/lld/network/` と `docs/architecture/lld/platform/` の各文書、Omada は [Omada コントローラー](../../architecture/lld/network/omada-controller.md)、DNS と Tailscale は [DNS 構成](../../architecture/lld/network/dns.md)。今の決まり（`CLAUDE.md`）は、「設定を変えたら、**同じ変更で**文書を更新する」。足りないのは、(a) 全項目をそろえること、(b) 実機との**差分の検査**、(c) 「先に書く」変更の線引き。
   - **運用の分け方と構成図の運用は、採用した（2026-11-20）**: 変更の種類で、文書が先か、同時かを分ける。構成図は、to-be を先に、as-is は実機の変更ごとに更新する。詳細は [ADR-0033](../../adr/0033-docs-first-by-change-type-and-diagram-order.md) と `CLAUDE.md`。
   - 文書は「あるべき姿」、抽出は「実際の姿」。**差分が、ドリフト（実機と文書のずれ）**。抽出スクリプトで実際の値を出し、設計書と比べる。
   - 抽出の方法（2026-11-20 の調べ。**未検証**）:
@@ -76,7 +76,7 @@
     - 候補: (1) **Open API**（公式。読み取り専用のクライアントを作り、認証情報は SOPS）。取得範囲（LAN、Wi-Fi、ポートのプロファイル、ACL）は**未確認**。スキーマが公開されていて、バージョンが変わっても壊れにくい。(2) `vm-omada` の MongoDB を、読み取りで直接見る。全部取れるが、内部のスキーマ（非公開）で、バージョンで壊れやすい。(3) 併用（取れる分は自動、残りは手書き）。**まず、Open API の取得範囲を調べる**。バックログの「設定のコード化」の項目（上）と、同じ API。
     - AdGuard Home: 設定ファイル（`AdGuardHome.yaml`）を、Ansible で配っている。文書は、そこから起こせる。
     - Tailscale: ACL は、公式の GitOps（`tailscale/gitops-acl-action`）で、リポジトリのファイル（HuJSON）にできる。**文書が先**の運用に、そのまま乗る。
-  - 抽出した値の扱い（リポジトリは公開）: MAC アドレス、認証情報、Wi-Fi のパスワード、アカウントのハッシュは、**抽出の段階で落とす**（既存の決まり: 機器の MAC は書かない）。抽出した値は、手書きの文書と分けて置く案（例: `generated/`）。置き場所は、今の `docs/architecture/lld/` と `docs/hardware/` を広げる案（新しい階層は作らない）。**未決**。
+  - 抽出した値の扱い（リポジトリは公開）: MAC アドレス、認証情報、Wi-Fi のパスワード、アカウントのハッシュは、**抽出の段階で落とす**（既存の決まり: 機器の MAC は書かない）。抽出した値は、手書きの文書と分けて置く案（例: `generated/`）。置き場所は、今の `docs/architecture/lld/` と `docs/architecture/lld/hardware/` を広げる案（新しい階層は作らない）。**未決**。
   - 決めること（未決）: 置き場所（上）。「文書が先」の変更の線引きの、細かい基準。`CLAUDE.md`（図の項を含む）と ADR への入れ方（採用を決めたあと）。差分の検査を、CI に入れるか、手元で実行するか。上の「ドキュメント体系を整理する」項目との前後（書式をそろえてから整備するほうが、手戻りが少ない）。
   - 採用を決めたら、運用の方針を `CLAUDE.md` と ADR に移す。
 - [ ] **検討中**: ドキュメント体系を整理する（2026-11-09、運用者の希望）。**採用は未決定**。**移行（段階 1〜3）が終わったあとに行う**。移行の最中は構成と文書が頻繁に変わるので、先に整理しても、すぐに崩れる。
@@ -103,7 +103,7 @@
 
 - [ ] **検討中**: Proxmox ホストに USB の外付け SSD を付けて、NAS にする（USB SSD の NAS。2026-11-20、運用者の構想。**設計は未決定**）。将来の専用機（上の TrueNAS）の前の段階。
   - 決めたこと（運用者、2026-11-20）: 用途は、**ファイル共有**と**写真・動画の管理**。方式は、**ホストでマウントして、LXC の Samba で配る**。容量は **1TB 前後**で、消えても困らないものが中心。バックアップ先（vzdump、PBS、restic）は、今回の用途に入れていない。
-  - 前提: ホスト（ThinkCentre M70q Tiny）には PCIe スロットがなく、外付けは USB だけ。内蔵の NVMe は 256GB の 1 枚で、プールの空きは小さい（[ハードウェア](../../hardware/thinkcentre-m70q-tiny/spec.md)）。冗長化はしない（SSD 1 台。壊れたら、データは消える）。
+  - 前提: ホスト（ThinkCentre M70q Tiny）には PCIe スロットがなく、外付けは USB だけ。内蔵の NVMe は 256GB の 1 枚で、プールの空きは小さい（[ハードウェア](../../architecture/lld/hardware/thinkcentre-m70q-tiny.md)）。冗長化はしない（SSD 1 台。壊れたら、データは消える）。
   - 見立て（**未検証**）:
     - ディスク: 背面の USB 3.2 Gen 2 に直接つなぐ（ハブを通さない）。UASP 対応のケース。給電と熱に注意。ファイルシステムは **ext4**（ZFS は USB だと不安定になりやすい）。`/etc/fstab` に UUID で書き、**`nofail`** にする（ディスクが外れていても、ホストが起動する）。
     - LXC: 特権なしの LXC に、ホストのマウント先を bind マウントし、Samba を**パッケージで**入れる。特権なしの LXC は UID がずれるので、共有用の UID・GID の対応（idmap）を決める。メモリは軽い（100〜200MB 程度）。

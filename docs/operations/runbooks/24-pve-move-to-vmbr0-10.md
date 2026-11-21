@@ -120,7 +120,7 @@ systemctl list-timers netrevert.timer   # 何も出ないこと
 
 実機の設定を変えたので、同じ変更で直す（CLAUDE.md の決まり）。
 
-- [ ] [ThinkCentre の設定](../../hardware/thinkcentre-m70q-tiny/settings.md)（IP、Web UI の転送先、変更履歴）。
+- [ ] [ThinkCentre の設定](../../architecture/lld/platform/proxmox-host.md)（IP、Web UI の転送先、変更履歴）。
 - [ ] [IP アドレス一覧](../../architecture/lld/network/ip-addresses.md)、[システム構成・環境](../../architecture/hld/01-system.md)、[システム構成・環境](../../architecture/hld/01-system.md)（as-is の図と注釈）、[第5章 ネットワーク](../../architecture/hld/05-network.md)、`README.md`（ホストの IP）。
 - [ ] 手順書: [VM 自動起動・停止](01-vm-startup-shutdown.md)、[トラブルシュート](11-troubleshooting.md)（`ssh root@192.168.11.10` を `10.77.10.10` に）。
 - [ ] 監視: [監視・アラート](../../architecture/lld/platform/monitoring.md)（`curl` の宛先）、Homepage の文書。
@@ -135,7 +135,7 @@ systemctl list-timers netrevert.timer   # 何も出ないこと
 
 ## うまくいかないときの見方
 
-- **`10.77.10.1` に届かない**: SG2210P の p2 の tagged に、VLAN10 が入っているか（[SG2210P の設定](../../hardware/sg2210p/settings.md)）。`bridge-vids` に 10 が含まれるか（`bridge vlan show`）。
+- **`10.77.10.1` に届かない**: SG2210P の p2 の tagged に、VLAN10 が入っているか（[SG2210P の設定](../../architecture/lld/network/omada-controller.md#sg2210pスイッチ)）。`bridge-vids` に 10 が含まれるか（`bridge vlan show`）。
 - **Web UI は開くが、ログインできない・サービスが壊れる**: `/etc/hosts` が、新しい IP になっているか。`systemctl status pve-cluster pveproxy`。
 - **Mac から届かない（ホストの中は、正常）**: ER605 の VLAN10 のゲートウェイと ACL（全許可のはず）。Mac が Trusted（`10.77.30.x`）にいるか。
 

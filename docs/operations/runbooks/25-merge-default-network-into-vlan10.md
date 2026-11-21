@@ -18,7 +18,7 @@
 - [ ] **Omada のバックアップ**（設定とサイト）を取る（iCloud Drive、日付つき）。**SG2210P の各ポート（p1・p2・p5〜p8）の VLAN 設定（ネイティブとタグ）、ネットワーク一覧を、画面で控える**（戻すときに使う）。
 - [ ] Mac に、有線の口が 2 つある（普段のディスプレイ経由と、USB の LAN アダプタ）。物理コンソール、モバイル回線のスマホ。作業の間は、全 VLAN が止まる。
 - [ ] 作業時間を確保する（40〜60 分）。作業中に出るアラートは、想定内。
-- [ ] ER605 の設定値を控える（[ER605 の設定](../../hardware/er605/settings.md)と照合）: WAN は DHCP、各 VLAN のゲートウェイ・DHCP の範囲・リース・DNS。**Management の緊急用の DHCP プール（`.240–.250`、リース 60 分、DNS `10.77.10.1`）を、新しい既定のネットワークに引き継ぐ。**
+- [ ] ER605 の設定値を控える（[ER605 の設定](../../architecture/lld/network/omada-controller.md#er605ルーター)と照合）: WAN は DHCP、各 VLAN のゲートウェイ・DHCP の範囲・リース・DNS。**Management の緊急用の DHCP プール（`.240–.250`、リース 60 分、DNS `10.77.10.1`）を、新しい既定のネットワークに引き継ぐ。**
 
 ## 1. 事前の設定（ER605 に影響しない・止まらない）
 
@@ -76,7 +76,7 @@ Mac を p6 に繋ぎ、`https://10.77.10.3:8043`（サイトのビュー `kanare
 ## 6. 後始末
 
 - [ ] `vm-omada` の UFW から、`10.77.1.1`（ER605 の今の LAN の住所）の許可を消す（`ansible/inventory/group_vars/omada/vars.yml`。ER605 の送信元が、`10.77.10.1`（`10.77.10.0/24` の許可の中）になったため）。
-- [ ] 文書を直す: [第5章 ネットワーク](../../architecture/hld/05-network.md)、[IP アドレス一覧](../../architecture/lld/network/ip-addresses.md)、[ER605 の設定](../../hardware/er605/settings.md)、[SG2210P の設定](../../hardware/sg2210p/settings.md)（ポート表）、[Omada コントローラー](../../architecture/lld/network/omada-controller.md)、[システム構成・環境](../../architecture/hld/01-system.md)、`README.md`。ロードマップ 13、ADR-0032 のステータスを「採用（実施済み）」に。
+- [ ] 文書を直す: [第5章 ネットワーク](../../architecture/hld/05-network.md)、[IP アドレス一覧](../../architecture/lld/network/ip-addresses.md)、[ER605 の設定](../../architecture/lld/network/omada-controller.md#er605ルーター)、[SG2210P の設定](../../architecture/lld/network/omada-controller.md#sg2210pスイッチ)（ポート表）、[Omada コントローラー](../../architecture/lld/network/omada-controller.md)、[システム構成・環境](../../architecture/hld/01-system.md)、`README.md`。ロードマップ 13、ADR-0032 のステータスを「採用（実施済み）」に。
 - [ ] as-is の構成図を直す（VLAN1 のゾーンを無くし、ER605 の住所を `10.77.10.1`、p2 の native を `Blackhole` に）。**as-is の構成図は、削除しない**（常に実機の状態を表す）。to-be の構成図（`to-be-diagram/`）も、ADR-0032 の最終形（VLAN1 なし、p2 の native `Blackhole`、p6 の緊急用の入口）に合わせて、更新する。
 
 ## 戻し方
@@ -119,5 +119,5 @@ Mac を p6 に繋ぎ、`https://10.77.10.3:8043`（サイトのビュー `kanare
 ### 後始末（2026-11-20 に実施）
 
 - `vm-omada` の UFW から、`10.77.1.1` の許可を消した（Ansible。ER605 の接続は、`10.77.10.0/24` の許可の中で、そのまま繋がっている）。
-- 文書: [ER605 の設定](../../hardware/er605/settings.md)、[SG2210P の設定](../../hardware/sg2210p/settings.md)、[Omada コントローラー](../../architecture/lld/network/omada-controller.md)、[第5章 ネットワーク](../../architecture/hld/05-network.md)、[IP アドレス一覧](../../architecture/lld/network/ip-addresses.md)、[システム構成・環境](../../architecture/hld/01-system.md)、[システム構成・環境](../../architecture/hld/01-system.md)、ロードマップ 13、ADR-0032（実施済み）。構成図も直した。
+- 文書: [ER605 の設定](../../architecture/lld/network/omada-controller.md#er605ルーター)、[SG2210P の設定](../../architecture/lld/network/omada-controller.md#sg2210pスイッチ)、[Omada コントローラー](../../architecture/lld/network/omada-controller.md)、[第5章 ネットワーク](../../architecture/hld/05-network.md)、[IP アドレス一覧](../../architecture/lld/network/ip-addresses.md)、[システム構成・環境](../../architecture/hld/01-system.md)、[システム構成・環境](../../architecture/hld/01-system.md)、ロードマップ 13、ADR-0032（実施済み）。構成図も直した。
 - 残り（未確認）: `Blackhole` の確認（p2 にタグなしの VM を繋いだとき、どこにも出られないこと）。Trusted（`10.77.30.1`）が ping に応えない件（ICMP の仕様の可能性。端末の通信は、確認する）。ER605 のクラウド管理を無効にする。ER605 の管理者のパスワードを、台帳に控える。
