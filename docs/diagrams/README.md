@@ -7,7 +7,6 @@
 | [`to-be-diagram/`](#to-be-の構成図-vlan-化のあとto-be-diagram) | **to-be の構成図**（最終形。VLAN 化のあと、管理系も VLAN10）。単体の HTML と PNG |
 | [`physical-diagram/`](#物理構成図physical-diagram) | **物理構成図**（機器のポートとケーブル）。単体の HTML と PNG |
 | [`as-is-diagram/`](#現状の構成図as-is-diagram) | **現状の構成図**（as-is。常に実機の状態を表す。削除しない）。単体の HTML と PNG。to-be の構成図と同じ見た目 |
-| [`stack-diagram-example/`](#stack-diagram-で描いた構成図の例stack-diagram-example) | stack-diagram で描いた構成図の**例**（比較用） |
 | `fonts/`、`assets/` | 図が使うフォントとアイコン素材 |
 
 ## 構成図
@@ -58,22 +57,6 @@ ER605 と SG2210P を入れて VLAN に分けた**最終形（to-be）**。管�
 - 内容の正は、[IP アドレス一覧](../architecture/lld/network/ip-addresses.md)と、[Omada コントローラー](../architecture/lld/network/omada-controller.md)（ER605・SG2210P）と [Buffalo](../architecture/lld/network/wsr-1800ax4p.md) の設定の文書。食い違ったら、文書のほうが正。
 - **段階 3b（管理系を VLAN10 へ）が済んだら、現状と to-be が同じになるので、このディレクトリごと削除する。**
 
-### stack-diagram で描いた構成図の例（`stack-diagram-example/`）
-
-[stack-diagram](https://github.com/caru-ini/stack-diagram)（エージェント用のスキル。公式のロゴで構成図を描く）を試して描いた**例**。内容は移行前の構成で、削除した移行前の構成図（draw.io の SVG）と同じ範囲（外部サービス、Buffalo、Proxmox 上の VM とサービス、LAN の端末）を、日本語で描いた。これは比較用で、構成図の正ではない。ライト・ダークの PNG と、ロゴと文字を埋め込んだ単体の HTML（ブラウザで開ける）がある。
-
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="stack-diagram-example/homelab-dark.png">
-  <img alt="stack-diagram で描いた構成図の例" src="stack-diagram-example/homelab.png">
-</picture>
-
-ダーク版は [`homelab-dark.png`](stack-diagram-example/homelab-dark.png)、HTML は [`homelab.html`](stack-diagram-example/homelab.html)。
-
-- スキルは、`~/.claude/skills/stack-diagram` に入れた（リポジトリの外。確認した版は、リポジトリ `caru-ini/stack-diagram` の `1ed53e3`）。導入の前に、`SKILL.md` とスクリプトを読んで、危険な呼び出しがないことを確かめた。
-- **スキルの「ギャラリーへの公開」（`share.py`）は使わない。** 図に内部の IP アドレスが入っているため。
-- 生成は [`stack-diagram-example/make-homelab.py`](stack-diagram-example/make-homelab.py)（座標を計算して下書きの HTML を作る）。ロゴ（`<icons-dir>`、Git 管理外）は、スキルの `fetch_icons.py` で取得する。取れなかったもの（Caddy、AdGuard Home、Unbound、CoreDNS、FreshRSS、code-server、Healthchecks.io、Let's Encrypt、Homepage、Omada、SwitchBot、ESP32、CloudCLI）は、`assets/icons/` にある既存の素材を使った。
-- PNG の書き出しには、Playwright と Chromium が要る。
-
 ## ファイル
 
 | ファイル | 内容 |
@@ -81,7 +64,6 @@ ER605 と SG2210P を入れて VLAN に分けた**最終形（to-be）**。管�
 | `to-be-diagram/` | to-be の構成図（最終形）。生成スクリプト `make-to-be-diagram.py`（本体）、書き出した `to-be-diagram.html`・`to-be-diagram.png`・`to-be-diagram-dark.png` |
 | `as-is-diagram/` | 現状の構成図（**常に実機の状態を表す。削除しない**）。生成スクリプト `make-as-is-diagram.py`（本体）、書き出した `as-is-diagram.html`・`as-is-diagram.png`・`as-is-diagram-dark.png` |
 | `physical-diagram/` | 物理構成図（段階 3 の完了後の配線）。生成スクリプト `make-physical-diagram.py`（本体）、書き出した `physical-diagram.html`・`physical-diagram.png`・`physical-diagram-dark.png` |
-| `stack-diagram-example/` | stack-diagram で描いた構成図の例。`homelab.html`、`homelab.png`、`homelab-dark.png`、生成スクリプト `make-homelab.py` |
 | `fonts/` | HTML 図（to-be、as-is、物理構成図）が埋め込むフォント（Geist、JetBrains Mono。OFL） |
 | `assets/` | アイコン素材（**Git 管理外**。無ければ取得する） |
 
