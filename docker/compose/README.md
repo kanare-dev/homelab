@@ -73,10 +73,10 @@ docker compose up -d
 
 ## ネットワーク方針
 
-- 各 Compose プロジェクトは独自の bridge ネットワークを作成
-- VM 間の通信は、各 VM のアドレス（`10.77.20.0/24` など。VLAN をまたぐときはルーター経由）で行う
-- Prometheus は各 VM の node_exporter（`:9100`）に直接アクセス
-- Reverse Proxy は各サービスの公開ポートに直接アクセス
+- 各 Compose プロジェクトは、独自の bridge ネットワークを作る。
+- VM 間の通信は、各 VM のアドレス（`10.77.20.0/24` など）を使って行う。VLAN をまたぐときは、ルーターを経由する。
+- Prometheus は、各 VM の node_exporter（`:9100`）に直接アクセスする。
+- Reverse Proxy は、各サービスの公開ポートに直接アクセスする。
 
 ## 環境変数
 

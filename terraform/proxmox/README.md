@@ -4,9 +4,9 @@ Proxmox VE 上に VM を作成する Terraform 構成。
 
 ## 前提条件
 
-1. Proxmox VE 9.x が稼働中
-2. Cloud-init 対応のテンプレート VM を作成済み
-3. Terraform 用 API トークンを発行済み
+1. Proxmox VE 9.x が稼働している。
+2. cloud-init に対応したテンプレート VM を作成してある。
+3. Terraform 用の API トークンを発行してある。
 
 ### API トークンの作成手順
 

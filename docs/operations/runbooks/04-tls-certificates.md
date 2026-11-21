@@ -4,9 +4,9 @@
 
 `vm-infra` 上の Caddy（Docker Compose）が Cloudflare DNS-01 チャレンジで Let's Encrypt 証明書を取得し、各サービスへのリバースプロキシを担う。
 
-- 証明書はドメインごとに個別取得（`*.lab.kanare.dev` ワイルドカードではなく各 FQDN）
-- クライアント側の設定不要。全デバイスからブラウザ警告なしにアクセス可能
-- `CLOUDFLARE_API_TOKEN` 環境変数で Cloudflare API を認証（Ansible が `.env` を生成して配置）
+- 証明書は、ワイルドカード（`*.lab.kanare.dev`）ではなく、FQDN ごとに個別に取得する。
+- クライアント側の設定は要らない。すべてのデバイスから、ブラウザの警告なしにアクセスできる。
+- Cloudflare API の認証には、環境変数 `CLOUDFLARE_API_TOKEN` を使う（Ansible が `.env` を生成して配置する）。
 
 | サービス | URL |
 | --- | --- |
