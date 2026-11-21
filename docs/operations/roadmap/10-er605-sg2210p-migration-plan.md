@@ -135,7 +135,7 @@ AP を SG2210P の p7（PoE）に繋ぎ、SSID を 3 つ（Trusted / IoT / Guest
 ネットワークを止めない作業。
 
 - [x] ER605 の版を確認する（**ER605 V2.30**。底面のラベルは `UN` / `2.30` だが、出荷時のファームウェアは **JP 版の 2.2.8 Build 20260128 Rel.11283**。2026-11-03 に確認。SG2210P は V5.30 で確認済み）。更新に使えるのは JP 版のファイルだけ。
-- [x] 現在の Buffalo の設定を控える（2026-11-03 に完了）。設定値は[WSR-1800AX4P の設定](../../architecture/lld/hardware/wsr-1800ax4p/settings.md)に記録済み（2026-11-03）。**本体のバックアップ（`wsr-1800ax4p-bk-YYYYMMDD.bin`、暗号化）は、設定を変える前に取る（2026-11-03 に取得済み）。** 秘密の値と MAC アドレスは `private/secrets-inventory.md` の側に置き、リポジトリには書かない。
+- [x] 現在の Buffalo の設定を控える（2026-11-03 に完了）。設定値は[WSR-1800AX4P の設定](../../architecture/lld/network/wsr-1800ax4p.md)に記録済み（2026-11-03）。**本体のバックアップ（`wsr-1800ax4p-bk-YYYYMMDD.bin`、暗号化）は、設定を変える前に取る（2026-11-03 に取得済み）。** 秘密の値と MAC アドレスは `private/secrets-inventory.md` の側に置き、リポジトリには書かない。
   - 設定のバックアップファイル（管理画面の「設定保存」）
   - DHCP のプール、固定割り当て（予約）の一覧、DHCP が配る DNS サーバー
   - WAN の取得方法、SSID 名、暗号化方式（パスフレーズは台帳へ）
@@ -174,7 +174,7 @@ ER605 と SG2210P は同時に購入済みで、すでに繋いである（ER605
 
 見直しで見つかった抜けを、ここに集めた（2026-11-03）。
 
-- [x] **EasyMesh を無効にして、Wi-Fi の SSID が今のとおり効くか確認する（確認済み、バックアップも取得済み。2026-11-03）**（Buffalo はルーターモードのまま）。EasyMesh が有効だと、画面に「SSID1 と SSID2 の設定は反映されません」と出る（[WSR-1800AX4P の設定](../../architecture/lld/hardware/wsr-1800ax4p/settings.md)）。AP モードに替えてから原因を探すと、切り分けが難しい。**2026-11-03 に無効にした。** 残りは、SSID が今のとおり効くかの確認と、本体のバックアップの取り直し（[Buffalo の設定](../../architecture/lld/hardware/wsr-1800ax4p/settings.md)の変更履歴にも記録する）。
+- [x] **EasyMesh を無効にして、Wi-Fi の SSID が今のとおり効くか確認する（確認済み、バックアップも取得済み。2026-11-03）**（Buffalo はルーターモードのまま）。EasyMesh が有効だと、画面に「SSID1 と SSID2 の設定は反映されません」と出る（[WSR-1800AX4P の設定](../../architecture/lld/network/wsr-1800ax4p.md)）。AP モードに替えてから原因を探すと、切り分けが難しい。**2026-11-03 に無効にした。** 残りは、SSID が今のとおり効くかの確認と、本体のバックアップの取り直し（[Buffalo の設定](../../architecture/lld/network/wsr-1800ax4p.md)の変更履歴にも記録する）。
 - [x] **固定リース（`192.168.11.60`）は、ER605 に移さない（決定 2026-11-03）。** Buffalo の固定割り当ては 1 件ある。MAC の先頭（メーカーを示す部分）は Espressif で、今も無線で繋がっている。正体は、SwitchBot Hub 2 の可能性がある（未確認）。固定した理由は、運用者も覚えていない。Home Assistant は SwitchBot Cloud で繋いでいて、IP に依存しない（[Home Assistant](../../architecture/lld/apps/home-assistant.md)）。**段階 1 のあと、この端末は DHCP の動的割り当てで、別のアドレスになる。** 固定が必要だと分かったら、VLAN 化のあとの新しいアドレス体系で、改めて固定する。
 - [x] **Buffalo の WAN 側の MAC アドレスは、事前には控えない（決定 2026-11-03）。** 建物の共用ルーターが、壁の LAN ポートに繋がった機器の MAC アドレスを接続の条件にしていると、MAC が違う ER605 は IP を取れない（集合住宅の共用ネットワークで、最初に繋いだ機器の MAC を覚える例がある）。Buffalo は自分で買ったもので、可能性は低いと見る。**ER605 が IP を取れなかったときだけ**、ER605 の WAN の MAC の設定に、Buffalo の WAN の MAC を入れる（ER605 を Buffalo だと思わせるため）。そのとき MAC が分からなければ、Buffalo の画面か、本体のラベルで見る（Buffalo は手元に残るので、後からでも見られる。事前の準備は要らない）。
 - [x] **Buffalo の AP モードでの設定画面の入り方を決める（決定 2026-11-03）。** Buffalo の公式 FAQ の「エアステーション設定ツール」の手順は Windows だけで、Mac の手順は見つからなかった（[FAQ](https://www.buffalo.jp/support/faq/detail/129.html)）。Mac では、**ER605 の DHCP の貸出一覧（コントローラーのクライアント一覧）で Buffalo の IP を見て、ブラウザで開く**。AP モードの既定の IP は公式には書かれていない（第三者の記事では `192.168.11.100`。未確認）。
@@ -311,7 +311,7 @@ ER605 と SG2210P は同時に購入済みで、すでに繋いである（ER605
 **5. 終わったあと**
 
 - [x] Omada のバックアップを取り直す（`omada_backup_...` と `sitebackup_...`。iCloud Drive。2026-11-11 21:48）。
-- [x] 設定書を、同じ変更で更新する: `docs/architecture/lld/network/omada-controller.md`、`docs/architecture/lld/hardware/er605/settings.md`、`docs/architecture/lld/hardware/sg2210p/settings.md`（変更履歴に 1 行）。
+- [x] 設定書を、同じ変更で更新する: `docs/architecture/lld/network/omada-controller.md`（ER605・SG2210P を含む。変更履歴に 1 行）。
 - [x] 手順書の前提「Omada に本番の設定を作ってある」に印を付ける（[当日の手順書](../runbooks/21-network-cutover-stage-3.md)）。
 
 **決定（2026-11-11）**: Trusted のリースは 48 時間（今の ER605 と同じ。日常端末は入れ替わりが少ない）。DHCP 予約（`.50–.99`）は、段階 3 では作らない（Mac などは、プールのアドレスで困らない）。固定が要るテレビ・ESP32 は、段階 4 で IoT に移すときに予約する（MAC は台帳に書く）。

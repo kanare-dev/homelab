@@ -29,7 +29,7 @@ ER605 と SG2210P を入れて VLAN に分けた**最終形（to-be）**。管�
 
 ### 物理構成図（`physical-diagram/`）
 
-どの機器のどのポートを、どの機器のどのポートに繋ぐかを、一目で見るための図。段階 3 の完了後の、有線の最終形。機器は四角、ポートは四角（WAN・trunk・access VLAN30・未使用を色で区別）、ケーブルは線（太さと色で種類を区別）で描く。ケーブルの種類（今ある長いケーブル A・B・C と、買い足す短いケーブル）と、ポートごとの VLAN（tagged / untagged）も載せた。VM・サービス・IP は、[to-be の構成図](#to-be-の構成図-vlan-化のあとto-be-diagram)に任せる。内容は、[移行計画](../operations/roadmap/10-er605-sg2210p-migration-plan.md)の「段階 3 の後」「ケーブルと電源」と、[ER605](../architecture/lld/hardware/er605/settings.md)・[SG2210P](../architecture/lld/hardware/sg2210p/settings.md) のポート表による。**本体は、生成スクリプト [`physical-diagram/make-physical-diagram.py`](physical-diagram/make-physical-diagram.py)**。
+どの機器のどのポートを、どの機器のどのポートに繋ぐかを、一目で見るための図。段階 3 の完了後の、有線の最終形。機器は四角、ポートは四角（WAN・trunk・access VLAN30・未使用を色で区別）、ケーブルは線（太さと色で種類を区別）で描く。ケーブルの種類（今ある長いケーブル A・B・C と、買い足す短いケーブル）と、ポートごとの VLAN（tagged / untagged）も載せた。VM・サービス・IP は、[to-be の構成図](#to-be-の構成図-vlan-化のあとto-be-diagram)に任せる。内容は、[移行計画](../operations/roadmap/10-er605-sg2210p-migration-plan.md)の「段階 3 の後」「ケーブルと電源」と、[ER605](../architecture/lld/network/omada-controller.md#er605ルーター)・[SG2210P](../architecture/lld/network/omada-controller.md#sg2210pスイッチ) のポート表による。**本体は、生成スクリプト [`physical-diagram/make-physical-diagram.py`](physical-diagram/make-physical-diagram.py)**。
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="physical-diagram/physical-diagram-dark.png">
@@ -40,7 +40,7 @@ ER605 と SG2210P を入れて VLAN に分けた**最終形（to-be）**。管�
 
 - スタイル（方眼、フォント、ライト・ダーク、線のラベルの縁取り）は、to-be の構成図と同じ。フォントは [`fonts/`](fonts/)（共通）を使う。
 - **Buffalo のポート**: 図は INTERNET ポートで描き、「INTERNET※」と注記した。取扱説明書（2026-11-06 に確認）に、AP モードの接続ポートの指定はなく、公式 FAQ では、ブリッジモードで INTERNET も LAN として動くとある（[Buffalo の資料](../architecture/lld/hardware/wsr-1800ax4p.md)）。
-- ER605 のポートの種類（p1 が WAN、p2・p3 が WAN/LAN、p4・p5 が LAN）は、運用者が本体で確認した値。[ER605 の資料](../architecture/lld/hardware/er605.md)と、[ER605 の設定](../architecture/lld/hardware/er605/settings.md#ポート)にも書いた。
+- ER605 のポートの種類（p1 が WAN、p2・p3 が WAN/LAN、p4・p5 が LAN）は、運用者が本体で確認した値。[ER605 の資料](../architecture/lld/hardware/er605.md)と、[ER605 の設定](../architecture/lld/network/omada-controller.md#er605-のポート)にも書いた。
 - 配線を変えたら（ポートの割り当て、ケーブルの付け替え）、同じ変更で、スクリプトの「配置」と、移行計画・設計書のポート表を直す。
 
 ### 現状の構成図（`as-is-diagram/`）
@@ -55,7 +55,7 @@ ER605 と SG2210P を入れて VLAN に分けた**最終形（to-be）**。管�
 ダーク版は [`as-is-diagram-dark.png`](as-is-diagram/as-is-diagram-dark.png)、単体の HTML は [`as-is-diagram.html`](as-is-diagram/as-is-diagram.html)。
 
 - スクリプト（`make-as-is-diagram.py`）は、`to-be-diagram/make-to-be-diagram.py` を写して、配置と文字を現状に合わせたもの。部品と見た目の決まりは同じ。実機を変えたら（IP、VLAN、ポート）、スクリプトの「配置」を直して、`python3 docs/diagrams/as-is-diagram/make-as-is-diagram.py --png` を実行する。
-- 内容の正は、[IP アドレス一覧](../architecture/lld/network/ip-addresses.md)と、`docs/architecture/lld/hardware/*/settings.md`。食い違ったら、文書のほうが正。
+- 内容の正は、[IP アドレス一覧](../architecture/lld/network/ip-addresses.md)と、[Omada コントローラー](../architecture/lld/network/omada-controller.md)（ER605・SG2210P）と [Buffalo](../architecture/lld/network/wsr-1800ax4p.md) の設定の文書。食い違ったら、文書のほうが正。
 - **段階 3b（管理系を VLAN10 へ）が済んだら、現状と to-be が同じになるので、このディレクトリごと削除する。**
 
 ### stack-diagram で描いた構成図の例（`stack-diagram-example/`）

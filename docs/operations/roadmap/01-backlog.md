@@ -12,7 +12,7 @@
 
 ## インフラ・IaC・運用
 
-- [x] `docs/architecture/lld/` の文書を、役割ごとにフォルダ分けした（**2026-11-06 に実施**。`network/`、`platform/`、`apps/`、`dev/`。番号は外した。機器の設定値は `docs/architecture/lld/hardware/<機器>/settings.md` に移した。[lld/README.md](../../architecture/lld/README.md)、[hardware/README.md](../../architecture/lld/hardware/README.md)）
+- [x] `docs/architecture/lld/` の文書を、役割ごとにフォルダ分けした（**2026-11-06 に実施**。`network/`、`platform/`、`apps/`、`dev/`。番号は外した。機器の設定値は、機器ごとの文書に移した（その後、`lld/network/` と `lld/platform/` の文書に統合した）。[lld/README.md](../../architecture/lld/README.md)、[hardware/README.md](../../architecture/lld/hardware/README.md)）
 - [ ] **検討中**: `vm-infra` の役割を分ける。DNS、リバースプロキシ、Tailscale を、別々に置き、**DNS とリバースプロキシは LXC にする**（2026-11-20、運用者がやりたいことを決めた。**設計は未決定**。次の作業の候補）。
   - 今の構成: `vm-infra`（`10.77.20.10`、Servers）の 1 台に、DNS（AdGuard Home、Unbound、CoreDNS）、リバースプロキシ（Caddy、[ADR 0019](../../adr/0019-caddy-reverse-proxy.md)）、Tailscale（サブネットルーター）が同居している（[構成図](../../architecture/hld/01-system.md)）。
   - やりたいこと: (1) DNS、リバースプロキシ、Tailscale を、別々の置き場所に分ける。(2) DNS とリバースプロキシは、VM でなく LXC にする。
@@ -68,7 +68,7 @@
   - 採用を決めたら、設計書（[監視・アラート](../../architecture/lld/platform/monitoring.md)、[DNS](../../architecture/lld/network/dns.md)）と ADR に移す。
 - [ ] **検討中**: 詳細設計書を整備し、「文書が先」の運用にする（2026-11-20、運用者の希望）。**運用の分け方と構成図の運用は、採用し、`CLAUDE.md` に反映した（2026-11-20）。抽出スクリプト、詳細設計書の置き場所、差分の検査は、未決定**。
   - やりたいこと: (1) Omada、Tailscale、AdGuard Home などの設定値を、詳細設計書として文書にする。(2) 構成を変えるときは、文書を更新してから変える。(3) Omada のバックアップファイルから、スクリプトで設定値を抽出して、詳細設計書を作れないか。
-  - 今ある文書: 機器の設定値は `docs/architecture/lld/hardware/<機器>/settings.md`、Omada は [Omada コントローラー](../../architecture/lld/network/omada-controller.md)、DNS と Tailscale は [DNS 構成](../../architecture/lld/network/dns.md)。今の決まり（`CLAUDE.md`）は、「設定を変えたら、**同じ変更で**文書を更新する」。足りないのは、(a) 全項目をそろえること、(b) 実機との**差分の検査**、(c) 「先に書く」変更の線引き。
+  - 今ある文書: 機器の設定値は `docs/architecture/lld/network/` と `docs/architecture/lld/platform/` の各文書、Omada は [Omada コントローラー](../../architecture/lld/network/omada-controller.md)、DNS と Tailscale は [DNS 構成](../../architecture/lld/network/dns.md)。今の決まり（`CLAUDE.md`）は、「設定を変えたら、**同じ変更で**文書を更新する」。足りないのは、(a) 全項目をそろえること、(b) 実機との**差分の検査**、(c) 「先に書く」変更の線引き。
   - **運用の分け方と構成図の運用は、採用した（2026-11-20）**: 変更の種類で、文書が先か、同時かを分ける。構成図は、to-be を先に、as-is は実機の変更ごとに更新する。詳細は [ADR-0033](../../adr/0033-docs-first-by-change-type-and-diagram-order.md) と `CLAUDE.md`。
   - 文書は「あるべき姿」、抽出は「実際の姿」。**差分が、ドリフト（実機と文書のずれ）**。抽出スクリプトで実際の値を出し、設計書と比べる。
   - 抽出の方法（2026-11-20 の調べ。**未検証**）:
