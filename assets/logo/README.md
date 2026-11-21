@@ -21,8 +21,8 @@ kanare’s homelab のロゴ（SVG）。`make-logo.py` で作る。マークは�
 
 ```html
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/logo/logo-stack-dark.svg">
-  <img alt="kanare’s homelab" src="docs/assets/logo/logo-stack-light.svg" width="480">
+  <source media="(prefers-color-scheme: dark)" srcset="assets/logo/logo-stack-dark.svg">
+  <img alt="kanare’s homelab" src="assets/logo/logo-stack-light.svg" width="480">
 </picture>
 ```
 
@@ -46,7 +46,7 @@ SVG の中身をそのまま HTML に入れてよい。色の指定は、SVG ご
 
 1. fontTools を入れる: `python3 -m venv ~/.cache/homelab-logo-venv && ~/.cache/homelab-logo-venv/bin/pip install fonttools`
 2. JetBrains Mono（Medium と Bold）をインストールしておく（Nerd Font 版でも、文字の形は同じ）。探す場所は、`make-logo.py` の `FONT_DIRS`。
-3. `~/.cache/homelab-logo-venv/bin/python docs/assets/logo/make-logo.py`
+3. `~/.cache/homelab-logo-venv/bin/python assets/logo/make-logo.py`
 
 SVG と `gallery.html` が、同じフォルダに書き出される。
 
@@ -56,8 +56,8 @@ SVG と `gallery.html` が、同じフォルダに書き出される。
 
 ```bash
 "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --headless=new --hide-scrollbars \
-  --window-size=1280,640 --screenshot="$PWD/docs/assets/logo/social-preview.png" \
-  "file://$PWD/docs/assets/logo/social-preview.html"
+  --window-size=1280,640 --screenshot="$PWD/assets/logo/social-preview.png" \
+  "file://$PWD/assets/logo/social-preview.html"
 ```
 
 GitHub への登録は、**手で行う**（API では設定できない）: リポジトリの Settings → General → Social preview → Edit → Upload an image で、`social-preview.png` を選ぶ。
