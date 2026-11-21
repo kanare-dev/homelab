@@ -184,7 +184,7 @@ VM 停止の検知は、`TargetDown`（VM 内 OS の応答なし）が 3 分、`
 
 ### Slack の通知画面（スマホアプリ）
 
-2026-10-22 の動作確認時に、iPhone の Slack アプリで受信した画面。左は発報時（`TestAlert` と、vm-code 停止による `TargetDown` / `PveVmStopped`）、右は復旧後に `[RESOLVED]` が届いた状態。
+2026-10-22 の動作確認時に、iPhone の Slack アプリで受信した画面。左は発報時（`TestAlert` と、vm-code 停止による `TargetDown` / `PveVmStopped`）、右は復旧後に `[RESOLVED]` が届いた状態である。
 
 <p>
   <img src="../../screenshots/slack-alert-firing-ios.png" alt="Slack アプリに届いた発報通知（TestAlert、TargetDown、PveVmStopped）" width="320">
@@ -234,7 +234,7 @@ VM 停止の検知は、`TargetDown`（VM 内 OS の応答なし）が 3 分、`
 
 **受け入れたリスク**: PVE ホスト停止、vm-monitoring 停止、ストレージ全体障害は、気づくまで通知されない。気づく手段は、DNS・Homepage が使えない症状、または定期的な目視確認のみ。
 
-**再検討の目安**: 不在中に長時間気づけず困った、Home Assistant や n8n などの常時稼働が必要なサービスを載せた、または再び監視 VM を巻き込む障害が起きた場合。
+**再検討の目安**: 不在中に長時間気づけず困った、Home Assistant や n8n などの常時稼働が必要なサービスを載せた、または再び監視 VM を巻き込む障害が起きた場合である。
 
 **将来の選択肢**:
 

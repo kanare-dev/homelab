@@ -33,7 +33,7 @@ echo | openssl s_client -connect grafana.lab.kanare.dev:443 2>/dev/null \
 
 ## 証明書の更新
 
-Caddy は自動で更新するため通常は手動操作不要。
+Caddy が自動で更新するので、通常は手動で操作する必要はない。
 更新に失敗している場合は以下を確認する。
 
 ```bash
