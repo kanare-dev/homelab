@@ -11,7 +11,7 @@ Buffalo を ER605 に交換し、Buffalo を AP（ブリッジ）モードにし
 事前準備は、2026-11-03 に済んでいる。当日の朝に、**抜けていないかだけ**を確かめる。
 
 - [x] `vm-omada` が動いていて、コントローラーの画面に入れる（`ssh -L 8043:localhost:8043 vm-omada` のあと `https://localhost:8043`）
-- [x] コントローラーの LAN の設定が、ER605 の LAN（`192.168.11.1/24`）に合っている（[Omada コントローラー](../../services/network/omada-controller.md)）
+- [x] コントローラーの LAN の設定が、ER605 の LAN（`192.168.11.1/24`）に合っている（[Omada コントローラー](../../architecture/lld/network/omada-controller.md)）
 - [x] ER605 が、スタンドアロンで設定済み（LAN `192.168.11.1/24`、DHCP `.60`〜`.99`・リース 48 時間・DNS `192.168.11.11` だけ。[ER605 の設定](../../hardware/er605/settings.md)）
 - [x] Buffalo の設定のバックアップ（`wsr-1800ax4p-bk-YYYYMMDD.bin`）と、コントローラーのバックアップがある（iCloud Drive）。EasyMesh は無効にしてある
 - [x] 短いケーブルが 2 本ある（ER605 p2 ↔ SG2210P p1 は接続済み、SG2210P p2 ↔ Proxmox は SG2210P 側だけ挿してある）。長いケーブル A・B・C は、今の配線のまま
@@ -149,11 +149,11 @@ Buffalo の IP を調べて、ブラウザで開く。AP モードにすると�
 ## 10. 作業の後始末
 
 1. **コントローラーのバックアップを取る**。画面の Settings > Maintenance の「Backup & Restore」で保存して、iCloud Drive の `homelab/` に置く（`omada-bk-YYYYMMDD.cfg`）。
-2. **同じ変更で直す**（[DNS 構成の「ルーターを付け替えるとき」](../../services/network/dns.md#ルーターを付け替えるとき)）:
+2. **同じ変更で直す**（[DNS 構成の「ルーターを付け替えるとき」](../../architecture/lld/network/dns.md#ルーターを付け替えるとき)）:
    - `docker/compose/reverse-proxy/Caddyfile`: `router.lab.kanare.dev` を廃止し、`omada.lab.kanare.dev`（Omada コントローラーの管理画面。HTTPS、`tls_insecure_skip_verify`）を新設する（決定 2026-11-06）。DNS のレコード（`ansible/inventory/group_vars/infra/vars.yml` の `dns_records`）も、`router` を `omada` に変える。`ansible-playbook playbooks/infra.yml` で反映する。
    - Homepage の Router タイルと `siteMonitor`（`docker/compose/homepage/config/services.yaml`）。
    - `docs/architecture/02-infrastructure.md` の機器表、`README.md`、`docs/architecture/01-overview.md` の構成図（as-is の図）。
-   - [IP アドレス一覧](../../architecture/09-ip-addresses.md): `192.168.11.2` を Buffalo（AP モード、固定）として確認する。
+   - [IP アドレス一覧](../../architecture/lld/network/ip-addresses.md): `192.168.11.2` を Buffalo（AP モード、固定）として確認する。
 3. **機器の設定文書の「未確認」を埋める**: [ER605](../../hardware/er605/settings.md)（p2 が LAN として動くか、上流が MAC で絞っていたか、採用後の値）、[SG2210P](../../hardware/sg2210p/settings.md)（標準の設定でスイッチとして動いたか）、[Buffalo](../../hardware/wsr-1800ax4p/settings.md)（AP モードでの IP と入り方、SSID が残ったか）。変更履歴に 1 行ずつ足す。
 4. 切り分けの結果（SG2210P を疑ったかなど）と、実際の所要時間を、[移行計画](../roadmap/10-er605-sg2210p-migration-plan.md)に記録する。
 

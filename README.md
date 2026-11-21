@@ -41,11 +41,11 @@
 
 ## 特徴
 
-- **3 層 DNS**: AdGuard Home（フィルタリング）→ CoreDNS（`lab.kanare.dev` の権威）/ Unbound（ルートからの再帰解決）。1.1.1.1 などの外部リゾルバに依存しない（[DNS 構成](docs/services/network/dns.md)）
-- **正規の TLS 証明書**: Caddy が Cloudflare DNS-01 で Let's Encrypt の証明書を取得し、LAN 内でも警告なしで HTTPS（[リバースプロキシと TLS](docs/services/network/reverse-proxy-tls.md)）
+- **3 層 DNS**: AdGuard Home（フィルタリング）→ CoreDNS（`lab.kanare.dev` の権威）/ Unbound（ルートからの再帰解決）。1.1.1.1 などの外部リゾルバに依存しない（[DNS 構成](docs/architecture/lld/network/dns.md)）
+- **正規の TLS 証明書**: Caddy が Cloudflare DNS-01 で Let's Encrypt の証明書を取得し、LAN 内でも警告なしで HTTPS（[リバースプロキシと TLS](docs/architecture/lld/network/reverse-proxy-tls.md)）
 - **二重 NAT でも外出先から接続**: Tailscale を subnet router として動かし、split DNS で `lab.kanare.dev` を引く（[ネットワーク設計](docs/architecture/03-network.md)）
 - **機密情報管理**: SOPS + age で暗号化して Git に置く。CI で gitleaks と暗号化漏れを検査する（[セキュリティ](docs/architecture/05-security.md)）
-- **可観測性**: Prometheus + Alertmanager で、容量枯渇・VM 停止・OOM などを検知して Slack に通知する（[監視・アラート](docs/services/platform/monitoring.md)）
+- **可観測性**: Prometheus + Alertmanager で、容量枯渇・VM 停止・OOM などを検知して Slack に通知する（[監視・アラート](docs/architecture/lld/platform/monitoring.md)）
 
 ## 構成
 
@@ -89,7 +89,7 @@
 | ディレクトリ | 区分 | 内容 |
 | --- | --- | --- |
 | [docs/architecture/](docs/architecture/README.md) | 方式設計 | [システム概要](docs/architecture/01-overview.md)、[インフラ構成](docs/architecture/02-infrastructure.md)、[ネットワーク設計](docs/architecture/03-network.md)、[可用性・信頼性](docs/architecture/04-reliability.md)、[セキュリティ](docs/architecture/05-security.md)、[移行性](docs/architecture/06-migration.md)、[災害対策](docs/architecture/07-disaster-recovery.md)、[VLAN 設計](docs/architecture/08-vlan-design.md) |
-| [docs/services/](docs/services/README.md) | サービスごとの詳細設計 | [DNS](docs/services/network/dns.md)、[リバースプロキシと TLS](docs/services/network/reverse-proxy-tls.md)、[監視・アラート](docs/services/platform/monitoring.md)、[Home Assistant](docs/services/apps/home-assistant.md)、[Homepage](docs/services/apps/homepage.md)、[n8n](docs/services/apps/n8n.md)、[FreshRSS](docs/services/apps/freshrss.md)、[CI/CD](docs/services/dev/cicd.md) |
+| [docs/architecture/lld/](docs/architecture/lld/README.md) | サービスごとの詳細設計 | [DNS](docs/architecture/lld/network/dns.md)、[リバースプロキシと TLS](docs/architecture/lld/network/reverse-proxy-tls.md)、[監視・アラート](docs/architecture/lld/platform/monitoring.md)、[Home Assistant](docs/architecture/lld/apps/home-assistant.md)、[Homepage](docs/architecture/lld/apps/homepage.md)、[n8n](docs/architecture/lld/apps/n8n.md)、[FreshRSS](docs/architecture/lld/apps/freshrss.md)、[CI/CD](docs/architecture/lld/dev/cicd.md) |
 | [docs/operations/](docs/operations/runbooks/README.md) | 運用 | [Runbook](docs/operations/runbooks/README.md)、[バックアップの手順](docs/operations/runbooks/06-backup-restore.md)、[障害記録](docs/operations/incidents/README.md)、[ロードマップ](docs/operations/roadmap/README.md) |
 | [docs/adr/](docs/adr/README.md) | ADR | 設計判断の記録 |
 

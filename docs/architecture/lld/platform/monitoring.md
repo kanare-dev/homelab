@@ -1,6 +1,6 @@
 # 監視・アラート
 
-homelab の監視とアラート通知の仕組み。2026-10-22 の障害（[INC-2026-10-22](../../operations/incidents/2026-10-22-lvm-thin-exhaustion.md)）を受けて、容量枯渇と VM 停止を検知して Slack に通知する構成にした。
+homelab の監視とアラート通知の仕組み。2026-10-22 の障害（[INC-2026-10-22](../../../operations/incidents/2026-10-22-lvm-thin-exhaustion.md)）を受けて、容量枯渇と VM 停止を検知して Slack に通知する構成にした。
 
 ## 全体像
 
@@ -41,14 +41,14 @@ homelab の監視とアラート通知の仕組み。2026-10-22 の障害（[INC
 | Prometheus | 収集・ルール評価。`retention.time=30d`、`retention.size=5GB` | `docker/compose/monitoring/prometheus/prometheus.yml`、`docker-compose.yml` |
 | アラートルール | 発報条件 | `docker/compose/monitoring/prometheus/alerts.yml` |
 | Alertmanager | 通知のグルーピング・送信 | `docker/compose/monitoring/alertmanager/alertmanager.yml` |
-| 外部 Heartbeat | `Watchdog` を Healthchecks.io へ 5 分毎に送る。途絶えたら外部から通知（[ADR-0010](../../adr/0010-external-heartbeat.md)） | `alertmanager.yml`（`heartbeat` receiver）、`ansible/playbooks/monitoring.yml` |
+| 外部 Heartbeat | `Watchdog` を Healthchecks.io へ 5 分毎に送る。途絶えたら外部から通知（[ADR-0010](../../../adr/0010-external-heartbeat.md)） | `alertmanager.yml`（`heartbeat` receiver）、`ansible/playbooks/monitoring.yml` |
 | Heartbeat ping URL | 秘密情報 | `ansible/inventory/group_vars/monitoring/secrets.sops.yml`（`heartbeat_ping_url`、SOPS 暗号化） |
 | Slack Webhook URL（critical 用 / warning 用） | 秘密情報 | `ansible/inventory/group_vars/monitoring/secrets.sops.yml`（`slack_webhook_url` / `slack_webhook_url_warning`、SOPS 暗号化） |
 | Grafana ダッシュボード「Internet Connectivity」 | ping の遅延（ルーター・建物の共用ルーター・インターネット）、疎通、通知しきい値 | `docker/compose/monitoring/grafana/dashboards/internet-connectivity.json`（`/d/homelab-internet-connectivity`） |
 | Grafana ダッシュボード「Storage / Thin Pool」 | pool とVM ディスク別の割当、増加ペース、VM 稼働状態 | `docker/compose/monitoring/grafana/dashboards/storage.json`（`/d/homelab-storage`） |
 | デプロイ | | `ansible/playbooks/monitoring.yml`（vm-monitoring）、`ansible/playbooks/proxmox.yml`（pve） |
 
-> `vm-omada` の Omada コントローラーの画面（HTTPS）の外形監視は、まだ入れていない。`omada.lab.kanare.dev` を Caddy と DNS に足したあとに、blackbox の HTTPS に加える（[バックログ](../../operations/roadmap/01-backlog.md)）。`vm-omada` の OS の死活は、`node_exporter` の scrape と `TargetDown` で見ている（2026-11-03 から）。
+> `vm-omada` の Omada コントローラーの画面（HTTPS）の外形監視は、まだ入れていない。`omada.lab.kanare.dev` を Caddy と DNS に足したあとに、blackbox の HTTPS に加える（[バックログ](../../../operations/roadmap/01-backlog.md)）。`vm-omada` の OS の死活は、`node_exporter` の scrape と `TargetDown` で見ている（2026-11-03 から）。
 
 ## 監視している項目
 
@@ -90,7 +90,7 @@ homelab の監視とアラート通知の仕組み。2026-10-22 の障害（[INC
 | `blackbox_icmp` | `10.77.20.1`（ルーター）、`172.22.0.1`（建物の共用ルーター）、`1.1.1.1`、`8.8.8.8` | 30 秒毎の ping。どこまで届くか（疎通）と遅延（RTT）、パケットロス。回線断・建物側の遅延の切り分けに使う |
 | `blackbox_dns` | `10.77.20.10:53`（AdGuard） | `dns-lab`: `grafana.lab.kanare.dev` の A レコード（CoreDNS まで）。`dns-external`: `cloudflare.com`（Unbound まで） |
 
-- blackbox-exporter のコンテナは DNS に AdGuard（`10.77.20.10`）を使う。vm-monitoring 自体の DNS はルーターで `*.lab.kanare.dev` を引けないため（[ADR 0007](../../adr/0007-vm-host-dns-is-router.md)）、`docker-compose.yml` の `dns:` で指定している。AdGuard が止まると HTTPS のプローブも全部失敗する（`DnsProbeFailed` で抑制）。
+- blackbox-exporter のコンテナは DNS に AdGuard（`10.77.20.10`）を使う。vm-monitoring 自体の DNS はルーターで `*.lab.kanare.dev` を引けないため（[ADR 0007](../../../adr/0007-vm-host-dns-is-router.md)）、`docker-compose.yml` の `dns:` で指定している。AdGuard が止まると HTTPS のプローブも全部失敗する（`DnsProbeFailed` で抑制）。
 - `http_service` は 200 系・リダイレクト・401/403 を成功とみなす（認証付きサービスやログイン画面への転送を「応答している」とする）。500 系・接続失敗・TLS エラーは失敗。
 - 各ターゲットの `host` ラベルは背後の VM。VM が落ちて `TargetDown` が出ている間は、同じ `host` の `ServiceProbeFailed` を抑制する（`alertmanager.yml` の `inhibit_rules`）。
 - `DnsProbeFailed` の発報中は、名前解決に依存する `ServiceProbeFailed` も抑制する。通知が大量に出るのを防ぐ。
@@ -99,7 +99,7 @@ homelab の監視とアラート通知の仕組み。2026-10-22 の障害（[INC
 
 ### 回線の疎通・遅延の監視
 
-家のインターネット回線が落ちた時と、建物側のネットワークが遅くなった時に気づけるようにする。判断は [ADR 0018](../../adr/0018-internet-speed-monitoring.md)。
+家のインターネット回線が落ちた時と、建物側のネットワークが遅くなった時に気づけるようにする。判断は [ADR 0018](../../../adr/0018-internet-speed-monitoring.md)。
 
 - **測り方**: blackbox-exporter の ICMP で、4 か所に 30 秒毎に ping する。通信量はほぼゼロなので、仕事中も止めない。
 
@@ -113,14 +113,14 @@ homelab の監視とアラート通知の仕組み。2026-10-22 の障害（[INC
 - **切り分け**: ルーター → 建物の共用ルーター → インターネットの順に、**どこまで届くか・どこから遅いか**を Grafana「Internet Connectivity」で見る。建物の共用ルーターまでで遅延が増えていれば建物内、そこまで低くてその先で増えていれば ISP 側。
 - **回線断**: ルーターに届くのに `1.1.1.1` と `8.8.8.8` の両方に届かない状態が 2 分続くと `InternetDown`。片方だけ失敗するなら、その宛先側の問題とみなして発報しない。回線断の間は、遅延・パケットロスの通知と、外の名前解決の失敗（`DnsProbeFailed` の `dns-external`）を抑制する。
 - **遅延**: `1.1.1.1` への RTT（10 分平均）が、7 日間の中央値の 3 倍かつ 100ms を超えて 15 分続くと `InternetLatencyHigh`。平常値が溜まる前（約 2 日分）は評価しない。しきい値は `alerts.yml` の `3`（倍率）と `0.1`（下限）で変える。2026-11-09 に、平日昼の 50〜65ms 程度の揺らぎ（体感なし）で頻発したため、2 倍・50ms・10 分から引き上げた。
-- **パケットロス**: `1.1.1.1` と `8.8.8.8` の両方で 10 分間のロスが 10% を超え、かつルーター自身に届いている状態が 10 分続くと `InternetPacketLoss`。片方だけなら、その宛先側の問題とみなして発報しない。LAN 側の障害や作業でルーターごと落ちている間は評価しない（`GatewayUnreachable` が担当する）。2026-11-09 に、2026-11-08 の SG2210P の事故（[インシデント](../../operations/incidents/2026-11-08-sg2210p-native-vlan-overwrite.md)）や、1〜3 発落ちるだけの数分のバースト（過去 7 日で 10 回発報、体感なし）で誤って鳴ったため、これらの条件を足した。同じ条件を過去 7 日に当てはめると発報は 0 回
-- **建物の共用ルーター宛て**: ICMP に応答しない構成だと誤報になるため、アラートにせず、確認用のグラフだけにしている。上流が変わったとき（引っ越しなど）は `prometheus.yml` の `blackbox_icmp` の宛先を直す（[回線と WAN](../../architecture/03-network.md#回線と-wan)）。
+- **パケットロス**: `1.1.1.1` と `8.8.8.8` の両方で 10 分間のロスが 10% を超え、かつルーター自身に届いている状態が 10 分続くと `InternetPacketLoss`。片方だけなら、その宛先側の問題とみなして発報しない。LAN 側の障害や作業でルーターごと落ちている間は評価しない（`GatewayUnreachable` が担当する）。2026-11-09 に、2026-11-08 の SG2210P の事故（[インシデント](../../../operations/incidents/2026-11-08-sg2210p-native-vlan-overwrite.md)）や、1〜3 発落ちるだけの数分のバースト（過去 7 日で 10 回発報、体感なし）で誤って鳴ったため、これらの条件を足した。同じ条件を過去 7 日に当てはめると発報は 0 回
+- **建物の共用ルーター宛て**: ICMP に応答しない構成だと誤報になるため、アラートにせず、確認用のグラフだけにしている。上流が変わったとき（引っ越しなど）は `prometheus.yml` の `blackbox_icmp` の宛先を直す（[回線と WAN](../../03-network.md#回線と-wan)）。
 - **回線断の通知**: 回線が落ちている間は Slack に通知できない。外部 Heartbeat（Healthchecks.io）の DOWN が先に届き、Slack の `InternetDown` は回線復旧後に届く。
 - **限界**: ping は遅延とロスを見るもので、**速度（Mbps）は測らない**。遅延が増えずに帯域だけ絞られる場合は検知できない。`vm-monitoring` は有線なので、Wi-Fi の状態も測れない。
 
 #### 回線速度（Speedtest）を測らない理由
 
-Ookla Speedtest は測定のたびに 30〜60 秒、回線を使い切る（1Gbps 級なら 1 回 1〜2GB 前後）。仕事中のビデオ会議などに影響し、建物の共用回線にも負荷をかけるため、見送った。再検討の条件は [見送り中の項目](../../operations/roadmap/03-deferred.md#回線速度の定期測定speedtest)。
+Ookla Speedtest は測定のたびに 30〜60 秒、回線を使い切る（1Gbps 級なら 1 回 1〜2GB 前後）。仕事中のビデオ会議などに影響し、建物の共用回線にも負荷をかけるため、見送った。再検討の条件は [見送り中の項目](../../../operations/roadmap/03-deferred.md#回線速度の定期測定speedtest)。
 
 #### Wi-Fi 経由の測定（未実装）
 
@@ -135,7 +135,7 @@ Ookla Speedtest は測定のたびに 30〜60 秒、回線を使い切る（1Gbp
 | 1 | 測定の相手側に `iperf3 -s` を置く（例: `vm-infra`、`vm-apps`。Ansible のロールで systemd サービス化し、UFW で `vm-monitoring` からだけ許可する） |
 | 2 | `vm-monitoring` に `iperf3_exporter`（Prometheus 公式コミュニティ製）を追加し、`prometheus.yml` に `iperf3` ジョブを足す（`/probe?target=<相手>` 形式。blackbox と同じ書き方） |
 | 3 | `internet-connectivity.json` に LAN 用の行を足すか、別ダッシュボード「LAN Speed」を作る。アラートは `InternetLatencyHigh` と同じ「7 日間の中央値との比較」で書く |
-| 注意 | iperf3 は LAN の帯域を測定中に使い切る。頻度は 1 日数回にし、深夜などに寄せる。VLAN 化（[Omada 導入・VLAN 化](../../operations/roadmap/04-network-omada-vlan.md)）の前に基準値を取っておくと、前後比較に使える |
+| 注意 | iperf3 は LAN の帯域を測定中に使い切る。頻度は 1 日数回にし、深夜などに寄せる。VLAN 化（[Omada 導入・VLAN 化](../../../operations/roadmap/04-network-omada-vlan.md)）の前に基準値を取っておくと、前後比較に使える |
 
 ### 通知の挙動
 
@@ -187,8 +187,8 @@ VM 停止の検知は、`TargetDown`（VM 内 OS の応答なし）が 3 分、`
 2026-10-22 の動作確認時に、iPhone の Slack アプリで受信した画面。左は発報時（`TestAlert` と、vm-code 停止による `TargetDown` / `PveVmStopped`）、右は復旧後に `[RESOLVED]` が届いた状態である。
 
 <p>
-  <img src="../../screenshots/slack-alert-firing-ios.png" alt="Slack アプリに届いた発報通知（TestAlert、TargetDown、PveVmStopped）" width="320">
-  <img src="../../screenshots/slack-alert-resolved-ios.png" alt="Slack アプリに届いた解消通知（RESOLVED）" width="320">
+  <img src="../../../screenshots/slack-alert-firing-ios.png" alt="Slack アプリに届いた発報通知（TestAlert、TargetDown、PveVmStopped）" width="320">
+  <img src="../../../screenshots/slack-alert-resolved-ios.png" alt="Slack アプリに届いた解消通知（RESOLVED）" width="320">
 </p>
 
 ## 意図的に監視していないもの
@@ -207,22 +207,22 @@ VM 停止の検知は、`TargetDown`（VM 内 OS の応答なし）が 3 分、`
 
 ### 外部 Heartbeat
 
-この判断は [ADR-0010](../../adr/0010-external-heartbeat.md) に記録している。
+この判断は [ADR-0010](../../../adr/0010-external-heartbeat.md) に記録している。
 
 | 項目 | 内容 |
 | --- | --- |
 | 仕組み | Alertmanager が `Watchdog` を webhook で Healthchecks.io の ping URL に 5 分毎に POST する（`group_interval: 1m`、`repeat_interval: 5m`）。途絶えると Healthchecks.io が通知する |
 | Healthchecks.io 側の設定 | Period を 5 分、Grace を 5 分にする（約 10 分で検知）。通知は Healthchecks.io から直接送る。Slack（`#homelab-alerts`）とメールの 2 経路。Slack はチャンネル名で指定しているので、チャンネル名を変えたらここも直す（Alertmanager の Webhook URL はチャンネル ID に紐づくので影響を受けない） |
 | 検知できる障害 | PVE ホストの停止、NIC の停止、vm-monitoring・Alertmanager の停止、回線断・停電 |
-| 区別できないこと | どの障害でも「ping が途絶えた」という同じ通知になる。原因は LAN から `ping`、ARP、`ssh pve` で切り分ける（[障害時の切り分け](../../operations/runbooks/11-troubleshooting.md)） |
+| 区別できないこと | どの障害でも「ping が途絶えた」という同じ通知になる。原因は LAN から `ping`、ARP、`ssh pve` で切り分ける（[障害時の切り分け](../../../operations/runbooks/11-troubleshooting.md)） |
 | 秘密情報 | ping URL を知っていれば誰でも ping できる。`heartbeat_ping_url`（SOPS）で管理し、漏えいしたら再発行して差し替える |
 | 動作確認 | 実施済み（2026-10-25）。Alertmanager を止めると DOWN、起動すると UP が Slack とメールに届いた（下の「動作確認の記録」） |
 
 ### 外部監視を導入しない判断（2026-10-22）
 
-> **この判断は置き換え済み。** [ADR-0010](../../adr/0010-external-heartbeat.md)（2026-10-25）で置き換えた。以下は当時の判断と選択肢の記録として残す。
+> **この判断は置き換え済み。** [ADR-0010](../../../adr/0010-external-heartbeat.md)（2026-10-25）で置き換えた。以下は当時の判断と選択肢の記録として残す。
 
-この判断は [ADR-0002](../../adr/0002-no-external-monitoring.md) に記録している。
+この判断は [ADR-0002](../../../adr/0002-no-external-monitoring.md) に記録している。
 
 **判断**: 監視 VM・PVE ホストの停止を検知する外部監視は、現時点では導入しない。上記 1・2 のリスクは認識したうえで受け入れる。
 
@@ -308,7 +308,7 @@ Slack App の「Incoming Webhooks」で再発行し、`sops ansible/inventory/gr
 
 | アラート | 最初にやること |
 | --- | --- |
-| LvmThinPoolData* | `ssh pve lvs -o lv_name,data_percent,metadata_percent pve/data`。各 VM で `sudo fstrim -av`。足りなければ `lvextend`。詳細は [runbook](../../operations/runbooks/05-slack-alerts.md#slack-アラート通知) |
+| LvmThinPoolData* | `ssh pve lvs -o lv_name,data_percent,metadata_percent pve/data`。各 VM で `sudo fstrim -av`。足りなければ `lvextend`。詳細は [runbook](../../../operations/runbooks/05-slack-alerts.md#slack-アラート通知) |
 | LvmThinPoolOverprovisioned | VM ディスクを増やしすぎている。`lvs` で割当を確認し、pool の拡張、ディスクの縮小、不要な VM の削除を検討する。VG に空きが無ければディスクの追加が必要 |
 | PveVmIoError | 先にプールを拡張してから `qm resume <vmid>`。強制リセットしない |
 | PveVmStopped | PVE の UI で状態確認。`qm start <vmid>`。意図した停止なら `onboot` の設定を見直す |
@@ -321,5 +321,5 @@ Slack App の「Incoming Webhooks」で再発行し、`sops ansible/inventory/gr
 
 ## 関連
 
-- [INC-2026-10-22 インシデント記録](../../operations/incidents/2026-10-22-lvm-thin-exhaustion.md)
-- [運用 Runbook](../../operations/runbooks/README.md)
+- [INC-2026-10-22 インシデント記録](../../../operations/incidents/2026-10-22-lvm-thin-exhaustion.md)
+- [運用 Runbook](../../../operations/runbooks/README.md)

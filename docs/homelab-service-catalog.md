@@ -155,13 +155,13 @@
 
 | 状況 | ツール | 説明 | 根拠・備考 |
 | --- | --- | --- | --- |
-| 導入済み | Unbound DNS | 軽量キャッシュ DNS リゾルバ | [ADR 0020](adr/0020-dns-three-layer-stack.md)、[DNS 構成](services/network/dns.md) |
-| 導入済み | CoreDNS | Kubernetes 向けプラグイン型 DNS（`lab.kanare.dev` の権威として利用） | [ADR 0020](adr/0020-dns-three-layer-stack.md)、[DNS 構成](services/network/dns.md) |
+| 導入済み | Unbound DNS | 軽量キャッシュ DNS リゾルバ | [ADR 0020](adr/0020-dns-three-layer-stack.md)、[DNS 構成](architecture/lld/network/dns.md) |
+| 導入済み | CoreDNS | Kubernetes 向けプラグイン型 DNS（`lab.kanare.dev` の権威として利用） | [ADR 0020](adr/0020-dns-three-layer-stack.md)、[DNS 構成](architecture/lld/network/dns.md) |
 | 見送り | pi-hole/pi-hole | 広告ブロック DNS | [ADR 0020](adr/0020-dns-three-layer-stack.md) |
 | 見送り | TechnitiumSoftware/DnsServer | 権威・再帰・ブロックを兼ねる DNS サーバー | [ADR 0020](adr/0020-dns-three-layer-stack.md) |
 | 見送り | isc-projects/bind9 | 権威・再帰の本格的な DNS サーバー | [ADR 0020](adr/0020-dns-three-layer-stack.md) |
-| 導入済み | adguard/adguardhome | 広告・トラッキングブロック DNS | [ADR 0020](adr/0020-dns-three-layer-stack.md)、[DNS 構成](services/network/dns.md) |
-| 導入済み | Cloudflare DNS | 公開ドメインの DNS と API（Caddy の DNS-01 証明書に利用。SaaS） | [リバースプロキシ・TLS](services/network/reverse-proxy-tls.md) |
+| 導入済み | adguard/adguardhome | 広告・トラッキングブロック DNS | [ADR 0020](adr/0020-dns-three-layer-stack.md)、[DNS 構成](architecture/lld/network/dns.md) |
+| 導入済み | Cloudflare DNS | 公開ドメインの DNS と API（Caddy の DNS-01 証明書に利用。SaaS） | [リバースプロキシ・TLS](architecture/lld/network/reverse-proxy-tls.md) |
 
 ### 4.3 リバースプロキシ
 
@@ -169,8 +169,8 @@
 | --- | --- | --- | --- |
 | 見送り | nginx/nginx | Web サーバー・リバースプロキシ | [ADR 0019](adr/0019-caddy-reverse-proxy.md) |
 | 見送り | jc21/nginx-proxy-manager | Nginx の Web UI 管理ツール | [ADR 0019](adr/0019-caddy-reverse-proxy.md) |
-| 導入済み | caddy/caddy | 自動 HTTPS 対応の Web サーバー | [ADR 0019](adr/0019-caddy-reverse-proxy.md)、[リバースプロキシ・TLS](services/network/reverse-proxy-tls.md) |
-| 導入済み | Let's Encrypt | 無料の TLS 証明書（Caddy が DNS-01 で取得。SaaS） | [リバースプロキシ・TLS](services/network/reverse-proxy-tls.md) |
+| 導入済み | caddy/caddy | 自動 HTTPS 対応の Web サーバー | [ADR 0019](adr/0019-caddy-reverse-proxy.md)、[リバースプロキシ・TLS](architecture/lld/network/reverse-proxy-tls.md) |
+| 導入済み | Let's Encrypt | 無料の TLS 証明書（Caddy が DNS-01 で取得。SaaS） | [リバースプロキシ・TLS](architecture/lld/network/reverse-proxy-tls.md) |
 | 計画中 | traefik/traefik | 動的リバースプロキシ・ロードバランサ（`vm-apps` で学習用に試す。Caddy は置き換えない） | [ADR 0019](adr/0019-caddy-reverse-proxy.md)、[未着手の項目](operations/roadmap/01-backlog.md) |
 
 ### 4.4 VPN
@@ -195,7 +195,7 @@
 | 未検討 | nmap | ネットワーク・ポートのスキャン | — |
 | 未検討 | NetAlertX | ネットワーク上の端末の検出と新規端末の通知 | — |
 | 未検討 | netbox-community/netbox | IPAM / DCIM（IP アドレス・機器の台帳） | — |
-| 未検討 | Custom WiFi Monitor | Wi-Fi の電波状況・接続端末を監視する自作ツール（Wi-Fi 経由の速度・遅延の自動測定にも使う案） | [Wi-Fi 経由の測定](services/platform/monitoring.md#wi-fi-経由の測定未実装) |
+| 未検討 | Custom WiFi Monitor | Wi-Fi の電波状況・接続端末を監視する自作ツール（Wi-Fi 経由の速度・遅延の自動測定にも使う案） | [Wi-Fi 経由の測定](architecture/lld/platform/monitoring.md#wi-fi-経由の測定未実装) |
 | 未検討 | Pi.Alert (PiAlert) | ネットワーク上の端末の検出と新規端末の通知（NetAlertX の前身） | — |
 
 ---
@@ -236,11 +236,11 @@
 
 | 状況 | ツール | 説明 | 根拠・備考 |
 | --- | --- | --- | --- |
-| 導入済み | prom/prometheus | メトリクス収集・アラート | [監視・アラート](services/platform/monitoring.md) |
-| 導入済み | prom/alertmanager | アラート管理・通知 | [監視・アラート](services/platform/monitoring.md) |
-| 導入済み | prom/node-exporter | Prometheus 用ホストメトリクス | [監視・アラート](services/platform/monitoring.md) |
-| 導入済み | prom/blackbox-exporter | Blackbox プローブ（HTTP/HTTPS/DNS/TCP 等） | [監視・アラート](services/platform/monitoring.md) |
-| 導入済み | grafana/grafana | ダッシュボード・可視化 | [監視・アラート](services/platform/monitoring.md) |
+| 導入済み | prom/prometheus | メトリクス収集・アラート | [監視・アラート](architecture/lld/platform/monitoring.md) |
+| 導入済み | prom/alertmanager | アラート管理・通知 | [監視・アラート](architecture/lld/platform/monitoring.md) |
+| 導入済み | prom/node-exporter | Prometheus 用ホストメトリクス | [監視・アラート](architecture/lld/platform/monitoring.md) |
+| 導入済み | prom/blackbox-exporter | Blackbox プローブ（HTTP/HTTPS/DNS/TCP 等） | [監視・アラート](architecture/lld/platform/monitoring.md) |
+| 導入済み | grafana/grafana | ダッシュボード・可視化 | [監視・アラート](architecture/lld/platform/monitoring.md) |
 | 見送り | grafana/loki | ログ集約・検索 | [見送り中の項目](operations/roadmap/03-deferred.md#loki--grafana-alloyログ収集基盤) |
 | 見送り | grafana/promtail | Loki 用ログ収集エージェント | [見送り中の項目](operations/roadmap/03-deferred.md#loki--grafana-alloyログ収集基盤) |
 | 見送り | influxdata/telegraf | メトリクス・ログ収集エージェント | [見送り中の項目](operations/roadmap/03-deferred.md#方針のない候補) |
@@ -251,7 +251,7 @@
 | 未検討 | allinurl/goaccess | Web サーバーのアクセスログのリアルタイム解析（Caddy / nginx のログ向け） | — |
 | 未検討 | AnalogJ/scrutiny | ディスクの SMART 情報の Web ダッシュボード・故障予兆の検知 | — |
 | 見送り | miguelndecarvalho/speedtest-exporter | インターネット回線速度の定期測定（Ookla Speedtest CLI）を Prometheus に出す。scrape のたびに回線を使い切り、時間帯を指定できない | [見送り中の項目](operations/roadmap/03-deferred.md#回線速度の定期測定speedtest) |
-| 未検討 | iperf3_exporter | iperf3 で LAN 内の速度を測り Prometheus に出す（回線速度の監視の LAN 拡張用） | [家庭内 LAN への拡張](services/platform/monitoring.md#家庭内-lan-への拡張未実装) |
+| 未検討 | iperf3_exporter | iperf3 で LAN 内の速度を測り Prometheus に出す（回線速度の監視の LAN 拡張用） | [家庭内 LAN への拡張](architecture/lld/platform/monitoring.md#家庭内-lan-への拡張未実装) |
 | 未検討 | gnmyt/myspeed | インターネット回線速度の定期測定・履歴表示（Prometheus・Alertmanager に載らない） | — |
 | 未検討 | librespeed/speedtest | セルフホストの回線速度テスト（LAN 内の速度測定にも使える） | — |
 | 未検討 | oss/smokeping | ネットワークの遅延・パケットロスの長期グラフ化 | — |
@@ -261,7 +261,7 @@
 | 検討中 | google/cadvisor | コンテナごとのリソース使用量メトリクス（Prometheus 連携可）。`vm-omada` だけに入れる案。同じコンテナ内の Java と MongoDB は分けられない | [未着手の項目](operations/roadmap/01-backlog.md) |
 | 未検討 | ncabatoff/process-exporter | プロセス名ごとの CPU・メモリを Prometheus に出す。`vm-omada` で、Java と MongoDB を分けて見る案（cAdvisor の代案） | [未着手の項目](operations/roadmap/01-backlog.md) |
 | 未検討 | NUT (Network UPS Tools) | UPS の監視と自動シャットダウン（UPS 導入が前提） | [未着手の項目](operations/roadmap/01-backlog.md) |
-| 導入済み | Slack | Alertmanager の通知先（SaaS） | [監視・アラート](services/platform/monitoring.md) |
+| 導入済み | Slack | Alertmanager の通知先（SaaS） | [監視・アラート](architecture/lld/platform/monitoring.md) |
 | 導入済み | healthchecks.io | 外部 Heartbeat（Alertmanager の Watchdog が途絶えたら通知。SaaS） | [ADR 0010](adr/0010-external-heartbeat.md) |
 | 未検討 | linuxserver/tautulli | Plex 利用状況監視 | — |
 | 見送り | nicolargo/glances | システムリソース監視（CPU・メモリ・ディスク・ネットワーク） | [見送り中の項目](operations/roadmap/03-deferred.md#glanceshomepage-の-vm-別バー表示) |
@@ -350,7 +350,7 @@
 
 | 状況 | ツール | 説明 | 根拠・備考 |
 | --- | --- | --- | --- |
-| 導入済み | homeassistant/home-assistant | スマートホーム統合プラットフォーム | [Home Assistant](services/apps/home-assistant.md) |
+| 導入済み | homeassistant/home-assistant | スマートホーム統合プラットフォーム | [Home Assistant](architecture/lld/apps/home-assistant.md) |
 | 検討中 | Home Assistant の Prometheus 連携（組み込み） | SwitchBot Hub 2 の温度・湿度（将来は CO2）を Prometheus に出し、Slack にアラートを送る。未検証 | [バックログ](operations/roadmap/01-backlog.md) |
 | 計画中 | blakeblackshear/frigate | NVR・AI 物体検知 | [未着手の項目](operations/roadmap/01-backlog.md) |
 | 未検討 | koush/scrypted | カメラ・デバイスの HomeKit ブリッジ | — |
@@ -378,7 +378,7 @@
 
 | 状況 | ツール | 説明 | 根拠・備考 |
 | --- | --- | --- | --- |
-| 導入済み | gethomepage/homepage | ホームラボ用ダッシュボード | [Homepage](services/apps/homepage.md) |
+| 導入済み | gethomepage/homepage | ホームラボ用ダッシュボード | [Homepage](architecture/lld/apps/homepage.md) |
 | 未検討 | linuxserver/heimdall | アプリケーションランチャー | — |
 | 未検討 | fenruscn/fenrus | ダッシュボード・ブックマーク | — |
 | 未検討 | glanceapp/glance | フィード・天気・監視をまとめて表示する軽量ダッシュボード | — |
@@ -389,22 +389,22 @@
 
 | 状況 | ツール | 説明 | 根拠・備考 |
 | --- | --- | --- | --- |
-| 導入済み | coder/code-server | ブラウザ版 VS Code | [vm-code](services/dev/vm-code.md) |
+| 導入済み | coder/code-server | ブラウザ版 VS Code | [vm-code](architecture/lld/dev/vm-code.md) |
 | 未検討 | oznu/guacamole | ブラウザベースのリモートデスクトップ | — |
 | 未検討 | ich777/krusader | ファイルマネージャ | — |
-| 導入済み | siteboon/claudecodeui | Claude Code をリモート管理する Web UI（CloudCLI UI） | [vm-code](services/dev/vm-code.md) |
-| 導入済み | n8n-io/n8n | ワークフロー自動化 | [n8n](services/apps/n8n.md) |
+| 導入済み | siteboon/claudecodeui | Claude Code をリモート管理する Web UI（CloudCLI UI） | [vm-code](architecture/lld/dev/vm-code.md) |
+| 導入済み | n8n-io/n8n | ワークフロー自動化 | [n8n](architecture/lld/apps/n8n.md) |
 | 未検討 | Renovate | 依存・Docker イメージのバージョン更新の自動 PR | — |
 | 未検討 | Dependabot | GitHub 標準の依存更新の自動 PR | — |
-| 導入済み | mosh | 切れにくい SSH 代替（`vm-code` で利用） | [vm-code](services/dev/vm-code.md) |
-| 導入済み | GitHub CLI (gh) | GitHub 操作の CLI（`vm-code` で利用） | [vm-code](services/dev/vm-code.md) |
-| 導入済み | freshrss/freshrss | RSS リーダー | [FreshRSS](services/apps/freshrss.md) |
+| 導入済み | mosh | 切れにくい SSH 代替（`vm-code` で利用） | [vm-code](architecture/lld/dev/vm-code.md) |
+| 導入済み | GitHub CLI (gh) | GitHub 操作の CLI（`vm-code` で利用） | [vm-code](architecture/lld/dev/vm-code.md) |
+| 導入済み | freshrss/freshrss | RSS リーダー | [FreshRSS](architecture/lld/apps/freshrss.md) |
 | 未検討 | DIYgod/RSSHub | あらゆるサイトの RSS フィードを生成 | — |
 | 未検討 | RSSHub Radar | RSSHub のフィードを見つけるブラウザ拡張 | — |
 | 未検討 | usememos/memos | セルフホスト型メモ | — |
 | 未検討 | go-gitea/gitea | セルフホスト型 Git サービス | — |
 | 未検討 | solidnerd/bookstack | Wiki 型のドキュメント管理 | — |
-| 導入済み | GitHub Actions | CI（lint のみ） | [CI/CD](services/dev/cicd.md) |
+| 導入済み | GitHub Actions | CI（lint のみ） | [CI/CD](architecture/lld/dev/cicd.md) |
 
 ---
 
@@ -433,7 +433,7 @@
 | 未検討 | sysadminsmedia/homebox | 家庭用の物品・備品の在庫管理 | — |
 | 未検討 | pterodactyl/panel | ゲームサーバーの管理パネル | — |
 | 未検討 | AWS（EC2 / Lightsail） | クラウドの VPS。ハニーポットの受け口（VPS からトンネルで自宅の DMZ へ転送）や外部監視の候補。利用規約でハニーポットが許されるかを確認する（[DMZ と外部公開](operations/roadmap/07-dmz.md)） | — |
-| 未検討 | Oracle Cloud Always Free | Oracle Cloud の無料枠 VPS（外部監視の案 C など、外部ホストの候補。[監視・アラート](services/platform/monitoring.md)） | — |
+| 未検討 | Oracle Cloud Always Free | Oracle Cloud の無料枠 VPS（外部監視の案 C など、外部ホストの候補。[監視・アラート](architecture/lld/platform/monitoring.md)） | — |
 | 未検討 | AltServer | AltStore 用 AltServer（iOS サイドロード） | — |
 | 未検討 | AirMessage | iMessage を Android で利用 | — |
 

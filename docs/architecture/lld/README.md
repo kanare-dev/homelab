@@ -1,6 +1,6 @@
 # services
 
-サービスごとの詳細設計。構成、設定、運用上の注意、制約をまとめる。全体の方式は [architecture/](../architecture/README.md)、手順は [運用 Runbook](../operations/runbooks/README.md)、設計判断は [ADR](../adr/README.md) に書く。機器（ルーター、スイッチ、Proxmox ホストなど）の設定値は、[hardware/](../hardware/README.md) にある。
+サービスごとの詳細設計。構成、設定、運用上の注意、制約をまとめる。全体の方式は [architecture/](../README.md)、手順は [運用 Runbook](../../operations/runbooks/README.md)、設計判断は [ADR](../../adr/README.md) に書く。機器（ルーター、スイッチ、Proxmox ホストなど）の設定値は、[hardware/](../../hardware/README.md) にある。
 
 役割ごとにフォルダを分け、ファイル名は `<サービス名>.md`（番号は付けない）にする。
 
@@ -41,4 +41,4 @@
 
 - 新しいサービスを追加したら、役割に合うフォルダに `<サービス名>.md` で置き、この表と `docs/README.md` を更新する。合うフォルダが無ければ、新しい役割のフォルダを作り、この README に節を足す。
 - 構成を変えたら、該当する文書を同じ変更で更新する。
-- 以前は、番号つきのファイル名（`01-dns.md` など）で、フォルダを分けていなかった。2026-11-06 に、番号を外してフォルダ分けに変えた（機器の設定値は、同じ日に [hardware/](../hardware/README.md) に移した）。
+- 以前は、番号つきのファイル名（`01-dns.md` など）で、フォルダを分けていなかった。2026-11-06 に、番号を外してフォルダ分けに変えた（機器の設定値は、同じ日に [hardware/](../../hardware/README.md) に移した）。

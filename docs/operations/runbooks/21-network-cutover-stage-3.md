@@ -3,7 +3,7 @@
 VLAN を有効にし、全ホストの IP を `192.168.11.x` から `10.77.<VLAN>.x` に付け替える日の手順。**ホストのアドレス付け替えは 1 回だけ**（[ADR-0004](../../adr/0004-vlan-cutover-all-at-once.md)）。段階 1・2（[当日の作業](20-network-cutover-stage-1-2.md)）が済んでいることが前提。作業時間は、数時間を見込む。
 
 - 当日の順にチェックしながら進めるための文書。手順の根拠と、決めた経緯は[移行計画](../roadmap/10-er605-sg2210p-migration-plan.md)の「段階 3」と、[VLAN 設計](../../architecture/08-vlan-design.md)にある。手順を変えたら、計画も同じ変更で直す。
-- 新しい IP は [IP アドレス一覧](../../architecture/09-ip-addresses.md)、設定の対応表（ER605 の VLAN インターフェース、SG2210P のポート、Proxmox）は計画の「3-B」にある。
+- 新しい IP は [IP アドレス一覧](../../architecture/lld/network/ip-addresses.md)、設定の対応表（ER605 の VLAN インターフェース、SG2210P のポート、Proxmox）は計画の「3-B」にある。
 - 秘密の値と、機器の MAC アドレスは、この文書に書かない（台帳へ。[シークレット](03-secrets.md)）。
 - **管理系（Proxmox ホスト、`vm-omada`、ER605・SG2210P）は、段階 3 では動かさない**（[ADR-0028](../../adr/0028-defer-management-vlan10.md)）。手順 3・4 は、段階 3b に移した（この文書では行わない。下書きとして残す）。今の LAN（VLAN1）は、止めず、消さない。
 - **ACL は、当日は全許可のまま切り替え、絞るのは別の日に行う**（[ADR-0029](../../adr/0029-stage3-acl-allow-all-then-tighten.md)）。手順 8 は、別の日の作業。
@@ -188,8 +188,8 @@ ACL を、[通信ポリシー](../../architecture/08-vlan-design.md#通信ポリ
 ## 10. 作業の後始末
 
 1. **同じ変更で直す**（[設計書](../../architecture/08-vlan-design.md#切り替え後)）:
-   - Prometheus の scrape 対象とアラート、[監視・アラート](../../services/platform/monitoring.md)を更新し、Omada コントローラーの死活監視を足す。
-   - 各文書に残る旧アドレス（`192.168.11.`）を直す。[IP アドレス一覧](../../architecture/09-ip-addresses.md)の「現在」を「移行後」に合わせる（移行が済んだことを書く）。
+   - Prometheus の scrape 対象とアラート、[監視・アラート](../../architecture/lld/platform/monitoring.md)を更新し、Omada コントローラーの死活監視を足す。
+   - 各文書に残る旧アドレス（`192.168.11.`）を直す。[IP アドレス一覧](../../architecture/lld/network/ip-addresses.md)の「現在」を「移行後」に合わせる（移行が済んだことを書く）。
    - 構成図: to-be の構成図（`to-be-diagram/`）を確認する。現状の構成図（`as-is-diagram/`）は、実機に合わせて更新する（段階 3 の分は、2026-11-17 に作成した）。`as-is-diagram/` は、削除せず、実機の状態に保つ（2026-11-19 に方針を変えた）。
 2. 機器の設定文書を、実際の値に合わせる: [ER605](../../hardware/er605/settings.md)、[SG2210P](../../hardware/sg2210p/settings.md)、[Buffalo](../../hardware/wsr-1800ax4p/settings.md)、[ThinkCentre](../../hardware/thinkcentre-m70q-tiny/settings.md)。変更履歴に 1 行ずつ足す。
 3. 実際の所要時間と、リハーサルや当日の結果（追従の可否、`vmbr0.10`、既定の LAN を消せたか）を、[移行計画](../roadmap/10-er605-sg2210p-migration-plan.md)に記録する。

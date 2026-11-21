@@ -124,7 +124,7 @@ VM に SSH できなかったので、次の順に調べた。
 
 ## 関連ドキュメント
 
-- [Omada コントローラー](../../services/network/omada-controller.md)（メモリの上限、変更履歴）
-- [監視・アラート](../../services/platform/monitoring.md)（`HostMemoryLow` / `HostMemoryCritical`、容量の上限設定）
+- [Omada コントローラー](../../architecture/lld/network/omada-controller.md)（メモリの上限、変更履歴）
+- [監視・アラート](../../architecture/lld/platform/monitoring.md)（`HostMemoryLow` / `HostMemoryCritical`、容量の上限設定）
 - [インフラ構成](../../architecture/02-infrastructure.md)（VM のメモリ）
 - [INC-2026-11-08](2026-11-08-sg2210p-native-vlan-overwrite.md)（前日の障害。コントローラーが Proxmox の上にある件）

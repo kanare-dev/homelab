@@ -1,18 +1,18 @@
 # ネットワーク設計
 
-この文書では、ドメインの命名規約と、外部との接続をまとめる。アドレスの一覧は [IP アドレス一覧](09-ip-addresses.md)にあり、個別のサービスの詳細は [DNS 構成](../services/network/dns.md)と[リバースプロキシと TLS](../services/network/reverse-proxy-tls.md)にある。次期構成は [VLAN 設計](08-vlan-design.md)で説明している（未適用）。
+この文書では、ドメインの命名規約と、外部との接続をまとめる。アドレスの一覧は [IP アドレス一覧](lld/network/ip-addresses.md)にあり、個別のサービスの詳細は [DNS 構成](lld/network/dns.md)と[リバースプロキシと TLS](lld/network/reverse-proxy-tls.md)にある。次期構成は [VLAN 設計](08-vlan-design.md)で説明している（未適用）。
 
 ## IP アドレス
 
-IP アドレスの一覧（アドレスの範囲、VLAN、ホスト、FQDN の宛先。現在と移行後）は、[IP アドレス一覧](09-ip-addresses.md)にまとめた。
+IP アドレスの一覧（アドレスの範囲、VLAN、ホスト、FQDN の宛先。現在と移行後）は、[IP アドレス一覧](lld/network/ip-addresses.md)にまとめた。
 
 ## ドメイン命名規約
 
-内部 DNS では `lab.kanare.dev` ゾーンを使い、CoreDNS が権威サーバーとして応答する（[DNS 構成](../services/network/dns.md)）。サービスは `<サービス名>.lab.kanare.dev`、VM は `<VM 名>.lab.kanare.dev` という名前で引く。
+内部 DNS では `lab.kanare.dev` ゾーンを使い、CoreDNS が権威サーバーとして応答する（[DNS 構成](lld/network/dns.md)）。サービスは `<サービス名>.lab.kanare.dev`、VM は `<VM 名>.lab.kanare.dev` という名前で引く。
 
-FQDN ごとの宛先（IP とポート。現在と移行後）は、[IP アドレス一覧](09-ip-addresses.md#fqdn-の宛先)にある。
+FQDN ごとの宛先（IP とポート。現在と移行後）は、[IP アドレス一覧](lld/network/ip-addresses.md#fqdn-の宛先)にある。
 
-Caddy 経由の FQDN には、証明書を FQDN ごとに取得する（[リバースプロキシと TLS](../services/network/reverse-proxy-tls.md)）。
+Caddy 経由の FQDN には、証明書を FQDN ごとに取得する（[リバースプロキシと TLS](lld/network/reverse-proxy-tls.md)）。
 
 ## 外部接続の方針
 
@@ -47,7 +47,7 @@ Caddy 経由の FQDN には、証明書を FQDN ごとに取得する（[リバ�
 | 秘密情報 | `tailscale_authkey`（SOPS 管理） |
 | 利用例 | スマホ・Mac から `https://home.lab.kanare.dev`、`vm-code` への SSH / mosh / CloudCLI / code-server |
 
-- 設定の詳細と注意点（iOS の DNS や、`1.1.1.1` を併記しない理由など）は、[DNS 構成](../services/network/dns.md#tailscale-との連携)に書いている。
+- 設定の詳細と注意点（iOS の DNS や、`1.1.1.1` を併記しない理由など）は、[DNS 構成](lld/network/dns.md#tailscale-との連携)に書いている。
 - VLAN への移行後は、広告する範囲を Servers（`10.77.20.0/24`）と Lab（`10.77.40.0/24`）だけにする（[VLAN 設計](08-vlan-design.md#外出先からのアクセスtailscale)）。
 
 ## 外部サービスへの依存
@@ -84,6 +84,6 @@ Caddy 経由の FQDN には、証明書を FQDN ごとに取得する（[リバ�
 | 項目 | 状況 |
 | --- | --- |
 | Cloudflare Tunnel + Split-Horizon DNS で外部公開 | 保留（共有したい具体的なニーズが出てから） |
-| 外部監視（Heartbeat） | 導入済み（[ADR-0010](../adr/0010-external-heartbeat.md)、[監視・アラート](../services/platform/monitoring.md#外部-heartbeat)） |
+| 外部監視（Heartbeat） | 導入済み（[ADR-0010](../adr/0010-external-heartbeat.md)、[監視・アラート](lld/platform/monitoring.md#外部-heartbeat)） |
 | Tailscale の ACL で管理画面を除外 | 未実施 |
 | 引っ越し後の上流ネットワーク対応 | 未定（[移行性](06-migration.md)） |

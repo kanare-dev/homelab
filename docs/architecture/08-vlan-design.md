@@ -93,7 +93,7 @@ VLAN ID とサブネットの第 3 オクテットを揃える（第 2 オクテ
 
 VLAN の ID は、信頼度の高い順（内側から外側）に振る。外部に触れるもの（Guests、DMZ）は、末尾に置く。この判断は [ADR-0022](../adr/0022-vlan-set-and-ids.md) に記録している。
 
-VLAN ごとのサブネット・ゲートウェイ・DHCP プール、アドレス帯の区切り、DHCP の決まり、ホストの固定アドレスは、[IP アドレス一覧](09-ip-addresses.md)にまとめた（[VLAN 一覧](09-ip-addresses.md#vlan-一覧)、[アドレス帯の区切り](09-ip-addresses.md#アドレス帯の区切り)、[ホスト別の IP](09-ip-addresses.md#ホスト別の-ip)）。
+VLAN ごとのサブネット・ゲートウェイ・DHCP プール、アドレス帯の区切り、DHCP の決まり、ホストの固定アドレスは、[IP アドレス一覧](lld/network/ip-addresses.md)にまとめた（[VLAN 一覧](lld/network/ip-addresses.md#vlan-一覧)、[アドレス帯の区切り](lld/network/ip-addresses.md#アドレス帯の区切り)、[ホスト別の IP](lld/network/ip-addresses.md#ホスト別の-ip)）。
 
 ## 配置の方針
 
@@ -237,7 +237,7 @@ Omada コントローラー（`omada.lab.kanare.dev`）と Proxmox（`pve.lab.ka
 - Buffalo は AP モードにして、今の SSID のまま使う。Wi-Fi 端末の設定は変わらない。
 - ER605 の LAN ポートに Proxmox、有線のテレビ、Buffalo（AP）を直接つなぐ。ER605 V2 の標準版は GbE 5 ポート（WAN 固定 1、LAN 固定 2、WAN/LAN 切り替え 2）で、WAN を 1 つ使っても LAN を 3 つ以上確保でき、足りる。地域版は WAN 1・切り替え 3・LAN 1 の構成もあるが、同様に LAN を 3 つ以上確保できる。
 - Omada コントローラー（Proxmox 上の VM）を立て、ER605 を採用する。**採用すると、ルーター自身の管理画面（GUI）は使えなくなる**。設定はすべてコントローラーから行う。
-- **管理画面の入口をコントローラーに付け替える**: 現在の `router.lab.kanare.dev`（Caddy → Buffalo の管理画面）は、採用後は転送先がなくなる。`omada.lab.kanare.dev` を新設して Omada コントローラーの管理画面（HTTPS、自己署名証明書のため `tls_insecure_skip_verify` を付ける。`pve` と同じ形）に転送し、Homepage の Router タイルもそこに向ける（`siteMonitor` も同様）。`router` の名前は、廃止した（決定: 運用者。2026-11-06 に `omada.lab.kanare.dev` を新設して実施）。`docs/services/network/dns.md` の記述も合わせて直す。
+- **管理画面の入口をコントローラーに付け替える**: 現在の `router.lab.kanare.dev`（Caddy → Buffalo の管理画面）は、採用後は転送先がなくなる。`omada.lab.kanare.dev` を新設して Omada コントローラーの管理画面（HTTPS、自己署名証明書のため `tls_insecure_skip_verify` を付ける。`pve` と同じ形）に転送し、Homepage の Router タイルもそこに向ける（`siteMonitor` も同様）。`router` の名前は、廃止した（決定: 運用者。2026-11-06 に `omada.lab.kanare.dev` を新設して実施）。`docs/architecture/lld/network/dns.md` の記述も合わせて直す。
 - **復旧の注意**: コントローラーが止まっている間は、ルーターの設定を変えられない（通信は設定を持ったまま動き続ける）。ルーターの GUI に戻すには、コントローラーでルーターを「忘れる」か、ルーターをリセットする。この手順を戻し手順に含める。
 - 戻し方: Buffalo をルーターモードに戻して繋ぎ直す。
 
@@ -258,7 +258,7 @@ Omada コントローラー（`omada.lab.kanare.dev`）と Proxmox（`pve.lab.ka
 
 **段階 3b: 管理系の VLAN10 化**
 
-- 段階 3 のあと、時間のあるときに、単独の作業として行う（[ADR-0028](../adr/0028-defer-management-vlan10.md)）。管理系（Proxmox ホスト、`vm-omada`、ER605・SG2210P）を、今の LAN から Management（VLAN10）へ移す。最終形は、[配置の方針](#配置の方針)と [IP アドレス一覧](09-ip-addresses.md)のとおり。
+- 段階 3 のあと、時間のあるときに、単独の作業として行う（[ADR-0028](../adr/0028-defer-management-vlan10.md)）。管理系（Proxmox ホスト、`vm-omada`、ER605・SG2210P）を、今の LAN から Management（VLAN10）へ移す。最終形は、[配置の方針](#配置の方針)と [IP アドレス一覧](lld/network/ip-addresses.md)のとおり。
 - 順序は、**機器を先に VLAN10 へ移し、そのあとコントローラーを移す**（[ADR-0031](../adr/0031-stage3b-devices-before-controller.md)。2026-11-18 の実機の試験で、機器が旧 LAN にいる間にコントローラーの住所だけを動かす方式は、成功しなかったため）。SG2210P（`10.77.10.2`）→「デバイス管理アクセス」で新しい住所を伝える → ER605 → `vm-omada` を VLAN10 の 1 枚にする。手順は[段階 3b の作業](../operations/runbooks/23-network-stage-3b-management-vlan10.md)。時期と、Proxmox ホストの移動は未決（[前提と未決事項](../operations/roadmap/13-defer-management-vlan.md)）。
 - 戻し方: 管理系を今の LAN に戻す。旧アドレスは、移行が済むまで残す。
 - **実施の状況（2026-11-19）**: SG2210P（`10.77.10.2`）、`vm-omada`（`10.77.10.3`、NIC 1 枚）、ER605（コントローラーへの接続先が `10.77.10.3`。ER605 自身の LAN は、同じ日の夜に、`192.168.11.1` から `10.77.1.1`（VLAN1）に付け替えた）を移した。Proxmox ホスト（`vmbr0.10`、[手順書 24](../operations/runbooks/24-pve-move-to-vmbr0-10.md)）も移した。**2026-11-20 に、既定のネットワークを VLAN10 `10.77.10.1/24` に統合して、Management と 1 つにし、VLAN1 を使わなくした**（[ADR-0032](../adr/0032-merge-default-network-into-management-vlan10.md)、[手順書 25](../operations/runbooks/25-merge-default-network-into-vlan10.md)）。p2 と空きポートの native は、どこにも繋がない `Blackhole`（VLAN 999）にした。段階 3b は、これで完了。経緯は[ロードマップ 13](../operations/roadmap/13-defer-management-vlan.md)。
@@ -287,7 +287,7 @@ Buffalo WSR-1800AX4P は VLAN に対応していない。AP モードにはで�
 | リバースプロキシ | `docker/compose/reverse-proxy/Caddyfile` | 各サービスの転送先 |
 | 監視 | `docker/compose/monitoring/prometheus/`（`prometheus.yml`、`alerts.yml`） | scrape 対象、アラート内の IP |
 | Homepage | `docker/compose/homepage/` | ウィジェットの URL、`dns:` |
-| ドキュメント | `README.md`、`docs/services/network/dns.md`、`docs/services/platform/monitoring.md`、`docs/operations/runbooks/README.md`、`docs/services/dev/cicd.md`、`docs/diagrams/as-is-diagram/make-as-is-diagram.py` | IP の記載、構成図 |
+| ドキュメント | `README.md`、`docs/architecture/lld/network/dns.md`、`docs/architecture/lld/platform/monitoring.md`、`docs/operations/runbooks/README.md`、`docs/architecture/lld/dev/cicd.md`、`docs/diagrams/as-is-diagram/make-as-is-diagram.py` | IP の記載、構成図 |
 
 `README.md` の「IP アドレス規約」は、この設計に合わせて書き換える。
 
@@ -318,7 +318,7 @@ Buffalo WSR-1800AX4P は VLAN に対応していない。AP モードにはで�
 
 ### 切り替え後
 
-- Prometheus の scrape 対象、アラート、`docs/services/platform/monitoring.md` を更新し、Omada コントローラーの死活監視を追加する。
+- Prometheus の scrape 対象、アラート、`docs/architecture/lld/platform/monitoring.md` を更新し、Omada コントローラーの死活監視を追加する。
 - ドキュメントを更新し、旧アドレスを残さない。構成図も直す（to-be の構成図 `to-be-diagram/` を確認し、現状の構成図 `as-is-diagram/` は、削除せず、実機に合わせて更新する）。
 - Buffalo は段階 4（AP の導入）まで AP として使い続ける。
 

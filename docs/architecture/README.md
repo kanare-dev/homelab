@@ -1,6 +1,6 @@
 # アーキテクチャ
 
-homelab の方式設計。構成の全体像から読み、必要な観点へ進む。サービスごとの詳細は [services/](../services/README.md)、設計判断の経緯は [adr/](../adr/README.md)、運用手順は [operations/](../operations/runbooks/README.md)。
+homelab の方式設計。構成の全体像から読み、必要な観点へ進む。サービスごとの詳細は [services/](lld/README.md)、設計判断の経緯は [adr/](../adr/README.md)、運用手順は [operations/](../operations/runbooks/README.md)。
 
 ## 目次
 
@@ -14,7 +14,7 @@ homelab の方式設計。構成の全体像から読み、必要な観点へ進
 | [移行性](06-migration.md) | ハード・ネットワーク・バージョンの移行シナリオ |
 | [災害対策](07-disaster-recovery.md) | 想定する災害、バックアップの状況、再構築の手順 |
 | [VLAN 設計](08-vlan-design.md) | 次期のネットワーク分割（設計段階。未適用） |
-| [IP アドレス一覧](09-ip-addresses.md) | 現在と移行後の IP（アドレスの範囲、VLAN、ホスト、FQDN の宛先、DHCP） |
+| [IP アドレス一覧](lld/network/ip-addresses.md) | 現在と移行後の IP（アドレスの範囲、VLAN、ホスト、FQDN の宛先、DHCP） |
 
 ## 運用ルール
 

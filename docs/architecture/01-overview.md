@@ -21,7 +21,7 @@
 - `vm-dev` は検証用のVMであるため、 Lab（VLAN40、`10.77.40.10`）に所属させる。
 - p2 と空きポートの native は、どこにも繋がない `Blackhole`（VLAN 999）とする（[ADR-0032](../adr/0032-merge-default-network-into-management-vlan10.md)）。
 
-`vm-monitoring` では Prometheus に加えて blackbox-exporter が、Caddy 経由の HTTPS と AdGuard の名前解決を外形監視し、ping（ICMP）でインターネット回線の断・遅延も見る（[監視・アラート](../services/platform/monitoring.md)）。
+`vm-monitoring` では Prometheus に加えて blackbox-exporter が、Caddy 経由の HTTPS と AdGuard の名前解決を外形監視し、ping（ICMP）でインターネット回線の断・遅延も見る（[監視・アラート](lld/platform/monitoring.md)）。
 
 外部サービス（Healthchecks.io、Slack、Cloudflare、Let's Encrypt、Tailscale、GitHub、Omada Cloud）は、いずれも LAN から外向きに接続するだけである。外部から LAN に入る経路は、Tailscale と、Omada Cloud 経由で開く Omada コントローラーの管理画面の 2 つだけである（[外部接続](03-network.md#外部サービスへの依存)）。
 

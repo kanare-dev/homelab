@@ -28,7 +28,7 @@ Proxmox VE 上に Terraform で VM を作り、Ansible で設定し、各 VM で
 | `vm-code` | 122 | `10.77.20.30`（VLAN20） | 2 | 4GB | 30G | 自動（順序 5） | 常用リモート開発 | Claude Code, CloudCLI, code-server, gh, git, mosh, moshi-hook |
 | `ubuntu-cloud` | 9000 | — | — | — | — | — | VM テンプレート | cloud-init 付き Ubuntu |
 
-VM の定義は `terraform/proxmox/terraform.tfvars` が正である。IP アドレスの一覧（現在と移行後）は [IP アドレス一覧](09-ip-addresses.md)にあり、起動順序と待機秒数は [運用 Runbook](../operations/runbooks/01-vm-startup-shutdown.md#vm-自動起動停止)に書いている。
+VM の定義は `terraform/proxmox/terraform.tfvars` が正である。IP アドレスの一覧（現在と移行後）は [IP アドレス一覧](lld/network/ip-addresses.md)にあり、起動順序と待機秒数は [運用 Runbook](../operations/runbooks/01-vm-startup-shutdown.md#vm-自動起動停止)に書いている。
 
 ## ソフトウェア構成
 
@@ -38,11 +38,11 @@ VM の定義は `terraform/proxmox/terraform.tfvars` が正である。IP アド
 | VM プロビジョニング | Terraform（`telmate/proxmox` 3.0.2-rc07） | `terraform/proxmox/` |
 | OS 設定 | Ansible（Ubuntu Server 24.04 LTS。[ADR 0021](../adr/0021-ubuntu-lts-for-vms.md)） | `ansible/roles/common/` ほか |
 | コンテナ | Docker Compose | `docker/compose/<stack>/` → VM 上の `/opt/<stack>/` |
-| 監視 | Prometheus, Alertmanager, Grafana, blackbox-exporter, node_exporter | [監視・アラート](../services/platform/monitoring.md) |
-| 名前解決 | AdGuard Home → CoreDNS / Unbound | [DNS 構成](../services/network/dns.md) |
+| 監視 | Prometheus, Alertmanager, Grafana, blackbox-exporter, node_exporter | [監視・アラート](lld/platform/monitoring.md) |
+| 名前解決 | AdGuard Home → CoreDNS / Unbound | [DNS 構成](lld/network/dns.md) |
 | リバースプロキシ・TLS | Caddy + Let's Encrypt（Cloudflare DNS-01） | [運用 Runbook](../operations/runbooks/04-tls-certificates.md#lan-内-tls) |
 | 秘密情報 | SOPS + age | [セキュリティ](05-security.md) |
-| CI | GitHub Actions（lint のみ） | [CI/CD](../services/dev/cicd.md) |
+| CI | GitHub Actions（lint のみ） | [CI/CD](lld/dev/cicd.md) |
 
 ## ホストの資源
 
@@ -80,7 +80,7 @@ VM ごとの vCPU、メモリ、ディスクは、[論理構成](#論理構成)�
 
 ## 資源の見張り方
 
-| 見たいもの | アラート（[監視・アラート](../services/platform/monitoring.md)） |
+| 見たいもの | アラート（[監視・アラート](lld/platform/monitoring.md)） |
 | --- | --- |
 | CPU の逼迫 | `HostCpuHigh`（85%、15 分）/ `HostCpuCritical`（95%、10 分） |
 | メモリの逼迫・OOM | `HostMemoryLow`（利用可能 10% 未満）/ `HostMemoryCritical`（5%）、`HostOomKilled` |
