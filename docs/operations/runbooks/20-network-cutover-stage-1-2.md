@@ -76,7 +76,7 @@ SG2210P、Proxmox、Buffalo を繋ぐ**前**に、ER605 単体で動くことを
 Mac を p3 から外し、次の順で付け替える。ケーブルの両端にラベルを貼る（`ER605-LAN1` など）。
 
 1. **Proxmox**: SG2210P の p2 に挿してある短いケーブルの、Proxmox 側の端を、Proxmox に挿す。
-2. **Buffalo**: ケーブル B の Proxmox 側の端を外し、SG2210P の p3 に挿す（Buffalo 側の端は、そのまま）。Buffalo の接続先のポートは、取扱説明書に指定がなく、公式 FAQ では AP モードで INTERNET も LAN として動く（[Buffalo の資料](../../architecture/lld/hardware/wsr-1800ax4p/spec.md)）。計画と物理構成図では INTERNET ポートにしている。
+2. **Buffalo**: ケーブル B の Proxmox 側の端を外し、SG2210P の p3 に挿す（Buffalo 側の端は、そのまま）。Buffalo の接続先のポートは、取扱説明書に指定がなく、公式 FAQ では AP モードで INTERNET も LAN として動く（[Buffalo の資料](../../architecture/lld/hardware/wsr-1800ax4p.md)）。計画と物理構成図では INTERNET ポートにしている。
 3. **メインディスプレイ**（Dell U2725QE）: ケーブル C の Buffalo 側の端を外し、SG2210P の p4 に挿す。
 
 | 区間 | ケーブル |

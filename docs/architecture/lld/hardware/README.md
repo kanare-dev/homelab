@@ -6,10 +6,10 @@
 
 | 機器 | 役割 | 仕様と資料 | 設定値 |
 | --- | --- | --- | --- |
-| Lenovo ThinkCentre M70q Tiny | Proxmox ホスト（`pve`）。全 VM が載る | [spec](thinkcentre-m70q-tiny/spec.md) | [settings](thinkcentre-m70q-tiny/settings.md) |
-| TP-Link ER605 V2 | ルーター。VLAN ごとのゲートウェイ・DHCP・ACL | [spec](er605/spec.md) | [settings](er605/settings.md) |
-| TP-Link SG2210P | PoE+ スイッチ。trunk・access のポート | [spec](sg2210p/spec.md) | [settings](sg2210p/settings.md) |
-| Buffalo WSR-1800AX4P | Wi-Fi ルーター。移行後は AP モード | [spec](wsr-1800ax4p/spec.md) | [settings](wsr-1800ax4p/settings.md) |
+| Lenovo ThinkCentre M70q Tiny | Proxmox ホスト（`pve`）。全 VM が載る | [spec](thinkcentre-m70q-tiny.md) | [settings](thinkcentre-m70q-tiny/settings.md) |
+| TP-Link ER605 V2 | ルーター。VLAN ごとのゲートウェイ・DHCP・ACL | [spec](er605.md) | [settings](er605/settings.md) |
+| TP-Link SG2210P | PoE+ スイッチ。trunk・access のポート | [spec](sg2210p.md) | [settings](sg2210p/settings.md) |
+| Buffalo WSR-1800AX4P | Wi-Fi ルーター。移行後は AP モード | [spec](wsr-1800ax4p.md) | [settings](wsr-1800ax4p/settings.md) |
 
 機器ではないものは、次に置く。
 

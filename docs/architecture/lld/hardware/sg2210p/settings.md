@@ -1,6 +1,6 @@
 # SG2210P（TP-Link スイッチ）
 
-TP-Link SG2210P V5.30 の設定値（詳細設計）。段階 1・2 で ER605 の下に入れ、段階 3 で VLAN の trunk と access を設定する。**この文書を、設定値の正とする。** 製品の仕様は[SG2210P の資料](spec.md)、コントローラーは[Omada コントローラー](../../network/omada-controller.md)、VLAN のポートの割り当ては[第5章 ネットワーク](../../../hld/05-network.md)、移行の手順は[移行計画](../../../../operations/roadmap/10-er605-sg2210p-migration-plan.md)にある。
+TP-Link SG2210P V5.30 の設定値（詳細設計）。段階 1・2 で ER605 の下に入れ、段階 3 で VLAN の trunk と access を設定する。**この文書を、設定値の正とする。** 製品の仕様は[SG2210P の資料](../sg2210p.md)、コントローラーは[Omada コントローラー](../../network/omada-controller.md)、VLAN のポートの割り当ては[第5章 ネットワーク](../../../hld/05-network.md)、移行の手順は[移行計画](../../../../operations/roadmap/10-er605-sg2210p-migration-plan.md)にある。
 
 > [!NOTE]
 > 作成日は 2026-11-03。**秘密の値と、機器の MAC アドレスは書かない**（リポジトリは公開）。

@@ -17,7 +17,7 @@
 | 上流 | 建物の共用ルーター（`172.22.0.1`）。ER605 の WAN は DHCP で受ける | 設計書より |
 | 購入 | ER605 と SG2210P は同時に購入済み。段階 1 と 2 は、同じ日に続けて行ってよい（[進め方](#段階-1-と段階-2-は-1-回の作業にまとめる決定-2026-11-03)） | 運用者に確認済み |
 | ER605 の版 | V2 | **本体の表示で確認する**（[段階 0](#段階-0-事前準備)） |
-| SG2210P の版 | (UN) V5.30。Omada に対応する版（v4 は非対応という記載がある）。仕様は[ハードウェアの資料](../../architecture/lld/hardware/sg2210p/spec.md)にある | 運用者が本体で確認済み |
+| SG2210P の版 | (UN) V5.30。Omada に対応する版（v4 は非対応という記載がある）。仕様は[ハードウェアの資料](../../architecture/lld/hardware/sg2210p.md)にある | 運用者が本体で確認済み |
 | 長いケーブル | 3 本ある。A: 壁 → Buffalo の WAN、B: Buffalo → Proxmox、C: Buffalo → メインディスプレイ | 運用者に確認済み。A と B は移行で使い回す。A は壁から ER605 の置き場所まで届く見込み（[ケーブル](#ケーブルと電源)） |
 
 設計書の「テレビは有線で接続している」という記載は、実際は無線のため食い違っている（[未確認・要判断](#未確認要判断の事項)）。
@@ -116,7 +116,7 @@ AP を SG2210P の p7（PoE）に繋ぎ、SSID を 3 つ（Trusted / IoT / Guest
 | 区間 | 段階 | ケーブル | 備考 |
 | --- | --- | --- | --- |
 | 壁の LAN ポート → ER605 WAN | 1 | A を使い回す | ER605 は Proxmox のそばに置く。運用者の見込みでは届く。置いたときに届かなければ、短い延長で補う |
-| ER605 LAN → Buffalo（AP の上流側） | 1 | B を使い回す | B は Buffalo から Proxmox のそばまで届いている。段階 2 では、同じ B を SG2210P p3 に付け替える。Buffalo 側は INTERNET ポート。取扱説明書にポートの指定はなく、公式 FAQ では AP（ブリッジ）モードで INTERNET も LAN として動く（[Buffalo の資料](../../architecture/lld/hardware/wsr-1800ax4p/spec.md)） |
+| ER605 LAN → Buffalo（AP の上流側） | 1 | B を使い回す | B は Buffalo から Proxmox のそばまで届いている。段階 2 では、同じ B を SG2210P p3 に付け替える。Buffalo 側は INTERNET ポート。取扱説明書にポートの指定はなく、公式 FAQ では AP（ブリッジ）モードで INTERNET も LAN として動く（[Buffalo の資料](../../architecture/lld/hardware/wsr-1800ax4p.md)） |
 | ER605 LAN → Proxmox | 1 | 短いケーブルを 1 本買う（0.5〜1m） | 段階 2 で SG2210P p2 に付け替える |
 | ER605 LAN → SG2210P p1 | 2 | 短いケーブルを 1 本買う（0.3〜0.5m） | |
 | メインディスプレイ（Dell U2725QE）→ SG2210P p4 | 2 | C を付け替える | 段階 1 のあいだは Buffalo の LAN に繋いだまま。段階 2 で、Buffalo 側の端を外して SG2210P p4 に繋ぐ。ディスプレイは Buffalo より SG2210P のほうが近く、届く（運用者に確認済み）。Buffalo は段階 4 で退役するので、有線を先に外しておく |
@@ -140,7 +140,7 @@ AP を SG2210P の p7（PoE）に繋ぎ、SSID を 3 つ（Trusted / IoT / Guest
   - DHCP のプール、固定割り当て（予約）の一覧、DHCP が配る DNS サーバー
   - WAN の取得方法、SSID 名、暗号化方式（パスフレーズは台帳へ）
 - [x] ER605 のファームウェアを更新する（**2026-11-03 に、JP 版の 2.4.2 Build 20260511 Rel.77362 へ更新済み**）。
-  - 管理画面からの更新は、UN 版のファイルで拒否されていた。**JP 版のファイルを、コントローラー（`vm-omada`）の手動更新で入れて成功した**。詳細は[ER605 の資料](../../architecture/lld/hardware/er605/spec.md#ファームウェアの更新解決済み)にある。
+  - 管理画面からの更新は、UN 版のファイルで拒否されていた。**JP 版のファイルを、コントローラー（`vm-omada`）の手動更新で入れて成功した**。詳細は[ER605 の資料](../../architecture/lld/hardware/er605.md#ファームウェアの更新解決済み)にある。
   - 更新には、先に `vm-omada` を立てて、ER605 を採用しておく必要があった（管理画面からの更新は、JP 版のファイルでも未確認）。
   - ER605 の WAN を Buffalo の LAN に繋いで、ER605 のコントローラー設定（`192.168.11.12`）で L3 の採用をした（LAN は初期値の `192.168.0.1/24` のまま。Buffalo の LAN には繋がない）。
 - [x] ER605 を、本設置の前に、**標準の状態に戻して、スタンドアロンで LAN と DHCP を設定する**（2026-11-03 に、ER605 は一時的な配線で採用と更新を済ませ、取り外した。**同日、設定を完了した**）。
@@ -150,7 +150,7 @@ AP を SG2210P の p7（PoE）に繋ぎ、SSID を 3 つ（Trusted / IoT / Guest
 - [x] `vm-omada` を立てる（Terraform の `vms` に追加。IP は `192.168.11.12`、VMID は `112`。**2026-11-03 に適用済み**）。
   - **書いた・適用した（2026-11-03）**: `terraform/proxmox/terraform.tfvars`（`vm-omada`: 2 vCPU、メモリ 3GB、ディスク 20G）、`ansible/playbooks/omada.yml`、`ansible/inventory/group_vars/omada/vars.yml`、`docker/compose/omada/docker-compose.yml`。
   - 案: Ubuntu VM + Docker Compose で Omada コントローラーを動かす（イメージ `mbentley/omada-controller:6.3.0.111`、host ネットワーク）。VM か LXC か Docker かは VLAN 設計の未決事項で、ここで決める。
-  - コントローラーは、mDNS の中継に v5.9 以降が要る（設計書より）。ER605 V2 の最新ファームウェアが動作確認されているのは 6.3.0（[ER605 の資料](../../architecture/lld/hardware/er605/spec.md)）。SG2210P V5.30 との対応は、公式の対応表で確認する。
+  - コントローラーは、mDNS の中継に v5.9 以降が要る（設計書より）。ER605 V2 の最新ファームウェアが動作確認されているのは 6.3.0（[ER605 の資料](../../architecture/lld/hardware/er605.md)）。SG2210P V5.30 との対応は、公式の対応表で確認する。
   - **適用すると、thin pool の過剰割当が 1.5 を超えてアラートが出た**（2026-11-03 に適用し、1.44 → 1.57）。2026-11-05 に、`vm-dev` の縮小と `vm-windows` の削除で解消した（約 1.05。[未着手の項目](01-backlog.md)）。
   - 適用する手順: `terraform apply -target='module.vm["vm-omada"]'`（**`-target` を付ける**。付けないと、手動起動の `vm-dev` も `running` にする差分が一緒に適用される）→ `make setup-omada` → 管理画面（初回は `ssh -L 8043:localhost:8043 vm-omada` で `https://localhost:8043`）で初期設定。
   - バックアップの保存先: **当面は Mac と iCloud Drive（決定 2026-11-03）**。暗号化はしない（運用者が、今の段階では厳密さを求めないと判断。バックアップには、コントローラーの設定と認証情報が入る）。コントローラーの自動バックアップは `/opt/omada/data/autobackup`（VM のローカルディスク）に出るので、そこから Mac に取り出して置く。Mac 以外（S3 など）にするかは検討中（[バックログ](01-backlog.md)）。Mac だけだと、Mac と `vm-omada` が同時に失われたときに戻せない。この間は、Mac と同時に壊れにくい別の場所への写しは、まだ無い。
@@ -184,7 +184,7 @@ ER605 と SG2210P は同時に購入済みで、すでに繋いである（ER605
 ### 作業
 
 1. 他に使う人がいれば、止めることを伝える（運用者は一人暮らしなので、通常は省略）。開始前に、「ここまでに終わらなければ戻す」という時刻を決める。物理コンソール（キーボードとモニター）を Proxmox に繋げられるようにしておく。
-2. Buffalo を AP（ブリッジ）モードにする。**Buffalo の WAN のケーブルを抜いた状態で行う**（ルーターのまま、ER605 の `192.168.11.1` と重ならないようにする）。切り替えは、背面の AUTO/MANUAL スイッチを MANUAL にして、ROUTER/AP/WB スイッチを AP にする（[Buffalo の資料](../../architecture/lld/hardware/wsr-1800ax4p/spec.md)）。IP の固定は、ここではしない。画面に入れるのは手順 7 のあと。
+2. Buffalo を AP（ブリッジ）モードにする。**Buffalo の WAN のケーブルを抜いた状態で行う**（ルーターのまま、ER605 の `192.168.11.1` と重ならないようにする）。切り替えは、背面の AUTO/MANUAL スイッチを MANUAL にして、ROUTER/AP/WB スイッチを AP にする（[Buffalo の資料](../../architecture/lld/hardware/wsr-1800ax4p.md)）。IP の固定は、ここではしない。画面に入れるのは手順 7 のあと。
 3. **ER605 だけを確認する。** 壁の LAN ポート → ER605 の p1（WAN。ケーブル A）。Mac を、ER605 の p3 に有線で直接繋ぐ（今 Mac が繋がっているケーブルを、一時的に挿し替える）。ER605 を起動する。まだコントローラーに採用していないので、ER605 の画面のまま、ルーター・DHCP・NAT として動く。
    - ER605 の WAN が、上流（`172.22.0.0/21`）から IP を取れている。取れないときは、MAC クローン（Buffalo の WAN の MAC）を設定する。
    - Mac を取得し直し（DHCP の更新）、インターネットに届く。**配られた DNS が `192.168.11.11` だけ**であることも見る（Mac の `scutil --dns`）。

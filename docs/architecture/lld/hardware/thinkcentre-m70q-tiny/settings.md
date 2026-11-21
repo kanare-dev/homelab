@@ -1,6 +1,6 @@
 # ThinkCentre M70q Tiny の設定
 
-Proxmox ホスト（`pve`）の、ホスト単体の設定値（詳細設計）。**この文書を、ホストの設定値の正とする。** 機器の仕様と公式資料は [spec.md](spec.md)。VM ごとの割当と、ホストの資源の収支は[システム構成・環境](../../../hld/01-system.md)、VLAN のブリッジとポートは [第5章 ネットワーク](../../../hld/05-network.md)、監視は[監視・アラート](../../platform/monitoring.md)にある。
+Proxmox ホスト（`pve`）の、ホスト単体の設定値（詳細設計）。**この文書を、ホストの設定値の正とする。** 機器の仕様と公式資料は [spec.md](../thinkcentre-m70q-tiny.md)。VM ごとの割当と、ホストの資源の収支は[システム構成・環境](../../../hld/01-system.md)、VLAN のブリッジとポートは [第5章 ネットワーク](../../../hld/05-network.md)、監視は[監視・アラート](../../platform/monitoring.md)にある。
 
 - 設定を変えたら、**同じ変更でこの文書を更新**し、[変更履歴](#変更履歴)に 1 行足す。
 - ホストの設定は Ansible（`ansible/roles/proxmox/`）と、手で入れた設定（`/etc/network/interfaces` など）に分かれる。Ansible にあるものは、その旨を「管理」の列に書く。

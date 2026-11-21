@@ -103,7 +103,7 @@
 
 - [ ] **検討中**: Proxmox ホストに USB の外付け SSD を付けて、NAS にする（USB SSD の NAS。2026-11-20、運用者の構想。**設計は未決定**）。将来の専用機（上の TrueNAS）の前の段階。
   - 決めたこと（運用者、2026-11-20）: 用途は、**ファイル共有**と**写真・動画の管理**。方式は、**ホストでマウントして、LXC の Samba で配る**。容量は **1TB 前後**で、消えても困らないものが中心。バックアップ先（vzdump、PBS、restic）は、今回の用途に入れていない。
-  - 前提: ホスト（ThinkCentre M70q Tiny）には PCIe スロットがなく、外付けは USB だけ。内蔵の NVMe は 256GB の 1 枚で、プールの空きは小さい（[ハードウェア](../../architecture/lld/hardware/thinkcentre-m70q-tiny/spec.md)）。冗長化はしない（SSD 1 台。壊れたら、データは消える）。
+  - 前提: ホスト（ThinkCentre M70q Tiny）には PCIe スロットがなく、外付けは USB だけ。内蔵の NVMe は 256GB の 1 枚で、プールの空きは小さい（[ハードウェア](../../architecture/lld/hardware/thinkcentre-m70q-tiny.md)）。冗長化はしない（SSD 1 台。壊れたら、データは消える）。
   - 見立て（**未検証**）:
     - ディスク: 背面の USB 3.2 Gen 2 に直接つなぐ（ハブを通さない）。UASP 対応のケース。給電と熱に注意。ファイルシステムは **ext4**（ZFS は USB だと不安定になりやすい）。`/etc/fstab` に UUID で書き、**`nofail`** にする（ディスクが外れていても、ホストが起動する）。
     - LXC: 特権なしの LXC に、ホストのマウント先を bind マウントし、Samba を**パッケージで**入れる。特権なしの LXC は UID がずれるので、共有用の UID・GID の対応（idmap）を決める。メモリは軽い（100〜200MB 程度）。
