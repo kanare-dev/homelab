@@ -1,54 +1,33 @@
-# システム概要
+# 第１章 システム概要
 
-この文書では、homelab の全体像として、最新の構成図、目的、構成にした理由、前提と制約をまとめる。構成要素の詳細は、[インフラ構成](02-infrastructure.md)、[ネットワーク設計](03-network.md)、[可用性・信頼性](04-reliability.md)を参照してほしい。
+- この文書では、homelab の全体像として、最新の構成図、目的、構成にした理由、前提と制約をまとめる。
+- 構成要素の詳細は、[第２章 インフラ構成](02-infrastructure.md)、[第３章 ネットワーク設計](03-network.md)、[第４章 可用性・信頼性](04-reliability.md)を参照のこと。
 
 ## 構成図
 
-> 構成を変えたら、この図（ASCII）と下の表を同じ変更で更新する。現状の構成図（`docs/diagrams/as-is-diagram/`。削除せず、常に実機の状態を表す）は、`make-as-is-diagram.py` で生成し直して同じ変更で更新する。食い違っていたら、この ASCII 図が正。
+現状の構成は、現状（as-is）の構成図を正とする。図は常に実機の状態を表し、構成を変えたときに更新する（更新の手順は `docs/diagrams/README.md` を参照のこと）。
 
-```text
- External: Healthchecks.io / Slack / Cloudflare / Let's Encrypt / Tailscale / GitHub
-     │
- Internet ── ER605 router (.1) ── SG2210P switch ── Buffalo AP (.2) / Proxmox / Display
-     │
-┌─────────────────────────────────────────────────────────────────────────────────────┐
-│  Servers VLAN20: 10.77.20.0/24  GW: 10.77.20.1                   Tailscale (外出先)  │
-│                                                                                     │
-│  ┌──────────────┐  ┌───────────────┐  ┌──────────────┐  ┌──────────────┐            │
-│  │  vm-infra    │  │ vm-monitoring │  │ vm-apps      │  │ vm-code      │            │
-│  │  .10  1.5GB  │  │  .11  2GB     │  │  .20  4GB    │  │  .30  4GB    │            │
-│  │  AdGuard Home│  │  Prometheus   │  │  Homepage    │  │  Claude Code │            │
-│  │  Unbound     │  │  Alertmanager │  │Home Assistant│  │  CloudCLI    │            │
-│  │  CoreDNS     │  │  Grafana      │  │  n8n         │  │  code-server │            │
-│  │  Caddy       │  │  blackbox     │  │              │  │              │            │
-│  │  Tailscale   │  │               │  │              │  │              │            │
-│  └──────┬───────┘  └──────┬────────┘  └──────┬───────┘  └──────┬───────┘            │
-│         │                 │                  │                 │                    │
-│  ┌──────┴─────────────────┴──────────────────┴─────────────────┴───────────────┐    │
-│  │                      Proxmox VE (10.77.10.10。VLAN10)                       │    │
-│  └─────────────────────────────────────────────────────────────────────────────┘    │
-│                                                                                     │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐                               │
-│  │  IoT devices │  │  vm-dev      │  │  vm-omada    │                               │
-│  │  .100~       │  │  .10 任意起動 │  │  .3   4GB    │                              │
-│  │  (未使用)    │  │  playground  │  │  Omada Ctrl  │                               │
-│  └──────────────┘  └──────────────┘  └──────────────┘                               │
-└─────────────────────────────────────────────────────────────────────────────────────┘
-```
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="../diagrams/as-is-diagram/as-is-diagram-dark.png">
+    <img alt="現状の構成図" src="../diagrams/as-is-diagram/as-is-diagram.png">
+  </picture>
+</p>
 
-図は、段階 3b が終わった後の状態を表している（ACL は全許可）。上段の 4 台は Servers（VLAN20、`10.77.20.0/24`）に属し、`vm-dev` は Lab（VLAN40、`10.77.40.10`）に属する。`vm-omada`（`10.77.10.3`）と SG2210P（`10.77.10.2`）は、2026-11-19 に Management（VLAN10）へ移った（[ADR-0031](../adr/0031-stage3b-devices-before-controller.md)）。Proxmox ホスト（`10.77.10.10`、`vmbr0.10`）も、2026-11-19 に Management（VLAN10）へ移った（[手順書 24](../operations/runbooks/24-pve-move-to-vmbr0-10.md)）。ER605（`10.77.10.1`）も、2026-11-20 に、既定のネットワークを Management（VLAN10）に統合した（VLAN1 は使わない。p2 と空きポートの native は、どこにも繋がない `Blackhole`（VLAN 999）にした。[ADR-0032](../adr/0032-merge-default-network-into-management-vlan10.md)）。Buffalo（AP）は Trusted（VLAN30、`10.77.30.50`）に置いている。
+この図は現状（as-is。段階 3 の後）を表している。詳しくは[現状の構成図](../diagrams/README.md#現状の構成図as-is-diagram)を参照してほしい。最終形（to-be）の図は、[to-be の構成図](../diagrams/README.md#to-be-の構成図-vlan-化のあとto-be-diagram)にある。
+
+- ER605（`10.77.10.1`）は、既定のネットワーク Management（VLAN10）に属する。
+- `vm-infra`、`vm-monitoring`、`vm-apps`、`vm-code` は、常時起動を前提とし、 VLAN20（Servers）に所属させる。
+- `vm-dev` は検証用のVMであるため、 Lab（VLAN40、`10.77.40.10`）に所属させる。
+- p2 と空きポートの native は、どこにも繋がない `Blackhole`（VLAN 999）とする（[ADR-0032](../adr/0032-merge-default-network-into-management-vlan10.md)）。
 
 `vm-monitoring` では Prometheus に加えて blackbox-exporter が、Caddy 経由の HTTPS と AdGuard の名前解決を外形監視し、ping（ICMP）でインターネット回線の断・遅延も見る（[監視・アラート](../services/platform/monitoring.md)）。
 
-外部サービス（Healthchecks.io、Slack、Cloudflare、Let's Encrypt、Tailscale、GitHub、Omada Cloud）は、図の上部にまとめて描いている。いずれも、LAN から外向きに接続するだけである。外部から LAN に入る経路は、Tailscale と、Omada Cloud 経由で開く Omada コントローラーの管理画面の 2 つだけである（[外部接続](03-network.md#外部サービスへの依存)）。
+外部サービス（Healthchecks.io、Slack、Cloudflare、Let's Encrypt、Tailscale、GitHub、Omada Cloud）は、いずれも LAN から外向きに接続するだけである。外部から LAN に入る経路は、Tailscale と、Omada Cloud 経由で開く Omada コントローラーの管理画面の 2 つだけである（[外部接続](03-network.md#外部サービスへの依存)）。
 
 `node_exporter` は全 VM（`vm-infra` / `vm-monitoring` / `vm-apps` / `vm-dev` / `vm-code` / `vm-omada`）と Proxmox ホストに常駐し、`vm-monitoring` の Prometheus がまとめてスクレイプする。
 
 `vm-omada` の Omada コントローラーは、ER605・SG2210P を管理する（2026-11-03 に稼働。2026-11-06 に、ER605・SG2210P を採用した）。Buffalo は AP モードで動かしており、コントローラーの管理対象に入れていない。コントローラーが止まっても、機器は設定を保持したまま動き続ける。
-
-![現状の構成図（as-is）](../diagrams/as-is-diagram/as-is-diagram.png)
-
-上の図は現状（as-is。段階 3 の後）を表している。詳しくは[現状の構成図](../diagrams/README.md#現状の構成図as-is-diagram)を参照してほしい。最終形（to-be）の図は、[to-be の構成図](../diagrams/README.md#to-be-の構成図-vlan-化のあとto-be-diagram)にある。
 
 ## 目的と位置づけ
 

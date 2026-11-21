@@ -152,7 +152,7 @@ Buffalo の IP を調べて、ブラウザで開く。AP モードにすると�
 2. **同じ変更で直す**（[DNS 構成の「ルーターを付け替えるとき」](../../services/network/dns.md#ルーターを付け替えるとき)）:
    - `docker/compose/reverse-proxy/Caddyfile`: `router.lab.kanare.dev` を廃止し、`omada.lab.kanare.dev`（Omada コントローラーの管理画面。HTTPS、`tls_insecure_skip_verify`）を新設する（決定 2026-11-06）。DNS のレコード（`ansible/inventory/group_vars/infra/vars.yml` の `dns_records`）も、`router` を `omada` に変える。`ansible-playbook playbooks/infra.yml` で反映する。
    - Homepage の Router タイルと `siteMonitor`（`docker/compose/homepage/config/services.yaml`）。
-   - `docs/architecture/02-infrastructure.md` の機器表、`README.md`、`docs/architecture/01-overview.md` の構成図（ASCII と SVG）。
+   - `docs/architecture/02-infrastructure.md` の機器表、`README.md`、`docs/architecture/01-overview.md` の構成図（as-is の図）。
    - [IP アドレス一覧](../../architecture/09-ip-addresses.md): `192.168.11.2` を Buffalo（AP モード、固定）として確認する。
 3. **機器の設定文書の「未確認」を埋める**: [ER605](../../hardware/er605/settings.md)（p2 が LAN として動くか、上流が MAC で絞っていたか、採用後の値）、[SG2210P](../../hardware/sg2210p/settings.md)（標準の設定でスイッチとして動いたか）、[Buffalo](../../hardware/wsr-1800ax4p/settings.md)（AP モードでの IP と入り方、SSID が残ったか）。変更履歴に 1 行ずつ足す。
 4. 切り分けの結果（SG2210P を疑ったかなど）と、実際の所要時間を、[移行計画](../roadmap/10-er605-sg2210p-migration-plan.md)に記録する。

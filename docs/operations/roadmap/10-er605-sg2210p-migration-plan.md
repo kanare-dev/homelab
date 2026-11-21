@@ -99,7 +99,7 @@ IP は変えない。Buffalo の Wi-Fi 設定は今のままなので、端末�
   <img alt="段階 3 の後の構成図（to-be）" src="../../diagrams/to-be-diagram/to-be-diagram.png">
 </picture>
 
-図（最終形。to-be）は `docs/diagrams/to-be-diagram/make-to-be-diagram.py` で生成する。現状の図は `docs/diagrams/as-is-diagram/`（HTML と PNG。ダーク版と単体の HTML は、同じディレクトリにある）。計画を直したら、この ASCII 図とスクリプトを合わせて直す。
+図（最終形。to-be）は `docs/diagrams/to-be-diagram/make-to-be-diagram.py` で生成する。現状の図は `docs/diagrams/as-is-diagram/`（HTML と PNG。ダーク版と単体の HTML は、同じディレクトリにある）。計画を直したら、この図とスクリプトを合わせて直す。
 
 各ホストの IP は、[IP アドレス一覧](../../architecture/09-ip-addresses.md#ホスト別の-ip)と [ADR-0025](../../adr/0025-address-octets-by-role.md) のとおり（役割ベース。2026-11-05 に決定）。
 
@@ -219,7 +219,7 @@ ER605 と SG2210P は同時に購入済みで、すでに繋いである（ER605
 [DNS 構成の「ルーターを付け替えるとき」](../../services/network/dns.md#ルーターを付け替えるとき)に従う。
 
 - `docker/compose/reverse-proxy/Caddyfile`: `router.lab.kanare.dev` を廃止し、`omada.lab.kanare.dev`（Omada コントローラーの管理画面。HTTPS、`tls_insecure_skip_verify`）を新設する（決定 2026-11-06）。
-- Homepage の Router タイルと `siteMonitor`、`docs/architecture/02-infrastructure.md` の機器表、`README.md`、`docs/architecture/01-overview.md` の構成図（ASCII と SVG）。
+- Homepage の Router タイルと `siteMonitor`、`docs/architecture/02-infrastructure.md` の機器表、`README.md`、`docs/architecture/01-overview.md` の構成図（as-is の図）。
 - Prometheus の `blackbox_icmp`（`192.168.11.1` は ER605 の IP になるだけで、そのまま動く）。
 - [ネットワーク設計](../../architecture/03-network.md)の IP 表: `192.168.11.2` を Buffalo（AP モード、固定）として足す。
 
