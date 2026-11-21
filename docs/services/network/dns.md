@@ -2,7 +2,7 @@
 
 ## 概要
 
-vm-infra (10.77.20.10) 上で3層の DNS スタックを運用する。3層にした理由と他の候補との比較は [ADR 0020](../../adr/0020-dns-three-layer-stack.md)。
+vm-infra（10.77.20.10）の上で、3 層の DNS スタックを運用している。3 層にした理由と、他の候補との比較は、[ADR 0020](../../adr/0020-dns-three-layer-stack.md) に書いている。
 
 ```text
 client
@@ -21,33 +21,30 @@ client
 
 ### AdGuard Home
 
-- クライアントからの DNS クエリをすべて受け付ける（port 53）
-- 広告・トラッカードメインをブロックリストでフィルタリング
-- クエリログ・統計を Web UI (`:3000`) で可視化
-- upstream の振り分けルール:
-  - `lab.kanare.dev` → CoreDNS (127.0.0.1:5353)
-  - それ以外 → Unbound (127.0.0.1:5335)
-- Web UI: <http://10.77.20.10:3000> / <https://adguard.lab.kanare.dev>
+AdGuard Home は、クライアントからの DNS クエリをすべて受け付ける（port 53）。広告とトラッカーのドメインは、ブロックリストを使ってフィルタリングする。クエリログと統計は、Web UI（`:3000`）で見られる。
+
+クエリの転送先（upstream）は、名前によって振り分ける。`lab.kanare.dev` は CoreDNS（127.0.0.1:5353）に、それ以外は Unbound（127.0.0.1:5335）に転送する。
+
+- Web UI: <http://10.77.20.10:3000> と <https://adguard.lab.kanare.dev>
 - 設定ファイル: `/opt/dns/adguard/conf/AdGuardHome.yaml`
-- fallback DNS: `1.1.1.1` / `9.9.9.9`。upstream（CoreDNS・Unbound）が全て失敗したときだけ使う。2026-10-22 に Unbound が約 3 分間応答せず、インターネット全体の名前解決が止まったため追加（`playbooks/infra.yml` で設定）
+- fallback DNS: `1.1.1.1` と `9.9.9.9`。upstream（CoreDNS と Unbound）がすべて失敗したときだけ使う。2026-10-22 に、Unbound が約 3 分間応答せず、インターネット全体の名前解決が止まったので、追加した（`playbooks/infra.yml` で設定している）。
 
 ### CoreDNS
 
-- `lab.kanare.dev` ゾーンのみを管理する権威 DNS
-- ループバック (`127.0.0.1`) のみリッスンし、外部から直接アクセス不可
+CoreDNS は、`lab.kanare.dev` ゾーンだけを管理する権威 DNS である。ループバック（`127.0.0.1`）でだけ待ち受けるので、外部から直接アクセスすることはできない。
+
 - ゾーンファイル: `/etc/coredns/lab.kanare.dev.zone`
 - Corefile: `/etc/coredns/Corefile`
 
 ### Unbound
 
-- ルートヒント (`root.hints`) からフル再帰解決を行う
-- 1.1.1.1 / 8.8.8.8 などの外部リゾルバに依存しない
-- DNSSEC 検証・プライバシー強化設定を有効化
-- ループバック (`127.0.0.1`) のみリッスンし、外部から直接アクセス不可
-- 設定ファイル: `/opt/dns/unbound/unbound.conf`
-- `serve-expired: yes`（TTL 1 時間）: 上流が応答しないとき、期限切れのキャッシュを返す
-- `use-syslog: no` / `verbosity: 1` / `log-servfail: yes`: 失敗を `docker logs unbound` に残す（ログは docker のログ上限で回る）。`use-syslog: no` が無いと、コンテナ内に syslog が無いためログが出ない
-- `do-ip6: no`: vm-infra には IPv6 の経路がない。有効だと、権威サーバーの IPv6 アドレスへの到達不能な送信が `max-sends` の上限を使い切り、`SERVFAIL`（`exceeded the maximum number of sends`）や 20 秒のタイムアウトになる
+Unbound は、ルートヒント（`root.hints`）から、フルの再帰解決を行う。1.1.1.1 や 8.8.8.8 のような外部のリゾルバには依存しない。DNSSEC の検証と、プライバシーを強化する設定も有効にしてある。CoreDNS と同じく、ループバック（`127.0.0.1`）でだけ待ち受けるので、外部から直接アクセスすることはできない。
+
+設定ファイルは `/opt/dns/unbound/unbound.conf` で、主な設定は次のとおりである。
+
+- `serve-expired: yes`（TTL 1 時間）: 上流が応答しないときに、期限切れのキャッシュを返す。
+- `use-syslog: no`、`verbosity: 1`、`log-servfail: yes`: 失敗を `docker logs unbound` に残す（ログは、docker のログの上限で循環する）。`use-syslog: no` を指定しないと、コンテナ内に syslog がないため、ログが出ない。
+- `do-ip6: no`: vm-infra には IPv6 の経路がない。有効にすると、権威サーバーの IPv6 アドレスへ、届かない送信を繰り返して、`max-sends` の上限を使い切ってしまう。その結果、`SERVFAIL`（`exceeded the maximum number of sends`）や、20 秒のタイムアウトが起きる。
 
 ### fallback DNS の限界
 
@@ -149,9 +146,9 @@ docker/compose/dns/
 
 ### DNS レコードを追加する
 
-1. `ansible/inventory/group_vars/infra/vars.yml` の `dns_records` に追記
-2. `ansible-playbook playbooks/infra.yml` を実行
-3. CoreDNS が自動再起動され、新レコードが反映される
+1. `ansible/inventory/group_vars/infra/vars.yml` の `dns_records` に、レコードを追記する。
+2. `ansible-playbook playbooks/infra.yml` を実行する。
+3. CoreDNS が自動で再起動され、新しいレコードが反映される。
 
 ### 動作確認
 

@@ -207,7 +207,7 @@ VM 停止の検知は、`TargetDown`（VM 内 OS の応答なし）が 3 分、`
 
 ### 外部 Heartbeat
 
-判断の記録: [ADR-0010](../../adr/0010-external-heartbeat.md)
+この判断は [ADR-0010](../../adr/0010-external-heartbeat.md) に記録している。
 
 | 項目 | 内容 |
 | --- | --- |
@@ -222,7 +222,7 @@ VM 停止の検知は、`TargetDown`（VM 内 OS の応答なし）が 3 分、`
 
 > **この判断は置き換え済み。** [ADR-0010](../../adr/0010-external-heartbeat.md)（2026-10-25）で置き換えた。以下は当時の判断と選択肢の記録として残す。
 
-判断の記録: [ADR-0002](../../adr/0002-no-external-monitoring.md)
+この判断は [ADR-0002](../../adr/0002-no-external-monitoring.md) に記録している。
 
 **判断**: 監視 VM・PVE ホストの停止を検知する外部監視は、現時点では導入しない。上記 1・2 のリスクは認識したうえで受け入れる。
 

@@ -8,9 +8,9 @@
 
 ## 構成
 
-- Terraform（`terraform.tfvars`）で VM を定義する
-- Ansible ロール `code_tools` で、git / mosh / gh / Node.js / Claude Code CLI / CloudCLI（`@cloudcli-ai/cloudcli`、siteboon/claudecodeui）/ code-server / moshi-hook を再現可能にプロビジョニングする
-- `make setup-code` で単独プロビジョニングできる
+- VM は、Terraform（`terraform.tfvars`）で定義する。
+- Ansible のロール `code_tools` が、git、mosh、gh、Node.js、Claude Code CLI、CloudCLI（`@cloudcli-ai/cloudcli`、siteboon/claudecodeui）、code-server、moshi-hook を、再現できる形でプロビジョニングする。
+- `make setup-code` を実行すると、この VM だけを単独でプロビジョニングできる。
 
 ## アクセス経路
 
