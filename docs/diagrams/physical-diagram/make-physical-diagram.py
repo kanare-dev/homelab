@@ -110,7 +110,7 @@ def layout():
     # 下流の機器 ----------------------------------------------------------------------------
     # Proxmox（ThinkCentre）
     box(100, 640, 320, 130)
-    text(f"<b>Lenovo ThinkCentre M70q Tiny Gen1</b><br>Proxmox（pve）{ip('10.77.10.10')}<br>NIC は 1 つ（1000BASE-T）", 116, 664, 290, 90)
+    text(f"<b>Lenovo ThinkCentre M70q Tiny Gen1</b><br>Proxmox（pve01）{ip('10.77.10.10')}<br>NIC は 1 つ（1000BASE-T）", 116, 664, 290, 90)
     port(260, 640, "nic0", "trunk")
     cable([(530, 493), (530, 560), (260, 560), (260, 627)], "trunk")
     text("<b>短い 0.5〜1 m</b>（新規）<br>trunk（tagged: VLAN10/20/40/50/70）", 70, 508, 440, 40, align="right", cls="el")

@@ -268,7 +268,7 @@ def layout():
     text("ER605 p2 ⇔ SG2210P p1: trunk（untagged: VLAN10 / tagged: VLAN20/30/40/50/60/70）", 890, 320, 700, 40, cls="el")
 
     icon("hardware/tplink-sg2210p.png", 760, 380, 240, 80, max_px=700)
-    text(f"<b>TP-Link SG2210P</b><br>{ip('10.77.10.2')}（VLAN10）<br>p1: ER605 / p2: pve / p3: Buffalo / p4: Dell U2725QE /<br>p5–p7: 空き（native Blackhole）/<br>p8: 復旧ポート（native VLAN10）", 1010, 380, 690, 80)
+    text(f"<b>TP-Link SG2210P</b><br>{ip('10.77.10.2')}（VLAN10）<br>p1: ER605 / p2: pve01 / p3: Buffalo / p4: Dell U2725QE /<br>p5–p7: 空き（native Blackhole）/<br>p8: 復旧ポート（native VLAN10）", 1010, 380, 690, 80)
 
     # Proxmox ---------------------------------------------------------------------------
     gx, gy = 40, 640
@@ -335,7 +335,7 @@ def layout():
     frame(gx, gy, 1060, gh, "z z10", to=grp)  # Proxmox ホストは Management（VLAN10）の色
     back.insert(gi, grp[0])
     icon("platform/proxmox.png", gx + 20, gy + 20, 40, 40, max_px=120)
-    text(f"{name_ip('pve', '10.77.10.10')}<br><i>vmbr0.10</i>（tagged: VLAN10）<br>Proxmox 9.1（Debian 13 ベース）", gx + 70, gy + 20, 303, 60)
+    text(f"{name_ip('pve01', '10.77.10.10')}<br><i>vmbr0.10</i>（tagged: VLAN10）<br>Proxmox 9.1（Debian 13 ベース）", gx + 70, gy + 20, 303, 60)
     icon(None, 780, 620, 40, 40, svg=mono_pair(ethernet_svg))
     text("nic0", 830, 635, 60, 20)
     row(*NODE, gx + 20, gy + gh - 50, 220)
