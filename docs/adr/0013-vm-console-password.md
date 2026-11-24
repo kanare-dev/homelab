@@ -40,6 +40,7 @@ VM は cloud-init で作っており、`ubuntu` のパスワードはロック�
 ## 影響と再検討の条件
 
 - **増えるもの**: 管理するシークレットが1つ。[03-secrets.md](../operations/runbooks/03-secrets.md) の表と、Keychain の項目に載せる。
+- **ロックされたとき**: `terraform apply` で cloud-init の設定が変わると、cloud-init が再実行されて `ubuntu` が再びロックされる（2026-11 に全 VM で確認）。`common` ロールは `password_lock: false` でロックを外すので、apply のあとに `site.yml` を流す。手順は [apply のあとに `ubuntu` がロックされる](../operations/runbooks/15-terraform-apply-restart.md#apply-のあとに-ubuntu-がロックされる)。
 - **漏れたとき**: 新しいパスワードのハッシュを作って SOPS を書き換え、`site.yml` を流し直す。Git 履歴に旧ハッシュが残るので、旧パスワードは使わない。
 - **再検討の条件**: VM に別のユーザーが増えるとき。外部から VM に入れる経路（SSH のパスワード認証など）を開けるとき。
 - 手順は [障害時切り分け](../operations/runbooks/11-troubleshooting.md#vm-が応答しない)。方式は [セキュリティ](../architecture/hld/06-security.md#ホストへのログイン)。

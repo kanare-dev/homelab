@@ -23,7 +23,7 @@
 | thin pool が 90% を超えた | [ストレージの復旧](12-storage-recovery.md) |
 | PVE の管理画面が開かない | [PVE 管理画面の復旧](13-pve-webui-recovery.md) |
 | VM のコンソールが接続と切断を繰り返す | [コンソールの再接続](14-vm-console-reconnect.md) |
-| `terraform apply` で VM が再起動する | [apply による再起動](15-terraform-apply-restart.md) |
+| `terraform apply` で VM が再起動する、または `ubuntu` がロックされる | [apply による再起動とロック](15-terraform-apply-restart.md) |
 
 ## 一度きりの作業
 
