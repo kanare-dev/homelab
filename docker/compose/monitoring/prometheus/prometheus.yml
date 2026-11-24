@@ -24,7 +24,7 @@ scrape_configs:
       - targets: ["10.77.10.10:9100"]   # proxmox
         labels:
           env: "homelab"
-          host: "pve"
+          host: "pve01"
           role: "proxmox"
       - targets: ["10.77.20.10:9100"]   # vm-infra
         labels:
@@ -75,7 +75,7 @@ scrape_configs:
       - targets: ["https://alertmanager.lab.kanare.dev"]
         labels: { host: "vm-monitoring", service: "alertmanager" }
       - targets: ["https://pve.lab.kanare.dev"]
-        labels: { host: "pve", service: "pve" }
+        labels: { host: "pve01", service: "pve" }
       - targets: ["https://home.lab.kanare.dev"]
         labels: { host: "vm-apps", service: "homepage" }
       - targets: ["https://ha.lab.kanare.dev"]

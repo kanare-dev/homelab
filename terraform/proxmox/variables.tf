@@ -12,7 +12,7 @@ variable "proxmox_api_token_id" {
 variable "proxmox_node" {
   description = "Proxmox node name"
   type        = string
-  default     = "pve"
+  default     = "pve01"
 }
 
 variable "template_name" {

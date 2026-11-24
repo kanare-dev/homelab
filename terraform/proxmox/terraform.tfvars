@@ -1,7 +1,7 @@
 proxmox_api_url      = "https://10.77.10.10:8006/api2/json"
 proxmox_api_token_id = "terraform@pam!terraform-token"
 
-proxmox_node  = "pve"
+proxmox_node  = "pve01"
 template_name = "ubuntu-cloud"
 
 # ssh_public_key を省略すると ~/.ssh/id_ed25519_homelab.pub を読み込む
