@@ -33,6 +33,8 @@ terraform plan   # 差分確認（onboot / startup の変更が表示される�
 terraform apply
 ```
 
+`ipconfig0`、`nameserver`、`sshkeys` を変えた apply のあとは、`ubuntu` がロックされることがある。`ansible-playbook playbooks/site.yml --limit <ホスト>` を流して、ロックを外す。詳しくは [apply のあとに `ubuntu` がロックされる](15-terraform-apply-restart.md#apply-のあとに-ubuntu-がロックされる)。
+
 ## 手動での VM 起動・停止
 
 ```bash
