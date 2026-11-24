@@ -35,6 +35,6 @@
 | 管理系を VLAN10 へ移す（段階 3b。機器を先に動かす。2026-11-19 に実施） | [段階 3b の作業](23-network-stage-3b-management-vlan10.md) |
 | Proxmox ホストを VLAN10（`vmbr0.10`、`10.77.10.10`）へ移す（段階 3b の残り。2026-11-19 に実施） | [Proxmox ホストの移動](24-pve-move-to-vmbr0-10.md) |
 | 既定のネットワークを VLAN10 に統合する（ADR-0032。実施済み 2026-11-20） | [既定のネットワークの統合](25-merge-default-network-into-vlan10.md) |
-| Proxmox ホストの名前を `pve01` に変える（将来のホスト増設のため。計画。管理画面は `pve.lab.kanare.dev` のまま） | [ホスト名の変更](26-rename-pve-host-to-pve01.md) |
+| Proxmox ホストの名前を `pve01` に変える（将来のホスト増設のため。実施済み 2026-11-24。管理画面は `pve.lab.kanare.dev` のまま） | [ホスト名の変更](26-rename-pve-host-to-pve01.md) |
 
 障害の記録は [incidents/](../incidents/README.md)。

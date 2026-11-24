@@ -74,7 +74,7 @@ VM の IP は Terraform（`terraform.tfvars`）で固定する。VMID の規則�
 | Managed Switch（SG2210P） | — | — | `10.77.10.2` | 10 | 静的 |
 | Omada コントローラー（`vm-omada`） | 112 | 1003 | `10.77.10.3` | 10 | NIC 1 枚（VLAN10） |
 | AP | — | — | `10.77.10.4–.9` | 10 | 採番は購入後に確定する |
-| Proxmox（`pve`） | — | — | `10.77.10.10` | 10 | タグ付きの `vmbr0.10`。ホスト名を `pve01` に変える予定（未実施。[手順書 26](../../../operations/runbooks/26-rename-pve-host-to-pve01.md)） |
+| Proxmox（`pve01`） | — | — | `10.77.10.10` | 10 | タグ付きの `vmbr0.10`。ホスト名は `pve01`（2026-11-24 に `pve` から変更。[手順書 26](../../../operations/runbooks/26-rename-pve-host-to-pve01.md)）。FQDN `pve01.lab.kanare.dev` も `10.77.10.10` |
 | `vm-infra` | 111 | 2010 | `10.77.20.10` | 20 | DNS、Caddy、Tailscale |
 | `vm-monitoring` | 113 | 2011 | `10.77.20.11` | 20 | |
 | `vm-apps` | 120 | 2020 | `10.77.20.20` | 20 | |
