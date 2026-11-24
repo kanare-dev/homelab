@@ -54,6 +54,8 @@
   ansible.builtin.user:
     name: "{{ ansible_user }}"
     password: "{{ vm_user_password_hash }}"
+    # cloud-init が再実行されると ubuntu が再びロックされる（ハッシュの前に ! が付く）ので、毎回外す
+    password_lock: false
   no_log: true
 
 - name: Disable SSH password authentication
