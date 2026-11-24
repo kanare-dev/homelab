@@ -130,7 +130,7 @@ p2 のスイッチ側の設定は、準備（手順 0）のまま（untagged VLA
 
 0. Mac の `~/.ssh/config` の `HostName` を、新しいアドレスに直す（`vm-infra` `10.77.20.10`、`vm-monitoring` `10.77.20.11`、`vm-apps` `10.77.20.20`、`vm-code` `10.77.20.30`、`vm-dev` `10.77.40.10`。`pve`・`vm-omada` は、段階 3b まで変えない）。IP を直接指定するときは、`-i ~/.ssh/id_ed25519_homelab` を付ける（`Host *` の `IdentitiesOnly yes` のため）。
 
-1. `ansible-playbook` を流して、DNS のレコード、UFW、Caddy、Prometheus（scrape 対象）、Tailscale の経路を反映する（Terraform の VM ごとの `gateway`・`nameserver` は、手順 5 の `terraform apply` で変わる）。
+1. `ansible-playbook` を流して、DNS のレコード、UFW、Caddy、Prometheus（scrape 対象）、Tailscale の経路を反映する（Terraform の VM ごとの `gateway`・`nameserver` は、手順 5 の `terraform apply` で変わる）。この `ansible-playbook` は、cloud-init の再実行でロックされた `ubuntu` も解除する（[apply のあとに `ubuntu` がロックされる](15-terraform-apply-restart.md#apply-のあとに-ubuntu-がロックされる)）。
 2. **Tailscale**: 新しい経路（`10.77.20.0/24`、`10.77.40.0/24`）を、Admin Console で承認する。**旧経路（`192.168.11.0/24`）は外さない**（管理系が今の LAN に残るため。外すのは段階 3b のあと。[ADR-0028](../../adr/0028-defer-management-vlan10.md)）。
 
    1. `ansible-playbook` の Tailscale の手順（`tailscale up --advertise-routes=10.77.20.0/24,10.77.40.0/24,192.168.11.0/24`）が終わると、新しい 2 経路は「承認待ち」になる（承認するまで、外出先からは届かない）。

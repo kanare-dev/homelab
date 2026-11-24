@@ -39,6 +39,10 @@ Mac から `10.77.10.10`（Proxmox）、`10.77.10.3`（`vm-omada`）、`10.77.20
    → Web UI > VM > Console
    ※ SSH が使えないときは、コンソールから `ubuntu` でログインできる
      （全 VM 共通のパスワード。iCloud Keychain `homelab / vm ubuntu password`）。
+     入れないときは、`terraform apply` で cloud-init の設定が変わって、`ubuntu` が
+     ロックされているかもしれない（`passwd -S ubuntu` が `L`）。SSH で入れる VM から
+     `ansible-playbook playbooks/site.yml --limit <ホスト>` を流す。
+     詳しくは 15-terraform-apply-restart.md。
      `root` はロックされているので、必要なら `sudo -i`（パスワード不要）。
      SSH はパスワード認証を無効にしている（鍵のみ）。
 

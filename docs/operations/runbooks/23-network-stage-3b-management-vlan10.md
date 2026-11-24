@@ -115,7 +115,7 @@ ER605 は、**旧 LAN の自分の住所（`192.168.11.1`）を送信元にし�
 
 機器が両方とも `10.77.10.3` に付いてきたあと、旧 NIC を外す。
 
-1. Terraform（`terraform/proxmox/terraform.tfvars` の `vm-omada`）: `ip = "10.77.10.3/24"`、`gateway = "10.77.10.1"`、`nameserver = "10.77.10.1"`、`vlan_id = 10`。`extra_nic` を消す。`terraform plan` で、`vm-omada` だけが in-place 更新であることを確かめて、`apply`（VM が再起動する。[apply による再起動](15-terraform-apply-restart.md)）。
+1. Terraform（`terraform/proxmox/terraform.tfvars` の `vm-omada`）: `ip = "10.77.10.3/24"`、`gateway = "10.77.10.1"`、`nameserver = "10.77.10.1"`、`vlan_id = 10`。`extra_nic` を消す。`terraform plan` で、`vm-omada` だけが in-place 更新であることを確かめて、`apply`（VM が再起動する。[apply による再起動](15-terraform-apply-restart.md)）。IP と NIC が変わるので、`ubuntu` がロックされる可能性が高い。手順 5 に進む前に、`ansible-playbook playbooks/site.yml --limit vm-omada` を流す（[apply のあとに `ubuntu` がロックされる](15-terraform-apply-restart.md#apply-のあとに-ubuntu-がロックされる)）。
 2. Ansible の `inventory/hosts.yml`（`ansible_host`）を `10.77.10.3` に。`group_vars/omada/vars.yml` の UFW から、`192.168.11.0/24` の 3 行と、policy routing 用の注記を消し、`ufw_removed_ports` に、旧ルールを足す。`ansible-playbook playbooks/site.yml --limit vm-omada` を流す。SSH のホスト鍵が変わったら、`known_hosts` を更新する（cloud-init の再実行による。2026-11-18 に経験した）。
 3. 参照先を直す: Caddy の `omada.lab.kanare.dev`（`docker/compose/reverse-proxy/Caddyfile` の `reverse_proxy https://10.77.10.3:8043`）、Prometheus の `vm-omada` の targets（`docker/compose/monitoring/prometheus/prometheus.yml`）、`~/.ssh/config`。`vm-infra` と `vm-monitoring` に、Ansible と Compose で反映する。
 4. 設計書を直す（IP 一覧、構成図 as-is、各機器の設定書の変更履歴）。
