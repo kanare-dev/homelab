@@ -9,7 +9,7 @@ Proxmox ホスト（`pve`）の、ホスト単体の設定値（詳細設計）�
 
 | 項目 | 現在 | 管理 |
 | --- | --- | --- |
-| ホスト名 | `pve` | |
+| ホスト名 | `pve`。**`pve01`（FQDN は `pve01.lab.kanare.dev`）に変える予定**（未実施。実施後に「確認済み」にする）。管理画面の `pve.lab.kanare.dev` は、ホスト名ではなくサービス名なので、そのまま残す | `/etc/hostname` と `/etc/hosts`（手動）。手順は[手順書 26](../../../operations/runbooks/26-rename-pve-host-to-pve01.md) |
 | IP | `10.77.10.10/24`（タグ付きの `vmbr0.10`。VLAN10 Management。ゲートウェイ `10.77.10.1`）。`vmbr0` は VLAN-aware で、IP を持たない。 | `/etc/network/interfaces` と `/etc/hosts`（手動。`/etc/hosts` の `pve` の行も、同じ IP）。手順は[手順書 24](../../../operations/runbooks/24-pve-move-to-vmbr0-10.md) |
 | OS | Proxmox VE 9.1.7（Debian 13 ベース。カーネル 6.17.2-1-pve。2026-11-08 に確認） | |
 | 物理 NIC | `nic0`（Intel I219、ドライバ `e1000e`）1 つ。スイッチへのポートは SG2210P の p2。全 VLAN をタグ付きで通す trunk にしている | [SG2210P のポート](../network/omada-controller.md#sg2210p-のポート) |
@@ -31,10 +31,12 @@ BIOS の設定は、この文書にまだ無い。次を、本体の BIOS 画面
 | 仮想化支援（VT-x、VT-d） | Proxmox が動いているので VT-x は有効のはず。VT-d は未確認 |
 | Wake-on-LAN | PSREF は対応と書いている。BIOS での有効・無効は未確認 |
 | BIOS・ファームウェアの版、BIOS パスワード | 未確認（パスワードの値は、この文書に書かず、台帳へ） |
+| ホスト名の変更（`pve` → `pve01`）の影響 | VM の設定を `/etc/pve/nodes/pve01/` へ移す手順、Terraform（telmate）の `proxmox_node` の差分の出方、再起動を挟んだ停止時間は、実機で確かめていない。[手順書 26](../../../operations/runbooks/26-rename-pve-host-to-pve01.md)の「未確認」に挙げた |
 
 ## 変更履歴
 
 | 日付 | 内容 |
 | --- | --- |
+| 2026-11-24 | **ホスト名を `pve` から `pve01` に変える計画を、手順書にした**（将来、ホストを増やすため。実機は未変更）。管理画面は `pve.lab.kanare.dev` のままにする。手順は[手順書 26](../../../operations/runbooks/26-rename-pve-host-to-pve01.md)（運用者の指示。Claude Code が文書を作成） |
 | 2026-11-19 | **IP を `192.168.11.10`（`vmbr0`、タグなし）から `10.77.10.10/24`（`vmbr0.10`、VLAN10、GW `10.77.10.1`）に移した**（段階 3b の残り。23:03〜23:05）。`/etc/network/interfaces` で `vmbr0` を `inet manual` にし、`vmbr0.10` を足した。`/etc/hosts` の `pve` の行も直した。`ifreload -a` で反映し、SSH は約 50 秒で、新しい IP から再接続できた。VM は動き続けた。10 分後に元に戻すタイマーを仕掛けたが、確認が通ったので止めた。事前に、設定を iCloud Drive に退避した（`pve-interfaces-bk-20261119.txt`、`pve-hosts-bk-20261119.txt`）。詳細は[手順書 24](../../../operations/runbooks/24-pve-move-to-vmbr0-10.md)（運用者の指示。Claude Code が実施） |
 | 2026-11-06 | この文書を作成した。[システム構成・環境](../../hld/01-system.md)、[第5章 ネットワーク](../../hld/05-network.md)、Ansible の `proxmox` ロール、Runbook に分かれていたホスト単体の設定を集約した（値の変更は無い） |
