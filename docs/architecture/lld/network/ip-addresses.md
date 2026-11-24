@@ -74,7 +74,7 @@ VM の IP は Terraform（`terraform.tfvars`）で固定する。VMID の規則�
 | Managed Switch（SG2210P） | — | — | `10.77.10.2` | 10 | 静的 |
 | Omada コントローラー（`vm-omada`） | 112 | 1003 | `10.77.10.3` | 10 | NIC 1 枚（VLAN10） |
 | AP | — | — | `10.77.10.4–.9` | 10 | 採番は購入後に確定する |
-| Proxmox（`pve`） | — | — | `10.77.10.10` | 10 | タグ付きの `vmbr0.10` |
+| Proxmox（`pve`） | — | — | `10.77.10.10` | 10 | タグ付きの `vmbr0.10`。ホスト名を `pve01` に変える予定（未実施。[手順書 26](../../../operations/runbooks/26-rename-pve-host-to-pve01.md)） |
 | `vm-infra` | 111 | 2010 | `10.77.20.10` | 20 | DNS、Caddy、Tailscale |
 | `vm-monitoring` | 113 | 2011 | `10.77.20.11` | 20 | |
 | `vm-apps` | 120 | 2020 | `10.77.20.20` | 20 | |
@@ -95,7 +95,7 @@ Mac、スマホなどの日常端末は、DHCP で受け取る（Trusted。常�
 | `alertmanager.lab.kanare.dev` | Alertmanager | `10.77.20.11:9093` |
 | `grafana.lab.kanare.dev` | Grafana | `10.77.20.11:3000` |
 | `prometheus.lab.kanare.dev` | Prometheus | `10.77.20.11:9090` |
-| `pve.lab.kanare.dev` | Proxmox Web UI | `10.77.10.10:8006`（2026-11-19 から。Caddy が転送） |
+| `pve.lab.kanare.dev` | Proxmox Web UI | `10.77.10.10:8006`（2026-11-19 から。Caddy が転送）。ホスト名を `pve01` に変えても、このサービス名は変えない |
 | `home.lab.kanare.dev` | Homepage | `10.77.20.20:3001` |
 | `ha.lab.kanare.dev` | Home Assistant | `10.77.20.20:8123` |
 | `n8n.lab.kanare.dev` | n8n | `10.77.20.20:5678` |
