@@ -1,6 +1,6 @@
 # Proxmox ホストの名前を `pve01` に変える
 
-**状態: 計画（未実施）。** Proxmox ホストのホスト名を `pve` から `pve01`、FQDN を `pve01.lab.kanare.dev` に変える。将来、Proxmox のホストを増やしても名前が重ならないようにするためである。管理画面の `https://pve.lab.kanare.dev` は、今のまま使う。
+**状態: 実施済み（2026-11-24）。** Proxmox ホストのホスト名を `pve` から `pve01`、FQDN を `pve01.lab.kanare.dev` に変える。将来、Proxmox のホストを増やしても名前が重ならないようにするためである。管理画面の `https://pve.lab.kanare.dev` は、今のまま使う。
 
 - **VM は、再起動の間、止まる。** ホスト名の変更は、再起動を挟む。止まる時間は、再起動と VM の起動を合わせて、数分から 10 分ほどと見込んでいる（未確認）。
 - **変更後は、`/etc/pve/nodes/` の下に、新しいノードのディレクトリができる。** VM の設定は、古いノード名のディレクトリに残るので、手で `pve01` の下へ移す（手順 4）。移すまで、管理画面から VM が消えて見える。
@@ -63,7 +63,7 @@
 cp -a /etc/hostname /root/hostname.bak-$(date +%Y%m%d)
 cp -a /etc/hosts /root/hosts.bak-$(date +%Y%m%d)
 # /etc/pve は、秘密（priv）を除いて退避する
-tar czf /root/etc-pve.bak-$(date +%Y%m%d).tgz -C /etc pve --exclude=pve/priv
+tar czf /root/etc-pve.bak-$(date +%Y%m%d).tgz --exclude=pve/priv -C /etc pve
 ls -l /root/*.bak-*
 ```
 
@@ -115,13 +115,13 @@ qm list                             # 全 VM が見える。stopped のはず
 
 `/etc/pve/storage.cfg` などに `nodes pve` の行があれば、`pve01` に直す。
 
-VM を起動する。`onboot` の VM を、`startup` の順序で起動するには、次を使う。
+VM を起動する。`onboot` の VM を、`startup` の順序で起動するには、次を使う（`pve-guests` は、手動で再起動できない）。
 
 ```bash
-systemctl restart pve-guests
+pvesh create /nodes/pve01/startall --force 0
 ```
 
-起動しない VM があれば、[VM の自動起動・停止](01-vm-startup-shutdown.md)の順序で、`qm start <vmid>` する。
+手動起動の VM（`vm-dev`）は、`startall` の対象外なので、作業前に動いていたら、`qm start 121` で起こす。起動しない VM があれば、[VM の自動起動・停止](01-vm-startup-shutdown.md)の順序で、`qm start <vmid>` する。
 
 ## 5. 参照先を付け替える
 
@@ -163,7 +163,8 @@ reboot
 mv /etc/pve/nodes/pve01/qemu-server/*.conf /etc/pve/nodes/pve/qemu-server/
 rm -r /etc/pve/nodes/pve01
 pvecm updatecerts -f
-systemctl restart pveproxy pve-guests
+systemctl restart pveproxy
+pvesh create /nodes/pve/startall --force 0
 ```
 
 手順 4 の `rm -r /etc/pve/nodes/pve` を実行したあとでも、VM の設定は `pve01` の下に移してあるので、失われていない。設定そのものを失ったときは、手順 1 の `/etc/pve` の退避（`.tgz`）から、`nodes/pve/qemu-server/*.conf` を取り出す。コードの変更（手順 5）を反映していた場合は、その変更も、元に戻す。
@@ -177,13 +178,16 @@ systemctl restart pveproxy pve-guests
 - **ブラウザが、証明書の警告を出す**: `pvecm updatecerts -f` のあと、`systemctl restart pveproxy`。Caddy 経由の `pve.lab.kanare.dev` は、`tls_insecure_skip_verify` なので、影響しない。
 - **Prometheus で `pve` の系列が止まる**: 想定内。`host="pve01"` の系列に切り替わっている。Grafana のダッシュボードが `host` を固定していれば、直す。
 
-## 未確認
+## 実績（2026-11-24）
 
-- Terraform（telmate）が、`proxmox_node` の変更で、既存の VM にどんな差分を出すか。手順 5 の 3 で、実機を変えたあとに確かめる。
-- `/etc/pve/storage.cfg`、`jobs.cfg`、`vzdump.cron` に、ノード名で制限した行があるか。「今の状態」で確かめる。
-- 再起動を挟んだ、VM の停止から全 VM の復帰までの時間。
-- `pve-guests` の再起動で、`startup` の順序どおりに、全 VM が上がるか。
+- 20:55 に退避し、20:57 ごろに `/etc/hostname`、`/etc/hosts` を書き換えて再起動した。`pve01` として起動し（`hostname -f` が `pve01.lab.kanare.dev`）、`pve-cluster`、`pveproxy`、`pvedaemon` は、すべて `active` だった。VM の設定は、予測どおり `/etc/pve/nodes/pve/` に残っていて、`qm list` は空だった。
+- 手順 4 の `mv` と、`pvecm updatecerts -f`、`startall` で、`onboot` の 5 台が起動した。`vm-dev` は、手動で起動した。VM が止まっていた時間は、再起動の開始から全 VM の復帰まで、約 20 分。そのうち約 10 分は、Mac が homelab の LAN から外れて、ホストに届かなかった時間である（下の補正）。
+- 確認はすべて通った: `https://pve.lab.kanare.dev` が 200、`dig pve01.lab.kanare.dev` が `10.77.10.10`、Prometheus の `host="pve01"` の `node` と `blackbox_http` が up、発報中のアラートは Watchdog だけ、`nic0` の TSO・GSO・GRO は off のまま、`Hardware Unit Hang` は 0 件。
+- Terraform の `plan` は、**変更 0 件**だった。state の ID が `pve/qemu/113` のままでも、`target_node` の差分は出ず、`-refresh-only` は要らなかった。`storage.cfg` には、ノード名で制限した行が無かった（`vgname pve` だけ）。
+- Ansible は `failed=0`。CoreDNS、Prometheus、Homepage に反映した。
 
-## 実績
+**予測が外れた点（補正）**
 
-実施したあとに書く。予測が外れた点（所要時間、差分の出方など）を、ここに残す。
+- 手順 1 の `tar` は、GNU tar では `--exclude` を `-C` より前に書かないと、失敗する。手順書を直した。
+- `systemctl restart pve-guests` は、`Operation refused`（依存関係からの起動だけを受け付ける）になる。`pvesh create /nodes/pve01/startall --force 0` に直した。
+- 再起動の途中で、Mac が homelab の LAN から外れ、建物側のネットワーク（`172.22.1.26`）に繋がった。SSH が約 10 分届かず、ホストの起動を確認できなかった。**ホストの再起動を伴う作業は、Mac を有線（Dell U2725QE 経由）で繋いでおく。** Wi-Fi は、DNS（`vm-infra`）が止まる間に、別のネットワークへ移ることがある。

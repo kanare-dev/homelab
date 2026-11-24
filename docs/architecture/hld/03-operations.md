@@ -36,7 +36,7 @@
 | --- | --- | --- |
 | IP・ゲートウェイ・DNS | VM ごとの `ip`・`gateway`・`nameserver`・`vlan_id`、`ansible_host`、`static_ip` | `terraform/proxmox/terraform.tfvars`、`ansible/inventory/hosts.yml`、`host_vars` |
 | ドメイン | `lab.kanare.dev`（`domain`） | `group_vars/all/vars.yml`、`dns_records`、Caddyfile |
-| Proxmox | ノード名 `pve`、テンプレート `ubuntu-cloud`（VMID 9000）、ストレージ `local-lvm` | `terraform.tfvars`、`terraform/proxmox/README.md` |
+| Proxmox | ノード名 `pve01`、テンプレート `ubuntu-cloud`（VMID 9000）、ストレージ `local-lvm` | `terraform.tfvars`、`terraform/proxmox/README.md` |
 | ルーターの IP | 構成表、管理画面のリンク、Caddy の転送先 | [DNS 構成](../lld/network/dns.md#ルーターを付け替えるとき) の表 |
 | 外部サービスのアカウント | Cloudflare、Tailscale、Slack | SOPS（値）と各サービスの管理画面（設定） |
 

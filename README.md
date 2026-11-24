@@ -55,7 +55,7 @@
 | --- | --- | --- | --- | --- | --- |
 | `er605` | - | `10.77.10.1` | 常時起動 | ルータ | - |
 | `sg2210p` | - | `10.77.10.2` | 常時起動 | マネージドスイッチ | - |
-| `pve` | — | `10.77.10.10` | 常時起動 | ハイパーバイザ | Proxmox VE |
+| `pve01` | — | `10.77.10.10` | 常時起動 | ハイパーバイザ | Proxmox VE |
 | `vm-infra` | `111` | `10.77.20.10` | 常時起動 | インフラ基盤 | AdGuard Home, Unbound, CoreDNS, Caddy, Tailscale |
 | `vm-monitoring` | `113` | `10.77.20.11` | 常時起動 | 監視 | Prometheus, Alertmanager, Grafana, blackbox-exporter |
 | `vm-apps` | `120` | `10.77.20.20` | 常時起動 | アプリ | Homepage, Home Assistant, n8n, FreshRSS |

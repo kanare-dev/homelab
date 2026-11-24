@@ -57,7 +57,8 @@ AdGuard の fallback DNS が使われるのは、upstream に**接続できな�
 | `grafana` | 10.77.20.10 | Caddy 経由 |
 | `prometheus` | 10.77.20.10 | Caddy 経由 |
 | `alertmanager` | 10.77.20.10 | Caddy 経由 |
-| `pve` | 10.77.20.10 | Caddy 経由 |
+| `pve` | 10.77.20.10 | Caddy 経由（Proxmox の管理画面。ホスト名ではなくサービス名） |
+| `pve01` | 10.77.10.10 | Proxmox ホストへの直接の接続（SSH 用）。2026-11-24 から |
 | `infra` | 10.77.20.10 | vm-infra |
 | `vm-infra` | 10.77.20.10 | vm-infra |
 | `vm-monitoring` | 10.77.20.11 | vm-monitoring |
