@@ -36,6 +36,7 @@ ufw_allowed_ports:
   - { port: 9100, proto: tcp, from: "10.77.20.11" }      # node_exporter (Prometheus on vm-monitoring)
   - { port: 3000, proto: tcp, from: "10.77.30.0/24" }      # AdGuard Web UI (Trusted)
   - { port: 3000, proto: tcp, from: "172.16.0.0/12" }      # AdGuard Web UI (Docker bridge → Caddy)
+  - { port: 3000, proto: tcp, from: "10.77.20.20" }        # AdGuard API (Homepage ウィジェット on vm-apps)
 
 
 # AdGuard Home のクエリログ保持期間（INC-2026-10-22）

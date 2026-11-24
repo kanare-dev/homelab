@@ -39,6 +39,7 @@ LAN 内サービスへのリンクと、状態のウィジェットを 1 画面�
 | 天気 | Open-Meteo（東京の座標。リポジトリが公開なので、市区町村レベルに留める） | なし（キー不要） |
 
 - Prometheus は、`vm-apps` から `9090` に直接届かない（`vm-monitoring` の `DOCKER-USER` が Caddy だけを許可している）。そのため Caddy 経由の URL を使う。
+- AdGuard Home のウィジェットは、`vm-apps` から `vm-infra` の `3000/tcp` に直接つなぐ。そのため `vm-infra` の UFW で、`10.77.20.20` からの `3000/tcp` を許可している（`ansible/inventory/group_vars/infra/vars.yml`）。段階 3 の移行で許可元を足し忘れ、ウィジェットが `ETIMEDOUT` で取得できなくなっていた（2026-11-24 に追加して解消）。
 - シークレットは `homepage.env.j2` が `/opt/homepage/.env` に `HOMEPAGE_VAR_*` として書き出し、`services.yaml` が `{{HOMEPAGE_VAR_*}}` で参照する。値は Git に入れない（[秘密情報管理](../../../operations/runbooks/03-secrets.md)）。
 
 ### ウィジェットを足すとき
