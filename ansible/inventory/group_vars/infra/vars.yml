@@ -9,7 +9,8 @@ dns_records:
   - { name: "grafana",       ip: "10.77.20.10" }
   - { name: "prometheus",    ip: "10.77.20.10" }
   - { name: "alertmanager",  ip: "10.77.20.10" }   # Caddy 経由
-  - { name: "pve",           ip: "10.77.20.10" }
+  - { name: "pve",           ip: "10.77.20.10" }   # 管理画面（Caddy 経由）
+  - { name: "pve01",         ip: "10.77.10.10" }   # Proxmox ホストへの SSH 用（直接）
   - { name: "infra",         ip: "10.77.20.10" }
   - { name: "vm-infra",      ip: "10.77.20.10" }
   - { name: "vm-monitoring", ip: "10.77.20.11" }

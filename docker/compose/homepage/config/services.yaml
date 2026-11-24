@@ -9,11 +9,11 @@
           url: https://10.77.10.10:8006
           username: homepage@pve!homepage-token
           password: "{{HOMEPAGE_VAR_PROXMOX_TOKEN}}"
-          node: pve
+          node: pve01
 
 # 手動起動の vm-dev は含めない（停止中は値が取れないため）
 - Hosts:
-    - pve:
+    - pve01:
         description: Proxmox host (10.77.10.10)
         icon: proxmox.png
         widget:
@@ -21,21 +21,21 @@
           url: https://prometheus.lab.kanare.dev
           metrics:
             - label: CPU
-              query: 100 - avg(rate(node_cpu_seconds_total{instance="pve",mode="idle"}[5m])) * 100
+              query: 100 - avg(rate(node_cpu_seconds_total{instance="pve01",mode="idle"}[5m])) * 100
               format:
                 type: number
                 options:
                   maximumFractionDigits: 0
                 suffix: "%"
             - label: Mem
-              query: 100 * (1 - node_memory_MemAvailable_bytes{instance="pve"} / node_memory_MemTotal_bytes{instance="pve"})
+              query: 100 * (1 - node_memory_MemAvailable_bytes{instance="pve01"} / node_memory_MemTotal_bytes{instance="pve01"})
               format:
                 type: number
                 options:
                   maximumFractionDigits: 0
                 suffix: "%"
             - label: Disk
-              query: 100 * (1 - node_filesystem_avail_bytes{instance="pve",mountpoint="/"} / node_filesystem_size_bytes{instance="pve",mountpoint="/"})
+              query: 100 * (1 - node_filesystem_avail_bytes{instance="pve01",mountpoint="/"} / node_filesystem_size_bytes{instance="pve01",mountpoint="/"})
               format:
                 type: number
                 options:

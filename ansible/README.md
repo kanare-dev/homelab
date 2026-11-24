@@ -25,7 +25,7 @@ ansible/
 │   │   ├── monitoring/  # 同上
 │   │   └── omada/       # vars.yml（vm-omada の UFW）
 │   └── host_vars/       # ホスト固有変数
-│       ├── pve.yml
+│       ├── pve01.yml
 │       ├── vm-code.yml
 │       ├── vm-infra.yml
 │       └── vm-monitoring.yml
