@@ -241,7 +241,10 @@
 | 導入済み | prom/node-exporter | Prometheus 用ホストメトリクス | [監視・アラート](architecture/lld/platform/monitoring.md) |
 | 導入済み | prom/blackbox-exporter | Blackbox プローブ（HTTP/HTTPS/DNS/TCP 等） | [監視・アラート](architecture/lld/platform/monitoring.md) |
 | 導入済み | grafana/grafana | ダッシュボード・可視化 | [監視・アラート](architecture/lld/platform/monitoring.md) |
-| 見送り | grafana/loki | ログ集約・検索 | [見送り中の項目](operations/roadmap/03-deferred.md#loki--grafana-alloyログ収集基盤) |
+| 検討中 | grafana/loki | ログ集約・検索。ネットワーク機器の syslog 用に検討中。全ホストのログ集約は見送り | [syslog 収集](operations/roadmap/14-syslog-collection.md)、[見送り中の項目](operations/roadmap/03-deferred.md#loki--grafana-alloyログ収集基盤) |
+| 検討中 | grafana/alloy | syslog の受信と Loki への転送（案 B-1）。promtail の後継 | [syslog 収集](operations/roadmap/14-syslog-collection.md) |
+| 検討中 | fluent/fluent-bit | syslog の受信と Loki への転送（案 B-2。Alloy が RFC3164 に対応しない場合の代替） | [syslog 収集](operations/roadmap/14-syslog-collection.md) |
+| 検討中 | rsyslog | syslog の受信とファイル保存（案 A。Loki の負担が大きい場合の代替） | [syslog 収集](operations/roadmap/14-syslog-collection.md) |
 | 見送り | grafana/promtail | Loki 用ログ収集エージェント | [見送り中の項目](operations/roadmap/03-deferred.md#loki--grafana-alloyログ収集基盤) |
 | 見送り | influxdata/telegraf | メトリクス・ログ収集エージェント | [見送り中の項目](operations/roadmap/03-deferred.md#方針のない候補) |
 | 見送り | louislam/uptime-kuma | サービス稼働監視・ステータスページ | [見送り中の項目](operations/roadmap/03-deferred.md#uptime-kuma) |
@@ -485,7 +488,7 @@
 | コンテナ・プロセス別のメモリ監視 | 未決定（`vm-omada` だけ。検討中: cAdvisor、process-exporter） | 入れずに `docker stats` で見る案もある |
 | 回線の疎通・遅延の監視 | blackbox-exporter（ICMP）+ Prometheus + Grafana（計画中） | Speedtest 系: speedtest-exporter（見送り）、MySpeed、LibreSpeed（未検討） |
 | 死活監視・ステータスページ | blackbox-exporter + Alertmanager | Uptime Kuma（見送り） |
-| ログ集約 | なし（journald と Docker のログ） | Loki + Alloy（見送り） |
+| ログ集約 | なし（journald と Docker のログ） | Loki + Alloy（全ホストは見送り。ネットワーク機器の syslog は検討中）、Fluent Bit、rsyslog（検討中） |
 | コンテナ管理 | Docker Compose | Portainer（見送り）、k3s（検討中） |
 | VM の OS | Ubuntu Server LTS（[ADR 0021](adr/0021-ubuntu-lts-for-vms.md)） | Debian（見送り）、Arch、openSUSE（未検討） |
 | VM イメージ | Terraform + cloud-init | Packer（見送り） |
