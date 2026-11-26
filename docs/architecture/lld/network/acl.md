@@ -16,14 +16,17 @@
 - **未確認（Omada 6.3）**: プロトコルに ICMP だけを選べるか（`156-trusted-to-mgmt-icmp`）。IP グループに範囲（`10.77.10.2–.9`）を書けるか。書けなければ、`10.77.10.0/29` と `10.77.10.8/31` の 2 件に分ける（`10.77.10.0/29` には、ゲートウェイの `.1` と `vm-omada` の `.3` も含まれる。`.1` は ACL の対象外で、`vm-omada` の 80/443 は待ち受けていないので、実害はない）。ACL を絞る日の前に、画面で確かめる。
 - Management から外への通信は、ACL の末尾の拒否（`910`）では止まらない（宛先がインターネットのため）。Management のホストの DNS（ルーター）と NTP（インターネット）は、この ACL の影響を受けない。
 
-本番のルールの例を、次の表に示す（2026-11-26 に、[通信ポリシー](../../hld/05-network.md#通信ポリシー)の見直しと [ADR-0034](../../../adr/0034-acl-for-vlan-boundaries-ufw-for-ports.md) に合わせて改めた）。許可表の行ごとに、同じ形で作る。送信元・宛先が 1 台のホストや帯のときは、IP グループ（または IP-Port グループ）を作って指定する。ポートと送信元の組み合わせが違うものは、ルールを分ける。
+- ルールから参照するグループ（IP グループ、IP-Port グループ）の名前は、`grp-<内容>` にする（例: `grp-vm-infra`、`grp-mgmt-caddy`）。
+
+本番で作るルールの送信元・宛先・プロトコルの値は、[Omada コントローラーの設定値](omada-controller.md#ゲートウェイの-acl未適用)を正とする。名前と説明の例を、次の表に示す（2026-11-26 に、[通信ポリシー](../../hld/05-network.md#通信ポリシー)の見直しと [ADR-0034](../../../adr/0034-acl-for-vlan-boundaries-ufw-for-ports.md) に合わせて改めた）。許可表の行ごとに、同じ形で作る。送信元・宛先が 1 台のホストや帯のときは、IP グループ（または IP-Port グループ）を作って指定する。ポートと送信元の組み合わせが違うものは、ルールを分ける。
 
 | 名前 | 説明 |
 | --- | --- |
 | `130-servers-to-mgmt-caddy` | `Servers → Management : vm-infra から Omada(8043)・Proxmox(8006) の管理画面のみ許可（個別の許可）` |
 | `131-servers-to-mgmt-metrics` | `Servers → Management : vm-monitoring から Proxmox・vm-omada の node_exporter(9100) のみ許可（個別の許可）` |
-| `140-servers-to-lab-ssh` | `Servers → Lab : vm-infra から SSH/mosh/Web を許可。Tailscale 経由の vm-dev 用（個別の許可）` |
+| `140-servers-to-lab-ssh` | `Servers → Lab : vm-infra から SSH(22)/Web(80/443) を許可。Tailscale 経由の vm-dev 用（個別の許可）` |
 | `141-servers-to-lab-metrics` | `Servers → Lab : vm-monitoring から node_exporter(9100) のみ許可（個別の許可）` |
+| `142-servers-to-lab-mosh` | `Servers → Lab : vm-infra から mosh(UDP 60000-61000) を許可。Tailscale 経由の vm-dev 用（個別の許可）` |
 | `150-trusted-to-servers` | `Trusted → Servers : 許可。ポートは各ホストの UFW で絞る（ADR-0034）` |
 | `151-trusted-to-lab` | `Trusted → Lab : 許可。ポートは各ホストの UFW で絞る（ADR-0034）` |
 | `153-trusted-to-mgmt` | `Trusted → Management : Proxmox の 8006/22、vm-omada の 22 を許可（個別の許可）` |

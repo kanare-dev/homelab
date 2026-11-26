@@ -94,6 +94,56 @@ TP-Link ER605 V2。製品の仕様とファームウェアは[ER605 の資料](.
 | 70 | DMZ | `10.77.70.1/24` | なし |
 | 999 | Blackhole | `10.77.99.1/24` | なし（ER605 のポートには割り当てない。使わないポートの native） |
 
+### ゲートウェイの ACL（未適用）
+
+**この節の値は、ACL を絞る日に作る予定のもので、まだ作っていない**（2026-11-26 時点。今は全許可で、リハーサルの `rh-` のルール 7 件が無効のまま残っている）。方針は[通信ポリシー](../../hld/05-network.md#通信ポリシー)と [ADR-0034](../../../adr/0034-acl-for-vlan-boundaries-ufw-for-ports.md)、名前の付け方は [ACL の名前と説明の付け方](acl.md)、作る手順は[手順書 27](../../../operations/runbooks/27-network-acl-tighten.md)にある。画面の場所は、Settings > Network Security > ACL の「Gateway ACL」（LAN → LAN）である。
+
+ルールから参照するグループを、先に作る（Settings > Profiles > Groups。6.3 のメニューの名前は未確認）。
+
+| グループ名 | 種類 | 中身 |
+| --- | --- | --- |
+| `grp-vm-infra` | IP グループ | `10.77.20.10/32` |
+| `grp-vm-monitoring` | IP グループ | `10.77.20.11/32` |
+| `grp-mgmt-caddy` | IP-Port グループ | `10.77.10.3/32` の 8043、`10.77.10.10/32` の 8006 |
+| `grp-mgmt-metrics` | IP-Port グループ | `10.77.10.3/32` と `10.77.10.10/32` の 9100 |
+| `grp-mgmt-admin` | IP-Port グループ | `10.77.10.10/32` の 8006 と 22、`10.77.10.3/32` の 22 |
+| `grp-mgmt-devices-web` | IP-Port グループ | `10.77.10.2`〜`10.77.10.9` の 80 と 443（範囲を書けなければ、`10.77.10.0/29` と `10.77.10.8/31`。[ACL の名前と説明の付け方](acl.md)） |
+| `grp-lab-access` | IP-Port グループ | `10.77.40.0/24` の 22、80、443 |
+| `grp-lab-mosh` | IP-Port グループ | `10.77.40.0/24` の 60000〜61000 |
+| `grp-lab-metrics` | IP-Port グループ | `10.77.40.0/24` の 9100 |
+| `grp-dns` | IP-Port グループ | `10.77.20.10/32` の 53 |
+
+ルールは、上から順に評価される。表の順に作る。
+
+| 名前 | 動作 | プロトコル | 送信元 | 宛先 |
+| --- | --- | --- | --- | --- |
+| `130-servers-to-mgmt-caddy` | 許可 | TCP | `grp-vm-infra` | `grp-mgmt-caddy` |
+| `131-servers-to-mgmt-metrics` | 許可 | TCP | `grp-vm-monitoring` | `grp-mgmt-metrics` |
+| `140-servers-to-lab-ssh` | 許可 | TCP | `grp-vm-infra` | `grp-lab-access` |
+| `141-servers-to-lab-metrics` | 許可 | TCP | `grp-vm-monitoring` | `grp-lab-metrics` |
+| `142-servers-to-lab-mosh` | 許可 | UDP | `grp-vm-infra` | `grp-lab-mosh` |
+| `150-trusted-to-servers` | 許可 | すべて | ネットワーク Trusted | ネットワーク Servers |
+| `151-trusted-to-lab` | 許可 | すべて | ネットワーク Trusted | ネットワーク Lab |
+| `153-trusted-to-mgmt` | 許可 | TCP | ネットワーク Trusted | `grp-mgmt-admin` |
+| `154-trusted-to-mgmt-devices` | 許可 | TCP | ネットワーク Trusted | `grp-mgmt-devices-web` |
+| `156-trusted-to-mgmt-icmp` | 許可 | ICMP | ネットワーク Trusted | ネットワーク Management |
+| `160-trusted-to-iot` | 許可 | すべて | ネットワーク Trusted | ネットワーク IoT |
+| `170-lab-to-servers-dns` | 許可 | TCP と UDP | ネットワーク Lab | `grp-dns` |
+| `171-iot-to-servers-dns` | 許可 | TCP と UDP | ネットワーク IoT | `grp-dns` |
+| `172-guests-to-servers-dns` | 許可 | TCP と UDP | ネットワーク Guests | `grp-dns` |
+| `910-deny-from-mgmt` | 拒否 | すべて | ネットワーク Management | !ネットワーク Management |
+| `920-deny-from-servers` | 拒否 | すべて | ネットワーク Servers | !ネットワーク Servers |
+| `930-deny-from-trusted` | 拒否 | すべて | ネットワーク Trusted | !ネットワーク Trusted |
+| `940-deny-from-lab` | 拒否 | すべて | ネットワーク Lab | !ネットワーク Lab |
+| `950-deny-from-iot` | 拒否 | すべて | ネットワーク IoT | !ネットワーク IoT |
+| `960-deny-from-guests` | 拒否 | すべて | ネットワーク Guests | !ネットワーク Guests |
+| `970-deny-from-dmz` | 拒否 | すべて | ネットワーク DMZ | !ネットワーク DMZ |
+
+- 説明の欄は、[ACL の名前と説明の付け方](acl.md)の例の文を使う。
+- Trusted → DMZ（Web・SSH）と、Servers → DMZ（ログの取得）は、DMZ に何も置いていないので、作らない。DMZ に機器を置くときに足す。
+- **未確認（6.3）**: プロトコルの選択肢（「TCP と UDP」を 1 件で選べるか、ICMP だけを選べるか）と、送信元に IP グループ、宛先に IP-Port グループを選べるか。選べない組み合わせは、ルールを分ける。
+- **未確認**: `!ネットワーク` の拒否が、WAN 側のプライベートアドレス（建物の共用ルーター `172.22.0.1`）宛の通信も止めるか。リハーサルでは、インターネット（`1.1.1.1`）宛が止まらないことだけを確かめた。止める場合、Prometheus の `building-router` の監視（Servers から）と、`pve01` の DNS（今は `172.22.0.1`。[バックログ](../../../operations/roadmap/01-backlog.md)）に影響する。
+
 ### ER605 の管理・その他
 
 | 項目 | 値 |
