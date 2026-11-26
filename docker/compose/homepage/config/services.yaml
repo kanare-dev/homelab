@@ -6,7 +6,7 @@
         siteMonitor: https://pve.lab.kanare.dev
         widget:
           type: proxmox
-          url: https://10.77.10.10:8006
+          url: https://pve.lab.kanare.dev
           username: homepage@pve!homepage-token
           password: "{{HOMEPAGE_VAR_PROXMOX_TOKEN}}"
           node: pve01
