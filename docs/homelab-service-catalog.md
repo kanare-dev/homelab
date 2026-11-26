@@ -210,7 +210,10 @@
 | 未検討 | linuxserver/duplicati | バックアップ・リストア | — |
 | 未検討 | linuxserver/syncthing | P2P ファイル同期 | — |
 | 検討中 | Proxmox Backup Server (PBS) | Proxmox 向けの差分バックアップ（NAS 導入後に見直す） | [ADR 0001](adr/0001-no-vm-backup.md) |
-| 検討中 | restic | 暗号化・重複排除つきの CLI バックアップ（NAS 導入後に見直す） | [ADR 0001](adr/0001-no-vm-backup.md) |
+| 検討中 | restic | 暗号化・重複排除つきの CLI バックアップ。取り直せないデータを S3 に送る案 | [未着手の項目](operations/roadmap/01-backlog.md)、[ADR 0001](adr/0001-no-vm-backup.md) |
+| 検討中 | Amazon S3 | AWS のオブジェクトストレージ。restic のバックアップの保存先の案（ハイブリッドクラウドの練習も兼ねる） | [未着手の項目](operations/roadmap/01-backlog.md) |
+| 未検討 | Cloudflare R2 | オブジェクトストレージ（10GB まで無料、取り出しの転送料が無料）。S3 と比べる候補 | [未着手の項目](operations/roadmap/01-backlog.md) |
+| 未検討 | Backblaze B2 | 単価の安いオブジェクトストレージ。S3 と比べる候補 | [未着手の項目](operations/roadmap/01-backlog.md) |
 | 未検討 | borgbackup/borg | 重複排除つきのバックアップ | — |
 | 未検討 | kopia/kopia | 暗号化・重複排除つきのバックアップ（Web UI あり） | — |
 | 未検討 | rclone/rclone | クラウドストレージとの同期・転送 | — |
@@ -494,6 +497,7 @@
 | VM イメージ | Terraform + cloud-init | Packer（見送り） |
 | 認証の一元化 | なし（各サービスのログイン） | Authelia（見送り）、authentik（検討中） |
 | バックアップ | なし（[ADR 0001](adr/0001-no-vm-backup.md)） | PBS、restic（検討中）、borg、kopia（未検討） |
+| バックアップの保存先 | なし | Amazon S3（検討中）、Cloudflare R2、Backblaze B2（未検討） |
 | ネットワーク探索 | なし | Scanopy（廃止）、nmap、NetAlertX、NetBox（未検討） |
 | メディアサーバー | なし | Jellyfin、Plex、Emby（検討中） |
 | ホームオートメーション | Home Assistant（Container 版） | HAOS（見送り） |
