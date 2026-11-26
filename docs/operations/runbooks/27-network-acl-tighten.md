@@ -129,6 +129,8 @@ Mac（Tailscale をオフ）と iPhone（Wi-Fi、Tailscale をオフ）で確か
 - [通信ポリシー](../../architecture/hld/05-network.md#通信ポリシー)と[第6章 セキュリティ](../../architecture/hld/06-security.md#セグメンテーション): 「ACL は全許可のまま」の記述を、絞った日付に直す。
 - [ADR-0029](../../adr/0029-stage3-acl-allow-all-then-tighten.md) と [ADR-0034](../../adr/0034-acl-for-vlan-boundaries-ufw-for-ports.md): ステータスの「未適用」を外す（[ADR の一覧](../../adr/README.md)も）。
 - [移行計画](../roadmap/10-er605-sg2210p-migration-plan.md)の確認項目（各 VLAN から Servers への接続と、拒否すべき通信）と、[構成レビューの改善案](../roadmap/11-design-review-ideas.md)の #2 の状況。
+- [VLAN 間の通信マトリクス](../../diagrams/README.md#vlan-間の通信マトリクスacl-matrix): 図の注記の「target policy」（目標）を、適用済みの書き方に直して書き出し直す（`make-acl-matrix.py`）。実機で絞った内容が許可表と違ったら、`MATRIX` も直す。
+- `README.md`（リポジトリのトップ）: 通信マトリクスの図を載せる。**ACL を実際に絞るまでは載せない**（運用者の判断。2026-11-27）。
 - この手順書: 結果と、予測が外れた点を、下の「実施の記録」に書く。
 
 ## 実施の記録
