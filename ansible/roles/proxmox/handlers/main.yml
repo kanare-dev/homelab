@@ -3,3 +3,8 @@
   ansible.builtin.service:
     name: pveproxy
     state: restarted
+
+- name: Restart chrony
+  ansible.builtin.service:
+    name: chrony
+    state: restarted

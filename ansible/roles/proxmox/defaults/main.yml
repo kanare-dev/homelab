@@ -1,0 +1,6 @@
+---
+# ホストの DNS。Management のルーター（ER605 の DNS プロキシ）に向ける。
+# vm-infra（AdGuard）にしないのは、ホストが自分の上で動く VM に頼る循環を避けるため（ADR-0007）
+proxmox_dns_server: 10.77.10.1
+# 検索ドメイン。インストール時の値（Proxmox の画面の System > DNS の必須欄）をそのまま残す
+proxmox_dns_search: local

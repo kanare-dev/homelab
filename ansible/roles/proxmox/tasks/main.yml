@@ -65,3 +65,39 @@
     state: started
     enabled: true
     daemon_reload: true
+
+# ホストの DNS を、Management のルーターに向ける。インストール時の値（建物の共用ルーター 172.22.0.1）は、
+# WAN 側の上流に依存し、引っ越しなどで上流が変わると名前が引けなくなる（第5章「WAN 側は設計から切り離す」）。
+# Proxmox の画面（System > DNS）も同じファイルを書き換えるので、画面では変えない
+- name: Point host DNS to the router
+  ansible.builtin.copy:
+    dest: /etc/resolv.conf
+    owner: root
+    group: root
+    mode: "0644"
+    content: |
+      # Ansible で管理（roles/proxmox）。Proxmox の画面で変えない
+      search {{ proxmox_dns_search }}
+      nameserver {{ proxmox_dns_server }}
+
+# NTP を、VM と同じサーバー（ntp_servers）に向ける。Debian の既定の pool は止める。
+# 行を消さずにコメントにするので、パッケージ更新で設定ファイルの差分を聞かれても、元の行が分かる
+- name: Disable the default NTP pool
+  ansible.builtin.replace:
+    path: /etc/chrony/chrony.conf
+    regexp: '^(pool 2\.debian\.pool\.ntp\.org.*)$'
+    replace: '# \1  # Ansible で無効化（roles/proxmox）'
+  notify: Restart chrony
+
+- name: Configure NTP sources
+  ansible.builtin.copy:
+    dest: /etc/chrony/sources.d/homelab.sources
+    owner: root
+    group: root
+    mode: "0644"
+    content: |
+      # Ansible で管理（roles/proxmox）。ntp_servers（group_vars/all/vars.yml）
+      {% for server in ntp_servers %}
+      server {{ server }} iburst
+      {% endfor %}
+  notify: Restart chrony

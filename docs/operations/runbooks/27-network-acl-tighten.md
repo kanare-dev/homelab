@@ -102,7 +102,7 @@ Mac（Tailscale をオフ）と iPhone（Wi-Fi、Tailscale をオフ）で確か
 ### 3-5. Management（`910`）
 
 - [ ] Omada の画面で、ER605 と SG2210P が「接続済み」のまま（機器とコントローラーは同じ VLAN なので、ACL を通らない）
-- [ ] `pve01` で `getent hosts deb.debian.org` が引け、`chronyc sources` に `^*` の行がある（DNS は今は `172.22.0.1`。**未確認**の項目。引けなければ、`910` を無効にして、[バックログ](../roadmap/01-backlog.md)の「`pve01` の DNS と NTP」を先に行う）
+- [ ] `pve01` で `getent hosts deb.debian.org` が引け、`chronyc sources` に `^*` の行がある（DNS はルーター `10.77.10.1`、NTP はインターネット。2026-11-26 に変えた。[Proxmox ホスト](../../architecture/lld/platform/proxmox-host.md)）
 - [ ] `vm-omada` で `getent hosts deb.debian.org` が引ける（DNS はルーター `10.77.10.1`）
 - [ ] `pve01` から `ping -c 2 10.77.20.10` が通らない（Management → Servers は拒否）
 
