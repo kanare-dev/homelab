@@ -82,6 +82,8 @@ AdGuard の fallback DNS が使われるのは、upstream に**接続できな�
 
 固定 IP を持つホストには、すべて `<ホスト名>.lab.kanare.dev` の A レコードを付け、そのホストを直接指す（[ADR-0036](../../../adr/0036-a-record-for-every-fixed-ip-host.md)）。新しいホストを足すときも、同じ変更でレコードを足す。ただし、名前を引くのは `vm-infra` なので、`vm-infra` が止まると名前は引けない。監視の対象（Prometheus、blackbox-exporter）と、緊急時の手順書は、IP で書く。
 
+`.dev` のドメインは、ブラウザに HSTS preload として登録されていて、`http://` で開いても `https://` に書き換えられる。HTTPS に応答しない機器（Buffalo の管理画面は HTTP だけ）は、ホスト名ではブラウザで開けないので、管理画面は IP で開く（例: `http://10.77.30.50`）。ホスト名は、`ssh`、`ping` など、ブラウザ以外の用途に使う。
+
 ## Cloudflare 上のレコード
 
 公開ドメイン `kanare.dev` のゾーンは Cloudflare で管理している。`lab.kanare.dev` の内部名は Cloudflare には置かず、CoreDNS だけが持つ（LAN と Tailscale の Split DNS からのみ引ける）。

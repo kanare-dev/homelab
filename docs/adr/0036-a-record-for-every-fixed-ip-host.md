@@ -33,5 +33,6 @@
 
 - `ansible/inventory/group_vars/infra/vars.yml` の `dns_records` に 5 件を足し、`ansible-playbook playbooks/infra.yml` で反映する。反映すると CoreDNS が再起動し、数秒、`*.lab.kanare.dev` が引けなくなる。
 - 反映したら、このステータスを「採用」にする。
+- （追記 2026-11-27）`.dev` のドメインは、ブラウザに HSTS preload として登録されていて、`http://` で開いても `https://` に書き換えられる。HTTPS に応答しない機器（Buffalo の管理画面は HTTP だけ）は、ホスト名ではブラウザで開けないので、管理画面は IP で開く（例: `http://10.77.30.50`）。
 
 詳細: [DNS](../architecture/lld/network/dns.md)、[IP アドレス一覧](../architecture/lld/network/ip-addresses.md#fqdn-の宛先)、[ロードマップ 15](../operations/roadmap/15-host-names-and-dns-records.md)
