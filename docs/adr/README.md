@@ -41,7 +41,7 @@
 | [0033](0033-docs-first-by-change-type-and-diagram-order.md) | 文書の更新は、変更の種類で「先」か「同時」かを分け、構成図は to-be を先に、as-is は実機の変更ごとに更新する | 採用 | 2026-11-20 |
 | [0034](0034-acl-for-vlan-boundaries-ufw-for-ports.md) | ゲートウェイの ACL は VLAN の境界と UFW の無い宛先を守り、ポートの絞り込みは UFW を正とする | 採用（未適用） | 2026-11-26 |
 | [0035](0035-network-device-names-by-role.md) | ネットワーク機器のホスト名は、型番ではなく役割と番号で付ける | 採用 | 2026-11-27 |
-| [0036](0036-a-record-for-every-fixed-ip-host.md) | 固定 IP を持つホストには、すべてホスト名の A レコードを付ける | 採用（未適用） | 2026-11-27 |
+| [0036](0036-a-record-for-every-fixed-ip-host.md) | 固定 IP を持つホストには、すべてホスト名の A レコードを付ける | 採用 | 2026-11-27 |
 
 ## 書き方
 

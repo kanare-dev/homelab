@@ -11,6 +11,7 @@
 - [x] バックアップの方針を決めた。VM 全体は取らず、VM の外にある再現できないデータだけを、台帳で守る（[ADR 0001](../../adr/0001-no-vm-backup.md)）。
 - [x] CI を導入した。lint だけを実行し、`plan` と `apply` は自動化しない（[ADR 0006](../../adr/0006-ci-lint-only.md)、[CI/CD](../../architecture/lld/dev/cicd.md)）。
 - [x] 現状（AS-IS）の構成図を作った（[概要](../../architecture/hld/01-system.md)の ASCII 図と、`docs/diagrams/`）。
+- [x] ネットワーク機器の名前を役割と番号（`rtr01`、`sw01`、`ap01`）にし、固定 IP を持つホストすべてに `<ホスト名>.lab.kanare.dev` の A レコードを付けた（[ADR-0035](../../adr/0035-network-device-names-by-role.md)、[ADR-0036](../../adr/0036-a-record-for-every-fixed-ip-host.md)、[ロードマップ 15](15-host-names-and-dns-records.md)）。
 
 ## サービス
 

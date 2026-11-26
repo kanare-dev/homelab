@@ -1,6 +1,6 @@
 # ホストの名前と DNS のレコード
 
-[ロードマップ](README.md)の記録。2026-11-27 に、案 1 と案 2 の両方を採用した。案 2（ネットワーク機器の名前は役割と番号）は [ADR-0035](../../adr/0035-network-device-names-by-role.md) で、同日に適用した。案 1（固定 IP のホストすべてに A レコード）は [ADR-0036](../../adr/0036-a-record-for-every-fixed-ip-host.md) で、未適用。適用したら、この文書は [02](02-completed.md) に 1 行だけ残す。
+[ロードマップ](README.md)の記録。2026-11-27 に、案 1 と案 2 の両方を採用した。案 2（ネットワーク機器の名前は役割と番号）は [ADR-0035](../../adr/0035-network-device-names-by-role.md) で、同日に適用した。案 1（固定 IP のホストすべてに A レコード）は [ADR-0036](../../adr/0036-a-record-for-every-fixed-ip-host.md) で、同日に適用した。どちらも終わったので、[02](02-completed.md) に 1 行残した。
 
 ## 目的
 
@@ -61,6 +61,7 @@ CoreDNS のレコードは、`ansible/inventory/group_vars/infra/vars.yml` の `
 
 | 日付 | 内容 |
 | --- | --- |
+| 2026-11-27 | 案 1 を適用した。`ansible-playbook playbooks/infra.yml` で 5 件のレコードを反映し、`dig @10.77.20.10` で 5 件とも引けることを確かめた |
 | 2026-11-27 | 案 1 を採用した（[ADR-0036](../../adr/0036-a-record-for-every-fixed-ip-host.md)）。`rtr01`、`sw01`、`vm-omada`、`ap01`、`vm-dev` のレコードを `dns_records` に足し、DNS と IP アドレス一覧を直した。`vm-dev` も、手動起動だが名前を付ける |
 | 2026-11-27 | 案 2 を適用した。Omada のデバイス名を `rtr01`、`sw01` に変え（運用者の報告）、`README.md` のホストの表と as-is の構成図を直した |
 | 2026-11-27 | 案 2 で、2-B（`rtr01`、`sw01`、`ap01`）を採用した。`ap01` は、Buffalo を退役させたら新しい AP に譲る（[ADR-0035](../../adr/0035-network-device-names-by-role.md)）。設計書（IP アドレス一覧、Omada）と to-be の構成図を直した。案 1 は検討中のまま |
