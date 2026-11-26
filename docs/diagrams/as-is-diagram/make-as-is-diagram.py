@@ -359,11 +359,11 @@ def layout():
     iy = ty + 300 + 20
     zone(50, tx, iy, 260, 170)
     text("<b>VLAN50 IoT</b>（未使用）", tx + 10, iy + 5, 240, 30)
-    text("AP を追加したら使う。", tx + 10, iy + 50, 240, 40)
+    text("AP を追加したら使う。<br>2.4GHz のみ、端末間は隔離", tx + 10, iy + 50, 240, 40)
     zone(60, tx + 280, iy, 260, 170)
     text("<b>VLAN60 Guests</b>（未使用）", tx + 290, iy + 5, 240, 30)
     device("", f"来客の端末<br>{ip('DHCP')}", tx + 290, iy + 50, 250, size=(40, 40), svg=mono_pair(wifi_svg))
-    text("AP 追加後に使う。端末間は隔離、LAN へは全遮断", tx + 290, iy + 120, 240, 40)
+    text("AP を追加したら使う。<br>端末間は隔離、LAN へは全遮断", tx + 290, iy + 120, 240, 40)
 
 
 mono_pair_dark = dark_pair

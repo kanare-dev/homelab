@@ -351,17 +351,17 @@ def layout():
     device("hardware/clients/macbook.png", f"<i>canales-macbook-pro-m5</i><br>{ip('DHCP')}<br>MacBook Pro M5", tx + 10, ty + 70, 250, size=(52, 52))
     device("hardware/clients/windows-laptop.png", f"<i>仕事用 Windows PC</i><br>{ip('DHCP')}<br>会社の VPN", tx + 10, ty + 130, 250, size=(52, 52))
     device("hardware/clients/iphone.png", f"<i>canales-iphone-14</i><br>{ip('DHCP')}<br>iPhone 14", tx + 290, ty + 64, 230, size=(52, 52))
-    device("hardware/clients/switchbot.png", f"<i>SwitchBot Hub 2</i><br>{ip('DHCP')}<br>将来 IoT へ移す", tx + 290, ty + 124, 230, size=(52, 52), tile=True)
-    device("hardware/clients/tv.png", f"<i>テレビ（無線）</i><br>{ip('DHCP')}<br>将来 IoT へ移す", tx + 290, ty + 184, 230, size=(52, 52))
+    device("hardware/clients/switchbot.png", f"<i>SwitchBot Hub 2</i><br>{ip('DHCP')}<br>IoT へ移す予定", tx + 290, ty + 124, 230, size=(52, 52), tile=True)
+    device("hardware/clients/tv.png", f"<i>テレビ（無線）</i><br>{ip('DHCP')}<br>IoT へ移す予定", tx + 290, ty + 184, 230, size=(52, 52))
 
     iy = ty + 300 + 20
     zone(50, tx, iy, 260, 170)
-    text("<b>VLAN50 IoT</b>（将来）", tx + 10, iy + 5, 240, 30)
-    text("AP 追加後に使う。2.4GHz のみ、端末間は隔離", tx + 10, iy + 50, 240, 40)
+    text("<b>VLAN50 IoT</b>（未使用）", tx + 10, iy + 5, 240, 30)
+    text("AP を追加したら使う。<br>2.4GHz のみ、端末間は隔離", tx + 10, iy + 50, 240, 40)
     zone(60, tx + 280, iy, 260, 170)
-    text("<b>VLAN60 Guests</b>（将来）", tx + 290, iy + 5, 240, 30)
+    text("<b>VLAN60 Guests</b>（未使用）", tx + 290, iy + 5, 240, 30)
     device("", f"来客の端末<br>{ip('DHCP')}", tx + 290, iy + 50, 250, size=(40, 40), svg=mono_pair(wifi_svg))
-    text("AP 追加後に使う。端末間は隔離、LAN へは全遮断", tx + 290, iy + 120, 240, 40)
+    text("AP を追加したら使う。<br>端末間は隔離、LAN へは全遮断", tx + 290, iy + 120, 240, 40)
 
 
 mono_pair_dark = dark_pair
