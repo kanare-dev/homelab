@@ -70,6 +70,8 @@
 | Proxmox VE — VM 稼働状況 | Grafana — Node Exporter ダッシュボード |
 | --- | --- |
 | ![Proxmox VMs Running](assets/screenshots/proxmox-vms-running.png) | ![Grafana Node Exporter Dashboard](assets/screenshots/grafana-node-exporter-dashboard.png) |
+| **Omada コントローラー — ネットワークの概要** | **AdGuard Home — DNS フィルタリング** |
+| ![Omada Controller](assets/screenshots/omada-controller.png) | ![AdGuard Home](assets/screenshots/adguard.png) |
 
 ## 技術スタック
 
