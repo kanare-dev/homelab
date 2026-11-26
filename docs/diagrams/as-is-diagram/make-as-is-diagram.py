@@ -102,9 +102,13 @@ def _data(path, svg=None, max_px=None):
 
 
 def icon(path, x, y, w, h, max_px=None, svg=None, rotation=0):
-    """svg は文字列、または (ライト用, ダーク用) の組。組のときは、テーマに合わせて切り替える。"""
+    """svg は文字列、または (ライト用, ダーク用) の組。path も (ライト用, ダーク用) のファイルの組にできる。
+    組のときは、テーマに合わせて切り替える。"""
     st = pos(x, y, w, h) + (f";transform:rotate({rotation}deg)" if rotation else "")
-    if isinstance(svg, tuple):
+    if isinstance(path, tuple):
+        out.append(f'<img class="i lt" style="{st}" src="{_data(path[0], None, max_px)}" alt="">')
+        out.append(f'<img class="i dk" style="{st}" src="{_data(path[1], None, max_px)}" alt="">')
+    elif isinstance(svg, tuple):
         out.append(f'<img class="i lt" style="{st}" src="{_data(None, svg[0])}" alt="">')
         out.append(f'<img class="i dk" style="{st}" src="{_data(None, svg[1])}" alt="">')
     else:
@@ -329,7 +333,7 @@ def layout():
     grp = []
     frame(gx, gy, 1060, gh, "z z10", to=grp)  # Proxmox ホストは Management（VLAN10）の色
     back.insert(gi, grp[0])
-    icon("platform/proxmox.png", gx + 20, gy + 20, 40, 40, max_px=120)
+    icon(("platform/proxmox.svg", "platform/proxmox-dark.svg"), gx + 20, gy + 20, 40, 40)  # ダークは黒い部分が白い版
     text(f"{name_ip('pve01', '10.77.10.10')}<br><i>vmbr0.10</i>（tagged: VLAN10）<br>Proxmox 9.1（Debian 13 ベース）", gx + 70, gy + 20, 303, 60)
     icon(None, 780, 620, 40, 40, svg=mono_pair(ethernet_svg))
     text("nic0", 830, 635, 60, 20)
