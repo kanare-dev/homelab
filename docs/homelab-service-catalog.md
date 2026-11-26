@@ -93,6 +93,7 @@
 | 未検討 | Helm | Kubernetes パッケージマネージャ | — |
 | 未検討 | Rancher | Kubernetes クラスタ管理 UI | — |
 | 未検討 | Longhorn | Kubernetes 向け分散ストレージ | — |
+| 検討中 | Argo CD | Kubernetes 向けの GitOps（Git のマニフェストをクラスタに同期） | [未着手の項目](operations/roadmap/01-backlog.md)（k3s を入れるとき） |
 
 ### 2.5 コンテナランタイム
 
@@ -347,7 +348,7 @@
 
 | 状況 | ツール | 説明 | 根拠・備考 |
 | --- | --- | --- | --- |
-| 未検討 | immichapp/immich | セルフホスト型写真管理 | — |
+| 検討中 | immichapp/immich | セルフホスト型写真管理 | [未着手の項目](operations/roadmap/01-backlog.md)（USB SSD の NAS。DB は内蔵の NVMe、原本は NAS） |
 | 未検討 | paperless-ngx/paperless-ngx | ドキュメント管理・アーカイブ | — |
 
 ---
