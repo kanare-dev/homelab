@@ -142,14 +142,14 @@ def dark_pair(path):
     return (raw, raw[:i] + "<style>path{fill:#fff!important}</style>" + raw[i:])
 
 
-def edge(points, arrow=None, width=3, color=None):
-    """arrow は None（矢印なし）、"end"（終点側）、"start"（始点側）。color は CSS の色（既定は墨色）。"""
+def edge(points, arrow=None, width=3, color=None, dash=False):
+    """arrow は None（矢印なし）、"end"（終点側）、"start"（始点側）。color は CSS の色（既定は墨色）。dash は破線（Wi-Fi）。"""
     pts = [(x, y + OFF[0]) for x, y in points]
     d = "M" + " L".join(f"{x:g} {y:g}" for x, y in pts)
     mk = {"end": ' marker-end="url(#ar)"', "start": ' marker-start="url(#ar)"'}.get(arrow, "")
     col = color or "var(--neutral)"
     out.append(f'<svg class="e" width="{W}" height="{H}" viewBox="0 0 {W} {H}" aria-hidden="true">'
-               f'<path d="{d}" fill="none" stroke="{col}" stroke-width="{width}"{mk}/></svg>')
+               f'<path d="{d}" fill="none" stroke="{col}" stroke-width="{width}"{' stroke-dasharray="6 5"' if dash else ''}{mk}/></svg>')
 
 
 # 部品 -------------------------------------------------
@@ -241,8 +241,10 @@ def layout():
         cy = 63 + 22 * k
         edge([(1450, cy), (1490, cy)], width=w)
         text(label, 1500, cy - 11, 190, 22)
-    text("<i>Italic</i>: hostname (VM, device)", 1450, 52 + 22 * 2, 240, 22)
-    text(f"{ip('Orange')}: IP address, port", 1450, 52 + 22 * 3, 240, 22)
+    edge([(1450, 63 + 22 * 2), (1490, 63 + 22 * 2)], width=2, dash=True)
+    text("Wi-Fi", 1500, 52 + 22 * 2, 190, 22)
+    text("<i>Italic</i>: hostname (VM, device)", 1450, 52 + 22 * 3, 240, 22)
+    text(f"{ip('Orange')}: IP address, port", 1450, 52 + 22 * 4, 240, 22)
 
     OFF[0] = 80  # ここから下は 80 下げる（凡例と LAN の枠が重ならないように）
 
@@ -318,11 +320,11 @@ def layout():
     h1 = vm(40, rx + 20, y + 50, "vm-dev", "10.77.40.10", "Ubuntu Server 24.04", [("row", *NODE)])
     lab_h = 50 + h1 + 20
     zone(40, rx, y, 340, lab_h)
-    text("<b>VLAN40 Lab</b>&emsp;DHCP .100–.199", rx + 10, y + 5, 320, 30)
+    text("<b>VLAN40 Lab</b>", rx + 10, y + 5, 320, 30)
     y += lab_h + 20
     # DMZ
     zone(70, rx, y, 340, 110)
-    text("<b>VLAN70 DMZ</b> (empty)", rx + 10, y + 5, 320, 30)
+    text("<b>VLAN70 DMZ</b> (unused)", rx + 10, y + 5, 320, 30)
     text("For services exposed to the internet", rx + 20, y + 40, 300, 60)
     y += 110
 
@@ -337,35 +339,48 @@ def layout():
     text("nic0", 830, 635, 60, 20)
     row(*NODE, gx + 20, gy + gh - 50, 220)
 
-    # Buffalo と Trusted / IoT / Guests -------------------------------------------------
-    edge([(960, 460), (960, 500), (1410, 500), (1410, 530)], color="var(--l30)")  # p3: access VLAN30（VLAN の色）
-    text("p3: access (untagged: VLAN30)", 1000, 470, 300, 24, cls="el")
-    edge([(910, 460), (910, 580), (1200, 580), (1200, 640)], color="var(--l30)")  # p4: access VLAN30（VLAN の色）
+    # Trusted / IoT / Guests ----------------------------------------------------------
+    # VLAN30 は 1 つの枠。Dell のディスプレイ（有線。ノート PC は USB-C でディスプレイの NIC を使う）と
+    # Buffalo（AP）を枠の中に置き、端末はつながっている機器の下にぶら下げる（有線は実線、Wi-Fi は破線）。
+    tx, ty = 1120, 640
+    zone(30, tx, ty, 570, 320)
+    dx, ax = tx + 40, tx + 340                         # ディスプレイと AP のアイコンの中心（x）
+    edge([(910, 460), (910, 580), (dx, 580), (dx, ty + 57)], color="var(--l30)")  # p4: access VLAN30（VLAN の色）
     text("p4: access (untagged: VLAN30)", 920, 550, 260, 24, cls="el")
-    icon("hardware/buffalo-ap.png", 1348, 517, 126.5, 115, max_px=600)
-    icon(None, 1448, 494, 40, 40, svg=mono_pair(wifi_svg), rotation=45)  # AP が Wi-Fi を出していることを示す
-    text(f"<b>Buffalo WSR-1800AX4P</b><br>{ip('10.77.30.50')}<br>AP mode (managed from Trusted)", 1461.25, 541, 230, 60)
+    edge([(960, 460), (960, 500), (ax, 500), (ax, ty + 45)], color="var(--l30)")  # p3: access VLAN30（VLAN の色）
+    text("p3: access (untagged: VLAN30)", 1000, 470, 300, 24, cls="el")
+    text("<b>VLAN30 Trusted</b>", dx + 16, ty + 5, 200, 30)  # 見出しは p4 の線の右
 
-    tx, ty = 1140, 640
-    zone(30, tx, ty, 260, 300)                        # 有線
-    text("<b>VLAN30 Trusted</b>&emsp;DHCP .100–.199", tx + 10, ty + 5, 240, 30)
-    zone(30, tx + 280, ty, 260, 300)                  # Wi-Fi
-    text("<b>VLAN30 Trusted</b> Wi-Fi", tx + 287, ty + 5, 240, 30)
-    text("<i>Wired (via Dell U2725QE)</i>", tx + 20, ty + 40, 250, 24)
-    device("hardware/clients/macbook.png", f"<i>canales-macbook-pro-m5</i><br>{ip('DHCP')}<br>MacBook Pro M5", tx + 10, ty + 70, 250, size=(52, 52))
-    device("hardware/clients/windows-laptop.png", f"<i>Work Windows PC</i><br>{ip('DHCP')}<br>Corporate VPN", tx + 10, ty + 130, 250, size=(52, 52))
-    device("hardware/clients/iphone.png", f"<i>canales-iphone-14</i><br>{ip('DHCP')}<br>iPhone 14", tx + 290, ty + 64, 230, size=(52, 52))
-    device("hardware/clients/switchbot.png", f"<i>SwitchBot Hub 2</i><br>{ip('DHCP')}<br>To be moved to IoT", tx + 290, ty + 124, 230, size=(52, 52), tile=True)
-    device("hardware/clients/tv.png", f"<i>TV (Wi-Fi)</i><br>{ip('DHCP')}<br>To be moved to IoT", tx + 290, ty + 184, 230, size=(52, 52))
+    # 有線: ディスプレイ（DHCP）に、ノート PC をぶら下げる
+    device("hardware/clients/display.png", f"<b>Dell U2725QE</b><br>{ip('DHCP')}<br>Display with USB-C dock", tx + 10, ty + 57, 240, size=(54, 36))
+    edge([(dx, ty + 105), (dx, ty + 245)], width=2)
+    for k, label in enumerate(["<i>canales-macbook-pro-m5</i><br>MacBook Pro M5", "<i>Work Windows Laptop</i><br>Corporate VPN"]):
+        cy = ty + 185 + 60 * k
+        edge([(dx, cy), (dx + 16, cy)], width=2)
+        device(f"hardware/clients/{'macbook' if k == 0 else 'windows-laptop'}.png", label, dx + 12, cy - 30, 268, size=(52, 52))
+    text("USB-C", dx + 6, ty + 118, 60, 20, cls="el")
 
-    iy = ty + 300 + 20
-    zone(50, tx, iy, 260, 170)
+    # Wi-Fi: AP に、無線の端末をぶら下げる
+    icon("hardware/buffalo-ap.png", ax - 33, ty + 45, 66, 60, max_px=300)
+    icon(None, ax + 12, ty + 22, 24, 24, svg=mono_pair(wifi_svg), rotation=45)  # AP が Wi-Fi を出していることを示す
+    text(f"<b>Buffalo WSR-1800AX4P</b><br>{ip('10.77.30.50')}<br>AP mode", ax + 40, ty + 45, 190, 60)
+    edge([(ax, ty + 105), (ax, ty + 275)], width=2, dash=True)
+    clients = [("iphone.png", f"<i>canales-iphone-14</i><br>{ip('DHCP')}<br>iPhone 14", False),
+               ("switchbot.png", f"<i>SwitchBot Hub 2</i><br>{ip('DHCP')}<br>To be moved to IoT", True),
+               ("tv.png", f"<i>TV (Wi-Fi)</i><br>{ip('DHCP')}<br>To be moved to IoT", False)]
+    for k, (ic, label, tile) in enumerate(clients):
+        cy = ty + 155 + 60 * k
+        edge([(ax, cy), (ax + 22, cy)], width=2, dash=True)
+        device(f"hardware/clients/{ic}", label, ax + 20, cy - 30, 210, size=(52, 52), tile=tile)
+
+    iy = ty + 320 + 20
+    zone(50, tx, iy, 275, 170)
     text("<b>VLAN50 IoT</b> (unused)", tx + 10, iy + 5, 240, 30)
     text("Used once an AP is added.<br>2.4 GHz only, client isolation", tx + 10, iy + 50, 240, 40)
-    zone(60, tx + 280, iy, 260, 170)
-    text("<b>VLAN60 Guests</b> (unused)", tx + 290, iy + 5, 240, 30)
-    device("", f"Guest devices<br>{ip('DHCP')}", tx + 290, iy + 50, 250, size=(40, 40), svg=mono_pair(wifi_svg))
-    text("Used once an AP is added.<br>Client isolation, no access to the LAN", tx + 290, iy + 120, 240, 40)
+    zone(60, tx + 295, iy, 275, 170)
+    text("<b>VLAN60 Guests</b> (unused)", tx + 305, iy + 5, 240, 30)
+    device("", f"Guest devices<br>{ip('DHCP')}", tx + 305, iy + 50, 250, size=(40, 40), svg=mono_pair(wifi_svg))
+    text("Used once an AP is added.<br>Client isolation, no access to the LAN", tx + 305, iy + 120, 255, 40)
 
 
 mono_pair_dark = dark_pair
