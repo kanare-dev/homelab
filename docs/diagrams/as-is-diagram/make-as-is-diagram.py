@@ -321,7 +321,7 @@ def layout():
     # DMZ
     zone(70, rx, y, 340, 110)
     text("<b>VLAN70 DMZ</b>（今は空）", rx + 10, y + 5, 320, 30)
-    text("外部に触れるものを将来置く", rx + 20, y + 40, 300, 60)
+    text("外部に公開するサービスを置く", rx + 20, y + 40, 300, 60)
     y += 110
 
     left_bottom = sy + servers_h
