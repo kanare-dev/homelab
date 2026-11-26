@@ -255,19 +255,13 @@ def layout():
     frame(40, 180, 200, 40, "lanlabel", to=back)
     text("<b>LAN<br>10.77.0.0/16</b>", 40, 180, 200, 40, align="center")
 
-    # 通信ポリシー（LAN の中、ER605 の左） -----------------------------------------------
-    text("<b>通信ポリシー（要約）</b><br>表にない通信は拒否。Trusted は Servers・Lab・IoT・DMZ へ必要なポートだけ許可。<br>"
-         f"Lab・IoT・Guests・DMZ から内部へは拒否（DNS は <i>vm-infra</i> {ip('10.77.20.10')} だけ）。<br>"
-         f"外出先: Tailscale が {ip('10.77.20.0/24')} と {ip('10.77.40.0/24')} だけを広告（Management には届かない）。",
-         40, 250, 560, 140)
-
     icon("hardware/tplink-er605.png", 789, 219, 182, 61, max_px=700)  # 実寸の幅の比（ER605 158mm : SG2210P 209mm ≒ 0.76）。下端は 280 のまま
     text(f"<b>TP-Link ER605 V2</b><br>{ip('10.77.10.1')}（VLAN10）<br>各 VLAN の GW（.1）・DHCP・ACL", 1010, 200, 330, 80)
     edge([(880, 280), (880, 380)], width=5)  # p1: trunk（太い線）
-    text("ER605 p2 ⇔ SG2210P p1: trunk（untagged: VLAN10 / tagged: VLAN20/30/40/50/60/70）", 890, 320, 700, 40, cls="el")
+    text("ER605 p2 ⇔ SG2210P p1: trunk（untagged: VLAN10 / tagged: VLAN20,30,40,50,60,70）", 890, 320, 700, 40, cls="el")
 
     icon("hardware/tplink-sg2210p.png", 760, 380, 240, 80, max_px=700)
-    text(f"<b>TP-Link SG2210P</b><br>{ip('10.77.10.2')}（VLAN10）<br>p1: ER605 / p2: pve01 / p3: AP1 / p4: Dell U2725QE /<br>p5–p7: 予備・将来の AP 等（PoE。native Blackhole）/<br>p8: 復旧ポート（native VLAN10）", 1010, 380, 690, 100)
+    text(f"<b>TP-Link SG2210P</b><br>{ip('10.77.10.2')}（VLAN10）<br>p1: ER605 / p2: pve01 / p3: AP1 / p4: Dell U2725QE<br>p5–p7: 予備（PoE、native Blackhole）/ p8: 復旧ポート（native VLAN10）", 1010, 380, 690, 80)
 
     # Proxmox ---------------------------------------------------------------------------
     gx, gy = 40, 640
@@ -275,7 +269,7 @@ def layout():
     text("<b>Lenovo ThinkCentre M70q Tiny Gen1</b><br>CPU: Intel Core i5-10400T (6C/12T)<br>RAM: 1 x 8 GB + 1 x 16 GB DDR4-3200<br>"
          "Storage: 1 x 256GB NVMe SSD", 430, 519, 300, 80, align="center")
     edge([(800, 460), (800, 620)], width=5)  # p2: trunk（太い線）
-    text("p2: trunk（native: Blackhole / tagged: VLAN10/20/40/50/70）", 340, 468, 450, 24, align="right", cls="el")
+    text("p2: trunk（native: Blackhole / tagged: VLAN10,20,40,50,70）", 340, 468, 450, 24, align="right", cls="el")
 
     # 右の列（Management / Lab / DMZ）と、Servers の 2 列を先に配置して高さを決める
     gi = len(back)                      # Proxmox の枠は、中の VLAN 枠より前に入れる
@@ -357,17 +351,17 @@ def layout():
     device("hardware/clients/macbook.png", f"<i>canales-macbook-pro-m5</i><br>{ip('DHCP')}<br>MacBook Pro M5", tx + 10, ty + 70, 250, size=(52, 52))
     device("hardware/clients/windows-laptop.png", f"<i>仕事用 Windows PC</i><br>{ip('DHCP')}<br>会社の VPN", tx + 10, ty + 130, 250, size=(52, 52))
     device("hardware/clients/iphone.png", f"<i>canales-iphone-14</i><br>{ip('DHCP')}<br>iPhone 14", tx + 290, ty + 64, 230, size=(52, 52))
-    device("hardware/clients/switchbot.png", f"<i>SwitchBot Hub 2</i><br>{ip('DHCP')}<br>将来 IoT へ移す", tx + 290, ty + 124, 230, size=(52, 52), tile=True)
-    device("hardware/clients/tv.png", f"<i>テレビ（無線）</i><br>{ip('DHCP')}<br>将来 IoT へ移す", tx + 290, ty + 184, 230, size=(52, 52))
+    device("hardware/clients/switchbot.png", f"<i>SwitchBot Hub 2</i><br>{ip('DHCP')}<br>IoT へ移す予定", tx + 290, ty + 124, 230, size=(52, 52), tile=True)
+    device("hardware/clients/tv.png", f"<i>テレビ（無線）</i><br>{ip('DHCP')}<br>IoT へ移す予定", tx + 290, ty + 184, 230, size=(52, 52))
 
     iy = ty + 300 + 20
     zone(50, tx, iy, 260, 170)
-    text("<b>VLAN50 IoT</b>（将来）", tx + 10, iy + 5, 240, 30)
-    text("AP 追加後に使う。2.4GHz のみ、端末間は隔離", tx + 10, iy + 50, 240, 40)
+    text("<b>VLAN50 IoT</b>（未使用）", tx + 10, iy + 5, 240, 30)
+    text("AP を追加したら使う。<br>2.4GHz のみ、端末間は隔離", tx + 10, iy + 50, 240, 40)
     zone(60, tx + 280, iy, 260, 170)
-    text("<b>VLAN60 Guests</b>（将来）", tx + 290, iy + 5, 240, 30)
+    text("<b>VLAN60 Guests</b>（未使用）", tx + 290, iy + 5, 240, 30)
     device("", f"来客の端末<br>{ip('DHCP')}", tx + 290, iy + 50, 250, size=(40, 40), svg=mono_pair(wifi_svg))
-    text("AP 追加後に使う。端末間は隔離、LAN へは全遮断", tx + 290, iy + 120, 240, 40)
+    text("AP を追加したら使う。<br>端末間は隔離、LAN へは全遮断", tx + 290, iy + 120, 240, 40)
 
 
 mono_pair_dark = dark_pair
