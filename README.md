@@ -19,8 +19,8 @@
 </p>
 
 <p align="center">
-  <a href="#構成">構成</a> ·
-  <a href="docs/README.md">documents</a> ·
+  <a href="#architecture">Architecture</a> ·
+  <a href="docs/README.md">Documents</a> ·
   <a href="docs/adr/README.md">ADR</a> ·
   <a href="docs/operations/roadmap/README.md">Roadmap</a> ·
   <a href="docs/operations/runbooks/README.md">Runbook</a>
@@ -33,13 +33,13 @@
   </picture>
 </p>
 
-## 全体方針
+## Principles
 
 - **Reproducibility**: 構成をコードで管理し、いつでも同じ環境を再構築できる
 - **Observability**: Prometheus と Grafana で VM やサービスの状態を継続的に可視化し、異常は Slack に通知する
 - **Document-Driven**: このリポジトリのドキュメントを読めば、全体の構成、設計の方針、運用の方法が分かる
 
-## 特徴
+## Features
 
 - **3 層の DNS**: AdGuard Home が広告などをフィルタリングし、`lab.kanare.dev` の問い合わせは CoreDNS に、それ以外は Unbound に渡す。Unbound はルートから再帰解決するので、1.1.1.1 などの外部リゾルバに依存しない（[DNS 構成](docs/architecture/lld/network/dns.md)）。
 - **正規の TLS 証明書**: Caddy が Cloudflare DNS-01 で Let's Encrypt の証明書を取得する。LAN の中でも、警告なしで HTTPS にアクセスできる（[リバースプロキシと TLS](docs/architecture/lld/network/reverse-proxy-tls.md)）。
@@ -47,14 +47,14 @@
 - **機密情報の管理**: SOPS + age で暗号化して Git に置く。CI では、gitleaks で秘密の混入を、別の検査で暗号化漏れを調べる（[セキュリティ](docs/architecture/hld/06-security.md)）。
 - **可観測性**: Prometheus と Alertmanager が、容量の枯渇、VM の停止、OOM などを検知して Slack に通知する（[監視・アラート](docs/architecture/lld/platform/monitoring.md)）。
 
-## 構成
+## Architecture
 
 上の図は、現状（As-Is）の構成を表している。最終形（To-Be）は [to-be の構成図](docs/diagrams/to-be-diagram/to-be-diagram.png)に、配線は[物理構成図](docs/diagrams/physical-diagram/physical-diagram.png)に載せている。詳しくは[システム構成・環境](docs/architecture/hld/01-system.md)を参照。
 
 | ホスト名 | VMID | IP | 状態 | 役割 | 主なサービス |
 | --- | --- | --- | --- | --- | --- |
-| `rtr01` | - | `10.77.10.1` | 常時起動 | ルータ | - |
-| `sw01` | - | `10.77.10.2` | 常時起動 | マネージドスイッチ | - |
+| `rtr01` | — | `10.77.10.1` | 常時起動 | ルータ | — |
+| `sw01` | — | `10.77.10.2` | 常時起動 | マネージドスイッチ | — |
 | `pve01` | — | `10.77.10.10` | 常時起動 | ハイパーバイザ | Proxmox VE |
 | `vm-infra` | `111` | `10.77.20.10` | 常時起動 | インフラ基盤 | AdGuard Home, Unbound, CoreDNS, Caddy, Tailscale |
 | `vm-monitoring` | `113` | `10.77.20.11` | 常時起動 | 監視 | Prometheus, Alertmanager, Grafana, blackbox-exporter |
@@ -65,7 +65,7 @@
 
 ハードウェアは Lenovo ThinkCentre M70q Tiny（i5-10400T / 24GB RAM / 256GB NVMe）。メモリの配分は [性能・拡張性](docs/architecture/hld/04-performance.md) を参照。
 
-## スクリーンショット
+## Screenshots
 
 | Proxmox VE — VM 稼働状況 | Grafana — Node Exporter ダッシュボード |
 | --- | --- |
@@ -73,7 +73,7 @@
 | **Omada コントローラー — ネットワークの概要** | **AdGuard Home — DNS フィルタリング** |
 | ![Omada Controller](assets/screenshots/omada-controller.png) | ![AdGuard Home](assets/screenshots/adguard.png) |
 
-## 技術スタック
+## Tech Stack
 
 | レイヤ | 採用技術 | 用途 |
 | --- | --- | --- |
@@ -86,7 +86,7 @@
 | TLS 証明書 | Let's Encrypt + Cloudflare DNS-01 | LAN 内サービスへの正規証明書発行 |
 | 秘密情報管理 | SOPS + age | 機密情報を暗号化して Git で管理 |
 
-## ドキュメント
+## Documents
 
 | ディレクトリ | 区分 | 内容 |
 | --- | --- | --- |
@@ -95,7 +95,7 @@
 | [docs/operations/](docs/operations/runbooks/README.md) | 運用 | [Runbook](docs/operations/runbooks/README.md)、[バックアップの手順](docs/operations/runbooks/06-backup-restore.md)、[障害記録](docs/operations/incidents/README.md)、[ロードマップ](docs/operations/roadmap/README.md) |
 | [docs/adr/](docs/adr/README.md) | ADR | 設計判断の記録 |
 
-## セキュリティ
+## Security
 
 - 秘密情報は SOPS + age で暗号化して、Git で管理する。平文のシークレットはコミットしない。
 - SSH は鍵認証だけを許可し、ファイアウォール（`ufw`）では、必要なポートだけを開ける。
@@ -125,7 +125,7 @@ dig @10.77.20.10 grafana.lab.kanare.dev
 
 詳しい手順は、各ディレクトリの README（[`terraform/proxmox/`](terraform/proxmox/README.md)、[`ansible/`](ansible/README.md)、[`docker/compose/`](docker/compose/README.md)）と、[Runbook](docs/operations/runbooks/README.md) にある。ディレクトリの全体像は、[リポジトリ構成](docs/README.md#リポジトリ構成)。
 
-## ライセンス
+## License
 
 コードと文書は [MIT](LICENSE)。次のものは、対象外である。
 
