@@ -174,7 +174,7 @@ def vm(vlan, x, y, name, addr, os_text, items):
             parts.append(("row", rest[0], rest[1], cur))
             cur += 40
         else:
-            rows = [("platform/docker.png", "Docker containers")] + rest[0]
+            rows = [(("platform/docker-mark-blue.svg", "platform/docker-mark-white.svg"), "Docker containers")] + rest[0]
             parts.append(("docker", rows, None, cur))
             cur += 40 * len(rows) + 10 + 20
     h = (cur - y) if items else 80
@@ -187,7 +187,7 @@ def vm(vlan, x, y, name, addr, os_text, items):
         else:
             frame(x + 20, cy, 260, 40 * len(a) + 10, f"z z{vlan}")
             for k, (ic, label) in enumerate(a):
-                if k == 0:  # 見出し（Docker アイコンはタイルに入れない）
+                if k == 0:  # 見出し（Docker アイコンはタイルに入れない。2026-11-19 からのロゴ。ライトは青、ダークは白）
                     icon(ic, x + 40, cy + 10, 30, 30, max_px=120)
                     text(label, x + 80, cy + 10, 180, 30)
                 else:  # 中のサービスは Docker アイコンより内側
