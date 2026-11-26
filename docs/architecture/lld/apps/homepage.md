@@ -29,7 +29,7 @@ LAN 内サービスへのリンクと、状態のウィジェットを 1 画面�
 
 | タイル / 情報 | 取得元 | 認証 |
 | --- | --- | --- |
-| Proxmox VE | `https://10.77.10.10:8006`（API トークン `homepage@pve!homepage-token`） | SOPS（`homepage_proxmox_token`） |
+| Proxmox VE | `https://pve.lab.kanare.dev`（Caddy 経由。API トークン `homepage@pve!homepage-token`） | SOPS（`homepage_proxmox_token`） |
 | AdGuard Home | `http://10.77.20.10:3000` | SOPS（`homepage_adguard_password`） |
 | Hosts（`pve01`、`vm-infra`、`vm-monitoring`、`vm-apps`、`vm-code`） | Prometheus の `node_exporter` から、CPU・メモリ・ディスク（`/`）の使用率を出す（アイコンは Ubuntu、`pve01` は Proxmox）。手動起動の `vm-dev` は、停止中に値が取れないため含めない。Grafana のダッシュボードと同じ元データで、こちらは現在値の一覧向き | なし |
 | Prometheus | `https://prometheus.lab.kanare.dev`。監視対象の up / down 数。手動起動の `vm-dev` は down に数えない（`TargetDown` と同じ条件） | なし |
@@ -38,6 +38,7 @@ LAN 内サービスへのリンクと、状態のウィジェットを 1 画面�
 | Home Assistant | `https://ha.lab.kanare.dev`。SwitchBot Hub 2 の温度・湿度（`sensor.switchbot_hub_2_temperature` / `sensor.switchbot_hub_2_humidity`） | SOPS（`homepage_ha_token`。HA の長期アクセストークン `homepage`） |
 | 天気 | Open-Meteo（東京の座標。リポジトリが公開なので、市区町村レベルに留める） | なし（キー不要） |
 
+- Proxmox は、Caddy 経由の URL を使う。`vm-apps`（Servers）から Proxmox（Management）への直接の通信は、ACL を絞ると拒否されるためである（[通信ポリシー](../../hld/05-network.md#個別の許可)。2026-11-26 に、`https://10.77.10.10:8006` から変えた）。
 - Prometheus は、`vm-apps` から `9090` に直接届かない（`vm-monitoring` の `DOCKER-USER` が Caddy だけを許可している）。そのため Caddy 経由の URL を使う。
 - AdGuard Home のウィジェットは、`vm-apps` から `vm-infra` の `3000/tcp` に直接つなぐ。そのため `vm-infra` の UFW で、`10.77.20.20` からの `3000/tcp` を許可している（`ansible/inventory/group_vars/infra/vars.yml`）。段階 3 の移行で許可元を足し忘れ、ウィジェットが `ETIMEDOUT` で取得できなくなっていた（2026-11-24 に追加して解消）。
 - シークレットは `homepage.env.j2` が `/opt/homepage/.env` に `HOMEPAGE_VAR_*` として書き出し、`services.yaml` が `{{HOMEPAGE_VAR_*}}` で参照する。値は Git に入れない（[秘密情報管理](../../../operations/runbooks/03-secrets.md)）。
