@@ -1,6 +1,6 @@
 # ホストの名前と DNS のレコード
 
-[ロードマップ](README.md)の記録。**検討中**で、採用は決めていない。設計書と ADR には、採用を決めるまで書かない。採用したら、詳細を設計書と ADR に移し、この文書は [02](02-completed.md) に 1 行だけ残す。
+[ロードマップ](README.md)の記録。案 1（A レコードを揃える）は**検討中**で、採用は決めていない。案 2（ネットワーク機器の名前の付け方）は、2026-11-27 に **2-B（役割と番号）を採用した**（[ADR-0035](../../adr/0035-network-device-names-by-role.md)。未適用）。設計書と ADR には、採用を決めた案だけを書く。すべて採用して適用したら、この文書は [02](02-completed.md) に 1 行だけ残す。
 
 ## 目的
 
@@ -42,13 +42,12 @@ CoreDNS のレコードは、`ansible/inventory/group_vars/infra/vars.yml` の `
 
 `router01`・`switch01` のような長い形も考えられる。ただ、`pve01` の短さと揃えるなら、`rtr01`・`sw01`・`ap01` の方が合う。
 
-現時点の推奨は、**2-B（役割と番号）**である。ルーターは、[OPNsense への置き換え](08-network-opnsense.md)を計画しているので、型番の名前は、いずれ意味が合わなくなる。to-be の構成図の `AP1` も、`ap01` として同じ付け方に入れられる。
+**2026-11-27 に、2-B（役割と番号）を、短い形（`rtr01`、`sw01`、`ap01`）で採用した**（[ADR-0035](../../adr/0035-network-device-names-by-role.md)）。ルーターは、[OPNsense への置き換え](08-network-opnsense.md)を計画しているので、型番の名前は、いずれ意味が合わなくなる。Buffalo は `ap01` とし、Omada の AP を導入して Buffalo を退役させるときは、`ap01` を新しい AP に譲る。to-be の構成図の `AP1` も、`ap01` にした。
 
 ## 決めること
 
 - 案 1 を採るか。採るなら、ホスト名のレコードを持つかどうかを、設計書（[DNS](../../architecture/lld/network/dns.md)）の決まりとして書く。
-- 案 2 で、2-A と 2-B のどちらにするか。2-B なら、短い形（`rtr01`）と長い形（`router01`）のどちらにするか。
-- Buffalo の名前。今は AP として Trusted（VLAN30）にいる。2-B なら `ap01` になるが、AP を足したとき（[04](04-network-omada-vlan.md)）に Buffalo を外すなら、名前を新しい AP に譲るのか、番号を進めるのかを決める。
+- （決定済み）案 2 は、2-B の短い形にした。Buffalo は `ap01` で、AP を足したとき（[04](04-network-omada-vlan.md)）に Buffalo を外したら、`ap01` を新しい AP に譲る（[ADR-0035](../../adr/0035-network-device-names-by-role.md)）。
 - `vm-omada`・`vm-dev` のように、`vm-` で始まる今の VM の名前は、この検討では変えない。
 
 ## 採用を決めるときの手順
@@ -56,10 +55,11 @@ CoreDNS のレコードは、`ansible/inventory/group_vars/infra/vars.yml` の `
 - DNS と、Omada の GUI でしか変えられない設定（デバイス名）は、壊れたときの影響が大きいか、コードで管理していない。このため、リポジトリの決まりでは「文書が先」になる。変えたあとの値を PR で書き、マージしてから実機を変える。
 - 直す文書: [IP アドレス一覧](../../architecture/lld/network/ip-addresses.md)の DNS の表、[DNS](../../architecture/lld/network/dns.md)、[Omada コントローラーと管理対象機器](../../architecture/lld/network/omada-controller.md)のデバイス名、`README.md` のホストの表、構成図（as-is と to-be。ネットワーク機器に斜体のホスト名を足す）。
 - 直すコード: `ansible/inventory/group_vars/infra/vars.yml` の `dns_records`。
-- 名前の付け方（案 2）を決めたら、ADR に残す。
+- 名前の付け方（案 2）は、[ADR-0035](../../adr/0035-network-device-names-by-role.md) に残した。Omada のデバイス名を変えたら、Omada の文書の「未適用」を外し、`README.md` のホストの表と、現状（as-is）の構成図を直す。
 
 ## 変更履歴
 
 | 日付 | 内容 |
 | --- | --- |
+| 2026-11-27 | 案 2 で、2-B（`rtr01`、`sw01`、`ap01`）を採用した。`ap01` は、Buffalo を退役させたら新しい AP に譲る（[ADR-0035](../../adr/0035-network-device-names-by-role.md)）。設計書（IP アドレス一覧、Omada）と to-be の構成図を直した。案 1 は検討中のまま |
 | 2026-11-27 | 作成。固定 IP のホストに A レコードを揃える案と、ネットワーク機器の名前の付け方（型番か、役割と番号か）を、検討中として書いた |

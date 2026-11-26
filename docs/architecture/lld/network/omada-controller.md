@@ -33,7 +33,7 @@ Omada コントローラー（`vm-omada`）と、それが管理する ER605・S
 | LAN・VLAN のネットワーク | [ER605 の設定値](#er605ルーター)に書いている（コントローラーの Settings > Wired Networks > LAN で作る） |
 | mDNS の中継（Settings > 一般設定 > mDNS） | ルール `mdns-trusted-iot`（**無効**のまま）。Bonjour サービスは AirPlay と Google Cast（一覧に無いので、`Google Cast` / `_googlecast._tcp.local` を追加した。サービス ID は `_A._B.local` の形）。バンド VLAN は「VLAN ID 別」、サービスネットワーク VLAN は 50（IoT）、クライアントネットワーク VLAN は 30（Trusted）。有効にして実機で確かめるのは、テレビを IoT に移すとき。Google Cast が中継できるか、`_googlezone._tcp` などの追加が要るかは、そのとき確認する |
 | スイッチのポートプロファイル（デバイス設定 > ポートプロファイル） | 標準の Disable・All・Default のほかに、`access-trusted`（VLAN 設定オン、ネイティブネットワーク Trusted(30)、ネットワークタグ設定は全てブロック。PoE は機器の設定を保持）。p3（Buffalo）と p4（ディスプレイ）に割り当てている（「VLAN設定」は「プロファイルに従う」） |
-| 採用している機器 | ER605（JP 版 2.4.2）と SG2210P（5.30.7）。2026-11-06 に採用した。デバイス名は、型番ベースの小文字（`er605`、`sg2210p`。AP を足すときも、同じ付け方で `eap-xxx` など）（2026-11-03 に、ER605 を一度採用して更新し、取り外していた） |
+| 採用している機器 | ER605（JP 版 2.4.2）と SG2210P（5.30.7）。2026-11-06 に採用した。デバイス名は、役割と番号（`rtr01`、`sw01`。AP は `ap01`）に変える（**未適用**。今は型番ベースの小文字 `er605`、`sg2210p`。[ADR-0035](../../../adr/0035-network-device-names-by-role.md)）（2026-11-03 に、ER605 を一度採用して更新し、取り外していた） |
 | Omada Cloud（クラウドアクセス） | **有効**（試用中。最終的に無効にするかもしれない。[外部サービスの表](../../hld/05-network.md#外部サービスへの依存)）。TP-Link ID は台帳 |
 | Open API | 使っていない |
 | 時刻（NTP） | サイトの設定（Site Settings）の NTP に `ntp.nict.jp`（2026-11-06 に設定。ER605・SG2210P に配られる時刻） |
@@ -148,7 +148,7 @@ TP-Link ER605 V2。製品の仕様とファームウェアは[ER605 の資料](.
 
 | 項目 | 値 |
 | --- | --- |
-| Omada でのデバイス名 | `er605`（サイト `kanare-homelab`。2026-11-06） |
+| Omada でのデバイス名 | `rtr01`（**未適用**。今は `er605`。サイト `kanare-homelab`。[ADR-0035](../../../adr/0035-network-device-names-by-role.md)） |
 | ファームウェア | JP 版 2.4.2 Build 20260511 Rel.77362（2026-11-03 に更新。2026-11-06 の採用のあとも、同じ版） |
 | 管理者アカウント | パスワードは Keychain（`homelab / er605 admin`） |
 | ローカル DNS（Domain Name、Alias Domain Name） | 登録しない（名前解決は `vm-infra` の CoreDNS） |
@@ -181,7 +181,7 @@ TP-Link SG2210P V5.30。製品の仕様は[SG2210P の資料](../hardware/sg2210
 
 | 項目 | 値 |
 | --- | --- |
-| Omada でのデバイス名 | `sg2210p`（サイト `kanare-homelab`。2026-11-06） |
+| Omada でのデバイス名 | `sw01`（**未適用**。今は `sg2210p`。サイト `kanare-homelab`。[ADR-0035](../../../adr/0035-network-device-names-by-role.md)） |
 | NTP | `ntp.nict.jp`（コントローラーのサイトの設定から配る。2026-11-06） |
 | ファームウェア | 5.30.7。**最新**（2026-11-06 に、採用したあと、コントローラーの画面で確認。サポートページの V5.30 の一覧で、5.30.7（Build 20260509、2026-06-11 掲載）が最新。日本語ページも同じ一覧で、地域の表記は UN だけ）。更新はしていない |
 | 管理 IP | **`10.77.10.2/24`（VLAN10、静的。ゲートウェイ・DNS は `10.77.10.1`）。** 管理 VLAN のインターフェースは `Management(Default)`（VLAN10）の 1 つだけ（旧 VLAN1 のインターフェースは、2026-11-20 になくなった）。コントローラーへの接続は、`10.77.10.3` 宛て |
@@ -206,6 +206,7 @@ TP-Link SG2210P V5.30。製品の仕様は[SG2210P の資料](../hardware/sg2210
 
 | 日付 | 内容 |
 | --- | --- |
+| 2026-11-27 | [文書] デバイス名を、役割と番号（`rtr01`、`sw01`）に変えると決めた（[ADR-0035](../../../adr/0035-network-device-names-by-role.md)）。文書が先で、実機（Omada の画面）は未変更 |
 | 2026-11-20 | [コントローラー] **既定のネットワークを Management（VLAN10）に統合した（案 B）。** ER605 を「削除」（初期化）→ 停止中に、`Blackhole`（VLAN 999）作成、`Management` ネットワークの削除、`Default` を `Management(Default)`（VLAN10、`10.77.10.1/24`、DHCP `.240`〜`.250`）に変更 → ER605 を再採用した（Inform URL `10.77.10.3`）。ER605 の接続元 IP は `10.77.10.1`。`vm-omada` の UFW から `10.77.1.1` の許可を消した（Ansible）。**つまずき:** `Management` は、スイッチの管理 VLAN とポート（p8）のネイティブに紐づいていて、先に外さないと消せなかった。消した時点で、スイッチから VLAN10 が消え、コントローラーから切れた。詳細は[手順書 25](../../../operations/runbooks/25-merge-default-network-into-vlan10.md) |
 | 2026-11-20 | [ER605] **既定のネットワークを Management（VLAN10）に統合した（案 B、[ADR-0032](../../../adr/0032-merge-default-network-into-management-vlan10.md)、[手順書 25](../../../operations/runbooks/25-merge-default-network-into-vlan10.md)）。** ER605 をコントローラーで「削除」（初期化）→ 停止中に、`Blackhole` の作成、SG2210P のポート変更、「Management」の削除、既定のネットワークを `Management(Default)`（VLAN10、`10.77.10.1/24`、DHCP `.240`〜`.250`、リース 60 分）に変更 → ER605 を、スタンドアロンで LAN を `10.77.10.1/24`（VLAN は 1 のまま。スイッチ p1 の PVID が 10）にして、Inform URL `10.77.10.3` で再採用。コントローラーの接続元 IP は `10.77.10.1`。全面停止は、約 1 時間（22:30 ごろ〜23:15 ごろ）。管理者のアカウントは、また作り直した（台帳へ）。ER605 は、既定でクラウド管理（Cloud-Based Controller Management）が「有効」で Online になるので、使わないなら無効にする |
 | 2026-11-20 | [SG2210P] **既定のネットワークの VLAN10 への統合（案 B、[ADR-0032](../../../adr/0032-merge-default-network-into-management-vlan10.md)、[手順書 25](../../../operations/runbooks/25-merge-default-network-into-vlan10.md)）。** (1) `Blackhole`（VLAN 999）を作り、p1 のタグから `Blackhole` を外した。(2) p8 を native Management に、p2 を native `Blackhole` に、p5〜p7 を native `Blackhole`・タグ全ブロックにした。(3) 管理 VLAN を `Default`（VLAN1）に付け替え、`Management` ネットワークを削除し、`Default` を `Management`（VLAN10、`10.77.10.1/24`）にした。**削除の時点で、スイッチから VLAN10 が消え、コントローラー（VLAN10）から切れた**（想定どおり）。(4) 復旧は、本体の画面（ER605 の DHCP から受けた `192.168.0.100`）で、802.1Q VLAN に VLAN10（tagged p1・p2・p8）を足して、L3 Interface に VLAN10 の静的 `10.77.10.2` を足した。(5) **コントローラーの p2 の設定が、タグ付きに Management を含めていなかったため、p2 の VLAN10 が untagged になっていた**（配信のあと、本体の画面で気づいた）。タグ付きに Management を足して直した。(6) コントローラー側の管理インターフェースを、静的 `10.77.10.2/24`（GW・DNS `10.77.10.1`）にした。再接続のあと、設定結果の「失敗」の通知は、切断中の古い記録だった |
