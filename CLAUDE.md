@@ -46,5 +46,6 @@
 ## Lint
 
 - push する前に `make lint-all` をローカルで通す（CI の `.github/workflows/lint.yml` と同じチェック）。失敗したまま push しない。
+- pre-push フック（`.githooks/pre-push`）が `git push` のたびに `make lint-all` を実行する。Claude は push の前に lint を実行するか確認せず、そのまま `git push` する。フックが失敗したら、原因を直してから push し直す。`--no-verify` でフックを飛ばさない。
+- フックは `make hooks`（`core.hooksPath` に相対パスの `.githooks` を設定する）で有効にする。リポジトリを移動したあとに絶対パスが残っていると、フックが黙って動かなくなる。`git config --get core.hooksPath` が `.githooks` を返すか確かめる。
 - Markdown は `make md-lint`（markdownlint-cli2。ルールは `.markdownlint-cli2.yaml`）と `make md-links`（内部リンク・アンカーの検査）で確認できる。どちらも `make lint-all` に含まれる。
-- `make hooks` で pre-push フック（`.githooks/pre-push`）を有効にできる。
