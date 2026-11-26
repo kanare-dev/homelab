@@ -7,6 +7,7 @@
 | [`to-be-diagram/`](#to-be-の構成図-vlan-化のあとto-be-diagram) | **to-be の構成図**（最終形。VLAN 化のあと、管理系も VLAN10）。単体の HTML と PNG |
 | [`physical-diagram/`](#物理構成図physical-diagram) | **物理構成図**（機器のポートとケーブル）。単体の HTML と PNG |
 | [`as-is-diagram/`](#現状の構成図as-is-diagram) | **現状の構成図**（as-is。常に実機の状態を表す。削除しない）。単体の HTML と PNG。to-be の構成図と同じ見た目 |
+| [`acl-matrix/`](#vlan-間の通信マトリクスacl-matrix) | **VLAN 間の通信マトリクス**（ゲートウェイの ACL の目標）。単体の HTML と PNG |
 | `fonts/`、`assets/` | 図が使うフォントとアイコン素材 |
 
 ## 構成図
@@ -57,6 +58,17 @@ ER605 と SG2210P を入れて VLAN に分けた**最終形（to-be）**。管�
 - 内容の正は、[IP アドレス一覧](../architecture/lld/network/ip-addresses.md)と、[Omada コントローラー](../architecture/lld/network/omada-controller.md)（ER605・SG2210P）と [Buffalo](../architecture/lld/network/wsr-1800ax4p.md) の設定の文書。食い違ったら、文書のほうが正。
 - **段階 3b（管理系を VLAN10 へ）が済んだら、現状と to-be が同じになるので、このディレクトリごと削除する。**
 
+### VLAN 間の通信マトリクス（`acl-matrix/`）
+
+VLAN の間で、どの向きの新規の接続を許すかを、一目で見るための図。縦が送信元、横が宛先で、許可・必要な通信だけ・拒否・同じ VLAN の 4 つの記号で示す。「必要な通信だけ」のセルには、許す通信を短く書いた。内容の正は、[第5章 ネットワーク](../architecture/hld/05-network.md#通信ポリシー)の許可表と [ADR-0034](../adr/0034-acl-for-vlan-boundaries-ufw-for-ports.md)。ゲートウェイの ACL の**目標**で、今の ACL は全許可のまま（[ADR-0029](../adr/0029-stage3-acl-allow-all-then-tighten.md)）。**本体は、生成スクリプト [`acl-matrix/make-acl-matrix.py`](acl-matrix/make-acl-matrix.py)**（冒頭の `MATRIX` が表の中身）。許可表を変えたら、同じ変更で `MATRIX` を直して書き出す。
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="acl-matrix/acl-matrix-dark.png">
+  <img alt="VLAN 間の通信マトリクス" src="acl-matrix/acl-matrix.png" width="720">
+</picture>
+
+ダーク版は [`acl-matrix-dark.png`](acl-matrix/acl-matrix-dark.png)、単体の HTML は [`acl-matrix.html`](acl-matrix/acl-matrix.html)。見た目（フォント、ライト・ダーク、VLAN の色）は構成図に揃えた。
+
 ## ファイル
 
 | ファイル | 内容 |
@@ -64,7 +76,8 @@ ER605 と SG2210P を入れて VLAN に分けた**最終形（to-be）**。管�
 | `to-be-diagram/` | to-be の構成図（最終形）。生成スクリプト `make-to-be-diagram.py`（本体）、書き出した `to-be-diagram.html`・`to-be-diagram.png`・`to-be-diagram-dark.png` |
 | `as-is-diagram/` | 現状の構成図（**常に実機の状態を表す。削除しない**）。生成スクリプト `make-as-is-diagram.py`（本体）、書き出した `as-is-diagram.html`・`as-is-diagram.png`・`as-is-diagram-dark.png` |
 | `physical-diagram/` | 物理構成図（段階 3 の完了後の配線）。生成スクリプト `make-physical-diagram.py`（本体）、書き出した `physical-diagram.html`・`physical-diagram.png`・`physical-diagram-dark.png` |
-| `fonts/` | HTML 図（to-be、as-is、物理構成図）が埋め込むフォント（Geist、JetBrains Mono。OFL） |
+| `acl-matrix/` | VLAN 間の通信マトリクス（ACL の目標）。生成スクリプト `make-acl-matrix.py`（本体）、書き出した `acl-matrix.html`・`acl-matrix.png`・`acl-matrix-dark.png` |
+| `fonts/` | HTML 図（to-be、as-is、物理構成図、通信マトリクス）が埋め込むフォント（Geist、JetBrains Mono。OFL） |
 | `assets/` | アイコン素材（**Git 管理外**。無ければ取得する） |
 
 ## 更新の手順
@@ -78,6 +91,7 @@ ER605 と SG2210P を入れて VLAN に分けた**最終形（to-be）**。管�
    python3 docs/diagrams/as-is-diagram/make-as-is-diagram.py --png              # 現状の構成図（HTML と PNG。macOS の `sips` と Google Chrome が要る）
    python3 docs/diagrams/to-be-diagram/make-to-be-diagram.py --png              # to-be の構成図（同上。計画が変わったときだけ）
    python3 docs/diagrams/physical-diagram/make-physical-diagram.py --png        # 物理構成図（HTML と PNG。Google Chrome が要る）
+   python3 docs/diagrams/acl-matrix/make-acl-matrix.py --png                    # 通信マトリクス（同上。通信ポリシーを変えたときだけ）
    ```
 
 3. 書き出した図を目で見て、崩れていないか確かめる。現状の構成図は `as-is-diagram.png`（ライト）と `as-is-diagram-dark.png`（ダーク）、to-be の構成図は `to-be-diagram.png` と `to-be-diagram-dark.png`、物理構成図は `physical-diagram.png` と `physical-diagram-dark.png`。
