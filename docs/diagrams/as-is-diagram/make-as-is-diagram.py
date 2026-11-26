@@ -265,12 +265,12 @@ def layout():
     text("<b>LAN</b><br>10.77.0.0/16", 40, 180, 200, 40, align="center")
 
     icon("hardware/tplink-er605.png", 789, 219, 182, 61, max_px=700)  # 実寸の幅の比（ER605 158mm : SG2210P 209mm ≒ 0.76）。下端は 280 のまま
-    text(f"<b>TP-Link ER605 V2</b><br>{ip('10.77.10.1')} (VLAN10)<br>Gateway for each VLAN ({ip('10.77.&lt;VLAN&gt;.1')}), DHCP, ACL (allow all)", 1010, 200, 420, 80)
+    text(f"<b>TP-Link ER605 V2</b><br>{name_ip('rtr01', '10.77.10.1')} (VLAN10)<br>Gateway for each VLAN ({ip('10.77.&lt;VLAN&gt;.1')}), DHCP, ACL (allow all)", 1010, 200, 420, 80)
     edge([(880, 280), (880, 380)], width=5)  # p1: trunk（太い線）
     text("ER605 p2 ⇔ SG2210P p1: trunk (untagged: VLAN10 / tagged: VLAN20,30,40,50,60,70)", 890, 320, 700, 40, cls="el")
 
     icon("hardware/tplink-sg2210p.png", 760, 380, 240, 80, max_px=700)
-    text(f"<b>TP-Link SG2210P</b><br>{ip('10.77.10.2')} (VLAN10)<br>p1: ER605 / p2: pve01 / p3: Buffalo / p4: Dell U2725QE<br>p5–p7: unused (native Blackhole) / p8: recovery port (native VLAN10)", 1010, 380, 690, 80)
+    text(f"<b>TP-Link SG2210P</b><br>{name_ip('sw01', '10.77.10.2')} (VLAN10)<br>p1: rtr01 / p2: pve01 / p3: ap01 / p4: Dell U2725QE<br>p5–p7: unused (native Blackhole) / p8: recovery port (native VLAN10)", 1010, 380, 690, 80)
 
     # Proxmox ---------------------------------------------------------------------------
     gx, gy = 40, 640
@@ -366,7 +366,7 @@ def layout():
     # Wi-Fi: AP に、無線の端末をぶら下げる
     icon("hardware/buffalo-ap.png", ax - 33, ty + 45, 66, 60, max_px=300)
     icon(None, ax + 12, ty + 22, 24, 24, svg=mono_pair(wifi_svg), rotation=45)  # AP が Wi-Fi を出していることを示す
-    text(f"<b>Buffalo WSR-1800AX4P</b><br>{ip('10.77.30.50')}<br>AP mode", ax + 40, ty + 45, 190, 60)
+    text(f"<b>Buffalo WSR-1800AX4P</b><br>{name_ip('ap01', '10.77.30.50')}<br>AP mode", ax + 40, ty + 45, 190, 60)
     edge([(ax, ty + 105), (ax, ty + 275)], width=2, dash=True)
     clients = [("iphone.png", f"<i>canales-iphone-14</i><br>{ip('DHCP')}<br>iPhone 14", False),
                ("switchbot.png", f"<i>SwitchBot Hub 2</i><br>{ip('DHCP')}<br>To be moved to IoT", True),
