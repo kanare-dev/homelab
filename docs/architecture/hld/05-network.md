@@ -108,6 +108,13 @@ AirPlay も Google Cast も、機器の発見に mDNS を使う。mDNS の呼び
 | **Guests** | 拒否 | DNS(53) を `vm-infra` へのみ | 拒否 | 拒否 | 拒否 | 許可（端末間は隔離） | 拒否 | 許可 |
 | **DMZ** | 拒否 | 拒否（DNS は検討中） | 拒否 | 拒否 | 拒否 | 拒否 | 許可 | ハニーポットは拒否。Web サーバーと `cloudflared` は必要な宛先・ポートだけ許可 |
 
+同じ内容を、マトリクスの図にした（[生成スクリプト](../../diagrams/acl-matrix/make-acl-matrix.py)。表を変えたら、同じ変更で図も直す）。
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="../../diagrams/acl-matrix/acl-matrix-dark.png">
+  <img alt="VLAN 間の通信マトリクス" src="../../diagrams/acl-matrix/acl-matrix.png" width="720">
+</picture>
+
 ### 個別の許可
 
 - **Management → Servers**: 許可するものがない。Management のホストは、DNS をルーター（`10.77.10.1`）に、NTP をインターネットのサーバーに向ける（[ADR-0007](../../adr/0007-vm-host-dns-is-router.md)。`vm-infra` に向けると、Proxmox ホストが、自分の上で動く VM に頼る循環になる）。syslog の収集（[ロードマップ 14](../../operations/roadmap/14-syslog-collection.md)。検討中）を採用したら、機器から `vm-monitoring` への 514 番だけを足す。

@@ -5,7 +5,7 @@
 | [architecture/hld/](architecture/hld/README.md) | 基本設計（HLD）。第1章 システム構成・環境、第2章 信頼性、第3章 運用・保守、第4章 性能・拡張性、第5章 ネットワーク、第6章 セキュリティ |
 | [architecture/lld/](architecture/lld/README.md) | 詳細設計（LLD）。サービスごとの詳細と IP アドレス一覧。役割ごとのフォルダ（`network/`: DNS・リバースプロキシと TLS・Omada コントローラー・IP アドレス一覧、`platform/`: 監視・アラート・MOTD、`apps/`: Homepage・Home Assistant・n8n・FreshRSS、`dev/`: CI/CD・vm-code、`hardware/`: 機器の仕様・公式資料と、導入前の機器・用品（[future/rack-10inch/](architecture/lld/hardware/future/rack-10inch/README.md)）） |
 | [operations/](operations/runbooks/README.md) | 運用。[Runbook](operations/runbooks/README.md)、[バックアップの手順](operations/runbooks/06-backup-restore.md)、[障害記録](operations/incidents/README.md)、[ロードマップ](operations/roadmap/README.md)（[Omada・VLAN](operations/roadmap/04-network-omada-vlan.md)、[OPNsense](operations/roadmap/08-network-opnsense.md)、[GPU 搭載 PC](operations/roadmap/05-gpu-pc.md)、[通信の収集・可視化](operations/roadmap/06-network-traffic-analysis.md)、[DMZ と外部公開](operations/roadmap/07-dmz.md)、[ラック](operations/roadmap/09-rack.md)、[ER605・SG2210P の移行計画](operations/roadmap/10-er605-sg2210p-migration-plan.md)、[構成レビューの改善案](operations/roadmap/11-design-review-ideas.md)、[IP 割り当てと DHCP の見直し](operations/roadmap/12-ip-address-and-dhcp-review.md)、[syslog 収集](operations/roadmap/14-syslog-collection.md)、[ホストの名前と DNS](operations/roadmap/15-host-names-and-dns-records.md)、[見送り中の項目](operations/roadmap/03-deferred.md)） |
-| [diagrams/](diagrams/README.md) | 構成図（現行は draw.io の SVG、VLAN 化のあとと物理構成図は HTML と PNG）と、生成・整形スクリプト、更新の手順 |
+| [diagrams/](diagrams/README.md) | 構成図（現行は draw.io の SVG、VLAN 化のあとと物理構成図、VLAN 間の通信マトリクスは HTML と PNG）と、生成・整形スクリプト、更新の手順 |
 | [adr/](adr/README.md) | 設計判断の記録（ADR） |
 | [homelab-service-catalog.md](homelab-service-catalog.md) | ホームラボで使えるツールのカタログ（候補集。導入済み・計画中・見送りなどの状況つき。このリポジトリの構成ではない） |
 
@@ -36,7 +36,7 @@ homelab/
     │   ├── hld/            # 基本設計（第1章〜第6章）
     │   └── lld/            # 詳細設計（役割ごとのフォルダ: network/、platform/、apps/、dev/、hardware/）
     │       └── hardware/   # 機器ごとの仕様・資料（置き方の決まりは README）と、導入前の機器・用品（future/rack-10inch/。他の作者のモデルのデータは、Git 管理しない）
-    ├── diagrams/           # 構成図（現行は draw.io の SVG、VLAN 化後と物理構成図は HTML と PNG）と生成・整形スクリプト、README（更新の手順）。assets/ はアイコン素材（Git 管理外）
+    ├── diagrams/           # 構成図（現行は draw.io の SVG、VLAN 化後と物理構成図、通信マトリクスは HTML と PNG）と生成・整形スクリプト、README（更新の手順）。assets/ はアイコン素材（Git 管理外）
     ├── operations/         # Runbook、バックアップ、障害記録、ロードマップ
     └── adr/                # 設計判断の記録
 ```
