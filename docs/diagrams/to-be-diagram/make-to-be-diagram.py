@@ -36,15 +36,16 @@ FONTS = HERE.parent / "fonts"
 CHROME = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
 W, H = 1720, 1690
 
-# VLAN ごとの色（塗り, 線）
+# VLAN ごとの色（塗り, 線）。信頼度の高い VLAN10 から低い VLAN70 へ、色相環を紫→赤と一方向にたどる
+# （寒色は信頼できる側、暖色は信頼できない側）。明るさと彩度はそろえる。
 COLOR = {
-    10: ("#dae8fc", "#6c8ebf"),
-    20: ("#ffe6cc", "#d79b00"),
-    30: ("#d5e8d4", "#82b366"),
-    40: ("#e1d5e7", "#9673a6"),
-    50: ("#fff2cc", "#d6b656"),
-    60: ("#eeeeee", "#666666"),
-    70: ("#f8cecc", "#b85450"),
+    10: ("oklch(95% 0.035 300)", "oklch(60% 0.13 300)"),  # 紫
+    20: ("oklch(95% 0.035 250)", "oklch(60% 0.13 250)"),  # 青
+    30: ("oklch(95% 0.035 195)", "oklch(60% 0.13 195)"),  # ティール
+    40: ("oklch(95% 0.035 145)", "oklch(60% 0.13 145)"),  # 緑
+    50: ("oklch(95% 0.035 95)", "oklch(60% 0.13 95)"),  # 黄
+    60: ("oklch(95% 0.035 55)", "oklch(60% 0.13 55)"),  # 橙
+    70: ("oklch(95% 0.035 25)", "oklch(60% 0.13 25)"),  # 赤
 }
 NAME = {10: "Management", 20: "Servers", 30: "Trusted", 40: "Lab", 50: "IoT", 60: "Guests", 70: "DMZ"}
 
@@ -431,9 +432,9 @@ i{{font-style:italic}}
 .sw{{border-style:solid;border-radius:4px;border-width:1.5px;background:color-mix(in srgb,var(--f) 85%,transparent)}}
 :root[data-theme=dark] .sw{{background:color-mix(in srgb,var(--l) 35%,transparent)}}
 @media (prefers-color-scheme:dark){{:root:not([data-theme=light]) .sw{{background:color-mix(in srgb,var(--l) 35%,transparent)}}}}
-.ext{{border-radius:16px;border:2px solid color-mix(in srgb,#9c8f73 70%,transparent);background:color-mix(in srgb,#ece6da 70%,transparent)}}
-:root[data-theme=dark] .ext{{background:color-mix(in srgb,#9c8f73 22%,transparent)}}
-@media (prefers-color-scheme:dark){{:root:not([data-theme=light]) .ext{{background:color-mix(in srgb,#9c8f73 22%,transparent)}}}}
+.ext{{border-radius:16px;border:2px solid color-mix(in srgb,oklch(62% 0.02 255) 70%,transparent);background:color-mix(in srgb,oklch(94% 0.01 255) 70%,transparent)}}
+:root[data-theme=dark] .ext{{background:color-mix(in srgb,oklch(62% 0.02 255) 22%,transparent)}}
+@media (prefers-color-scheme:dark){{:root:not([data-theme=light]) .ext{{background:color-mix(in srgb,oklch(62% 0.02 255) 22%,transparent)}}}}
 .lan{{border-radius:16px;border:2px dashed color-mix(in srgb,var(--muted) 70%,transparent);background:color-mix(in srgb,var(--paper) 70%,transparent)}}
 .lanlabel{{border-radius:16px;border:2px solid color-mix(in srgb,var(--muted) 70%,transparent);background:var(--paper2)}}
 .legend{{border-radius:10px;border:1px solid var(--rule2);background:var(--card)}}

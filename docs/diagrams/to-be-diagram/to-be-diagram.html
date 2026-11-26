@@ -11,7 +11,7 @@
   --paper:oklch(98.5% 0.004 250);--paper2:oklch(96.5% 0.005 252);--card:oklch(100% 0 0 / .85);
   --rule:oklch(93% 0.007 255);--rule2:oklch(83% 0.011 255);--muted:oklch(56% 0.013 255);
   --neutral:oklch(46% 0.015 255);--ink:oklch(24% 0.020 258);--ink2:oklch(34% 0.018 257);
-  --orange:oklch(60% 0.17 52);--veil:oklch(98.5% 0.004 250 / .85);--zfill:40%;--zline:40%;--f10:#dae8fc;--l10:#6c8ebf;--f20:#ffe6cc;--l20:#d79b00;--f30:#d5e8d4;--l30:#82b366;--f40:#e1d5e7;--l40:#9673a6;--f50:#fff2cc;--l50:#d6b656;--f60:#eeeeee;--l60:#666666;--f70:#f8cecc;--l70:#b85450;
+  --orange:oklch(60% 0.17 52);--veil:oklch(98.5% 0.004 250 / .85);--zfill:40%;--zline:40%;--f10:oklch(95% 0.035 300);--l10:oklch(60% 0.13 300);--f20:oklch(95% 0.035 250);--l20:oklch(60% 0.13 250);--f30:oklch(95% 0.035 195);--l30:oklch(60% 0.13 195);--f40:oklch(95% 0.035 145);--l40:oklch(60% 0.13 145);--f50:oklch(95% 0.035 95);--l50:oklch(60% 0.13 95);--f60:oklch(95% 0.035 55);--l60:oklch(60% 0.13 55);--f70:oklch(95% 0.035 25);--l70:oklch(60% 0.13 25);
   --display:"Geist","Hiragino Sans","Yu Gothic UI","Noto Sans CJK JP","Noto Sans JP",ui-sans-serif,system-ui,sans-serif;
   --mono:"JetBrains Mono","Hiragino Sans","Yu Gothic UI","Noto Sans CJK JP","Noto Sans JP",ui-monospace,Menlo,monospace}
 :root[data-theme=dark]{color-scheme:dark;
@@ -55,9 +55,9 @@ i{font-style:italic}
 .sw{border-style:solid;border-radius:4px;border-width:1.5px;background:color-mix(in srgb,var(--f) 85%,transparent)}
 :root[data-theme=dark] .sw{background:color-mix(in srgb,var(--l) 35%,transparent)}
 @media (prefers-color-scheme:dark){:root:not([data-theme=light]) .sw{background:color-mix(in srgb,var(--l) 35%,transparent)}}
-.ext{border-radius:16px;border:2px solid color-mix(in srgb,#9c8f73 70%,transparent);background:color-mix(in srgb,#ece6da 70%,transparent)}
-:root[data-theme=dark] .ext{background:color-mix(in srgb,#9c8f73 22%,transparent)}
-@media (prefers-color-scheme:dark){:root:not([data-theme=light]) .ext{background:color-mix(in srgb,#9c8f73 22%,transparent)}}
+.ext{border-radius:16px;border:2px solid color-mix(in srgb,oklch(62% 0.02 255) 70%,transparent);background:color-mix(in srgb,oklch(94% 0.01 255) 70%,transparent)}
+:root[data-theme=dark] .ext{background:color-mix(in srgb,oklch(62% 0.02 255) 22%,transparent)}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]) .ext{background:color-mix(in srgb,oklch(62% 0.02 255) 22%,transparent)}}
 .lan{border-radius:16px;border:2px dashed color-mix(in srgb,var(--muted) 70%,transparent);background:color-mix(in srgb,var(--paper) 70%,transparent)}
 .lanlabel{border-radius:16px;border:2px solid color-mix(in srgb,var(--muted) 70%,transparent);background:var(--paper2)}
 .legend{border-radius:10px;border:1px solid var(--rule2);background:var(--card)}
