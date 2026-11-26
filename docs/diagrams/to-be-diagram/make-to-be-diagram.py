@@ -213,8 +213,8 @@ def layout():
     # 凡例（右上。縦一列。上ほど信頼度が高い） ------------------------------------------
     lx, ly = 1050, 20
     frame(1040, ly, 660, 222, "legend")  # 凡例は 1 つの四角（左: VLAN 一覧、右: 線と文字）
-    text(f"<b>VLAN 一覧</b>（{ip('10.77.&lt;VLAN&gt;.0/24')}）", lx - 3, ly + 6, 380, 26)
-    text("信頼度", lx - 3, ly + 39, 54, 22, align="center", cls="el")
+    text(f"<b>VLANs</b> ({ip('10.77.&lt;VLAN&gt;.0/24')})", lx - 3, ly + 6, 380, 26)
+    text("Trust", lx - 3, ly + 39, 54, 22, align="center", cls="el")
     edge([(lx + 24, ly + 66), (lx + 24, ly + 200)], arrow="start")  # 矢じりが上。上ほど信頼度が高い
     for k, v in enumerate((10, 20, 30, 40, 50, 60, 70)):
         y = ly + 56 + 22 * k
@@ -236,13 +236,13 @@ def layout():
 
     # 凡例の右半分: 線と文字の意味
     edge([(1440, 30), (1440, 232)], width=1, color="var(--rule2)")
-    text("<b>線と文字</b>", 1450, 24, 240, 26)
-    for k, (w, label) in enumerate([(3, "Ethernet（上流の WAN）"), (5, "Ethernet（trunk）")]):
+    text("<b>Lines and text</b>", 1450, 24, 240, 26)
+    for k, (w, label) in enumerate([(3, "Ethernet (upstream WAN)"), (5, "Ethernet (trunk)")]):
         cy = 63 + 22 * k
         edge([(1450, cy), (1490, cy)], width=w)
         text(label, 1500, cy - 11, 190, 22)
-    text("<i>斜体</i>: ホスト名（VM、端末）", 1450, 52 + 22 * 2, 240, 22)
-    text(f"{ip('橙')}: IP アドレス、ポート", 1450, 52 + 22 * 3, 240, 22)
+    text("<i>Italic</i>: hostname (VM, device)", 1450, 52 + 22 * 2, 240, 22)
+    text(f"{ip('Orange')}: IP address, port", 1450, 52 + 22 * 3, 240, 22)
 
     OFF[0] = 80  # ここから下は 80 下げる（凡例と LAN の枠が重ならないように）
 
@@ -251,8 +251,8 @@ def layout():
     icon(None, 860, 25, 40, 40, svg=INTERNET[0])
     text("Internet", 920, 30, 100, 30)
     edge([(880, 73), (880, 219)])  # タイルの下から ER605 の上まで、1 本で繋ぐ
-    text(f"建物の共用ルーター {ip('172.22.0.1')}（二重 NAT）", 520, 94, 350, 24, align="right", cls="el")
-    text("WAN（DHCP）", 750, 128, 120, 24, align="right", cls="el")
+    text(f"Building router {ip('172.22.0.1')} (double NAT)", 520, 94, 350, 24, align="right", cls="el")
+    text("WAN (DHCP)", 750, 128, 120, 24, align="right", cls="el")
 
     # LAN 全体の枠 ---------------------------------------------------------------------
     frame(20, 170, 1680, 1400, "lan", to=back)
@@ -260,12 +260,12 @@ def layout():
     text("<b>LAN<br>10.77.0.0/16</b>", 40, 180, 200, 40, align="center")
 
     icon("hardware/tplink-er605.png", 789, 219, 182, 61, max_px=700)  # 実寸の幅の比（ER605 158mm : SG2210P 209mm ≒ 0.76）。下端は 280 のまま
-    text(f"<b>TP-Link ER605 V2</b><br>{ip('10.77.10.1')}（VLAN10）<br>各 VLAN の GW（.1）・DHCP・ACL", 1010, 200, 330, 80)
+    text(f"<b>TP-Link ER605 V2</b><br>{ip('10.77.10.1')} (VLAN10)<br>Gateway for each VLAN (.1), DHCP, ACL", 1010, 200, 330, 80)
     edge([(880, 280), (880, 380)], width=5)  # p1: trunk（太い線）
-    text("ER605 p2 ⇔ SG2210P p1: trunk（untagged: VLAN10 / tagged: VLAN20,30,40,50,60,70）", 890, 320, 700, 40, cls="el")
+    text("ER605 p2 ⇔ SG2210P p1: trunk (untagged: VLAN10 / tagged: VLAN20,30,40,50,60,70)", 890, 320, 700, 40, cls="el")
 
     icon("hardware/tplink-sg2210p.png", 760, 380, 240, 80, max_px=700)
-    text(f"<b>TP-Link SG2210P</b><br>{ip('10.77.10.2')}（VLAN10）<br>p1: ER605 / p2: pve01 / p3: AP1 / p4: Dell U2725QE<br>p5–p7: 予備（PoE、native Blackhole）/ p8: 復旧ポート（native VLAN10）", 1010, 380, 690, 80)
+    text(f"<b>TP-Link SG2210P</b><br>{ip('10.77.10.2')} (VLAN10)<br>p1: ER605 / p2: pve01 / p3: AP1 / p4: Dell U2725QE<br>p5–p7: spare (PoE, native Blackhole) / p8: recovery port (native VLAN10)", 1010, 380, 690, 80)
 
     # Proxmox ---------------------------------------------------------------------------
     gx, gy = 40, 640
@@ -273,7 +273,7 @@ def layout():
     text("<b>Lenovo ThinkCentre M70q Tiny Gen1</b><br>CPU: Intel Core i5-10400T (6C/12T)<br>RAM: 1 x 8 GB + 1 x 16 GB DDR4-3200<br>"
          "Storage: 1 x 256GB NVMe SSD", 430, 519, 300, 80, align="center")
     edge([(800, 460), (800, 620)], width=5)  # p2: trunk（太い線）
-    text("p2: trunk（native: Blackhole / tagged: VLAN10,20,40,50,70）", 340, 468, 450, 24, align="right", cls="el")
+    text("p2: trunk (native: Blackhole / tagged: VLAN10,20,40,50,70)", 340, 468, 450, 24, align="right", cls="el")
 
     # 右の列（Management / Lab / DMZ）と、Servers の 2 列を先に配置して高さを決める
     gi = len(back)                      # Proxmox の枠は、中の VLAN 枠より前に入れる
@@ -318,12 +318,12 @@ def layout():
     h1 = vm(40, rx + 20, y + 50, "vm-dev", "10.77.40.10", "Ubuntu Server 24.04", [("row", *NODE)])
     lab_h = 50 + h1 + 20
     zone(40, rx, y, 340, lab_h)
-    text("<b>VLAN40 Lab</b>　DHCP .100–.199", rx + 10, y + 5, 320, 30)
+    text("<b>VLAN40 Lab</b>&emsp;DHCP .100–.199", rx + 10, y + 5, 320, 30)
     y += lab_h + 20
     # DMZ
     zone(70, rx, y, 340, 110)
-    text("<b>VLAN70 DMZ</b>（今は空）", rx + 10, y + 5, 320, 30)
-    text("外部に公開するサービスを置く", rx + 20, y + 40, 300, 60)
+    text("<b>VLAN70 DMZ</b> (empty)", rx + 10, y + 5, 320, 30)
+    text("For services exposed to the internet", rx + 20, y + 40, 300, 60)
     y += 110
 
     left_bottom = sy + servers_h
@@ -332,40 +332,40 @@ def layout():
     frame(gx, gy, 1060, gh, "z z10", to=grp)  # Proxmox ホストは Management（VLAN10）の色
     back.insert(gi, grp[0])
     icon(("platform/proxmox.svg", "platform/proxmox-dark.svg"), gx + 20, gy + 20, 40, 40)  # ダークは黒い部分が白い版
-    text(f"{name_ip('pve01', '10.77.10.10')}<br><i>vmbr0.10</i>（tagged: VLAN10）<br>Proxmox 9.1（Debian 13 ベース）", gx + 70, gy + 20, 303, 60)
+    text(f"{name_ip('pve01', '10.77.10.10')}<br><i>vmbr0.10</i> (tagged: VLAN10)<br>Proxmox 9.1 (based on Debian 13)", gx + 70, gy + 20, 303, 60)
     icon(None, 780, 620, 40, 40, svg=mono_pair(ethernet_svg))
     text("nic0", 830, 635, 60, 20)
     row(*NODE, gx + 20, gy + gh - 50, 220)
 
     # Buffalo と Trusted / IoT / Guests -------------------------------------------------
     edge([(960, 460), (960, 500), (1410, 500), (1410, 530)], color="var(--l30)")  # p3: access VLAN30（VLAN の色）
-    text("p3: access（untagged: VLAN30）", 1000, 470, 300, 24, cls="el")
+    text("p3: access (untagged: VLAN30)", 1000, 470, 300, 24, cls="el")
     edge([(910, 460), (910, 580), (1200, 580), (1200, 640)], color="var(--l30)")  # p4: access VLAN30（VLAN の色）
-    text("p4: access（untagged: VLAN30）", 920, 550, 260, 24, cls="el")
+    text("p4: access (untagged: VLAN30)", 920, 550, 260, 24, cls="el")
     icon("hardware/buffalo-ap.png", 1348, 517, 126.5, 115, max_px=600)
     icon(None, 1448, 494, 40, 40, svg=mono_pair(wifi_svg), rotation=45)  # AP が Wi-Fi を出していることを示す
-    text(f"<b>Buffalo WSR-1800AX4P</b><br>{ip('10.77.30.50')}<br>AP モード（管理画面は Trusted 上）", 1461.25, 541, 230, 60)
+    text(f"<b>Buffalo WSR-1800AX4P</b><br>{ip('10.77.30.50')}<br>AP mode (managed from Trusted)", 1461.25, 541, 230, 60)
 
     tx, ty = 1140, 640
     zone(30, tx, ty, 260, 300)                        # 有線
-    text("<b>VLAN30 Trusted</b>　DHCP .100–.199", tx + 10, ty + 5, 240, 30)
+    text("<b>VLAN30 Trusted</b>&emsp;DHCP .100–.199", tx + 10, ty + 5, 240, 30)
     zone(30, tx + 280, ty, 260, 300)                  # Wi-Fi
-    text("<b>VLAN30 Trusted</b> Wi-Fi接続", tx + 287, ty + 5, 240, 30)
-    text("<i>有線（Dell U2725QE 経由）</i>", tx + 20, ty + 40, 250, 24)
+    text("<b>VLAN30 Trusted</b> Wi-Fi", tx + 287, ty + 5, 240, 30)
+    text("<i>Wired (via Dell U2725QE)</i>", tx + 20, ty + 40, 250, 24)
     device("hardware/clients/macbook.png", f"<i>canales-macbook-pro-m5</i><br>{ip('DHCP')}<br>MacBook Pro M5", tx + 10, ty + 70, 250, size=(52, 52))
-    device("hardware/clients/windows-laptop.png", f"<i>仕事用 Windows PC</i><br>{ip('DHCP')}<br>会社の VPN", tx + 10, ty + 130, 250, size=(52, 52))
+    device("hardware/clients/windows-laptop.png", f"<i>Work Windows PC</i><br>{ip('DHCP')}<br>Corporate VPN", tx + 10, ty + 130, 250, size=(52, 52))
     device("hardware/clients/iphone.png", f"<i>canales-iphone-14</i><br>{ip('DHCP')}<br>iPhone 14", tx + 290, ty + 64, 230, size=(52, 52))
-    device("hardware/clients/switchbot.png", f"<i>SwitchBot Hub 2</i><br>{ip('DHCP')}<br>IoT へ移す予定", tx + 290, ty + 124, 230, size=(52, 52), tile=True)
-    device("hardware/clients/tv.png", f"<i>テレビ（無線）</i><br>{ip('DHCP')}<br>IoT へ移す予定", tx + 290, ty + 184, 230, size=(52, 52))
+    device("hardware/clients/switchbot.png", f"<i>SwitchBot Hub 2</i><br>{ip('DHCP')}<br>To be moved to IoT", tx + 290, ty + 124, 230, size=(52, 52), tile=True)
+    device("hardware/clients/tv.png", f"<i>TV (Wi-Fi)</i><br>{ip('DHCP')}<br>To be moved to IoT", tx + 290, ty + 184, 230, size=(52, 52))
 
     iy = ty + 300 + 20
     zone(50, tx, iy, 260, 170)
-    text("<b>VLAN50 IoT</b>（未使用）", tx + 10, iy + 5, 240, 30)
-    text("AP を追加したら使う。<br>2.4GHz のみ、端末間は隔離", tx + 10, iy + 50, 240, 40)
+    text("<b>VLAN50 IoT</b> (unused)", tx + 10, iy + 5, 240, 30)
+    text("Used once an AP is added.<br>2.4 GHz only, client isolation", tx + 10, iy + 50, 240, 40)
     zone(60, tx + 280, iy, 260, 170)
-    text("<b>VLAN60 Guests</b>（未使用）", tx + 290, iy + 5, 240, 30)
-    device("", f"来客の端末<br>{ip('DHCP')}", tx + 290, iy + 50, 250, size=(40, 40), svg=mono_pair(wifi_svg))
-    text("AP を追加したら使う。<br>端末間は隔離、LAN へは全遮断", tx + 290, iy + 120, 240, 40)
+    text("<b>VLAN60 Guests</b> (unused)", tx + 290, iy + 5, 240, 30)
+    device("", f"Guest devices<br>{ip('DHCP')}", tx + 290, iy + 50, 250, size=(40, 40), svg=mono_pair(wifi_svg))
+    text("Used once an AP is added.<br>Client isolation, no access to the LAN", tx + 290, iy + 120, 240, 40)
 
 
 mono_pair_dark = dark_pair
@@ -446,9 +446,9 @@ def build():
     marker = ('<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>'
               '<marker id="ar" viewBox="0 0 10 10" refX="8" refY="5" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="14" '
               'orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="context-stroke"/></marker></defs></svg>')
-    html = ('<!doctype html>\n<html lang="ja">\n<head>\n<meta charset="utf-8">\n'
+    html = ('<!doctype html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n'
             '<meta name="viewport" content="width=device-width,initial-scale=1">\n'
-            '<title>VLAN 化のあとの構成図（試作）</title>\n<style>' + css() + '</style>\n'
+            '<title>Homelab diagram (to-be)</title>\n<style>' + css() + '</style>\n'
             '<script>if(location.hash==="#dark")document.documentElement.dataset.theme="dark";'
             'if(location.hash==="#light")document.documentElement.dataset.theme="light"</script>\n</head>\n<body>\n'
             + marker + '\n<div class="canvas">\n' + "\n".join(back) + "\n" + "\n".join(out) + "\n</div>\n</body>\n</html>\n")
