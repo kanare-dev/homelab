@@ -18,7 +18,7 @@
 | 4 | Management VLAN へのアクセス元を、Trusted 全体ではなく、管理端末の IP に絞る | 高 | 今の方針は、Trusted → Management に、管理ポート（80/443/8006/22）を許可。Trusted に、仕事用の Windows PC が入っている（[判断](10-er605-sg2210p-migration-plan.md)） | 管理用の Mac を DHCP 予約で固定して、Management への許可の送信元をその IP だけにする。仕事用 PC から管理画面に届かなくなる利点がある | 検討中（効果が大きい） |
 | 5 | DNS の通信を、必要な VLAN から、明示的に許可する | 高 | **対応済み**。[通信ポリシー](../../architecture/hld/05-network.md#通信ポリシー)に「全 VLAN → `vm-infra:53`」がある。[ADR-0024](../../adr/0024-dhcp-dns-single-no-fallback.md) | なし | 採用済み（未適用） |
 | 6 | Tailscale の Grants（ユーザー・端末・宛先・ポート単位）を設計する | 中 | 未実施。Tailscale の ACL は既定のまま。[ADR-0016](../../adr/0016-dmz-placement.md) で、VLAN 導入後、DMZ の前に整理する時期を決定済み | VLAN 化のあとに、管理機器は Mac だけが届くようにするなど、最小の権限で設計する | 検討中（時期は決定済み） |
-| 7 | 同じ VLAN の中の VM 間の通信（横方向）を、Proxmox Firewall や UFW で制御する | 中 | UFW は、全 VM に入れていて、許可元を絞っている。Proxmox Firewall は未使用 | VM ごとの UFW の許可元が、Servers の中の必要な相手だけになっているか、見直す。Proxmox Firewall の導入は、必要が出てから | 検討中 |
+| 7 | 同じ VLAN の中の VM 間の通信（横方向）を、Proxmox Firewall や UFW で制御する | 中 | UFW は、全 VM に入れていて、サービスのポートは許可元を絞っている（[ADR-0034](../../adr/0034-acl-for-vlan-boundaries-ufw-for-ports.md)）。Proxmox Firewall は未使用。2026-11-27 に見直し、残る穴を 3 つ見つけた（[下の節](#7-同じ-vlan-の中の横方向の見直し2026-11-27)） | SSH（22）の許可元を絞る案と、Caddy で重要な画面の送信元を絞る案。Proxmox Firewall は、外向きの通信を絞りたくなったときに検討する | 検討中 |
 | 8 | IoT 機器と Home Assistant の通信、mDNS などの要件を整理する | 中 | 08 の未決事項（mDNS の中継、テレビの追加通信）と、バックログの「Home Assistant の機器の検出と VLAN」にある | ESP32 やテレビを IoT に移す時期（段階 4）に、実機で要件を確定する | 検討中（時期は決まっている） |
 | 9 | 監視の役割を整理する（Uptime Kuma、Blackbox Exporter、Prometheus） | 中 | Prometheus、Blackbox Exporter は導入済み（[監視](../../architecture/lld/platform/monitoring.md)）。Uptime Kuma は未導入 | 今の構成で足りているか確認する。Uptime Kuma は、必要が出てから（サービスカタログで検討） | 検討中（優先度は低い） |
 | 10 | DNS・ルーター・スイッチ・Proxmox が止まったときの復旧手順を用意する | 中 | DNS の停止は、[障害時切り分け](../runbooks/11-troubleshooting.md)に書いた。**ルーター・スイッチ・Proxmox 単体の停止の手順は無い** | ER605 と SG2210P の導入後に、Runbook を足す（戻し手順の知見を使える）。IP で管理画面に入れるように、機器の IP の一覧も載せる | 検討中 |
@@ -51,6 +51,33 @@
 | Tailscale Grants を整理 | #6 |
 | 監視基盤の死活監視を追加 | #13（導入済み） |
 | DNS 障害時の復旧手順を作成 | #5 と #10（DNS は書いた。そのほかの停止は未） |
+
+## #7 同じ VLAN の中の横方向の見直し（2026-11-27）
+
+2026-11-27 に、運用者が ChatGPT から追加のレビューをもらった。Servers（VLAN20）の VM どうしの通信は ER605 を通らないので、VLAN 間の ACL では止められない。例えば `vm-apps` の n8n が乗っ取られると、`vm-infra` や `vm-code` に横方向に広がるおそれがある。Proxmox Firewall や各 VM の nftables による、マイクロセグメンテーション（AWS の Security Group に近い考え方）が有効だ、という指摘である。
+
+前半（ACL では止められない）は正しく、[ADR-0034](../../adr/0034-acl-for-vlan-boundaries-ufw-for-ports.md) で前提にしている。後半については、各 VM の UFW（Ansible で管理）が、Security Group にあたる役割を、すでに担っている。各 VM の `ufw_allowed_ports` と `ufw_docker_*` の許可元を確かめると、`vm-apps` から、ほかの VM のサービスには、ほとんど届かない。
+
+| 宛先 | `vm-apps` から届くか |
+| --- | --- |
+| `vm-code` の code-server（8080）、CloudCLI（3001）、Vite（5173）、mosh | 届かない。Trusted と `vm-infra` だけに許可している |
+| `vm-monitoring` の Grafana、Prometheus、Alertmanager | 届かない。Docker の公開ポートは、`ufw_docker` が `vm-infra`（Caddy）だけに許可している |
+| 各 VM の node_exporter（9100） | 届かない。`vm-monitoring` だけに許可している |
+| `vm-infra` の AdGuard の API（3000） | 届く。Homepage のウィジェットのために、`vm-apps` に許可している |
+| 各 VM の SSH（22） | 届く（下の穴 1） |
+| `vm-infra` の 80/443（Caddy）、53（DNS） | 届く。全員に開く必要がある（下の穴 2） |
+
+残る穴は、次の 3 つである。
+
+1. **SSH（22）の許可元を絞っていない。** どの VM も、22 番を送信元を限らずに開けている。`vm-apps` から、`vm-infra`、`vm-code`、`vm-monitoring` の sshd に届く。鍵認証だけで、root のログインもできない（`group_vars/all`）ので、総当たりはまず通らない。ただし、sshd の脆弱性や、盗まれた鍵があれば入口になる。
+   - 案: 22 番を、Trusted（`10.77.30.0/24`）と `vm-infra`（Tailscale の subnet router が送信元になる）だけに許可する。Ansible は運用者の Mac（Trusted）から流すので、影響しない。VM から VM へ SSH する運用（例えば `vm-code` から）が無いかは、絞る前に確かめる。
+2. **Caddy が、横方向の中継地点になる。** `vm-infra` の 80/443 は全員に開く必要があり、Caddy は、Proxmox、Omada、code-server、CloudCLI などに転送する。`vm-apps` から `https://code.lab.kanare.dev` を開けば、UFW を越えて、code-server のログイン画面まで届く。UFW から見ると送信元が Caddy なので、UFW では止められない。最後の守りは、各アプリの認証である。
+   - 案: Caddy の `remote_ip` で、重要な画面（`pve`、`omada`、`code`、`cloudcli` など）を、Trusted（`10.77.30.0/24`）と Tailscale（`100.64.0.0/10`）の送信元だけに絞る。Homepage のウィジェットは `https://pve.lab.kanare.dev` を呼ぶ（`vm-apps` が送信元）ので、`pve` を絞るなら、`vm-apps` を残すか、ウィジェットの呼び方を変える。
+3. **外向きの通信を絞っていない。** UFW の外向きは全許可である。乗っ取られた VM から、外へデータを持ち出せる。ただし、n8n や FreshRSS は外への通信が要るので、VM ごとの許可先を作る手間が大きい。優先度は低い。
+
+Proxmox Firewall は、今は導入しない案とする。UFW と同じ役割を 2 か所で管理することになり、「ポートの絞り込みは UFW を正とする」（ADR-0034）と食い違う。利点は、VM の中で root を取られても、VM の外側から、外向きの通信を絞れることである。穴 3 に取り組むときに、改めて検討する。
+
+取り入れるなら、効果に比べて手間が小さい 1 と 2 から始める。どちらも、採用を決めたら、[第6章 セキュリティ](../../architecture/hld/06-security.md)と ADR に移す。
 
 ## 取り入れの目安
 
