@@ -165,6 +165,7 @@
 | FreshRSS の購読リスト（OPML） | iCloud Drive（`make freshrss-opml-pull`） | iCloud | 取得済み。フィードを足したら取り込む必要がある。Git には入れない（[ADR-0014](../../adr/0014-freshrss-on-vm-apps.md)） |
 | FreshRSS のユーザー・既読・スター・記事（`/opt/freshrss/data`） | **なし** | — | 取得しない。購読リストを取り込み直す（[復旧](../lld/apps/freshrss.md#復旧)） |
 | n8n のユーザー・認証情報・実行履歴（`/opt/n8n/data`） | **なし** | — | 取得しない。認証情報を入れ直す（[復旧](../lld/apps/n8n.md#復旧)）。暗号鍵は SOPS にある |
+| Omada コントローラーの設定（VLAN、DHCP、ACL、ポートの割り当てなど） | 手動（画面の Backup & Restore）。自動バックアップは毎週日曜 03:00 | 手動の分は iCloud Drive（暗号化なし）。自動の分は `vm-omada` の中 | 設定を変えたあとに取る。自動の分は VM と一緒に失われる。設定の記録はこのバックアップしか無い（[Omada コントローラーの設定値](../lld/network/omada-controller.md)） |
 | PVE ホストの設定 | **なし** | — | `ansible/roles/proxmox/` で再現できる範囲のみ。ストレージ設定などは手作業 |
 
 バックアップの方針を再検討する条件は、[ADR-0001](../../adr/0001-no-vm-backup.md#影響と再検討の条件)に書いてある。その条件に当たったときは、Proxmox Backup Server か `vzdump` を、別のストレージに向けて設定する。これは、ロードマップの「NAS の導入」に当たる（[未着手の項目](../../operations/roadmap/01-backlog.md)）。
