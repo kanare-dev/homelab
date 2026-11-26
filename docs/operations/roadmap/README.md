@@ -20,6 +20,7 @@
 | 12 | [to-be の IP 割り当てと DHCP の見直し](12-ip-address-and-dhcp-review.md) | 採用済み（2026-11-05）。第 4 オクテットを役割ベースで振り直し、Management に緊急用 DHCP プールを置き、VLAN ごとに DHCP の範囲とリースを決めた。2026-11-09 に、VMID の規則、Servers の番号、緊急用プールの DNS を追加で決めた。検討の経緯と選択肢の記録（決定は [ADR-0025](../../adr/0025-address-octets-by-role.md)、[ADR-0026](../../adr/0026-vmid-from-vlan-and-octet.md)、[ADR-0027](../../adr/0027-servers-octet-bands-and-emergency-dns.md)） |
 | 13 | [管理系の VLAN10 化（段階 3b）の前提と未決事項](13-defer-management-vlan.md) | 段階 3 では管理系（Proxmox ホスト、`vm-omada`、ER605・SG2210P）を今の LAN に残すことを採用（2026-11-09、[ADR-0028](../../adr/0028-defer-management-vlan10.md)）。この文書は、検討中の段階 3b の前提と、ACL を絞る日の前に決める未決事項の記録（段階 3 の当日は ACL を全許可。[ADR-0029](../../adr/0029-stage3-acl-allow-all-then-tighten.md)） |
 | 14 | [syslog によるネットワーク機器のログ収集](14-syslog-collection.md) | 検討中。ER605・SG2210P などのログを `vm-monitoring` に集める。案 A（rsyslog）、B-1（Alloy + Loki）、B-2（Fluent Bit + Loki）と、実機で確かめる項目 |
+| 15 | [ホストの名前と DNS のレコード](15-host-names-and-dns-records.md) | 検討中。固定 IP のホストすべてに `<ホスト名>.lab.kanare.dev` の A レコードを付ける案と、ネットワーク機器の名前を型番（`er605`）から役割と番号（`rtr01`）に変える案 |
 
 ## 運用
 
