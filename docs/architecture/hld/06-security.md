@@ -102,7 +102,7 @@ Docker の `ports:` で公開したポートへの通信は、NAT によって�
 - `vm-infra` の 80 番と 443 番（Caddy）は、全サービスの入口なので、LAN に開けたままにしている。
 - 設定を確認するには、`ssh <vm> sudo iptables -S DOCKER-USER` を実行する。
 
-Proxmox ホストの UFW と Proxmox ファイアウォールの設定は、このリポジトリでは管理していない。
+Proxmox ホスト（`pve01`）には、ホストのファイアウォールが無い（2026-11-26 に確認。Proxmox ファイアウォールは無効、UFW は入っていない）。Management への通信は、ゲートウェイの ACL で絞る（次の「セグメンテーション」）。
 
 ### 経路と暗号化
 
@@ -113,6 +113,8 @@ Proxmox ホストの UFW と Proxmox ファイアウォールの設定は、こ�
 ### セグメンテーション
 
 ネットワークは、Management（`10.77.10.0/24`）、Servers（`10.77.20.0/24`）、Trusted（`10.77.30.0/24`）、Lab（`10.77.40.0/24`）などの VLAN に分けている。ただし ACL は全許可のままで、絞り込みは未実施である（[ADR-0029](../../adr/0029-stage3-acl-allow-all-then-tighten.md)）。IoT、ゲスト、管理機器を分離する設計は、[第5章 ネットワーク](05-network.md)にまとめており、ACL を絞るときに適用する。
+
+ACL を絞ったあとも、UFW は残す。ACL は、VLAN の境界（信用しない VLAN の隔離）と、UFW の無い Management を守る。ホストごとのポートの絞り込みは、UFW を正とする。同じ VLAN の中の通信と、Tailscale の subnet router を経由する通信は、ACL を通らないので、UFW だけが守る（[ADR-0034](../../adr/0034-acl-for-vlan-boundaries-ufw-for-ports.md)）。
 
 ## 監査・検知
 
