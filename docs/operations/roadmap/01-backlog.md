@@ -113,6 +113,7 @@
   - 時期: **移行（段階 1〜3）が落ち着いてから**。アドレスと VLAN が固まる前に置くと、作り直しになる。
   - 採用するなら、新しい ADR で ADR 0008 を置き換える（ステータスを「置き換え済み」にする）。そのあとで、設計書（[セキュリティ](../../architecture/hld/06-security.md)）に移す。
 - [ ] k3s などのクラスタ構成を検討する（学習用クラスタとして分離運用し、Grafana / PVE / AdGuard Home 等の安定稼働中サービスは当面 Docker Compose のまま維持する）。より重いワークロードや複数アプリの分離運用もここで扱う
+- [ ] `docker/compose/<サービス>/` を、1 段浅い `docker/<サービス>/` にする。`docker/` の下には `compose/` しかなく、独自のイメージ（Caddy の `Dockerfile`）も compose の隣に置いているので、`compose/` の 1 段は役に立っていない。直す場所は、`docker/compose` を含む約 90 か所（2026-11-27 に数えた）。`Makefile`（lint の対象）、Ansible の playbook（`monitoring.yml`・`apps.yml`・`infra.yml`。VM へ配るファイルの元のパス）、`.gitignore`、設計書と手順書。VM 側の置き場所（`/opt/...`）は変わらないので、動いているサービスには影響しない。障害記録は、当時の記録なので書き換えない。進め方: 1 つの PR で `git mv` と参照の書き換えをまとめ、`ansible-playbook --check --diff` を `infra.yml`・`monitoring.yml`・`apps.yml` で流して、パスの漏れが無いこと（差分が出ないこと）を確かめてからマージする。急がない。
 
 ## ハードウェア・拡張
 
