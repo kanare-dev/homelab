@@ -32,6 +32,7 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 OUT = HERE / "to-be-diagram.html"
 ICONS = HERE.parent / "assets/icons"
+LOGO = HERE.parents[2] / "assets/logo"  # リポジトリのロゴ（Git 管理）
 FONTS = HERE.parent / "fonts"
 CHROME = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
 W, H = 1720, 1690
@@ -381,6 +382,9 @@ def layout():
     text("<b>VLAN60 Guests</b> (unused)", tx + 305, iy + 5, 240, 30)
     device("", f"Guest devices<br>{ip('DHCP')}", tx + 305, iy + 50, 250, size=(40, 40), svg=mono_pair(wifi_svg))
     text("Used once an AP is added.<br>Client isolation, no access to the LAN", tx + 305, iy + 120, 255, 40)
+
+    # 右下: homelab の横長のロゴ（LAN の枠の中の空き。421 × 124）
+    icon((str(LOGO / "logo-stack-light.svg"), str(LOGO / "logo-stack-dark.svg")), 1380, 1462, 300, 88)
 
 
 mono_pair_dark = dark_pair
