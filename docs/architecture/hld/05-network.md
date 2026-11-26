@@ -92,15 +92,17 @@ AirPlay も Google Cast も、機器の発見に mDNS を使う。mDNS の呼び
 
 ## 通信ポリシー
 
-ファイアウォールの許可表を示す。**この表は設計上の目標である。現在は ACL を全許可のまま運用しており、この表の内容への絞り込みは、まだ行っていない**（[ADR-0029](../../adr/0029-stage3-acl-allow-all-then-tighten.md)、[ロードマップ 13](../../operations/roadmap/13-defer-management-vlan.md)）。ルールの名前と説明の付け方は、[ACL の名前と説明の付け方](../lld/network/acl.md)に書いている。
+ファイアウォールの許可表を示す。**この表は設計上の目標である。現在は ACL を全許可のまま運用しており、この表の内容への絞り込みは、まだ行っていない**（[ADR-0029](../../adr/0029-stage3-acl-allow-all-then-tighten.md)）。2026-11-26 に、段階 3b の完了後の構成（管理系は Management）と、実機の通信（各ホストの UFW、Caddy と Prometheus の転送先、Management のホストの DNS・NTP）に合わせて、表を見直した。ルールの名前と説明の付け方は、[ACL の名前と説明の付け方](../lld/network/acl.md)に書いている。
 
-表は、送信元から宛先への新規接続の可否を示す。戻りの通信（確立済み）は常に許可する。**表にない組み合わせは拒否**（デフォルト拒否）。
+表は、送信元から宛先への新規接続の可否を示す。戻りの通信（確立済み）は常に許可する。**表にない組み合わせは拒否**（デフォルト拒否）。ICMP（ping）も同じ扱いで、許可するのは Trusted からだけである。
+
+**ACL と UFW の役割は分けている**（[ADR-0034](../../adr/0034-acl-for-vlan-boundaries-ufw-for-ports.md)）。この表はゲートウェイの ACL（VLAN の境界）の目標で、ホストごとのポートの絞り込みは、各ホストの UFW（Ansible で管理）を正とする。そのため、宛先に UFW がある Trusted → Servers・Lab は VLAN 単位で許可し、UFW の無い Management（`pve01`）への通信と、信用しない VLAN からの通信を、ACL で絞る。同じ VLAN の中の通信と、Tailscale の subnet router を経由する通信は ACL を通らないので、UFW だけが守る。
 
 | 送信元 ＼ 宛先 | Management | Servers | Trusted | Lab | IoT | Guests | DMZ | インターネット |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| **Management** | 許可 | DNS(53)、NTP のみ | 拒否 | 拒否 | 拒否 | 拒否 | 管理用ポートのみ | 許可（更新用） |
+| **Management** | 許可 | 拒否 | 拒否 | 拒否 | 拒否 | 拒否 | 管理用ポートのみ | 許可（更新、DNS、NTP） |
 | **Servers** | 下記「Servers → Management」 | 許可 | 拒否 | 下記「Servers → Lab」 | 下記「Servers → IoT」 | 拒否 | ログ取得のポートのみ（`vm-monitoring` から） | 許可 |
-| **Trusted** | 管理ポートのみ（80/443/8006/22） | Web(80/443)、SSH(22)、mosh(UDP 60000–61000)、DNS(53) | 許可 | SSH(22)、mosh(UDP 60000–61000)、Web(80/443) | 許可 | 拒否 | Web(80/443)、SSH(22) | 許可 |
+| **Trusted** | 下記「Trusted → Management」 | 許可（ポートは UFW で絞る） | 許可 | 許可（ポートは UFW で絞る） | 許可 | 拒否 | Web(80/443)、SSH(22) | 許可 |
 | **Lab** | 拒否 | DNS(53) を `vm-infra` へのみ | 拒否 | 許可 | 拒否 | 拒否 | 拒否 | 許可 |
 | **IoT** | 拒否 | DNS(53) を `vm-infra` へのみ | 拒否（例外は mDNS の節） | 拒否 | 許可 | 拒否 | 拒否 | 許可 |
 | **Guests** | 拒否 | DNS(53) を `vm-infra` へのみ | 拒否 | 拒否 | 拒否 | 許可（端末間は隔離） | 拒否 | 許可 |
@@ -108,15 +110,23 @@ AirPlay も Google Cast も、機器の発見に mDNS を使う。mDNS の呼び
 
 ### 個別の許可
 
+- **Management → Servers**: 許可するものがない。Management のホストは、DNS をルーター（`10.77.10.1`）に、NTP をインターネットのサーバーに向ける（[ADR-0007](../../adr/0007-vm-host-dns-is-router.md)。`vm-infra` に向けると、Proxmox ホストが、自分の上で動く VM に頼る循環になる）。syslog の収集（[ロードマップ 14](../../operations/roadmap/14-syslog-collection.md)。検討中）を採用したら、機器から `vm-monitoring` への 514 番だけを足す。
 - **Servers → Management**:
-  - `vm-infra`（Caddy）→ Omada コントローラーの管理画面ポート、Proxmox `:8006`（`omada.lab.kanare.dev`、`pve.lab.kanare.dev` の転送先）。ルーター自身の管理画面は、コントローラーに採用すると使えなくなるので、転送先にしない。
-  - `vm-monitoring`（Prometheus）→ Proxmox などの `:9100`（node_exporter）。
+  - `vm-infra`（Caddy）→ Omada コントローラーの管理画面ポート（`10.77.10.3:8043`）、Proxmox `:8006`（`10.77.10.10`）。`omada.lab.kanare.dev`、`pve.lab.kanare.dev` の転送先である。ルーター・スイッチ・AP 本体の管理画面は、転送先にしない（下記「Trusted → Management」のとおり、採用中は設定に使えない）。
+  - `vm-monitoring`（Prometheus）→ Proxmox と `vm-omada` の `:9100`（node_exporter）。
+  - 他のサーバーから Management の機器を使うときは、Caddy を経由させ、直接の許可を増やさない。例えば、Homepage の Proxmox ウィジェットは、`https://pve.lab.kanare.dev` を呼ぶ。
+- **Trusted → Management**:
+  - Proxmox（`10.77.10.10`）の 8006（管理画面）と 22（SSH）、`vm-omada`（`10.77.10.3`）の 22（SSH）。
+  - ネットワーク機器の帯（`10.77.10.2–.9`。スイッチと AP）の 80/443。ルーター（`10.77.10.1`）は、ゲートウェイ自身の住所なので、ACL のルールが無くても届く（[ACL の名前と説明の付け方](../lld/network/acl.md)）。ER605・SG2210P は、コントローラーに採用されているあいだ、本体の画面を開いてログインできても、「コントローラーで管理されている」と表示されるだけで、設定を変えられない（運用者が確認済み）。それでも 80/443 を許可するのは、コントローラーが壊れて、機器を単体の動作に戻したときに、本体の画面で設定するためである。
+  - Trusted から Management への ICMP（ping）を許可する。障害のときに、手元の端末から、どこまで届くかを切り分けるためである。
+  - Omada コントローラーの画面（8043）は、Trusted から直接開かない。Caddy 経由（`omada.lab.kanare.dev`）で開く。
+- **Trusted → Servers・Lab**: ACL は VLAN 単位で許可する（ICMP を含む）。開けるポートは、各ホストの UFW（`ansible/inventory/group_vars/*/vars.yml`）で決める。新しいポートを開けるときは、UFW だけを直す（[ADR-0034](../../adr/0034-acl-for-vlan-boundaries-ufw-for-ports.md)）。
 - **Servers → Lab**:
   - `vm-infra` → Lab の SSH(22)、mosh(UDP 60000–61000)、Web(80/443)。外出先から Tailscale 経由で `vm-dev` に入る通信は、subnet router（`vm-infra`）が送信元になって Lab に届くため、この許可が要る。
   - `vm-monitoring`（Prometheus）→ Lab の `:9100`（node_exporter）。
   - Lab からサーバーへの取得は許可しない（DNS を除く）。Lab の VM が Servers の何かを必要とするときは、その都度、宛先とポートを限って追加する。
 - **Servers → IoT**: 今は、許可するものがない（IoT に置く機器が決まったら、その都度、宛先とポートを限って追加する）。IoT からサーバーへの取得は許可しない。
-- **全 VLAN → `vm-infra:53`**: どの VLAN も DNS は AdGuard に向ける。DHCP が配る DNS サーバーは `10.77.20.10`。例外は Management の緊急用プールで、ルーターの `10.77.10.1` を配る（[ADR-0027](../../adr/0027-servers-octet-bands-and-emergency-dns.md)）。
+- **Management 以外の全 VLAN → `vm-infra:53`**: Management 以外の VLAN は、DNS を AdGuard に向ける。DHCP が配る DNS サーバーは `10.77.20.10`。Management は、緊急用プールもホストの設定もルーターの `10.77.10.1` を使うので、`vm-infra:53` を許可しない（[ADR-0027](../../adr/0027-servers-octet-bands-and-emergency-dns.md)）。
 - **インターネット → DMZ**: Tunnel（`cloudflared`）の外向き接続で届く通信が基本。ポート転送で受ける場合は、公開するポートだけ許可する（[DMZ と外部公開](../../operations/roadmap/07-dmz.md)）。
 - **Lab・Guests・IoT・DMZ の隔離**: 他の VLAN のプライベートアドレス（`10.0.0.0/8`、`172.16.0.0/12`、`192.168.0.0/16`）への通信は、DNS と上記の例外を除きすべて拒否する。
 
