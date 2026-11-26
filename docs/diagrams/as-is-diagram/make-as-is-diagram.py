@@ -257,19 +257,13 @@ def layout():
     frame(40, 180, 200, 40, "lanlabel", to=back)
     text("<b>LAN</b><br>10.77.0.0/16", 40, 180, 200, 40, align="center")
 
-    # 通信ポリシー（LAN の中、ER605 の左） -----------------------------------------------
-    text("<b>通信ポリシー（現状）</b><br>ACL は<b>全許可</b>（段階 3 の当日。絞るのは別の日。ADR-0029）。<br>"
-         f"DNS: VLAN の DHCP は <i>vm-infra</i> {ip('10.77.20.10')}。Management の DHCP（復旧用 .240–.250）はルーター {ip('10.77.10.1')}。<br>"
-         f"外出先: Tailscale が {ip('10.77.20.0/24')}、{ip('10.77.40.0/24')} だけを広告。",
-         40, 250, 640, 140)
-
     icon("hardware/tplink-er605.png", 789, 219, 182, 61, max_px=700)  # 実寸の幅の比（ER605 158mm : SG2210P 209mm ≒ 0.76）。下端は 280 のまま
     text(f"<b>TP-Link ER605 V2</b><br>{ip('10.77.10.1')}（VLAN10）<br>各 VLAN の GW（{ip('10.77.&lt;VLAN&gt;.1')}）・DHCP・ACL（全許可）", 1010, 200, 420, 80)
     edge([(880, 280), (880, 380)], width=5)  # p1: trunk（太い線）
-    text("ER605 p2 ⇔ SG2210P p1: trunk（untagged: VLAN10 / tagged: VLAN20/30/40/50/60/70）", 890, 320, 700, 40, cls="el")
+    text("ER605 p2 ⇔ SG2210P p1: trunk（untagged: VLAN10 / tagged: VLAN20,30,40,50,60,70）", 890, 320, 700, 40, cls="el")
 
     icon("hardware/tplink-sg2210p.png", 760, 380, 240, 80, max_px=700)
-    text(f"<b>TP-Link SG2210P</b><br>{ip('10.77.10.2')}（VLAN10）<br>p1: ER605 / p2: pve01 / p3: Buffalo / p4: Dell U2725QE /<br>p5–p7: 空き（native Blackhole）/<br>p8: 復旧ポート（native VLAN10）", 1010, 380, 690, 80)
+    text(f"<b>TP-Link SG2210P</b><br>{ip('10.77.10.2')}（VLAN10）<br>p1: ER605 / p2: pve01 / p3: Buffalo / p4: Dell U2725QE<br>p5–p7: 空き（native Blackhole）/ p8: 復旧ポート（native VLAN10）", 1010, 380, 690, 80)
 
     # Proxmox ---------------------------------------------------------------------------
     gx, gy = 40, 640
@@ -277,7 +271,7 @@ def layout():
     text("<b>Lenovo ThinkCentre M70q Tiny Gen1</b><br>CPU: Intel Core i5-10400T (6C/12T)<br>RAM: 1 x 8 GB + 1 x 16 GB DDR4-3200<br>"
          "Storage: 1 x 256GB NVMe SSD", 430, 519, 300, 80, align="center")
     edge([(800, 460), (800, 620)], width=5)  # p2: trunk（太い線）
-    text("p2: trunk（native: Blackhole / tagged: VLAN10/20/30/40/50/60/70）", 220, 468, 570, 24, align="right", cls="el")
+    text("p2: trunk（native: Blackhole / tagged: VLAN10,20,30,40,50,60,70）", 220, 468, 570, 24, align="right", cls="el")
 
     # 右の列（Management / Lab / DMZ）と、Servers の 2 列を先に配置して高さを決める
     gi = len(back)                      # Proxmox の枠は、中の VLAN 枠より前に入れる
@@ -359,13 +353,13 @@ def layout():
     device("hardware/clients/macbook.png", f"<i>canales-macbook-pro-m5</i><br>{ip('DHCP')}<br>MacBook Pro M5", tx + 10, ty + 70, 250, size=(52, 52))
     device("hardware/clients/windows-laptop.png", f"<i>仕事用 Windows PC</i><br>{ip('DHCP')}<br>会社の VPN", tx + 10, ty + 130, 250, size=(52, 52))
     device("hardware/clients/iphone.png", f"<i>canales-iphone-14</i><br>{ip('DHCP')}<br>iPhone 14", tx + 290, ty + 64, 230, size=(52, 52))
-    device("hardware/clients/switchbot.png", f"<i>SwitchBot Hub 2</i><br>{ip('DHCP')}<br>段階 4 で IoT へ移す", tx + 290, ty + 124, 230, size=(52, 52), tile=True)
-    device("hardware/clients/tv.png", f"<i>テレビ（無線）</i><br>{ip('DHCP')}<br>段階 4 で IoT へ移す", tx + 290, ty + 184, 230, size=(52, 52))
+    device("hardware/clients/switchbot.png", f"<i>SwitchBot Hub 2</i><br>{ip('DHCP')}<br>IoT へ移す予定", tx + 290, ty + 124, 230, size=(52, 52), tile=True)
+    device("hardware/clients/tv.png", f"<i>テレビ（無線）</i><br>{ip('DHCP')}<br>IoT へ移す予定", tx + 290, ty + 184, 230, size=(52, 52))
 
     iy = ty + 300 + 20
     zone(50, tx, iy, 260, 170)
     text("<b>VLAN50 IoT</b>（未使用）", tx + 10, iy + 5, 240, 30)
-    text("段階 4（AP 追加）後に使う。", tx + 10, iy + 50, 240, 40)
+    text("AP を追加したら使う。", tx + 10, iy + 50, 240, 40)
     zone(60, tx + 280, iy, 260, 170)
     text("<b>VLAN60 Guests</b>（未使用）", tx + 290, iy + 5, 240, 30)
     device("", f"来客の端末<br>{ip('DHCP')}", tx + 290, iy + 50, 250, size=(40, 40), svg=mono_pair(wifi_svg))
@@ -452,7 +446,7 @@ def build():
               'orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="context-stroke"/></marker></defs></svg>')
     html = ('<!doctype html>\n<html lang="ja">\n<head>\n<meta charset="utf-8">\n'
             '<meta name="viewport" content="width=device-width,initial-scale=1">\n'
-            '<title>現状の構成図（as-is。段階 3 の後）</title>\n<style>' + css() + '</style>\n'
+            '<title>現状の構成図（as-is）</title>\n<style>' + css() + '</style>\n'
             '<script>if(location.hash==="#dark")document.documentElement.dataset.theme="dark";'
             'if(location.hash==="#light")document.documentElement.dataset.theme="light"</script>\n</head>\n<body>\n'
             + marker + '\n<div class="canvas">\n' + "\n".join(back) + "\n" + "\n".join(out) + "\n</div>\n</body>\n</html>\n")
