@@ -70,17 +70,17 @@ VM の IP は Terraform（`terraform.tfvars`）で固定する。VMID の規則�
 
 | ホスト | 現 VMID | 作り直し後の VMID | IP | VLAN | 備考 |
 | --- | --- | --- | --- | --- | --- |
-| ルーター | — | — | `10.77.10.1`（ER605） | 10 | VLAN10 のゲートウェイ。既定のネットワークと同じ（[ADR-0032](../../../adr/0032-merge-default-network-into-management-vlan10.md)） |
-| Managed Switch（SG2210P） | — | — | `10.77.10.2` | 10 | 静的 |
+| ルーター（`rtr01`） | — | — | `10.77.10.1`（ER605） | 10 | VLAN10 のゲートウェイ。既定のネットワークと同じ（[ADR-0032](../../../adr/0032-merge-default-network-into-management-vlan10.md)） |
+| Managed Switch（`sw01`、SG2210P） | — | — | `10.77.10.2` | 10 | 静的 |
 | Omada コントローラー（`vm-omada`） | 112 | 1003 | `10.77.10.3` | 10 | NIC 1 枚（VLAN10） |
-| AP | — | — | `10.77.10.4–.9` | 10 | 採番は購入後に確定する |
+| AP（`ap01`） | — | — | `10.77.10.4–.9` | 10 | 採番は購入後に確定する。Buffalo を退役させたら、`ap01` の名前を引き継ぐ（[ADR-0035](../../../adr/0035-network-device-names-by-role.md)） |
 | Proxmox（`pve01`） | — | — | `10.77.10.10` | 10 | タグ付きの `vmbr0.10`。ホスト名は `pve01`（2026-11-24 に `pve` から変更。[手順書 26](../../../operations/runbooks/26-rename-pve-host-to-pve01.md)）。FQDN `pve01.lab.kanare.dev` も `10.77.10.10` |
 | `vm-infra` | 111 | 2010 | `10.77.20.10` | 20 | DNS、Caddy、Tailscale |
 | `vm-monitoring` | 113 | 2011 | `10.77.20.11` | 20 | |
 | `vm-apps` | 120 | 2020 | `10.77.20.20` | 20 | |
 | `vm-code` | 122 | 2030 | `10.77.20.30` | 20 | |
 | `vm-dev` | 121 | 4010 | `10.77.40.10` | 40 | 手動起動 |
-| Buffalo（AP モード） | — | — | `10.77.30.50` | 30 | Trusted。`.2–.9` は Management だけなので、予約の帯 `.50–.99` を使う。Omada の AP を導入するまでの構成 |
+| Buffalo（`ap01`、AP モード） | — | — | `10.77.30.50` | 30 | Trusted。`.2–.9` は Management だけなので、予約の帯 `.50–.99` を使う。Omada の AP を導入するまでの構成 |
 | テレビ | — | — | `10.77.50.x` | 50 | DHCP 予約（`.50–.99`）で固定。無線 |
 | `ubuntu-cloud` | 9000 | 9000 | — | — | VM のテンプレート。IP なし |
 
