@@ -1,6 +1,6 @@
 # ホストの名前と DNS のレコード
 
-[ロードマップ](README.md)の記録。案 1（A レコードを揃える）は**検討中**で、採用は決めていない。案 2（ネットワーク機器の名前の付け方）は、2026-11-27 に **2-B（役割と番号）を採用した**（[ADR-0035](../../adr/0035-network-device-names-by-role.md)）。Omada のデバイス名は、2026-11-27 に変えた。設計書と ADR には、採用を決めた案だけを書く。すべて採用して適用したら、この文書は [02](02-completed.md) に 1 行だけ残す。
+[ロードマップ](README.md)の記録。2026-11-27 に、案 1 と案 2 の両方を採用した。案 2（ネットワーク機器の名前は役割と番号）は [ADR-0035](../../adr/0035-network-device-names-by-role.md) で、同日に適用した。案 1（固定 IP のホストすべてに A レコード）は [ADR-0036](../../adr/0036-a-record-for-every-fixed-ip-host.md) で、未適用。適用したら、この文書は [02](02-completed.md) に 1 行だけ残す。
 
 ## 目的
 
@@ -46,7 +46,7 @@ CoreDNS のレコードは、`ansible/inventory/group_vars/infra/vars.yml` の `
 
 ## 決めること
 
-- 案 1 を採るか。採るなら、ホスト名のレコードを持つかどうかを、設計書（[DNS](../../architecture/lld/network/dns.md)）の決まりとして書く。
+- （決定済み）案 1 を採用した。決まりは [DNS](../../architecture/lld/network/dns.md) に書いた（[ADR-0036](../../adr/0036-a-record-for-every-fixed-ip-host.md)）。
 - （決定済み）案 2 は、2-B の短い形にした。Buffalo は `ap01` で、AP を足したとき（[04](04-network-omada-vlan.md)）に Buffalo を外したら、`ap01` を新しい AP に譲る（[ADR-0035](../../adr/0035-network-device-names-by-role.md)）。
 - `vm-omada`・`vm-dev` のように、`vm-` で始まる今の VM の名前は、この検討では変えない。
 
@@ -61,6 +61,7 @@ CoreDNS のレコードは、`ansible/inventory/group_vars/infra/vars.yml` の `
 
 | 日付 | 内容 |
 | --- | --- |
+| 2026-11-27 | 案 1 を採用した（[ADR-0036](../../adr/0036-a-record-for-every-fixed-ip-host.md)）。`rtr01`、`sw01`、`vm-omada`、`ap01`、`vm-dev` のレコードを `dns_records` に足し、DNS と IP アドレス一覧を直した。`vm-dev` も、手動起動だが名前を付ける |
 | 2026-11-27 | 案 2 を適用した。Omada のデバイス名を `rtr01`、`sw01` に変え（運用者の報告）、`README.md` のホストの表と as-is の構成図を直した |
 | 2026-11-27 | 案 2 で、2-B（`rtr01`、`sw01`、`ap01`）を採用した。`ap01` は、Buffalo を退役させたら新しい AP に譲る（[ADR-0035](../../adr/0035-network-device-names-by-role.md)）。設計書（IP アドレス一覧、Omada）と to-be の構成図を直した。案 1 は検討中のまま |
 | 2026-11-27 | 作成。固定 IP のホストに A レコードを揃える案と、ネットワーク機器の名前の付け方（型番か、役割と番号か）を、検討中として書いた |

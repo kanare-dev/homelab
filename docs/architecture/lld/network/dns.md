@@ -72,8 +72,15 @@ AdGuard の fallback DNS が使われるのは、upstream に**接続できな�
 | `cloudcli` | 10.77.20.10 | Caddy 経由（CloudCLI） |
 | `vm-code` | 10.77.20.30 | vm-code（SSH / mosh の直接アクセス用） |
 | `omada` | 10.77.20.10 | Caddy 経由（Omada コントローラーの管理画面。[管理画面](#管理画面omada-コントローラー)）。旧 `router` は廃止 |
+| `rtr01` | 10.77.10.1 | ER605（ルーター）。直接 |
+| `sw01` | 10.77.10.2 | SG2210P（スイッチ）。直接 |
+| `vm-omada` | 10.77.10.3 | vm-omada。直接（管理画面は `omada` で開く） |
+| `ap01` | 10.77.30.50 | Buffalo（AP モード）。直接 |
+| `vm-dev` | 10.77.40.10 | vm-dev。直接（手動起動。止まっている間は繋がらない） |
 
 レコードの追加・変更は `ansible/inventory/group_vars/infra/vars.yml` の `dns_records` を編集し、`ansible-playbook playbooks/infra.yml` を実行する。
+
+固定 IP を持つホストには、すべて `<ホスト名>.lab.kanare.dev` の A レコードを付け、そのホストを直接指す（[ADR-0036](../../../adr/0036-a-record-for-every-fixed-ip-host.md)）。新しいホストを足すときも、同じ変更でレコードを足す。ただし、名前を引くのは `vm-infra` なので、`vm-infra` が止まると名前は引けない。監視の対象（Prometheus、blackbox-exporter）と、緊急時の手順書は、IP で書く。
 
 ## Cloudflare 上のレコード
 

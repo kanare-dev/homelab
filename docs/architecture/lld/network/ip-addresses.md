@@ -108,8 +108,14 @@ Mac、スマホなどの日常端末は、DHCP で受け取る（Trusted。常�
 | `vm-monitoring.lab.kanare.dev` | `vm-monitoring` への直接アクセス | `10.77.20.11` |
 | `vm-apps.lab.kanare.dev` | `vm-apps` への直接アクセス | `10.77.20.20` |
 | `vm-code.lab.kanare.dev` | SSH / mosh の直接アクセス（Moshi など） | `10.77.20.30` |
+| `pve01.lab.kanare.dev` | Proxmox ホストへの直接アクセス（SSH） | `10.77.10.10` |
+| `rtr01.lab.kanare.dev` | ER605 への直接アクセス | `10.77.10.1` |
+| `sw01.lab.kanare.dev` | SG2210P への直接アクセス | `10.77.10.2` |
+| `vm-omada.lab.kanare.dev` | `vm-omada` への直接アクセス | `10.77.10.3` |
+| `ap01.lab.kanare.dev` | Buffalo（AP モード）への直接アクセス | `10.77.30.50` |
+| `vm-dev.lab.kanare.dev` | `vm-dev` への直接アクセス | `10.77.40.10`（手動起動。止まっている間は繋がらない） |
 
-`vm-dev` には DNS レコードを置いていない（手動起動のため）。
+固定 IP を持つホストには、すべてホスト名の A レコードを付ける（[ADR-0036](../../../adr/0036-a-record-for-every-fixed-ip-host.md)）。監視と緊急時の手順は、DNS が止まっても使えるように、IP で書く。
 
 ## その他のアドレス
 

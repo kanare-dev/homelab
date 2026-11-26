@@ -59,7 +59,7 @@ VLAN の ID は、信頼度の高い順（内側から外側）に振り、外�
 
 ## ドメイン命名規約
 
-内部 DNS では `lab.kanare.dev` ゾーンを使い、CoreDNS が権威サーバーとして応答する（[DNS 構成](../lld/network/dns.md)）。サービスは `<サービス名>.lab.kanare.dev`、VM は `<VM 名>.lab.kanare.dev` という名前で引く。
+内部 DNS では `lab.kanare.dev` ゾーンを使い、CoreDNS が権威サーバーとして応答する（[DNS 構成](../lld/network/dns.md)）。サービスは `<サービス名>.lab.kanare.dev`、固定 IP を持つホスト（VM、Proxmox ホスト、ネットワーク機器）は `<ホスト名>.lab.kanare.dev` という名前で引く（[ADR-0036](../../adr/0036-a-record-for-every-fixed-ip-host.md)）。
 
 FQDN ごとの宛先（IP とポート）は、[IP アドレス一覧](../lld/network/ip-addresses.md#fqdn-の宛先)にある。
 
