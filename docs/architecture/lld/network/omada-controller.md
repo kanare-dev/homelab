@@ -22,20 +22,20 @@ Omada コントローラー（`vm-omada`）と、それが管理する ER605・S
 | データ | `/opt/omada/data`、ログ `/opt/omada/logs` |
 | 反映 | `make setup-omada` |
 | ポート | 管理 HTTPS 8043、管理 HTTP 8088、ポータル 8843。機器との通信は UDP 29810（自動検出）、TCP 29811〜29816。UFW で絞る（`ansible/inventory/group_vars/omada/vars.yml`） |
-| 監視 | `node_exporter` を Prometheus が見ている（`TargetDown`）。画面（HTTPS）の外形監視は未導入（[監視・アラート](../platform/monitoring.md)） |
+| 監視 | `node_exporter` を Prometheus が見ている（`TargetDown`）。画面（HTTPS）は、`https://omada.lab.kanare.dev` を blackbox で外形監視している（2026-11-06 から）。管理する機器・ポート・クライアントの状態は、`vm-monitoring` の omada-exporter が API を読み、Grafana で見る（[ADR-0039](../../../adr/0039-omada-metrics-via-omada-exporter.md)、[監視・アラート](../platform/monitoring.md#omada-の機器クライアントの状態)） |
 
 ## 設定値（現在）
 
 | 項目 | 値 |
 | --- | --- |
-| ユーザー（Accounts） | ローカルユーザー `homelab-owner`（Owner。日常に使う）と `homelab-admin`（Super Admin。予備）。Cloud User（TP-Link ID 名義の Owner。**名前は変更できない仕様**）は Omada Cloud 用。パスワードは Keychain（名前は台帳）。**ローカルユーザーの名前を、メールアドレスの形にしない**（下の注） |
+| ユーザー（Accounts） | ローカルユーザー `homelab-owner`（Owner。日常に使う）と `homelab-admin`（Super Admin。予備）。Cloud User（TP-Link ID 名義の Owner。**名前は変更できない仕様**）は Omada Cloud 用。パスワードは Keychain（名前は台帳）。**ローカルユーザーの名前を、メールアドレスの形にしない**（下の注）。ほかに、監視用の `exporter`（Viewer。サイト `kanare-homelab`。2026-11-27 に作成。パスワードは SOPS の `omada_exporter_password`。[ADR-0039](../../../adr/0039-omada-metrics-via-omada-exporter.md)） |
 | サイト | 1 つ。名前は `kanare-homelab`（2026-11-06 に決めた） |
 | LAN・VLAN のネットワーク | [ER605 の設定値](#er605ルーター)に書いている（コントローラーの Settings > Wired Networks > LAN で作る） |
 | mDNS の中継（Settings > 一般設定 > mDNS） | ルール `mdns-trusted-iot`（**無効**のまま）。Bonjour サービスは AirPlay と Google Cast（一覧に無いので、`Google Cast` / `_googlecast._tcp.local` を追加した。サービス ID は `_A._B.local` の形）。バンド VLAN は「VLAN ID 別」、サービスネットワーク VLAN は 50（IoT）、クライアントネットワーク VLAN は 30（Trusted）。有効にして実機で確かめるのは、テレビを IoT に移すとき。Google Cast が中継できるか、`_googlezone._tcp` などの追加が要るかは、そのとき確認する |
 | スイッチのポートプロファイル（デバイス設定 > ポートプロファイル） | 標準の Disable・All・Default のほかに、`access-trusted`（VLAN 設定オン、ネイティブネットワーク Trusted(30)、ネットワークタグ設定は全てブロック。PoE は機器の設定を保持）。p3（Buffalo）と p4（ディスプレイ）に割り当てている（「VLAN設定」は「プロファイルに従う」） |
 | 採用している機器 | ER605（JP 版 2.4.2）と SG2210P（5.30.7）。2026-11-06 に採用した。デバイス名は、役割と番号（`rtr01`、`sw01`。AP は `ap01`）。2026-11-27 に、型番ベースの小文字（`er605`、`sg2210p`）から変えた（[ADR-0035](../../../adr/0035-network-device-names-by-role.md)）（2026-11-03 に、ER605 を一度採用して更新し、取り外していた） |
 | Omada Cloud（クラウドアクセス） | **有効**（試用中。最終的に無効にするかもしれない。[外部サービスの表](../../hld/05-network.md#外部サービスへの依存)）。TP-Link ID は台帳 |
-| Open API | 使っていない |
+| Open API（Settings > Platform Integration > Open API） | アプリ `exporter`（Client Credentials モード、Viewer ロール。2026-11-27 に作成）。omada-exporter が、クライアント・WAN・ISP を読むのに使う。Client ID とシークレットは SOPS（`omada_exporter_client_id`、`omada_exporter_client_secret`）。最初は Authorization Code モードで作ってしまい、トークンの取得が `-44106` で失敗したので、Client モードに直した |
 | 時刻（NTP） | サイトの設定（Site Settings）の NTP に `ntp.nict.jp`（2026-11-06 に設定。ER605・SG2210P に配られる時刻） |
 | 地域（タイムゾーン） | (UTC+09:00) 大阪、札幌、東京（2026-11-06 に確認） |
 | コントローラー本体の NTP | 指定する欄が無い（6.3.0.111。2026-11-06 に確認）。時刻は、`vm-omada` の OS（`systemd-timesyncd`、`ntp.nict.jp` など）に従う見込み（未確認） |
@@ -207,6 +207,7 @@ TP-Link SG2210P V5.30。製品の仕様は[SG2210P の資料](../hardware/sg2210
 
 | 日付 | 内容 |
 | --- | --- |
+| 2026-11-27 | [コントローラー] 監視用に、ユーザー `exporter`（Viewer）と、Open API のアプリ `exporter`（Client Credentials、Viewer）を作った（運用者の作業。[ADR-0039](../../../adr/0039-omada-metrics-via-omada-exporter.md)） |
 | 2026-11-27 | [確認] ER605（`rtr01`）の UPnP が無効であることを、コントローラーの画面で確かめた（運用者の報告。画面の写し） |
 | 2026-11-27 | [コントローラー] デバイス名を `er605` → `rtr01`、`sg2210p` → `sw01` に変えた（運用者の報告。[ADR-0035](../../../adr/0035-network-device-names-by-role.md)） |
 | 2026-11-27 | [文書] デバイス名を、役割と番号（`rtr01`、`sw01`）に変えると決めた（[ADR-0035](../../../adr/0035-network-device-names-by-role.md)）。文書が先で、実機（Omada の画面）は未変更 |

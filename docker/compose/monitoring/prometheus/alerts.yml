@@ -159,8 +159,9 @@ groups:
       # homeassistant（センサーの値の取得）も除外する。VM の停止ではないのに critical になり、
       # 同じ host（vm-apps）の外形監視を抑制してしまうため。取得の失敗は RoomSensorMissing が担当する
       # adguard（AdGuard の統計の exporter）も同じ理由で除外する。失敗は AdGuardExporterFailing が担当する
+      # omada（Omada の exporter）も同じ理由で除外する。失敗は OmadaExporterFailing が担当する
       - alert: TargetDown
-        expr: up{instance!="vm-dev",job!~"homeassistant|adguard"} == 0
+        expr: up{instance!="vm-dev",job!~"homeassistant|adguard|omada"} == 0
         for: 3m
         labels:
           severity: critical
@@ -383,3 +384,20 @@ groups:
         annotations:
           summary: "AdGuard Home の統計が取れていない"
           description: "`docker logs adguard-exporter` を確認する（401 なら exporter ユーザーのパスワード、接続できなければ Caddy か AdGuard）。この間、Grafana の AdGuard Home のダッシュボードは更新されない。"
+
+  # Omada が管理する機器・ポート・クライアントの状態（omada-exporter）。機器の状態や使用量には、
+  # まだ通知を付けない（実測を見てから決める）。状態が取れていないことだけを知らせる
+  - name: omada
+    rules:
+      # exporter の停止、またはコントローラーの API を読めない（認証の失敗、Caddy・コントローラーの停止）。
+      # 起動した直後の 1 回目は、全 collector が 0 になるので、for で吸収する。
+      # コントローラーの画面が落ちている間は ServiceProbeFailed（service="omada"）が、
+      # DNS が応答しない間は DnsProbeFailed が先に鳴るので、alertmanager.yml で抑制する
+      - alert: OmadaExporterFailing
+        expr: up{job="omada"} == 0 or min by (job) (omada_collector_last_scrape_completed) == 0
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Omada の機器・クライアントの状態が取れていない"
+          description: "`docker logs omada-exporter` を確認する（-44106 なら Open API の Client ID・シークレット、ログインの失敗なら exporter ユーザーのパスワード、接続できなければ Caddy かコントローラー）。この間、Grafana の Omada のダッシュボードは更新されない。"

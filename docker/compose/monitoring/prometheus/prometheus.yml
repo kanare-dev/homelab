@@ -92,6 +92,21 @@ scrape_configs:
       - target_label: instance
         replacement: "adguard-exporter"
 
+  # Omada が管理する機器・ポート・クライアントの状態（omada-exporter。同じ compose のコンテナ）。
+  # exporter は scrape のたびにコントローラーの API を呼ぶ。コントローラーはメモリに余裕が無い
+  # （INC-2026-11-09）ので、60 秒にする。動作確認では、1 回の読み取りは 0.5 秒未満だった（ADR-0039）
+  - job_name: "omada"
+    scrape_interval: 60s
+    static_configs:
+      - targets: ["omada-exporter:9202"]
+        labels:
+          env: "homelab"
+          host: "vm-monitoring"
+          service: "omada-exporter"
+    relabel_configs:
+      - target_label: instance
+        replacement: "omada-exporter"
+
   # 外形監視: Caddy 経由の HTTPS サービス（URL・証明書の期限）。
   # host は背後の VM。TargetDown と同じ host で抑制する（alertmanager.yml）。
   - job_name: "blackbox_http"

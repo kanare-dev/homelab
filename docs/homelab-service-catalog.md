@@ -189,7 +189,8 @@
 | 未検討 | Ubiquiti UniFi | ネットワーク機器・管理プラットフォーム | — |
 | 計画中 | TP-Link Omada | ネットワーク機器・管理プラットフォーム | [Omada 導入・VLAN 化](operations/roadmap/04-network-omada-vlan.md)。コントローラーは `vm-omada` で稼働中（2026-11-03、[システム構成・環境](architecture/hld/01-system.md)）。ER605・SG2210P の本設置はこれから（[移行計画](operations/roadmap/10-er605-sg2210p-migration-plan.md)） |
 | 未検討 | terraform-provider-omada（コミュニティ製） | Omada の設定を Terraform で管理する | [バックログ](operations/roadmap/01-backlog.md)。対応範囲は未確認。公式のプロバイダーはない |
-| 検討中 | omada_exporter（コミュニティ製。例: charlie-haley/omada_exporter） | Omada の機器・クライアントのメトリクスを Prometheus に出し、Grafana で見る。コントローラー v6 への対応は未確認 | [バックログ](operations/roadmap/01-backlog.md)。Open API の自前 exporter も候補 |
+| 計画中 | RCooLeR/omada_exporter（OmadaBridge） | Omada の機器・ポート・クライアント・WAN の状態を Prometheus に出し、Grafana で見る。v2.4.5 にダイジェストで固定。コントローラー 6.3.0.111 で動作を確認した（2026-11-27）。本番への反映はこれから | [ADR 0039](adr/0039-omada-metrics-via-omada-exporter.md)、[監視・アラート](architecture/lld/platform/monitoring.md#omada-の機器クライアントの状態) |
+| 見送り | charlie-haley/omada_exporter | Omada の exporter（ダッシュボード 16343、20854）。2024 年 8 月から更新が止まっている | [ADR 0039](adr/0039-omada-metrics-via-omada-exporter.md)、[見送り中の項目](operations/roadmap/03-deferred.md#omada-の-exporter-の他の候補) |
 | 検討中 | Omada Cloud | Omada コントローラーをクラウド経由で開く機能 | 2026-11-03 から有効にして試用中。最終的に無効にするかもしれない（[検討中の項目](operations/roadmap/01-backlog.md)） |
 | 未検討 | LibreNMS | ネットワーク監視 (SNMP) | — |
 | 廃止 | Scanopy | ネットワーク探索・トポロジー図の自動作成 | [見送り中の項目](operations/roadmap/03-deferred.md#scanopyネットワーク探索トポロジー図) |
@@ -490,7 +491,7 @@
 | DNS | AdGuard Home + CoreDNS + Unbound（[ADR 0020](adr/0020-dns-three-layer-stack.md)） | Pi-hole、Technitium DNS Server、BIND9（いずれも見送り） |
 | リモートアクセス | Tailscale | WireGuard（見送り）、OpenVPN（未検討）、Omada Cloud（検討中。Omada コントローラーの管理画面だけ） |
 | メトリクス監視 | Prometheus + Grafana | Netdata（未検討）、Glances・Telegraf + InfluxDB（見送り） |
-| Omada のメトリクス取得 | 未決定（検討中: omada_exporter（コミュニティ製）、Open API の自前 exporter） | 移行（段階 1〜3）のあとに検討 |
+| Omada のメトリクス取得 | omada_exporter（RCooLeR）+ Prometheus + Grafana（[ADR 0039](adr/0039-omada-metrics-via-omada-exporter.md)。反映はこれから） | charlie-haley/omada_exporter（見送り）、Open API の自前 exporter、SNMP（snmp_exporter）、Omada の画面で見るだけ |
 | センサー（温度・湿度・CO2）の監視 | Home Assistant の Prometheus 連携 + Prometheus + Alertmanager + Grafana（[ADR 0037](adr/0037-room-sensors-via-home-assistant-prometheus.md)） | HA のオートメーションで直接通知、Grafana のアラート、SwitchBot 用の exporter（採らなかった理由は ADR 0037 の代替案）、ESP32 + MQTT（計画中） |
 | コンテナ・プロセス別のメモリ監視 | 未決定（`vm-omada` だけ。検討中: cAdvisor、process-exporter） | 入れずに `docker stats` で見る案もある |
 | 回線の疎通・遅延の監視 | blackbox-exporter（ICMP）+ Prometheus + Grafana（計画中） | Speedtest 系: speedtest-exporter（見送り）、MySpeed、LibreSpeed（未検討） |
