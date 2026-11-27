@@ -217,6 +217,7 @@ ansible-playbook playbooks/infra.yml
 - `--accept-dns=false`: vm-infra 自身が AdGuard を DNS として使うため、Tailscale に resolv.conf を書き換えさせない。
 - ACL のポリシーには、メールアドレスを書かない（リポジトリは公開）。利用者は `autogroup:`、端末はタグで書く。GitHub Actions の認証は、フェデレーテッド ID（GitHub の OIDC、スコープ `policy_file`）で、長期間有効な秘密の値を置かない。pull_request では検査（`test`）だけを行い、main への push で適用（`apply`）する。
 - Subnet route の承認、Split DNS、Key expiry は、ポリシーのファイルの外にある（Admin Console の設定）。この表を正とする。
+- **使い方の記録（一時的。2026-11-28〜）**: Tailscale の ACL を決めるため、`vm-infra` の nftables（`table inet ts_audit`。role `tailscale_usage_audit`）で、`tailscale0` から入る新しい接続を、送信元・宛先・プロトコル・ポートごとに数えている。数えるだけで、通信は止めない。回数はメモリにあり、1 時間ごとに `/var/lib/tailscale-usage-audit/` に起動ごとの JSON で書き出す。集計は `python3 tools/tailscale-usage.py`（端末の名前と IP が出るので、出力はリポジトリに保存しない）。やめるときは、`tailscale_usage_audit_enabled: false` にして Ansible を流す。
 - IP 転送 (`net.ipv4.ip_forward = 1`) は有効化済み。
 - スマホは Tailscale をオンにしたまま、自宅 Wi-Fi でもモバイル回線でも `https://home.lab.kanare.dev` に接続できる。
 

@@ -1,0 +1,7 @@
+---
+- name: Reload tailscale usage audit
+  ansible.builtin.systemd:
+    name: tailscale-usage-audit.service
+    state: restarted
+    daemon_reload: true
+  ignore_errors: "{{ ansible_check_mode }}"  # check モードでは unit のファイルが無い

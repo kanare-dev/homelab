@@ -1,0 +1,35 @@
+#!/usr/sbin/nft -f
+# Tailscale（tailscale0）から入る新しい接続を、送信元・宛先・プロトコル・ポートごとに数える。
+# 数えるだけで、通信は止めない（policy accept）。ufw・Tailscale のテーブルとは別のテーブルにする。
+# 回数はメモリにあり、再起動で消える。1 時間ごとに tailscale-usage-audit-snapshot が JSON に書き出す。
+table inet ts_audit
+delete table inet ts_audit
+table inet ts_audit {
+	set seen4 {
+		type ipv4_addr . ipv4_addr . inet_proto . inet_service
+		flags dynamic
+		size 65535
+		counter
+	}
+
+	set seen6 {
+		type ipv6_addr . ipv6_addr . inet_proto . inet_service
+		flags dynamic
+		size 65535
+		counter
+	}
+
+	# vm-infra 自身に届く通信（Tailscale の IP の DNS など）
+	chain input {
+		type filter hook input priority -150; policy accept;
+		iifname "tailscale0" meta l4proto { tcp, udp } ct state new update @seen4 { ip saddr . ip daddr . meta l4proto . th dport }
+		iifname "tailscale0" meta l4proto { tcp, udp } ct state new update @seen6 { ip6 saddr . ip6 daddr . meta l4proto . th dport }
+	}
+
+	# vm-infra を通る通信（subnet route で Servers・Lab へ。Docker の DNAT のあとのコンテナ宛ても、ここに入る）
+	chain forward {
+		type filter hook forward priority -150; policy accept;
+		iifname "tailscale0" meta l4proto { tcp, udp } ct state new update @seen4 { ip saddr . ip daddr . meta l4proto . th dport }
+		iifname "tailscale0" meta l4proto { tcp, udp } ct state new update @seen6 { ip6 saddr . ip6 daddr . meta l4proto . th dport }
+	}
+}

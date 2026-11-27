@@ -1,0 +1,5 @@
+---
+# Tailscale 経由の通信の使い方を数える（docs/architecture/lld/network/dns.md の「Tailscale との連携」）。
+# 記録をやめるときは false にして、Ansible を流す（テーブル、タイマー、書き出したファイルを消す）
+tailscale_usage_audit_enabled: true
+tailscale_usage_audit_dir: /var/lib/tailscale-usage-audit

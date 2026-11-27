@@ -5,6 +5,7 @@
     - node_exporter
     - coredns
     - dns_metrics
+    - tailscale_usage_audit
   tasks:
     - name: Create reverse-proxy directory
       ansible.builtin.file:

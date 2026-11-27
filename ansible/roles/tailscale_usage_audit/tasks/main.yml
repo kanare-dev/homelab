@@ -1,0 +1,109 @@
+---
+# Tailscale 経由の通信の使い方を数える。Tailscale の ACL を決めるための一時的な記録
+# （docs/operations/roadmap/01-backlog.md）。集計は tools/tailscale-usage.py
+- name: Install and start the Tailscale usage audit
+  when: tailscale_usage_audit_enabled | bool
+  block:
+    - name: Install the nftables counting table
+      ansible.builtin.copy:
+        src: tailscale-usage-audit.nft
+        dest: /etc/tailscale-usage-audit.nft
+        owner: root
+        group: root
+        mode: "0644"
+      notify: Reload tailscale usage audit
+
+    - name: Create the snapshot directory
+      ansible.builtin.file:
+        path: "{{ tailscale_usage_audit_dir }}"
+        state: directory
+        owner: root
+        group: root
+        mode: "0700"
+
+    - name: Create the counting service
+      ansible.builtin.copy:
+        dest: /etc/systemd/system/tailscale-usage-audit.service
+        mode: "0644"
+        content: |
+          [Unit]
+          Description=Count new connections from tailscale0 (nftables table inet ts_audit)
+          After=network-pre.target
+
+          [Service]
+          Type=oneshot
+          RemainAfterExit=yes
+          ExecStart=/usr/sbin/nft -f /etc/tailscale-usage-audit.nft
+          ExecStop=/usr/sbin/nft delete table inet ts_audit
+
+          [Install]
+          WantedBy=multi-user.target
+      notify: Reload tailscale usage audit
+
+    - name: Create the snapshot service
+      ansible.builtin.copy:
+        dest: /etc/systemd/system/tailscale-usage-audit-snapshot.service
+        mode: "0644"
+        content: |
+          [Unit]
+          Description=Write the Tailscale usage counters to a file per boot
+          Requires=tailscale-usage-audit.service
+          After=tailscale-usage-audit.service
+
+          [Service]
+          Type=oneshot
+          ExecStart=/bin/sh -c '/usr/sbin/nft -j list table inet ts_audit > {{ tailscale_usage_audit_dir }}/$(cat /proc/sys/kernel/random/boot_id).json'
+
+    - name: Create the snapshot timer
+      ansible.builtin.copy:
+        dest: /etc/systemd/system/tailscale-usage-audit-snapshot.timer
+        mode: "0644"
+        content: |
+          [Unit]
+          Description=Write the Tailscale usage counters every hour
+
+          [Timer]
+          OnBootSec=10min
+          OnUnitActiveSec=1h
+
+          [Install]
+          WantedBy=timers.target
+
+    - name: Enable the counting service and the snapshot timer
+      ansible.builtin.systemd:
+        name: "{{ item }}"
+        enabled: true
+        state: started
+        daemon_reload: true
+      loop:
+        - tailscale-usage-audit.service
+        - tailscale-usage-audit-snapshot.timer
+      ignore_errors: "{{ ansible_check_mode }}"  # check モードでは unit のファイルが無い
+
+- name: Remove the Tailscale usage audit
+  when: not (tailscale_usage_audit_enabled | bool)
+  block:
+    - name: Stop and disable the units
+      ansible.builtin.systemd:
+        name: "{{ item }}"
+        enabled: false
+        state: stopped
+      loop:
+        - tailscale-usage-audit-snapshot.timer
+        - tailscale-usage-audit.service
+      failed_when: false
+
+    - name: Remove the files
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+        - /etc/systemd/system/tailscale-usage-audit.service
+        - /etc/systemd/system/tailscale-usage-audit-snapshot.service
+        - /etc/systemd/system/tailscale-usage-audit-snapshot.timer
+        - /etc/tailscale-usage-audit.nft
+        - "{{ tailscale_usage_audit_dir }}"
+
+    - name: Reload systemd
+      ansible.builtin.systemd:
+        daemon_reload: true
