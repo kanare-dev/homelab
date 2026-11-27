@@ -7,7 +7,7 @@
 | [`to-be-diagram/`](#to-be-の構成図-vlan-化のあとto-be-diagram) | **to-be の構成図**（最終形。VLAN 化のあと、管理系も VLAN10）。単体の HTML と PNG |
 | [`physical-diagram/`](#物理構成図physical-diagram) | **物理構成図**（機器のポートとケーブル）。単体の HTML と PNG |
 | [`as-is-diagram/`](#現状の構成図as-is-diagram) | **現状の構成図**（as-is。常に実機の状態を表す。削除しない）。単体の HTML と PNG。to-be の構成図と同じ見た目 |
-| [`acl-matrix/`](#vlan-間の通信マトリクスacl-matrix) | **VLAN 間の通信マトリクス**（ゲートウェイの ACL の目標）。単体の HTML と PNG |
+| [`acl-matrix/`](#vlan-間の通信マトリクスacl-matrix) | **VLAN 間の通信マトリクス**（ゲートウェイの ACL。2026-11-27 に適用）。単体の HTML と PNG |
 | `fonts/`、`assets/` | 図が使うフォントとアイコン素材 |
 
 ## 構成図
@@ -76,7 +76,7 @@ VLAN の間で、どの向きの新規の接続を許すかを、一目で見る
 | `to-be-diagram/` | to-be の構成図（最終形）。生成スクリプト `make-to-be-diagram.py`（本体）、書き出した `to-be-diagram.html`・`to-be-diagram.png`・`to-be-diagram-dark.png` |
 | `as-is-diagram/` | 現状の構成図（**常に実機の状態を表す。削除しない**）。生成スクリプト `make-as-is-diagram.py`（本体）、書き出した `as-is-diagram.html`・`as-is-diagram.png`・`as-is-diagram-dark.png` |
 | `physical-diagram/` | 物理構成図（段階 3 の完了後の配線）。生成スクリプト `make-physical-diagram.py`（本体）、書き出した `physical-diagram.html`・`physical-diagram.png`・`physical-diagram-dark.png` |
-| `acl-matrix/` | VLAN 間の通信マトリクス（ACL の目標）。生成スクリプト `make-acl-matrix.py`（本体）、書き出した `acl-matrix.html`・`acl-matrix.png`・`acl-matrix-dark.png` |
+| `acl-matrix/` | VLAN 間の通信マトリクス（ゲートウェイの ACL）。生成スクリプト `make-acl-matrix.py`（本体）、書き出した `acl-matrix.html`・`acl-matrix.png`・`acl-matrix-dark.png` |
 | `fonts/` | HTML 図（to-be、as-is、物理構成図、通信マトリクス）が埋め込むフォント（Geist、JetBrains Mono。OFL） |
 | `assets/` | アイコン素材（**Git 管理外**。無ければ取得する） |
 
