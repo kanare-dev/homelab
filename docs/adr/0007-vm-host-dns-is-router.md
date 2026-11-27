@@ -29,5 +29,6 @@ VM のホスト DNS は、ルーターのままにする。AdGuard を使いた�
 
 - VM 内のホストから `*.lab.kanare.dev` は引けない。必要なコンテナは `dns:` で AdGuard を指定する。
 - VLAN 移行（[ADR 0004](0004-vlan-cutover-all-at-once.md)）で DHCP が配る DNS が `10.77.20.11` に変わる。そのとき、VM のホスト DNS を見直す（新しい ADR を追加して、この ADR を置き換える）。
+- 見直しの結果（2026-11-27、運用者の判断）: VLAN 移行のあとも、全 VM のホスト DNS を、各 VLAN のゲートウェイ（ルーター）のままにする。決定は変えないので、この ADR を置き換えない。ACL で Lab から `vm-infra` の DNS(53) を許可したので、`vm-dev` だけを AdGuard に向けることもできるが、VM ごとに設定を分けないため、採らない。
 
 詳細: [DNS](../architecture/lld/network/dns.md)、[監視・アラート](../architecture/lld/platform/monitoring.md#外形監視blackbox)
