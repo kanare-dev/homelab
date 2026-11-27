@@ -65,6 +65,28 @@ services:
     networks:
       - monitoring
 
+  # AdGuard Home のクエリ数・ブロック率・上流の応答時間（docs/architecture/lld/platform/monitoring.md）。
+  # AdGuard の API に管理者の権限で入るので、コードを読んだ版（v1.2.3）にダイジェストで固定する（ADR-0038）。
+  # /metrics には、どの端末がどのドメインを引いたかが出るので、ポートは公開しない（Prometheus からだけ使う）
+  adguard-exporter:
+    image: ghcr.io/henrywhitaker3/adguard-exporter:v1.2.3@sha256:27244b698034a190d657417fe1231db02cf2d22931d238495fd1a32bd0957185
+    container_name: adguard-exporter
+    restart: unless-stopped
+    environment:
+      # 平文の :3000 ではなく、Caddy 経由の HTTPS で読む（Basic 認証の情報を暗号化して送るため）
+      - ADGUARD_SERVERS=https://adguard.lab.kanare.dev
+      - ADGUARD_USERNAMES=exporter
+      - ADGUARD_PASSWORDS_FILE=/run/secrets/adguard_exporter_password
+      - INTERVAL=30s
+    volumes:
+      - ./adguard-exporter/password:/run/secrets/adguard_exporter_password:ro
+    # ホストの DNS（ルーター）は lab.kanare.dev を引けない。blackbox-exporter と同じく AdGuard を使う
+    dns:
+      - 10.77.20.10
+    logging: *default-logging
+    networks:
+      - monitoring
+
   grafana:
     image: grafana/grafana:latest
     container_name: grafana

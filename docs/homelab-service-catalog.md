@@ -244,6 +244,9 @@
 | 導入済み | prom/alertmanager | アラート管理・通知 | [監視・アラート](architecture/lld/platform/monitoring.md) |
 | 導入済み | prom/node-exporter | Prometheus 用ホストメトリクス | [監視・アラート](architecture/lld/platform/monitoring.md) |
 | 導入済み | prom/blackbox-exporter | Blackbox プローブ（HTTP/HTTPS/DNS/TCP 等） | [監視・アラート](architecture/lld/platform/monitoring.md) |
+| 計画中 | henrywhitaker3/adguard-exporter | AdGuard Home の統計（クエリ数、ブロック率、上流の応答時間）を Prometheus に出す。v1.2.3 にダイジェストで固定。採用を決めた（2026-11-27）、未適用 | [ADR 0038](adr/0038-adguard-stats-via-adguard-exporter.md)、[監視・アラート](architecture/lld/platform/monitoring.md#adguard-home-の統計) |
+| 見送り | JonanekDev/AdGuardHome-Exporter | AdGuard Home の exporter（ダッシュボード 24520）。リリースが無く、利用者が少ない | [ADR 0038](adr/0038-adguard-stats-via-adguard-exporter.md)、[見送り中の項目](operations/roadmap/03-deferred.md#adguard-home-の-exporter-の他の候補) |
+| 見送り | ebrianne/adguard-exporter | AdGuard Home の古い exporter（ダッシュボード 13330、14038）。元のプロジェクトが無くなっている | [ADR 0038](adr/0038-adguard-stats-via-adguard-exporter.md)、[見送り中の項目](operations/roadmap/03-deferred.md#adguard-home-の-exporter-の他の候補) |
 | 導入済み | grafana/grafana | ダッシュボード・可視化 | [監視・アラート](architecture/lld/platform/monitoring.md) |
 | 検討中 | grafana/loki | ログ集約・検索。ネットワーク機器の syslog 用に検討中。全ホストのログ集約は見送り | [syslog 収集](operations/roadmap/14-syslog-collection.md)、[見送り中の項目](operations/roadmap/03-deferred.md#loki--grafana-alloyログ収集基盤) |
 | 検討中 | grafana/alloy | syslog の受信と Loki への転送（案 B-1）。promtail の後継 | [syslog 収集](operations/roadmap/14-syslog-collection.md) |
@@ -491,6 +494,7 @@
 | センサー（温度・湿度・CO2）の監視 | Home Assistant の Prometheus 連携 + Prometheus + Alertmanager + Grafana（[ADR 0037](adr/0037-room-sensors-via-home-assistant-prometheus.md)） | HA のオートメーションで直接通知、Grafana のアラート、SwitchBot 用の exporter（採らなかった理由は ADR 0037 の代替案）、ESP32 + MQTT（計画中） |
 | コンテナ・プロセス別のメモリ監視 | 未決定（`vm-omada` だけ。検討中: cAdvisor、process-exporter） | 入れずに `docker stats` で見る案もある |
 | 回線の疎通・遅延の監視 | blackbox-exporter（ICMP）+ Prometheus + Grafana（計画中） | Speedtest 系: speedtest-exporter（見送り）、MySpeed、LibreSpeed（未検討） |
+| AdGuard Home の統計 | adguard-exporter（henrywhitaker3）+ Prometheus + Grafana（[ADR 0038](adr/0038-adguard-stats-via-adguard-exporter.md)。計画中） | AdGuardHome-Exporter（JonanekDev）、ebrianne/adguard-exporter（見送り）、AdGuard の画面で見るだけ |
 | 死活監視・ステータスページ | blackbox-exporter + Alertmanager | Uptime Kuma（見送り） |
 | ログ集約 | なし（journald と Docker のログ） | Loki + Alloy（全ホストは見送り。ネットワーク機器の syslog は検討中）、Fluent Bit、rsyslog（検討中） |
 | コンテナ管理 | Docker Compose | Portainer（見送り）、k3s（検討中） |

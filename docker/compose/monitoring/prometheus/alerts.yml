@@ -158,8 +158,9 @@ groups:
       # vm-dev は onboot=false で手動起動のため除外（停止検知は PveVmStopped が onboot=1 のみ対象）
       # homeassistant（センサーの値の取得）も除外する。VM の停止ではないのに critical になり、
       # 同じ host（vm-apps）の外形監視を抑制してしまうため。取得の失敗は RoomSensorMissing が担当する
+      # adguard（AdGuard の統計の exporter）も同じ理由で除外する。失敗は AdGuardExporterFailing が担当する
       - alert: TargetDown
-        expr: up{instance!="vm-dev",job!="homeassistant"} == 0
+        expr: up{instance!="vm-dev",job!~"homeassistant|adguard"} == 0
         for: 3m
         labels:
           severity: critical
@@ -367,3 +368,18 @@ groups:
         annotations:
           summary: "室内の湿度のメトリクスが Prometheus に無い"
           description: "Prometheus の Targets で job=homeassistant の状態を確認する（401 ならトークン、接続できなければ HA の停止か UFW）。この間、湿度のアラートは鳴らない。"
+
+  # AdGuard Home の統計（adguard-exporter）。統計そのものには通知を付けない（実測を見てから決める）。
+  # 統計が取れていないことだけを知らせる
+  - name: adguard
+    rules:
+      # exporter の停止、または AdGuard の API を読めない（認証の失敗、Caddy・AdGuard の停止）。
+      # DNS が応答しない間は DnsProbeFailed が先に鳴るので、alertmanager.yml で抑制する
+      - alert: AdGuardExporterFailing
+        expr: up{job="adguard"} == 0 or increase(adguard_scrape_errors_total[10m]) > 0
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: "AdGuard Home の統計が取れていない"
+          description: "`docker logs adguard-exporter` を確認する（401 なら exporter ユーザーのパスワード、接続できなければ Caddy か AdGuard）。この間、Grafana の AdGuard Home のダッシュボードは更新されない。"

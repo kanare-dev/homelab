@@ -184,6 +184,45 @@
       notify: Restart dns stack
       tags: [logging]
 
+    # vm-monitoring の adguard-exporter が API を読むためのユーザー（ADR-0038）。
+    # AdGuard には読み取り専用の権限が無いので、管理者のユーザーを exporter 専用に分ける。
+    # パスワードが SOPS の値と合わないときだけ、bcrypt のハッシュを書き直す（ローテーションもこれで反映される）
+    - name: Configure AdGuard user for the exporter
+      ansible.builtin.shell:
+        cmd: |
+          python3 - << 'PYEOF'
+          import bcrypt, os, sys, yaml
+
+          config_path = '/opt/dns/adguard/conf/AdGuardHome.yaml'
+          if not os.path.exists(config_path):
+              sys.exit(0)
+
+          with open(config_path, 'r') as f:
+              config = yaml.safe_load(f)
+
+          password = os.environ['ADGUARD_EXPORTER_PASSWORD'].encode()
+          users = config.get('users') or []
+          user = next((u for u in users if u.get('name') == 'exporter'), None)
+          if user and bcrypt.checkpw(password, user.get('password', '').encode()):
+              sys.exit(0)
+
+          hashed = bcrypt.hashpw(password, bcrypt.gensalt(rounds=10)).decode()
+          if user:
+              user['password'] = hashed
+          else:
+              users.append({'name': 'exporter', 'password': hashed})
+          config['users'] = users
+          with open(config_path, 'w') as f:
+              yaml.dump(config, f, default_flow_style=False, allow_unicode=True)
+          print('changed')
+          PYEOF
+      environment:
+        ADGUARD_EXPORTER_PASSWORD: "{{ adguard_exporter_password }}"
+      register: adguard_exporter_user
+      changed_when: "'changed' in adguard_exporter_user.stdout"
+      no_log: true
+      notify: Restart dns stack
+
     # --- Tailscale ---
     - name: Check if Tailscale is already installed
       ansible.builtin.stat:

@@ -23,6 +23,10 @@ homelab の監視とアラート通知の仕組み。2026-10-22 の障害（[INC
                           ├─ HTTPS: *.lab.kanare.dev (Caddy 経由、証明書の期限も取得)
                           ├─ DNS: vm-infra AdGuard :53 (内部ゾーン / 外部の名前)
                           └─ ICMP: ルーター / 建物の共用ルーター / 1.1.1.1 / 8.8.8.8 (30秒毎。回線断・遅延)
+                              │ /metrics (30秒毎)
+                              v
+                        adguard-exporter :9618 (コンテナ内のみ)
+                          └─ HTTPS: adguard.lab.kanare.dev (Caddy 経由で AdGuard の API。クエリ数・ブロック率・応答時間)
                               │ 発報
                               v
                         Alertmanager :9093 ──> Slack Incoming Webhook (#homelab-alerts)
@@ -40,6 +44,9 @@ homelab の監視とアラート通知の仕組み。2026-10-22 の障害（[INC
 | pve-storage-metrics | PVE 専用。thin pool と VM 状態を textfile に出力 | `ansible/roles/proxmox/files/pve-storage-metrics.sh`、`ansible/roles/proxmox/tasks/main.yml` |
 | unbound-metrics | vm-infra 専用。未キャッシュの名前を Unbound に直接引いて、再帰解決できているかを textfile に出力（1 分毎） | `ansible/roles/dns_metrics/` |
 | blackbox-exporter | 外形監視。HTTPS と DNS のプローブを実行する。ポートは公開しない（Prometheus からだけ使う） | `docker/compose/monitoring/blackbox/blackbox.yml`、`docker-compose.yml` |
+| adguard-exporter | AdGuard Home の統計（クエリ数、ブロック率、上流の応答時間、上位のクライアント・ドメイン）を出す。ポートは公開しない（[ADR-0038](../../../adr/0038-adguard-stats-via-adguard-exporter.md)） | `docker/compose/monitoring/docker-compose.yml`、`prometheus.yml`（`adguard` ジョブ） |
+| AdGuard の exporter 用パスワード | 秘密情報。AdGuard の `exporter` ユーザー | `ansible/inventory/group_vars/all/secrets.sops.yml`（`adguard_exporter_password`、SOPS 暗号化。`vm-infra` と `vm-monitoring` の両方が使う） |
+| Grafana ダッシュボード「AdGuard Home」 | 状態、ブロック率、処理時間、クエリ数の推移、上流ごとの応答時間、上位のクライアント・ドメイン | `docker/compose/monitoring/grafana/dashboards/adguard.json`（`/d/homelab-adguard`） |
 | Prometheus | 収集・ルール評価。`retention.time=30d`、`retention.size=5GB` | `docker/compose/monitoring/prometheus/prometheus.yml`、`docker-compose.yml` |
 | アラートルール | 発報条件 | `docker/compose/monitoring/prometheus/alerts.yml` |
 | Alertmanager | 通知のグルーピング・送信 | `docker/compose/monitoring/alertmanager/alertmanager.yml` |
@@ -66,7 +73,7 @@ homelab の監視とアラート通知の仕組み。2026-10-22 の障害（[INC
 | AlertmanagerNotificationsFailing | Alertmanager → Slack の送信失敗が 10 分間に増加 | 5m | warning | Webhook 失効や Slack 障害。**Slack には届かない**ため、Alertmanager / Prometheus の画面でのみ確認できる |
 | PveVmIoError | VM が `io-error` | 1m | critical | ストレージ枯渇による VM 一時停止 |
 | PveVmStopped | `onboot=1` の VM が running でない | 3m | critical | VM のシャットダウン・クラッシュ・手動停止（vm-infra / vm-apps / vm-monitoring / vm-code が対象） |
-| TargetDown | scrape 先が応答しない（vm-dev と `homeassistant` ジョブを除く） | 3m | critical | VM 内 OS の停止・node_exporter 停止・ネットワーク断 |
+| TargetDown | scrape 先が応答しない（vm-dev と、`homeassistant`・`adguard` ジョブを除く） | 3m | critical | VM 内 OS の停止・node_exporter 停止・ネットワーク断 |
 | HostDiskUsageHigh / Critical | ファイルシステム > 80% / 90% | 10m / 5m | warning / critical | ゲスト・ホストのディスク逼迫 |
 | HostMemoryLow / Critical | 利用可能メモリ < 10% / 5%（`MemAvailable`） | 5m / 2m | warning / critical | OOM によるハングの予兆（vm-code で発生）。ホストと全 VM が対象 |
 | HostOomKilled | 10 分間に OOM killer が発動 | 0 | critical | OOM kill の発生。対象は `dmesg \| grep -i oom` で確認 |
@@ -86,6 +93,7 @@ homelab の監視とアラート通知の仕組み。2026-10-22 の障害（[INC
 | RoomHumidityLow / High | 室内の湿度（SwitchBot Hub 2）が 35% 未満 / 70% 超。解消は 30 分待つ（`keep_firing_for`） | 1h | warning | 冬の乾燥 / 夏の結露・カビ。**室内環境用チャンネル**に送る |
 | RoomSensorUnavailable | HA で温度・湿度のエンティティが利用できない（`homeassistant_entity_available == 0`） | 30m | warning | SwitchBot Cloud の障害、統合のトークン失効、Hub 2 の電源断。この間、湿度のアラートは鳴らない |
 | RoomSensorMissing | 湿度のメトリクスが Prometheus に無い | 30m | warning | HA の停止、`/api/prometheus` のトークン失効、UFW。この間、湿度のアラートは鳴らない |
+| AdGuardExporterFailing | adguard-exporter が応答しない、または AdGuard の API を読めない（`adguard_scrape_errors_total` が増えている） | 15m | warning | exporter の停止、`exporter` ユーザーの認証の失敗、Caddy・AdGuard の停止。この間、AdGuard Home のダッシュボードは更新されない。`DnsProbeFailed` の発報中は抑制する |
 | Watchdog | 常に firing | - | none | 通知経路の死活確認。Slack には送らず、Healthchecks.io へ 5 分毎に送る（途絶えたら外部から通知） |
 
 ### 外形監視（blackbox）
@@ -129,6 +137,29 @@ SwitchBot Hub 2 ─> SwitchBot Cloud <─(ポーリング)─ Home Assistant（v
 - **不快指数**: ダッシュボードでは、温度 T と湿度 H から `0.81T + 0.01H(0.99T − 14.3) + 46.3` を PromQL で計算して表示する。60〜75 を快適とし、日本で一般に使う区分を 6 段階（寒い・肌寒い・快適・やや暑い・暑い・非常に暑い）にまとめた。見るためだけの値で、通知はしない。
 - **センサーを足すとき**: `configuration.yaml` の `include_entities` にエンティティを足し、必要なら `alerts.yml` とダッシュボードにも足す（将来の CO2 など）。
 - **ESP32 のダッシュボード**: 以前は、別のリポジトリ（`iot-env-monitor`）の ESP32 用ダッシュボードを置いていたが、ESP32 を止めて表示するものが無かったので、2026-11-27 に「Room Environment」に置き換えた。`monitoring.yml` が `esp32-environment.json` を消し、Grafana のプロビジョニングがダッシュボードを消す。
+
+### AdGuard Home の統計
+
+AdGuard Home のクエリ数、ブロックの件数と率、上流の応答時間、上位のクライアントとドメインを、Prometheus に集めて Grafana で見る。判断は [ADR-0038](../../../adr/0038-adguard-stats-via-adguard-exporter.md)。
+
+```text
+AdGuard Home（vm-infra :3000）<── Caddy（https://adguard.lab.kanare.dev）
+                                        ^ Basic 認証（exporter ユーザー）、30 秒毎
+                                        │
+                   adguard-exporter（vm-monitoring。コンテナ内のみ :9618）
+                                        ^ 30 秒毎
+                                        │
+                   Prometheus（job adguard）─> Grafana「AdGuard Home」
+```
+
+- **exporter**: コミュニティ製の `henrywhitaker3/adguard-exporter` を使う。コードを読んで確かめた v1.2.3 に、ダイジェストで固定している。更新するときは、新しい版のコードの差分を読み、通信先が AdGuard だけであることを確かめてから、`docker-compose.yml` のダイジェストを書き換える。
+- **接続**: exporter は、AdGuard の API を Caddy 経由の HTTPS で読む。平文の `:3000` を使わないのは、Basic 認証の情報を暗号化して送るためである。コンテナの DNS は、blackbox-exporter と同じく AdGuard（`10.77.20.10`）を指定している（ホストの DNS では `*.lab.kanare.dev` を引けない）。
+- **認証**: AdGuard には読み取り専用の権限が無いので、exporter 専用の管理者ユーザー（`exporter`）を作っている。パスワードは SOPS の `adguard_exporter_password`（`group_vars/all`）で、`vm-infra` の playbook が AdGuard の設定ファイルに bcrypt のハッシュを書き、`vm-monitoring` の playbook が exporter のコンテナにファイルとして渡す（UID 65532 だけが読める）。パスワードを変えるときは、`sops` で値を差し替え、`make setup-infra` と `make setup-monitoring` を実行する。
+- **公開しない**: `/metrics` には、どの端末がどのドメインを引いたかが出る。exporter のエンドポイントには認証が無いので、ホストにポートを公開せず、Prometheus と同じ Docker ネットワークの中だけで使う。`DEBUG` は有効にしない（pprof のデバッグ用の画面が開く）。
+- **取る値**: exporter は、30 秒ごとに AdGuard の統計（`/control/stats`）と、クエリログの直近 1,000 件を読む。ブロック率と上位のクライアント・ドメインは、AdGuard の統計の期間（AdGuard の設定）の累計である。応答時間は、クエリログから、クライアントと上流ごとのヒストグラムにしている。
+- **通知**: 統計の値（ブロック率や応答時間）には、まだ通知を付けていない。実測を見てから決める。統計が取れないことだけを `AdGuardExporterFailing` で知らせる。exporter の停止は VM の停止ではないので、`TargetDown` の対象から外している（critical にすると、同じ `host`（`vm-monitoring`）の外形監視を抑制してしまう）。
+- **DHCP のパネル**: ダッシュボードには DHCP の状態とリースの表があるが、DHCP は Omada が配っているので、AdGuard の DHCP は無効で、表は空になる（未確認）。
+- **ダッシュボード**: exporter に付属のダッシュボード（v1.2.3）を、データソースの変数（`ds`）と `uid` だけ直して置いている。
 
 ### 回線の疎通・遅延の監視
 
@@ -194,6 +225,7 @@ Ookla Speedtest は測定のたびに 30〜60 秒、回線を使い切る（1Gbp
 | Prometheus TSDB | 30 日 または 5GB | `docker/compose/monitoring/docker-compose.yml`（5GB は暫定値。実測で調整） |
 | homeassistant（センサー） | 2 エンティティ × 60 秒毎。Prometheus のデータ増加は数系列で軽微（TSDB の上限に含まれる） | `prometheus.yml`（`homeassistant` ジョブ）、`configuration.yaml`（`include_entities`） |
 | blackbox_icmp | 4 宛先 × 30 秒毎の ping。通信量はほぼゼロ。Prometheus のデータ増加は 10 系列程度（TSDB の上限に含まれる） | `prometheus.yml`（`blackbox_icmp` ジョブ） |
+| adguard（AdGuard の統計） | 30 秒毎。系列は、クライアント・上流・応答の状態の組み合わせの数だけ増える（ヒストグラムを含む）。上位のドメインはドメイン名がラベルに入るので、入れ替わるたびに系列が増える。**導入後に実測する**（TSDB の上限に含まれる） | `prometheus.yml`（`adguard` ジョブ）、`docker-compose.yml`（`INTERVAL=30s`） |
 | blackbox-exporter | Prometheus のデータ増加は 10 系列 × 数メトリクス程度で軽微（TSDB の上限に含まれる） | `prometheus.yml`（`scrape_interval: 30s`） |
 | Docker コンテナログ（monitoring / dns / reverse-proxy / homepage / homeassistant / n8n / freshrss） | 10MB × 3 ファイル | 各 `docker-compose.yml` の `x-logging` |
 | Home Assistant の履歴（recorder） | 10 日（既定の `purge_keep_days`）。データベースは `/opt/homeassistant/config` | Home Assistant の既定値（変更していない） |
@@ -357,6 +389,7 @@ Slack App の「Incoming Webhooks」で再発行し、`sops ansible/inventory/gr
 | HostDiskUsage* | `du -xh --max-depth=2 /`、`docker system df` |
 | RoomHumidityLow / High | 室内の湿度の異常。加湿・除湿・換気する。Grafana「Room Environment」で推移を見る |
 | RoomSensorUnavailable | HA の画面（設定 > デバイスとサービス）で SwitchBot Cloud の統合を確認する。Hub 2 の電源と Wi-Fi も確認する |
+| AdGuardExporterFailing | `docker logs adguard-exporter` を見る。`401` なら `exporter` ユーザーのパスワード（`make setup-infra` で AdGuard に反映されているか）、接続できなければ `https://adguard.lab.kanare.dev` を開いて Caddy と AdGuard を確かめる |
 | RoomSensorMissing | `https://prometheus.lab.kanare.dev/targets` で `homeassistant` ジョブを見る。401 ならトークン（`prometheus_ha_token`）、接続できなければ HA の停止か `vm-apps` の UFW |
 
 ## 関連

@@ -99,6 +99,31 @@
         mode: "0644"
       no_log: true
 
+    - name: Fail early if AdGuard exporter password is not in secrets
+      ansible.builtin.assert:
+        that:
+          - adguard_exporter_password is defined
+          - adguard_exporter_password | length > 0
+        fail_msg: >-
+          adguard_exporter_password が未設定。ansible/inventory/group_vars/all/secrets.sops.yml に
+          sops で追加すること（docs/architecture/lld/platform/monitoring.md の「AdGuard Home の統計」参照）。
+
+    - name: Create adguard-exporter directory
+      ansible.builtin.file:
+        path: /opt/monitoring/adguard-exporter
+        state: directory
+        mode: "0755"
+
+    # exporter は scratch イメージで UID 65532 として動く。その UID だけが読めるようにする
+    - name: Deploy AdGuard exporter password
+      ansible.builtin.copy:
+        content: "{{ adguard_exporter_password }}"
+        dest: /opt/monitoring/adguard-exporter/password
+        owner: "65532"
+        group: "65532"
+        mode: "0400"
+      no_log: true
+
     - name: Create blackbox config directory
       ansible.builtin.file:
         path: /opt/monitoring/blackbox
@@ -194,6 +219,12 @@
         dest: /opt/monitoring/grafana/provisioning/dashboards/json/room-environment.json
         mode: "0644"
 
+    - name: Copy AdGuard Home dashboard
+      ansible.builtin.copy:
+        src: "{{ playbook_dir }}/../../docker/compose/monitoring/grafana/dashboards/adguard.json"
+        dest: /opt/monitoring/grafana/provisioning/dashboards/json/adguard.json
+        mode: "0644"
+
     - name: Download Node Exporter Full dashboard
       ansible.builtin.get_url:
         url: https://grafana.com/api/dashboards/1860/revisions/latest/download
@@ -219,5 +250,6 @@
           - prometheus
           - alertmanager
           - blackbox-exporter
+          - adguard-exporter
           - grafana
         state: restarted
