@@ -1,0 +1,14 @@
+{
+  "dot1x": {
+    "authMode": 1,
+    "authType": 1,
+    "enable": false,
+    "macFormat": 0,
+    "vlanAssign": false
+  },
+  "mac-auth": {
+    "enable": false,
+    "ssids": []
+  },
+  "portals": []
+}

@@ -1,0 +1,33 @@
+{
+  "devices": [
+    {
+      "compatible": 0,
+      "deviceSeriesType": 0,
+      "firmwareVersion": "2.4.2 Build 20260511 Rel.77362(4a50)",
+      "ip": "10.77.10.1",
+      "mac": "rtr01",
+      "model": "ER605 v2.30",
+      "modelName": "ER605",
+      "modelVersion": "2.30",
+      "name": "rtr01",
+      "publicIp": "10.77.10.1",
+      "switchConsistent": true,
+      "type": "gateway"
+    },
+    {
+      "compatible": 0,
+      "deviceSeriesType": 0,
+      "firmwareVersion": "5.30.7 Build 20260509 Rel.23533",
+      "ip": "10.77.10.2",
+      "mac": "sw01",
+      "model": "SG2210P v5.30",
+      "modelName": "SG2210P",
+      "modelVersion": "5.30",
+      "name": "sw01",
+      "publicIp": "10.77.10.2",
+      "subtype": "smart",
+      "switchConsistent": true,
+      "type": "switch"
+    }
+  ]
+}

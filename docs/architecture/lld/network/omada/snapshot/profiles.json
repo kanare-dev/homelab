@@ -1,0 +1,254 @@
+{
+  "groups": [
+    {
+      "buildIn": true,
+      "count": 1,
+      "domainName": [
+        "*"
+      ],
+      "domainNamePort": [
+        {
+          "address": "*"
+        }
+      ],
+      "groupId": "DomainGroup_Any (DomainGroup_Any)",
+      "name": "DomainGroup_Any (DomainGroup_Any)",
+      "type": 7
+    },
+    {
+      "count": 1,
+      "groupId": "6ae995d254553e13832c7398 (IPGroup_Any)",
+      "ipList": [
+        {
+          "ip": "0.0.0.0",
+          "mask": 0
+        }
+      ],
+      "name": "IPGroup_Any",
+      "type": 0
+    },
+    {
+      "buildIn": true,
+      "count": 1,
+      "groupId": "BI-IPv6Group_Any (IPv6Group_Any)",
+      "ipv6List": [
+        {
+          "ip": "::",
+          "prefix": 0
+        }
+      ],
+      "name": "IPv6Group_Any",
+      "type": 3
+    },
+    {
+      "count": 1,
+      "groupId": "6b098c68a878955b39adb1c7 (grp-vm-infra)",
+      "ipList": [
+        {
+          "description": "",
+          "ip": "10.77.20.10",
+          "mask": 32
+        }
+      ],
+      "name": "grp-vm-infra",
+      "type": 0
+    },
+    {
+      "count": 1,
+      "groupId": "6b098c7ea878955b39adb1cf (grp-vm-monitoring)",
+      "ipList": [
+        {
+          "description": "",
+          "ip": "10.77.20.11",
+          "mask": 32
+        }
+      ],
+      "name": "grp-vm-monitoring",
+      "type": 0
+    },
+    {
+      "count": 2,
+      "groupId": "6b098dcca878955b39adb26f (grp-dns)",
+      "ipList": [
+        {
+          "description": "",
+          "ip": "10.77.20.10",
+          "mask": 32
+        }
+      ],
+      "name": "grp-dns",
+      "portList": [
+        "53"
+      ],
+      "portType": 0,
+      "type": 1
+    },
+    {
+      "count": 4,
+      "groupId": "6b098d71a878955b39adb253 (grp-lab-access)",
+      "ipList": [
+        {
+          "description": "",
+          "ip": "10.77.40.0",
+          "mask": 24
+        }
+      ],
+      "name": "grp-lab-access",
+      "portList": [
+        "22",
+        "80",
+        "443"
+      ],
+      "portType": 0,
+      "type": 1
+    },
+    {
+      "count": 2,
+      "groupId": "6b098daba878955b39adb265 (grp-lab-metrics)",
+      "ipList": [
+        {
+          "description": "",
+          "ip": "10.77.40.0",
+          "mask": 24
+        }
+      ],
+      "name": "grp-lab-metrics",
+      "portList": [
+        "9100"
+      ],
+      "portType": 0,
+      "type": 1
+    },
+    {
+      "count": 2,
+      "groupId": "6b098d93a878955b39adb25d (grp-lab-mosh)",
+      "ipList": [
+        {
+          "description": "",
+          "ip": "10.77.40.0",
+          "mask": 24
+        }
+      ],
+      "name": "grp-lab-mosh",
+      "portList": [
+        "60000-61000"
+      ],
+      "portType": 0,
+      "type": 1
+    },
+    {
+      "count": 4,
+      "groupId": "6b098d54a878955b39adb244 (grp-mgmt-devices-web)",
+      "ipList": [
+        {
+          "description": "",
+          "ip": "10.77.10.0",
+          "mask": 29
+        },
+        {
+          "description": "",
+          "ip": "10.77.10.8",
+          "mask": 31
+        }
+      ],
+      "name": "grp-mgmt-devices-web",
+      "portList": [
+        "80",
+        "443"
+      ],
+      "portType": 0,
+      "type": 1
+    },
+    {
+      "count": 3,
+      "groupId": "6b098ce5a878955b39adb225 (grp-mgmt-metrics)",
+      "ipList": [
+        {
+          "description": "",
+          "ip": "10.77.10.3",
+          "mask": 32
+        },
+        {
+          "description": "",
+          "ip": "10.77.10.10",
+          "mask": 32
+        }
+      ],
+      "name": "grp-mgmt-metrics",
+      "portList": [
+        "9100"
+      ],
+      "portType": 0,
+      "type": 1
+    },
+    {
+      "count": 2,
+      "groupId": "6b098d23a878955b39adb239 (grp-mgmt-omada-ssh)",
+      "ipList": [
+        {
+          "description": "",
+          "ip": "10.77.10.3",
+          "mask": 32
+        }
+      ],
+      "name": "grp-mgmt-omada-ssh",
+      "portList": [
+        "22"
+      ],
+      "portType": 0,
+      "type": 1
+    },
+    {
+      "count": 2,
+      "groupId": "6b098c9aa878955b39adb1d7 (grp-mgmt-omada-ui)",
+      "ipList": [
+        {
+          "description": "",
+          "ip": "10.77.10.3",
+          "mask": 32
+        }
+      ],
+      "name": "grp-mgmt-omada-ui",
+      "portList": [
+        "8043"
+      ],
+      "portType": 0,
+      "type": 1
+    },
+    {
+      "count": 3,
+      "groupId": "6b098d0da878955b39adb22d (grp-mgmt-pve-admin)",
+      "ipList": [
+        {
+          "description": "",
+          "ip": "10.77.10.10",
+          "mask": 32
+        }
+      ],
+      "name": "grp-mgmt-pve-admin",
+      "portList": [
+        "8006",
+        "22"
+      ],
+      "portType": 0,
+      "type": 1
+    },
+    {
+      "count": 2,
+      "groupId": "6b098cb1a878955b39adb1e1 (grp-mgmt-pve-ui)",
+      "ipList": [
+        {
+          "description": "",
+          "ip": "10.77.10.10",
+          "mask": 32
+        }
+      ],
+      "name": "grp-mgmt-pve-ui",
+      "portList": [
+        "8006"
+      ],
+      "portType": 0,
+      "type": 1
+    }
+  ]
+}

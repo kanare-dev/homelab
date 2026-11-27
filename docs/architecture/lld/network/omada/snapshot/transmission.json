@@ -1,0 +1,27 @@
+{
+  "bandwidth-control": {
+    "enable": false,
+    "thresholdControlEnable": false,
+    "thresholdValue": 80
+  },
+  "dhcp-reservations": [],
+  "gateway-qos-class-rules": [],
+  "nat-alg": {
+    "existFtpAlgConfig": false,
+    "existSipAlgConfig": false,
+    "ftp": true,
+    "h323": true,
+    "ipSec": true,
+    "pptp": true,
+    "sip": false,
+    "supportSipAlgConfig": true
+  },
+  "one-to-one-nat": [],
+  "policy-routings": [],
+  "port-forwardings": [],
+  "session-limit": {
+    "enable": false
+  },
+  "static-routings": [],
+  "switch-oui-rules": []
+}

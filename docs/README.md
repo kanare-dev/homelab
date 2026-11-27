@@ -33,6 +33,7 @@ homelab/
 │   └── policy.hujson       # Tailscale の ACL のポリシー（GitOps で適用。ADR-0040）
 ├── tools/
 │   ├── acl-check.py        # ゲートウェイ ACL の許可と拒否を、実際の通信で確かめる（make acl-check）
+│   ├── omada-export.py     # Omada の設定値を Open API で取り出す（make omada-export。ADR-0041）
 │   ├── tailscale-usage.py  # Tailscale 経由の通信の使い方を集計する（一時的な記録）
 │   └── check-md-links.py   # Markdown の内部リンク検査
 └── docs/
