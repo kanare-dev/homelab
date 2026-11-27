@@ -53,7 +53,7 @@ homelab の監視とアラート通知の仕組み。2026-10-22 の障害（[INC
 | Grafana ダッシュボード「Storage / Thin Pool」 | pool とVM ディスク別の割当、増加ペース、VM 稼働状態 | `docker/compose/monitoring/grafana/dashboards/storage.json`（`/d/homelab-storage`） |
 | デプロイ | | `ansible/playbooks/monitoring.yml`（vm-monitoring）、`ansible/playbooks/proxmox.yml`（pve） |
 
-> `vm-omada` の Omada コントローラーの画面（HTTPS）の外形監視は、まだ入れていない。`omada.lab.kanare.dev` を Caddy と DNS に足したあとに、blackbox の HTTPS に加える（[バックログ](../../../operations/roadmap/01-backlog.md)）。`vm-omada` の OS の死活は、`node_exporter` の scrape と `TargetDown` で見ている（2026-11-03 から）。
+> `vm-omada` の Omada コントローラーの画面（HTTPS）は、`https://omada.lab.kanare.dev` として `blackbox_http` で外形監視している（2026-11-06 から。それまでの `router.lab.kanare.dev` を置き換えた）。`vm-omada` の OS の死活は、`node_exporter` の scrape と `TargetDown` で見ている（2026-11-03 から）。
 
 ## 監視している項目
 
@@ -94,7 +94,7 @@ homelab の監視とアラート通知の仕組み。2026-10-22 の障害（[INC
 
 | ジョブ | 対象 | 確認すること |
 | --- | --- | --- |
-| `blackbox_http` | `https://{grafana,prometheus,alertmanager,pve,home,ha,n8n,rss,adguard,code,cloudcli,router}.lab.kanare.dev` | DNS -> Caddy -> バックエンドの全経路。証明書の検証と期限（`probe_ssl_earliest_cert_expiry`） |
+| `blackbox_http` | `https://{grafana,prometheus,alertmanager,pve,home,ha,n8n,rss,adguard,code,cloudcli,omada}.lab.kanare.dev` | DNS -> Caddy -> バックエンドの全経路。証明書の検証と期限（`probe_ssl_earliest_cert_expiry`） |
 | `blackbox_icmp` | `10.77.20.1`（ルーター）、`172.22.0.1`（建物の共用ルーター）、`1.1.1.1`、`8.8.8.8` | 30 秒毎の ping。どこまで届くか（疎通）と遅延（RTT）、パケットロス。回線断・建物側の遅延の切り分けに使う |
 | `blackbox_dns` | `10.77.20.10:53`（AdGuard） | `dns-lab`: `grafana.lab.kanare.dev` の A レコード（CoreDNS まで）。`dns-external`: `cloudflare.com`（Unbound まで） |
 
