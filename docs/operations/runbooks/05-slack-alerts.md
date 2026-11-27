@@ -17,7 +17,7 @@ pve (pve-storage-metrics.timer, 1分毎)
 
 ## Webhook URL の登録
 
-1. Slack で App を作成し、Incoming Webhooks を有効化して、チャンネルごとに Webhook URL を発行する。critical 用、warning 用、室内環境用の 3 チャンネルが要る。
+1. Slack で App を作成し、Incoming Webhooks を有効化して、チャンネルごとに Webhook URL を発行する。critical 用、warning 用、室内環境用（`#room-environment`）の 3 チャンネルが要る。App は 1 つ（`homelab-alertmanager`）にまとめ、チャンネルを足すときは、同じ App の「Incoming Webhooks」で「Add New Webhook」を押して Webhook を足す。既存の Webhook URL は変わらない。
 2. SOPS で登録する（URL は Git に平文で置かない。値はチャットに貼らない）。
 
    ```bash

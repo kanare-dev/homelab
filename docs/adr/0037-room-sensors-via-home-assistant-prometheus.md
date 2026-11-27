@@ -1,6 +1,6 @@
 # 0037. 室内の温度・湿度は Home Assistant の Prometheus 連携で集め、既存の Alertmanager から通知する
 
-- ステータス: 採用（実機への適用は未確認）
+- ステータス: 採用（2026-11-27 に適用）
 - 日付: 2026-11-27
 
 ## 背景
@@ -48,6 +48,6 @@ Grafana には、ESP32 の温湿度のダッシュボード（`esp32-environment
 - `make setup-monitoring` で、Prometheus のジョブ、ルール、ダッシュボード、トークンを反映し、ESP32 のダッシュボードを消す。
 - `TargetDown` から `job="homeassistant"` を除く。HA の scrape の失敗は VM の停止ではなく、critical にすると、同じ `host`（`vm-apps`）の外形監視まで抑制してしまうためである。
 - SwitchBot Cloud のポーリングに頼るので、値は数分おきにしか変わらない。湿度の監視には十分だが、秒単位の変化は見られない。
-- 実機に適用し、値が Prometheus に入ることを確かめたら、このステータスを「採用（適用した日付）」にする。
+- （追記 2026-11-27）実機に適用した。メトリクス名は想定どおり（`homeassistant_sensor_humidity_percent`、`homeassistant_sensor_temperature_celsius`、`homeassistant_entity_available`）で、`entity` ラベルにエンティティ ID が入っていた。
 
 詳細: [監視・アラート](../architecture/lld/platform/monitoring.md#室内の温度湿度)、[Home Assistant](../architecture/lld/apps/home-assistant.md#監視)
