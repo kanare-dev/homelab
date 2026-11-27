@@ -70,7 +70,6 @@
   - 案 C: `for` を 3 分から 5 分に延ばす。Unbound の本当の障害に気づくのが常に 2 分遅れるので、勧めない。
   - 今は変更しない理由: 減らせる通知は月 1〜2 回の warning で、すぐ resolved になる。移行作業の最中の発報は、外向きの DNS が影響を受けたことを知らせており、役に立っていた。ルールに条件を足すと、あとで読むときに「なぜ鳴らなかったか」を追う手間が増える。
   - 再検討する条件: 瞬断による発報が週に何度も届くようになったら案 A を、パケットロスによる重複した通知が気になったら案 B を検討する。採用を決めたら、[監視・アラート](../../architecture/lld/platform/monitoring.md)と `docker/compose/monitoring/` のルールを同じ変更で直す。
-- [ ] **採用（未着手）**: AdGuard Home の `AdGuardHome.yaml` 全体を、Ansible のテンプレートにする（[ADR-0040](../../adr/0040-config-source-of-truth-by-location.md)）。今の画面の値を取り込み、置き換えても設定が変わらないことを確かめる。パスワードのハッシュなどは SOPS に入れる。
 - [ ] **検討中**: 詳細設計書を整備し、「文書が先」の運用にする（2026-11-20、運用者の希望）。**運用の分け方と構成図の運用は、採用し、`CLAUDE.md` に反映した（2026-11-20）。設定値の正を置き場所で決める方針（コードはコード、画面だけのものは文書。Tailscale と AdGuard Home はコードに移す）は、採用した（2026-11-27、[ADR-0040](../../adr/0040-config-source-of-truth-by-location.md)）。抽出スクリプト、詳細設計書の置き場所、差分の検査は、未決定**。
   - やりたいこと: (1) Omada、Tailscale、AdGuard Home などの設定値を、詳細設計書として文書にする。(2) 構成を変えるときは、文書を更新してから変える。(3) Omada のバックアップファイルから、スクリプトで設定値を抽出して、詳細設計書を作れないか。
   - 今ある文書: 機器の設定値は `docs/architecture/lld/network/` と `docs/architecture/lld/platform/` の各文書、Omada は [Omada コントローラー](../../architecture/lld/network/omada-controller.md)、DNS と Tailscale は [DNS 構成](../../architecture/lld/network/dns.md)。今の決まり（`CLAUDE.md`）は、「設定を変えたら、**同じ変更で**文書を更新する」。足りないのは、(a) 全項目をそろえること、(b) 実機との**差分の検査**、(c) 「先に書く」変更の線引き。

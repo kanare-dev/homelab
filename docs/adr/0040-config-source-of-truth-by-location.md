@@ -1,6 +1,6 @@
 # 0040. 設定値の正は置き場所で決め、Tailscale と AdGuard Home の設定はコードに移す
 
-- ステータス: 採用（Tailscale は 2026-11-27 に適用。AdGuard Home は未適用）
+- ステータス: 採用（Tailscale は 2026-11-27、AdGuard Home は 2026-11-28 に適用）
 - 日付: 2026-11-27
 
 ## 背景
