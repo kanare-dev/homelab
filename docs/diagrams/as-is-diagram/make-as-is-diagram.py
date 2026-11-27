@@ -37,7 +37,7 @@ ICONS = HERE.parent / "assets/icons"
 LOGO = HERE.parents[2] / "assets/logo"  # リポジトリのロゴ（Git 管理）
 FONTS = HERE.parent / "fonts"
 CHROME = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
-W, H = 1720, 1690
+W, H = 1720, 1740
 
 # VLAN ごとの色（塗り, 線）。信頼度の高い VLAN10 から低い VLAN70 へ、色相環を紫→赤と一方向にたどる
 # （寒色は信頼できる側、暖色は信頼できない側）。明るさと彩度はそろえる。
@@ -260,7 +260,7 @@ def layout():
     text("WAN (DHCP)", 750, 128, 120, 24, align="right", cls="el")
 
     # LAN 全体の枠 ---------------------------------------------------------------------
-    frame(20, 170, 1680, 1400, "lan", to=back)
+    frame(20, 170, 1680, 1450, "lan", to=back)
     frame(40, 180, 200, 40, "lanlabel", to=back)
     text("<b>LAN</b><br>10.77.0.0/16", 40, 180, 200, 40, align="center")
 
@@ -301,7 +301,8 @@ def layout():
         ("docker", [("monitoring/grafana.svg", svc("Grafana", ":3000")),
                     ("monitoring/prometheus.png", svc("Prometheus", ":9090")),
                     ("monitoring/prometheus.png", svc("Alertmanager", ":9093")),
-                    ("monitoring/prometheus.png", svc("blackbox-exporter", ":9115"))]),
+                    ("monitoring/prometheus.png", svc("blackbox-exporter", ":9115")),
+                    ("network/adguard.png", svc("adguard-exporter", ":9618"))]),
         ("row", *NODE)])
     h_apps = vm(20, sx + 340, A + h_mon + 20, "vm-apps", "10.77.20.20", "Ubuntu Server 24.04", [
         ("docker", [("apps/homepage.png", svc("Homepage", ":3001")),
@@ -387,7 +388,7 @@ def layout():
     text("Used once an AP is added.<br>Client isolation, no access to the LAN", tx + 305, iy + 120, 255, 40)
 
     # 右下: homelab の横長のロゴ（LAN の枠の中の空き。421 × 124）
-    icon((str(LOGO / "logo-stack-light.svg"), str(LOGO / "logo-stack-dark.svg")), 1380, 1462, 300, 88)
+    icon((str(LOGO / "logo-stack-light.svg"), str(LOGO / "logo-stack-dark.svg")), 1380, 1512, 300, 88)
 
 
 mono_pair_dark = dark_pair
