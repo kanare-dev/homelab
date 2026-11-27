@@ -1,0 +1,47 @@
+# Tailscale の ACL のポリシー（tailscale/policy.hujson）を、tailnet に適用する（ADR-0040）。
+# pull_request では検査だけ（test）、main への push で適用する（apply）。
+# 認証はフェデレーテッド ID（GitHub の OIDC）。長期間有効な秘密の値は置かない。
+# Secrets: TS_OAUTH_ID（Client ID）、TS_AUDIENCE（Audience）、TS_TAILNET（tailnet の名前）
+name: tailscale-acl
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - tailscale/policy.hujson
+      - .github/workflows/tailscale.yml
+  pull_request:
+    branches: [main]
+    paths:
+      - tailscale/policy.hujson
+      - .github/workflows/tailscale.yml
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  acls:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Test ACL
+        if: github.event_name == 'pull_request'
+        uses: tailscale/gitops-acl-action@v1
+        with:
+          oauth-client-id: ${{ secrets.TS_OAUTH_ID }}
+          audience: ${{ secrets.TS_AUDIENCE }}
+          tailnet: ${{ secrets.TS_TAILNET }}
+          policy-file: tailscale/policy.hujson
+          action: test
+
+      - name: Apply ACL
+        if: github.event_name == 'push'
+        uses: tailscale/gitops-acl-action@v1
+        with:
+          oauth-client-id: ${{ secrets.TS_OAUTH_ID }}
+          audience: ${{ secrets.TS_AUDIENCE }}
+          tailnet: ${{ secrets.TS_TAILNET }}
+          policy-file: tailscale/policy.hujson
+          action: apply

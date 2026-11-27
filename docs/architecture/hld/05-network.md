@@ -166,7 +166,7 @@ AirPlay も Google Cast も、機器の発見に mDNS を使う。mDNS の呼び
 | 入口 | `vm-infra` の Tailscale（subnet router）。`10.77.20.0/24`、`10.77.40.0/24` を広告 |
 | 名前解決 | split DNS で `lab.kanare.dev` を `vm-infra` に向ける |
 | 認証 | Tailscale のアカウント。`vm-infra` の key expiry は無効 |
-| 到達できる範囲 | 広告した Servers と Lab。Tailscale の ACL は既定で、絞り込みは未実施 |
+| 到達できる範囲 | 広告した Servers と Lab。Tailscale の ACL のポリシーは、リポジトリの `tailscale/policy.hujson` を GitOps で適用する（[ADR-0040](../../adr/0040-config-source-of-truth-by-location.md)）。中身は既定のままで、絞り込みは未実施 |
 | 秘密情報 | `tailscale_authkey`（SOPS 管理） |
 | 利用例 | スマホ・Mac から `https://home.lab.kanare.dev`、`vm-code` への SSH / mosh / CloudCLI / code-server |
 

@@ -1,0 +1,22 @@
+// Tailscale の ACL のポリシー（tailnet policy file）。
+// このファイルが正で、main に入ると GitHub Actions（.github/workflows/tailscale.yml）が
+// tailscale/gitops-acl-action で tailnet に適用する。管理画面では編集しない（ADR-0040）。
+// リポジトリは公開なので、メールアドレスを書かない。利用者は autogroup:、端末はタグで書く。
+// 詳細: docs/architecture/lld/network/dns.md の「Tailscale との連携」
+{
+	// 2026-11-27 時点は、Tailscale の既定のポリシーのまま（すべての通信を許可）。
+	// 絞り込みは、別の変更で行う（docs/operations/roadmap/01-backlog.md）。
+	"grants": [
+		{"src": ["*"], "dst": ["*"], "ip": ["*"]},
+	],
+
+	// Tailscale SSH は、利用者が自分の端末に入るときだけ、check モードで許可する（既定のまま）。
+	"ssh": [
+		{
+			"action": "check",
+			"src":    ["autogroup:member"],
+			"dst":    ["autogroup:self"],
+			"users":  ["autogroup:nonroot", "root"],
+		},
+	],
+}

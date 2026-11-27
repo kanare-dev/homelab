@@ -29,6 +29,8 @@ homelab/
 │   └── playbooks/
 ├── docker/
 │   └── compose/            # dns / freshrss / homeassistant / homepage / monitoring / n8n / omada / reverse-proxy
+├── tailscale/
+│   └── policy.hujson       # Tailscale の ACL のポリシー（GitOps で適用。ADR-0040）
 ├── tools/
 │   ├── acl-check.py        # ゲートウェイ ACL の許可と拒否を、実際の通信で確かめる（make acl-check）
 │   └── check-md-links.py   # Markdown の内部リンク検査
