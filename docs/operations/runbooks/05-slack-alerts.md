@@ -10,19 +10,21 @@ pve (pve-storage-metrics.timer, 1分毎)
   -> Prometheus (alerts.yml)  -> Alertmanager (:9093) -> Slack Incoming Webhook
                                                           critical: critical 用チャンネル（1 時間毎に再通知）
                                                           それ以外: warning 用チャンネル（24 時間毎に再通知）
+                                                          例外 channel="environment": 室内環境用チャンネル（湿度。24 時間毎に再通知）
 ```
 
-通知先は重要度で分ける。再通知の間隔など、詳細は [monitoring.md](../../architecture/lld/platform/monitoring.md#通知の挙動) にある。
+通知先は重要度で分ける。例外として、室内の湿度の通知（ラベル `channel="environment"`）は、室内環境用のチャンネルに送る。再通知の間隔など、詳細は [monitoring.md](../../architecture/lld/platform/monitoring.md#通知の挙動) にある。
 
 ## Webhook URL の登録
 
-1. Slack で App を作成し、Incoming Webhooks を有効化して、チャンネルごとに Webhook URL を発行する。critical 用と warning 用の 2 チャンネルが要る。
+1. Slack で App を作成し、Incoming Webhooks を有効化して、チャンネルごとに Webhook URL を発行する。critical 用、warning 用、室内環境用（`#room-environment`）の 3 チャンネルが要る。App は 1 つ（`homelab-alertmanager`）にまとめ、チャンネルを足すときは、同じ App の「Incoming Webhooks」で「Add New Webhook」を押して Webhook を足す。既存の Webhook URL は変わらない。
 2. SOPS で登録する（URL は Git に平文で置かない。値はチャットに貼らない）。
 
    ```bash
    sops ansible/inventory/group_vars/monitoring/secrets.sops.yml
    # 追記: slack_webhook_url: "https://hooks.slack.com/services/..."          （critical 用）
    # 追記: slack_webhook_url_warning: "https://hooks.slack.com/services/..."  （warning 用）
+   # 追記: slack_webhook_url_environment: "https://hooks.slack.com/services/..."  （室内環境用）
    ```
 
 3. デプロイする。
@@ -39,7 +41,7 @@ curl -XPOST https://alertmanager.lab.kanare.dev/api/v2/alerts -H 'Content-Type: 
   -d '[{"labels":{"alertname":"TestAlert","severity":"warning","instance":"manual"},"annotations":{"summary":"通知テスト"}}]'
 ```
 
-`severity` を `warning` にすると warning 用チャンネルへ、`critical` にすると critical 用チャンネルへ届く。両方で確認する。
+`severity` を `warning` にすると warning 用チャンネルへ、`critical` にすると critical 用チャンネルへ届く。ラベルに `"channel":"environment"` を足すと、室内環境用チャンネルへ届く。3 つとも確認する。
 
 ## 主なルール
 

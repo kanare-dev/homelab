@@ -12,6 +12,8 @@ homelab の監視とアラート通知の仕組み。2026-10-22 の障害（[INC
                                       │
  vm-infra / vm-apps / vm-dev / vm-code / vm-monitoring / vm-omada
   └─ node_exporter :9100 ─────────────┤
+ vm-apps の Home Assistant :8123      │
+  └─ /api/prometheus (60秒毎) ────────┤  SwitchBot Hub 2 の温度・湿度
                                       v
                        vm-monitoring (10.77.20.11)
                         Prometheus :9090  (15秒毎に scrape, alerts.yml を評価)
@@ -43,8 +45,11 @@ homelab の監視とアラート通知の仕組み。2026-10-22 の障害（[INC
 | Alertmanager | 通知のグルーピング・送信 | `docker/compose/monitoring/alertmanager/alertmanager.yml` |
 | 外部 Heartbeat | `Watchdog` を Healthchecks.io へ 5 分毎に送る。途絶えたら外部から通知（[ADR-0010](../../../adr/0010-external-heartbeat.md)） | `alertmanager.yml`（`heartbeat` receiver）、`ansible/playbooks/monitoring.yml` |
 | Heartbeat ping URL | 秘密情報 | `ansible/inventory/group_vars/monitoring/secrets.sops.yml`（`heartbeat_ping_url`、SOPS 暗号化） |
-| Slack Webhook URL（critical 用 / warning 用） | 秘密情報 | `ansible/inventory/group_vars/monitoring/secrets.sops.yml`（`slack_webhook_url` / `slack_webhook_url_warning`、SOPS 暗号化） |
+| Slack Webhook URL（critical 用 / warning 用 / 室内環境用） | 秘密情報 | `ansible/inventory/group_vars/monitoring/secrets.sops.yml`（`slack_webhook_url` / `slack_webhook_url_warning` / `slack_webhook_url_environment`、SOPS 暗号化） |
 | Grafana ダッシュボード「Internet Connectivity」 | ping の遅延（ルーター・建物の共用ルーター・インターネット）、疎通、通知しきい値 | `docker/compose/monitoring/grafana/dashboards/internet-connectivity.json`（`/d/homelab-internet-connectivity`） |
+| Home Assistant の Prometheus 連携 | SwitchBot Hub 2 の温度・湿度を `/api/prometheus` で出す（2 エンティティだけ）。Prometheus の `homeassistant` ジョブが 60 秒毎に取る（[ADR-0037](../../../adr/0037-room-sensors-via-home-assistant-prometheus.md)） | `docker/compose/homeassistant/config/configuration.yaml`、`prometheus.yml` |
+| Home Assistant のトークン | 秘密情報。HA の長期アクセストークン `prometheus` | `ansible/inventory/group_vars/monitoring/secrets.sops.yml`（`prometheus_ha_token`、SOPS 暗号化） |
+| Grafana ダッシュボード「Room Environment」 | 室内の温度・湿度の現在値と推移、湿度の通知しきい値 | `docker/compose/monitoring/grafana/dashboards/room-environment.json`（`/d/homelab-room-environment`） |
 | Grafana ダッシュボード「Storage / Thin Pool」 | pool とVM ディスク別の割当、増加ペース、VM 稼働状態 | `docker/compose/monitoring/grafana/dashboards/storage.json`（`/d/homelab-storage`） |
 | デプロイ | | `ansible/playbooks/monitoring.yml`（vm-monitoring）、`ansible/playbooks/proxmox.yml`（pve） |
 
@@ -61,7 +66,7 @@ homelab の監視とアラート通知の仕組み。2026-10-22 の障害（[INC
 | AlertmanagerNotificationsFailing | Alertmanager → Slack の送信失敗が 10 分間に増加 | 5m | warning | Webhook 失効や Slack 障害。**Slack には届かない**ため、Alertmanager / Prometheus の画面でのみ確認できる |
 | PveVmIoError | VM が `io-error` | 1m | critical | ストレージ枯渇による VM 一時停止 |
 | PveVmStopped | `onboot=1` の VM が running でない | 3m | critical | VM のシャットダウン・クラッシュ・手動停止（vm-infra / vm-apps / vm-monitoring / vm-code が対象） |
-| TargetDown | scrape 先が応答しない（vm-dev 除く） | 3m | critical | VM 内 OS の停止・node_exporter 停止・ネットワーク断 |
+| TargetDown | scrape 先が応答しない（vm-dev と `homeassistant` ジョブを除く） | 3m | critical | VM 内 OS の停止・node_exporter 停止・ネットワーク断 |
 | HostDiskUsageHigh / Critical | ファイルシステム > 80% / 90% | 10m / 5m | warning / critical | ゲスト・ホストのディスク逼迫 |
 | HostMemoryLow / Critical | 利用可能メモリ < 10% / 5%（`MemAvailable`） | 5m / 2m | warning / critical | OOM によるハングの予兆（vm-code で発生）。ホストと全 VM が対象 |
 | HostOomKilled | 10 分間に OOM killer が発動 | 0 | critical | OOM kill の発生。対象は `dmesg \| grep -i oom` で確認 |
@@ -78,6 +83,9 @@ homelab の監視とアラート通知の仕組み。2026-10-22 の障害（[INC
 | GatewayUnreachable | ルーター（`10.77.20.1`。Servers のゲートウェイ）に ping が通らない | 2m | critical | ルーターの停止、LAN の断、PVE の NIC 停止 |
 | InternetPacketLoss | `1.1.1.1` と `8.8.8.8` の**両方**で、パケットロスが 10 分間で 10% 超（ルーター自身に届かない間は評価しない） | 10m | warning | 回線の不安定（建物側の混雑など） |
 | InternetLatencyHigh | `1.1.1.1` への RTT（10 分平均）が 100ms 超かつ 7 日間の中央値の 3 倍超（平常値が溜まるまで評価しない） | 15m | warning | 回線・建物側のネットワークの遅延増加 |
+| RoomHumidityLow / High | 室内の湿度（SwitchBot Hub 2）が 35% 未満 / 70% 超。解消は 30 分待つ（`keep_firing_for`） | 1h | warning | 冬の乾燥 / 夏の結露・カビ。**室内環境用チャンネル**に送る |
+| RoomSensorUnavailable | HA で温度・湿度のエンティティが利用できない（`homeassistant_entity_available == 0`） | 30m | warning | SwitchBot Cloud の障害、統合のトークン失効、Hub 2 の電源断。この間、湿度のアラートは鳴らない |
+| RoomSensorMissing | 湿度のメトリクスが Prometheus に無い | 30m | warning | HA の停止、`/api/prometheus` のトークン失効、UFW。この間、湿度のアラートは鳴らない |
 | Watchdog | 常に firing | - | none | 通知経路の死活確認。Slack には送らず、Healthchecks.io へ 5 分毎に送る（途絶えたら外部から通知） |
 
 ### 外形監視（blackbox）
@@ -96,6 +104,30 @@ homelab の監視とアラート通知の仕組み。2026-10-22 の障害（[INC
 - `DnsProbeFailed` の発報中は、名前解決に依存する `ServiceProbeFailed` も抑制する。通知が大量に出るのを防ぐ。
 - ターゲットを増やすときは、`prometheus.yml` の `blackbox_http` に URL と `host` / `service` ラベルを追加する。
 - プローブ元は vm-monitoring なので、**vm-monitoring や PVE ホストの停止は検知できない**（下記「限界」と同じ）。
+
+### 室内の温度・湿度
+
+SwitchBot Hub 2 の温度と湿度を、Home Assistant 経由で Prometheus に集め、湿度の異常を Slack に通知する。判断は [ADR-0037](../../../adr/0037-room-sensors-via-home-assistant-prometheus.md)。
+
+```text
+SwitchBot Hub 2 ─> SwitchBot Cloud <─(ポーリング)─ Home Assistant（vm-apps :8123）
+                                                    │ /api/prometheus（トークン prometheus）
+                                                    v
+                                     Prometheus（vm-monitoring。60 秒毎）─> Alertmanager ─> Slack（室内環境用）
+                                                    │
+                                                    └─> Grafana「Room Environment」
+```
+
+- **値の取り方**: Home Assistant の Prometheus 連携（`configuration.yaml` の `prometheus:`）が、`include_entities` に書いた 2 つのエンティティだけを出す。メトリクスは `homeassistant_sensor_humidity_percent` と `homeassistant_sensor_temperature_celsius` で、`entity` ラベルにエンティティ ID が入る。
+- **接続**: Prometheus は、Caddy を通さずに `10.77.20.20:8123` を直接 scrape する。`vm-infra` が止まっても、値は途絶えない。`vm-apps` の UFW で、8123 を `vm-monitoring`（`10.77.20.11`）にも許可している。
+- **認証**: `/api/prometheus` には、Home Assistant の長期アクセストークン（`prometheus`）が要る。Ansible が SOPS の `prometheus_ha_token` を `/opt/monitoring/prometheus/ha_token` に置き、Prometheus が `credentials_file` で読む。トークンは、HA のプロフィール画面（セキュリティ）で作る。HA のユーザーを作り直すと失われるので、そのときは作り直して `sops` で差し替える。
+- **通知**: 湿度が 35% 未満（乾燥）、または 70% 超（結露・カビ）の状態が 1 時間続くと、warning として通知する。換気や入浴による一時的な変化では鳴らない。しきい値の前後を値が行き来しても、発報と解消が何度も届かないよう、解消の判定を 30 分待つ（`keep_firing_for: 30m`）。温度は通知しない。しきい値は `alerts.yml` の `room-environment` グループで変える。
+- **通知先**: 湿度の通知は、homelab の障害ではなく、加湿・除湿をするための生活の通知である。homelab の warning に混ぜると、冬は毎日届いてインフラの通知が埋もれるので、ラベル `channel: environment` を付けて、室内環境用のチャンネル（receiver `slack-environment`）に送る。一方、センサーの欠測（`RoomSensorUnavailable` / `RoomSensorMissing`）は、HA やトークン、UFW など homelab の側で直すものなので、warning 用のチャンネルに送る。
+- **欠測**: 値が途絶えた間は、湿度のアラートが鳴らない。そこで、HA でエンティティが利用できない状態（`RoomSensorUnavailable`）と、Prometheus に値が無い状態（`RoomSensorMissing`）も、30 分続いたら通知する。
+- **`TargetDown` からの除外**: `homeassistant` ジョブは `TargetDown` の対象から外している。HA の scrape の失敗は VM の停止ではなく、critical にすると、同じ `host`（`vm-apps`）の外形監視（`ServiceProbeFailed`）まで抑制してしまうためである。失敗は `RoomSensorMissing` で通知される。
+- **限界**: HA は SwitchBot Cloud をポーリングして値を更新するので、値は数分おきにしか変わらない。SwitchBot Cloud が止まると値が取れない（`RoomSensorUnavailable`）。
+- **センサーを足すとき**: `configuration.yaml` の `include_entities` にエンティティを足し、必要なら `alerts.yml` とダッシュボードにも足す（将来の CO2 など）。
+- **ESP32 のダッシュボード**: 以前は、別のリポジトリ（`iot-env-monitor`）の ESP32 用ダッシュボードを置いていたが、ESP32 を止めて表示するものが無かったので、2026-11-27 に「Room Environment」に置き換えた。`monitoring.yml` が `esp32-environment.json` を消し、Grafana のプロビジョニングがダッシュボードを消す。
 
 ### 回線の疎通・遅延の監視
 
@@ -146,6 +178,7 @@ Ookla Speedtest は測定のたびに 30〜60 秒、回線を使い切る（1Gbp
   | --- | --- | --- |
   | critical | critical 用チャンネル（receiver `slack-critical`） | 1 時間毎 |
   | それ以外（warning など） | warning 用チャンネル（receiver `slack-warning`） | 24 時間毎 |
+  | 例外: ラベル `channel="environment"`（室内の湿度） | 室内環境用チャンネル（receiver `slack-environment`） | 24 時間毎 |
 
   過剰割当の解消待ちのように、すぐには直せない warning が続いても、再通知は 1 日 1 通で、critical のチャンネルには出ない。Slack のスレッドにまとめることは、Alertmanager 標準の Slack 通知が対応していないため見送った（自作の中継が要り、保守が重い）。
 - 解消時は `[RESOLVED]` を送る。
@@ -158,6 +191,7 @@ Ookla Speedtest は測定のたびに 30〜60 秒、回線を使い切る（1Gbp
 | 対象 | 上限 | 設定場所 |
 | --- | --- | --- |
 | Prometheus TSDB | 30 日 または 5GB | `docker/compose/monitoring/docker-compose.yml`（5GB は暫定値。実測で調整） |
+| homeassistant（センサー） | 2 エンティティ × 60 秒毎。Prometheus のデータ増加は数系列で軽微（TSDB の上限に含まれる） | `prometheus.yml`（`homeassistant` ジョブ）、`configuration.yaml`（`include_entities`） |
 | blackbox_icmp | 4 宛先 × 30 秒毎の ping。通信量はほぼゼロ。Prometheus のデータ増加は 10 系列程度（TSDB の上限に含まれる） | `prometheus.yml`（`blackbox_icmp` ジョブ） |
 | blackbox-exporter | Prometheus のデータ増加は 10 系列 × 数メトリクス程度で軽微（TSDB の上限に含まれる） | `prometheus.yml`（`scrape_interval: 30s`） |
 | Docker コンテナログ（monitoring / dns / reverse-proxy / homepage / homeassistant / n8n / freshrss） | 10MB × 3 ファイル | 各 `docker-compose.yml` の `x-logging` |
@@ -179,6 +213,7 @@ Ookla Speedtest は測定のたびに 30〜60 秒、回線を使い切る（1Gbp
 | 2026-10-25 | 外部 Heartbeat の導入。vm-monitoring の `alertmanager` コンテナを 23:39:05 に `docker stop`（実機テスト） | 23:46 に Healthchecks.io から DOWN が Slack とメールの両方に届いた。23:51:19 に起動し、23:52 に UP が両方に届いた（ユーザー確認）。停止から DOWN までは約 7 分（最後の ping が停止の最大 5 分前なので、Period + Grace の 10 分より短い） |
 | 2026-10-24 | 外形監視の導入。vm-apps の `homepage` コンテナを `docker stop`（実機テスト） | 約 3.5 分後に `ServiceProbeFailed`（`https://home.lab.kanare.dev`）が Alertmanager で firing。起動後 1 分以内に解消。初回デプロイ時は vm-monitoring の DNS（ルーター）が `lab.kanare.dev` を引けず全 HTTPS が失敗したため、コンテナの `dns:` を AdGuard に指定して解決。Slack 画面の確認は未実施 |
 | 2026-11-01 | 回線の疎通・遅延の監視（ICMP）を vm-monitoring にデプロイ（`make setup-monitoring`）。read-only の API で確認 | `blackbox_icmp` の 4 宛先すべてで `probe_success=1`。RTT は ルーター 1.0ms、建物の共用ルーター 2.1ms、8.8.8.8 が 7.8ms、1.1.1.1 が 10.7ms。`NET_RAW` の追加なしで ICMP が通った。発報中のアラートは `Watchdog` のみ。**回線断の実機テスト（`InternetDown` の発報）と Slack 画面の確認は未実施** |
+| 2026-11-27 | 室内の温度・湿度の監視を反映した（`make setup-apps`、`make setup-monitoring`）。read-only の API と、`channel="environment"` を付けた `TestAlert` で確認 | `homeassistant` ジョブは `up`。メトリクス名は想定どおりで、温度 23℃、湿度 40%。`room-environment` グループの 4 ルールは読み込まれ、すべて inactive。Grafana から ESP32 のダッシュボードが消え、「Room Environment」が追加された。`TestAlert` は Slack への送信に成功した（`alertmanager_notifications_total` が 1、失敗 0）。Prometheus の再起動直後は、最初の scrape まで `RoomSensorMissing` が pending になり、値が入ると解消した（`for: 30m` 内なので通知は出ない）。`#room-environment` に `TestAlert` が届いたことを、Slack の画面で確認した（ユーザー確認） |
 
 VM 停止の検知は、`TargetDown`（VM 内 OS の応答なし）が 3 分、`PveVmStopped`（PVE が見ている状態）が 3 分の待ち時間に、スクレイプ間隔と評価間隔が加わって、約 4 分で通知される。
 
@@ -292,6 +327,7 @@ curl -XPOST https://alertmanager.lab.kanare.dev/api/v2/alerts -H 'Content-Type: 
 | 見たいもの | 場所 |
 | --- | --- |
 | thin pool の推移・VM ディスク別の割当 | Grafana `https://grafana.lab.kanare.dev/d/homelab-storage/storage-thin-pool` |
+| 室内の温度・湿度 | Grafana `https://grafana.lab.kanare.dev/d/homelab-room-environment` |
 | 発報中のアラート | `https://alertmanager.lab.kanare.dev` / `https://prometheus.lab.kanare.dev/alerts` |
 | ルールの状態 | `https://prometheus.lab.kanare.dev/rules` |
 | 外形監視の結果（HTTP / DNS） | `https://prometheus.lab.kanare.dev/targets`（`blackbox_*`）、または Prometheus で `probe_success` を検索 |
@@ -302,7 +338,7 @@ curl -XPOST https://alertmanager.lab.kanare.dev/api/v2/alerts -H 'Content-Type: 
 
 ### Webhook URL の再発行・変更
 
-Slack App の「Incoming Webhooks」で再発行し、`sops ansible/inventory/group_vars/monitoring/secrets.sops.yml` で `slack_webhook_url`（critical 用）または `slack_webhook_url_warning`（warning 用）を更新して `monitoring.yml` を再実行する。漏えいが疑われる場合は Slack 側で旧 URL を先に削除する。
+Slack App の「Incoming Webhooks」で再発行し、`sops ansible/inventory/group_vars/monitoring/secrets.sops.yml` で `slack_webhook_url`（critical 用）、`slack_webhook_url_warning`（warning 用）、または `slack_webhook_url_environment`（室内環境用）を更新して `monitoring.yml` を再実行する。漏えいが疑われる場合は Slack 側で旧 URL を先に削除する。
 
 ## アラート発報時の対応
 
@@ -318,6 +354,9 @@ Slack App の「Incoming Webhooks」で再発行し、`sops ansible/inventory/gr
 | TlsCertExpiring* | vm-infra で `docker logs caddy` を確認する。Cloudflare API トークンの失効が典型。[reverse-proxy-tls.md](../network/reverse-proxy-tls.md) 参照 |
 | BlackboxProbeMissing | vm-monitoring で `docker logs blackbox-exporter`、`docker compose ps` を確認する |
 | HostDiskUsage* | `du -xh --max-depth=2 /`、`docker system df` |
+| RoomHumidityLow / High | 室内の湿度の異常。加湿・除湿・換気する。Grafana「Room Environment」で推移を見る |
+| RoomSensorUnavailable | HA の画面（設定 > デバイスとサービス）で SwitchBot Cloud の統合を確認する。Hub 2 の電源と Wi-Fi も確認する |
+| RoomSensorMissing | `https://prometheus.lab.kanare.dev/targets` で `homeassistant` ジョブを見る。401 ならトークン（`prometheus_ha_token`）、接続できなければ HA の停止か `vm-apps` の UFW |
 
 ## 関連
 

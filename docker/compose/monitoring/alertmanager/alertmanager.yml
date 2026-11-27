@@ -4,7 +4,9 @@ global:
 # 重要度ごとに通知先と再通知の間隔を一律に決める（アラート名では分けない）。
 #   critical      : slack-critical（critical 用チャンネル）、1 時間毎
 #   それ以外全部  : slack-warning（warning 用チャンネル）、24 時間毎
-# 慢性的な warning が何度再通知されても、critical のチャンネルは埋まらない
+# 慢性的な warning が何度再通知されても、critical のチャンネルは埋まらない。
+# 例外として、homelab の障害ではない生活の通知（室内の湿度）は、ラベル channel="environment" で
+# 室内環境用チャンネル（slack-environment）に送る。センサーの欠測は homelab の問題なので warning 用のまま
 route:
   receiver: slack-warning
   group_by: ["alertname", "instance"]
@@ -19,6 +21,9 @@ route:
       group_wait: 0s
       group_interval: 1m
       repeat_interval: 5m
+    - matchers:
+        - channel = "environment"
+      receiver: slack-environment
     - matchers:
         - severity = "critical"
       receiver: slack-critical
@@ -75,3 +80,9 @@ receivers:
       # 見た目は slack-critical と同じ。送り先（warning 用チャンネルの Webhook URL）だけ変える
       - <<: *slack_config
         api_url_file: /etc/alertmanager/slack_webhook_url_warning
+
+  - name: slack-environment
+    slack_configs:
+      # 室内環境用チャンネル（湿度の通知）。見た目は slack-critical と同じ
+      - <<: *slack_config
+        api_url_file: /etc/alertmanager/slack_webhook_url_environment

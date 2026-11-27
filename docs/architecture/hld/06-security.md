@@ -82,7 +82,7 @@ Terraform は Proxmox の API トークン（`terraform@pam!terraform-token`）�
 | --- | --- |
 | `vm-infra` | 22, 53（tcp/udp）, 80, 443, 51820/udp。9100 は `vm-monitoring` のみ、3000 は LAN と Docker ブリッジのみ |
 | `vm-monitoring` | 22。9100 は自分自身と Prometheus コンテナ（`172.16.0.0/12`）のみ。3000・9090・9093 は下の「Docker の公開ポート」 |
-| `vm-apps` | 22。9100 は `vm-monitoring` のみ。8123（Home Assistant）は `vm-infra`（Caddy）のみ。3001（Homepage）、5678（n8n）、8081（FreshRSS）は下の「Docker の公開ポート」 |
+| `vm-apps` | 22。9100 は `vm-monitoring` のみ。8123（Home Assistant）は `vm-infra`（Caddy）と `vm-monitoring`（Prometheus。センサーの値を取る）のみ。3001（Homepage）、5678（n8n）、8081（FreshRSS）は下の「Docker の公開ポート」 |
 | `vm-code` | 22。9100 は `vm-monitoring` のみ。8080（code-server）、3001（CloudCLI）、5173（開発用サーバ）、60000–61000/udp（mosh）は Trusted（`10.77.30.0/24`）と `vm-infra`（`10.77.20.10`。Tailscale 経由の接続の送信元）のみ |
 | `vm-dev` | 22。9100 は `vm-monitoring` のみ |
 
@@ -97,7 +97,7 @@ Docker の `ports:` で公開したポートへの通信は、NAT によって�
 | `vm-monitoring` | 3000（Grafana）、9090（Prometheus）、9093（Alertmanager） | `vm-infra`（Caddy）のみ |
 | `vm-apps` | 3001（Homepage）、5678（n8n）、8081（FreshRSS） | `vm-infra`（Caddy）のみ |
 
-- Home Assistant（8123）は host ネットワークで動くので、Docker の公開ポートには当たらない。この絞り込みは効かないため、UFW の受信ルールで `vm-infra` だけに許可している。
+- Home Assistant（8123）は host ネットワークで動くので、Docker の公開ポートには当たらない。この絞り込みは効かないため、UFW の受信ルールで `vm-infra` と `vm-monitoring` だけに許可している。
 - IP アドレスとポートを直接指定した接続（例: `http://10.77.20.11:9090`）は届かない。Mac からは、`https://<名前>.lab.kanare.dev` で開く。
 - `vm-infra` の 80 番と 443 番（Caddy）は、全サービスの入口なので、LAN に開けたままにしている。
 - 設定を確認するには、`ssh <vm> sudo iptables -S DOCKER-USER` を実行する。

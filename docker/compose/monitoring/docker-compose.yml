@@ -15,6 +15,7 @@ services:
     volumes:
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - ./prometheus/alerts.yml:/etc/prometheus/alerts.yml:ro
+      - ./prometheus/ha_token:/etc/prometheus/ha_token:ro
       - prometheus_data:/prometheus
     command:
       - "--config.file=/etc/prometheus/prometheus.yml"
@@ -36,6 +37,7 @@ services:
       - ./alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
       - ./alertmanager/slack_webhook_url:/etc/alertmanager/slack_webhook_url:ro
       - ./alertmanager/slack_webhook_url_warning:/etc/alertmanager/slack_webhook_url_warning:ro
+      - ./alertmanager/slack_webhook_url_environment:/etc/alertmanager/slack_webhook_url_environment:ro
       - ./alertmanager/heartbeat_ping_url:/etc/alertmanager/heartbeat_ping_url:ro
       - alertmanager_data:/alertmanager
     command:

@@ -5,6 +5,7 @@ ufw_allowed_ports:
   - { port: 22,   proto: tcp }
   - { port: 9100, proto: tcp, from: "10.77.20.11" }   # node_exporter (Prometheus on vm-monitoring)
   - { port: 8123, proto: tcp, from: "10.77.20.10" }   # Home Assistant（host ネットワーク。Docker の公開ポートではないので ufw で絞る。Caddy on vm-infra）
+  - { port: 8123, proto: tcp, from: "10.77.20.11" }   # Home Assistant の /api/prometheus（Prometheus on vm-monitoring）
 
 # Docker の公開ポートは UFW では絞れないので、roles/ufw_docker が DOCKER-USER で絞る
 docker_published_allow:

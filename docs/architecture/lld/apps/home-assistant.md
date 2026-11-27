@@ -20,7 +20,7 @@
 Mac / スマホ ─ HTTPS ─> Caddy（vm-infra :443） ─ HTTP ─> vm-apps :8123（Home Assistant）
 ```
 
-- `vm-apps` の 8123 は、`vm-infra`（Caddy）からだけ許可する（`group_vars/apps/vars.yml` の `ufw_allowed_ports`）。IP とポートの直打ち（`http://10.77.20.20:8123`）は届かない。
+- `vm-apps` の 8123 は、`vm-infra`（Caddy）と、`vm-monitoring`（Prometheus が `/api/prometheus` を取る。下の「監視」）からだけ許可する（`group_vars/apps/vars.yml` の `ufw_allowed_ports`）。Mac から IP とポートを直打ち（`http://10.77.20.20:8123`）しても届かない。
 - Home Assistant は host ネットワークで動くため、Docker の公開ポートではない。`ufw_docker` ロールの `DOCKER-USER` による絞り込みは効かず、**UFW の受信ルールで絞る**。
 - Caddy 経由のリクエストを受けるには、Home Assistant に Caddy を信頼させる必要がある（次節）。
 - 外部には公開しない。外出先からは Tailscale 経由で使う（[ADR-0005](../../../adr/0005-tailscale-only-remote-access.md)）。
@@ -32,7 +32,7 @@ Mac / スマホ ─ HTTPS ─> Caddy（vm-infra :443） ─ HTTP ─> vm-apps :8
 
 | ファイル | 置き場所（Git） | 反映と更新 |
 | --- | --- | --- |
-| `configuration.yaml` | `docker/compose/homeassistant/config/` | Ansible が毎回上書きする。変更は Git で行う |
+| `configuration.yaml`（Prometheus 連携の `prometheus:` を含む） | `docker/compose/homeassistant/config/` | Ansible が毎回上書きする。変更は Git で行う |
 | `automations.yaml` / `scripts.yaml` / `scenes.yaml` | 同上 | **画面から編集される**ので、Ansible は無いときだけ作る。画面で変更したら `make ha-config-pull` で Git に取り込む |
 | `.storage/http`（HTTP の設定。Caddy を信頼する） | `docker/compose/homeassistant/storage/http` | 初期値。Ansible は無いときだけ置く |
 
@@ -78,6 +78,8 @@ Home Assistant 2026.10 以降、`http:` の設定は初回起動のときだけ 
 ## 監視
 
 - `blackbox_http` で `https://ha.lab.kanare.dev` を外形監視する（`service="homeassistant"`、`host="vm-apps"`）。失敗は `ServiceProbeFailed` で通知される（[監視・アラート](../platform/monitoring.md)）。
+- SwitchBot Hub 2 の温度と湿度を、組み込みの Prometheus 連携（`configuration.yaml` の `prometheus:`）で `/api/prometheus` に出す。出すのは `include_entities` に書いた 2 つのエンティティだけである。`vm-monitoring` の Prometheus が 60 秒毎に直接取り、湿度の異常を Slack に通知する。Grafana のダッシュボードは「Room Environment」である（[室内の温度・湿度](../platform/monitoring.md#室内の温度湿度)、[ADR-0037](../../../adr/0037-room-sensors-via-home-assistant-prometheus.md)）。
+- `/api/prometheus` の認証には、長期アクセストークン `prometheus` を使う。値は SOPS（`prometheus_ha_token`、`group_vars/monitoring/secrets.sops.yml`）に入れる。Homepage が使うトークン（`homepage`）とは分けてあるので、片方を失効させても、もう片方には影響しない。
 - Homepage に「Home」の Home Assistant タイルがある。
 - コンテナのログは 10MB × 3 ファイル（`docker-compose.yml` の `x-logging`）。履歴は HA の recorder が既定で 10 日分だけ残して削除する。
 
@@ -95,7 +97,9 @@ VM を作り直したとき、または `/opt/homeassistant` を失ったとき�
 1. `make setup-apps` を実行する。ディレクトリ、`configuration.yaml`、`.storage/http` の初期値、YAML の 3 ファイルが Git から置かれ、コンテナが起動する。
 2. `https://ha.lab.kanare.dev` を開き、ユーザーを作り直す（初期設定の画面）。
 3. 統合を追加し直す（SwitchBot Cloud、Spotify）。トークンは SwitchBot アプリと Spotify の開発者画面で再発行できる。
-4. ダッシュボードや機器・エンティティの名前は失われているので、必要なら設定し直す。
+   SwitchBot のエンティティ ID が変わったら、`configuration.yaml` の `include_entities`、`alerts.yml`、ダッシュボードも直す。
+4. 長期アクセストークン（`homepage`、`prometheus`）を作り直し、`sops` で `homepage_ha_token`（apps）と `prometheus_ha_token`（monitoring）を差し替えて、`make deploy-apps APP=homepage` と `make setup-monitoring` を実行する。
+5. ダッシュボードや機器・エンティティの名前は失われているので、必要なら設定し直す。
 
 失うもの: ユーザー、統合の登録、ダッシュボード、機器の名前、履歴。守れるもの: `configuration.yaml` とオートメーション・スクリプト・シーン（最後に `make ha-config-pull` した時点まで）。
 

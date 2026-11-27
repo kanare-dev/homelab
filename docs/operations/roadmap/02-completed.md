@@ -17,6 +17,7 @@
 
 - [x] `vm-infra` / `vm-monitoring` / `vm-dev` の構成を Terraform + Ansible で完全再現できるようにした
 - [x] DNS を、CoreDNS（`lab.kanare.dev` の権威 DNS）、AdGuard Home、Unbound の組み合わせで構成した（[DNS](../../architecture/lld/network/dns.md)）。
+- [x] Home Assistant の Prometheus 連携で SwitchBot Hub 2 の温度・湿度を Prometheus に集め、Grafana「Room Environment」で見られるようにし、湿度の異常（35% 未満・70% 超が 1 時間）を、homelab とは別の Slack チャンネルに通知するようにした。使われていなかった ESP32 のダッシュボードは消した（[ADR-0037](../../adr/0037-room-sensors-via-home-assistant-prometheus.md)、[監視・アラート](../../architecture/lld/platform/monitoring.md#室内の温度湿度)）。
 - [x] Caddy を Docker Compose で動かし、Cloudflare の DNS-01 チャレンジで Let's Encrypt の証明書を取得して、`pve.lab.kanare.dev` を公開した（[リバースプロキシと TLS](../../architecture/lld/network/reverse-proxy-tls.md)）。
 - [x] Tailscale を、`vm-infra` にサブネットルーターとして導入した。二重 NAT のため、WireGuard の代わりに使う（[ADR 0005](../../adr/0005-tailscale-only-remote-access.md)）。
 - [x] Authelia は導入しないことにした（[ADR 0008](../../adr/0008-no-authelia.md)）。認証のない画面が必要になったら、`basic_auth` を検討する。
