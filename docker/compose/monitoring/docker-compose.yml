@@ -87,6 +87,32 @@ services:
     networks:
       - monitoring
 
+  # Omada が管理する機器・ポート・クライアントの状態（docs/architecture/lld/platform/monitoring.md）。
+  # コードを読んだ版（v2.4.5）にダイジェストで固定する（ADR-0039）。
+  # /metrics には、端末の MAC アドレス・ホスト名・IP がラベルとして出るので、ポートは公開しない（Prometheus からだけ使う）
+  omada-exporter:
+    image: rcooler/omada_exporter:2.4.5@sha256:56dccab66967461c20f7bfd48c4c3f0106ff40c86bb3790ab79cbc9b409cd61b
+    container_name: omada-exporter
+    restart: unless-stopped
+    environment:
+      # 管理画面と同じく、Caddy 経由の HTTPS で読む（証明書は検証する）
+      - OMADA_HOST=https://omada.lab.kanare.dev
+      - OMADA_USER=exporter
+      - OMADA_SITE=kanare-homelab
+      # 機器の再起動などの操作は使わない（既定でも無効。MQTT も使わない）
+      - OMADA_ALLOW_DEVICE_CONTROL=false
+      - OMADA_MQTT_ENABLED=false
+    # OMADA_PASS・OMADA_CLIENT_ID・OMADA_SECRET_ID。exporter は環境変数でしか受け取れないので、
+    # Ansible が SOPS から 0600 のファイルに書く
+    env_file:
+      - ./omada-exporter/secrets.env
+    # ホストの DNS（ルーター）は lab.kanare.dev を引けない。blackbox-exporter と同じく AdGuard を使う
+    dns:
+      - 10.77.20.10
+    logging: *default-logging
+    networks:
+      - monitoring
+
   grafana:
     image: grafana/grafana:latest
     container_name: grafana

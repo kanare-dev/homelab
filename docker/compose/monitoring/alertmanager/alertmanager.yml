@@ -47,6 +47,16 @@ inhibit_rules:
       - alertname = "DnsProbeFailed"
     target_matchers:
       - alertname = "AdGuardExporterFailing"
+  # DNS が応答しない間と、コントローラーの画面が落ちている間は、Omada の状態が取れないことも通知しない（原因は同じ）
+  - source_matchers:
+      - alertname = "DnsProbeFailed"
+    target_matchers:
+      - alertname = "OmadaExporterFailing"
+  - source_matchers:
+      - alertname = "ServiceProbeFailed"
+      - service = "omada"
+    target_matchers:
+      - alertname = "OmadaExporterFailing"
   # 回線断の間は、外の名前解決・遅延・パケットロスが必ず失敗する。回線断の 1 通にまとめる
   - source_matchers:
       - alertname = "InternetDown"

@@ -124,6 +124,40 @@
         mode: "0400"
       no_log: true
 
+    - name: Fail early if Omada exporter credentials are not in secrets
+      ansible.builtin.assert:
+        that:
+          - omada_exporter_password is defined
+          - omada_exporter_password | length > 0
+          - omada_exporter_client_id is defined
+          - omada_exporter_client_id | length > 0
+          - omada_exporter_client_secret is defined
+          - omada_exporter_client_secret | length > 0
+        fail_msg: >-
+          omada_exporter_password・omada_exporter_client_id・omada_exporter_client_secret のどれかが未設定。
+          ansible/inventory/group_vars/monitoring/secrets.sops.yml に sops で追加すること
+          （docs/architecture/lld/platform/monitoring.md の「Omada の機器・クライアントの状態」参照）。
+
+    - name: Create omada-exporter directory
+      ansible.builtin.file:
+        path: /opt/monitoring/omada-exporter
+        state: directory
+        mode: "0755"
+
+    # exporter は環境変数でしか認証情報を受け取れない。compose の env_file は Docker（root）が読むので、
+    # root だけが読める 0600 にする（ADR-0039）
+    - name: Deploy Omada exporter credentials
+      ansible.builtin.copy:
+        content: |
+          OMADA_PASS={{ omada_exporter_password }}
+          OMADA_CLIENT_ID={{ omada_exporter_client_id }}
+          OMADA_SECRET_ID={{ omada_exporter_client_secret }}
+        dest: /opt/monitoring/omada-exporter/secrets.env
+        owner: root
+        group: root
+        mode: "0600"
+      no_log: true
+
     - name: Create blackbox config directory
       ansible.builtin.file:
         path: /opt/monitoring/blackbox
@@ -225,6 +259,16 @@
         dest: /opt/monitoring/grafana/provisioning/dashboards/json/adguard.json
         mode: "0644"
 
+    # Omada Overview から Device Details へは、uid でリンクしている。2 つとも置く
+    - name: Copy Omada dashboards
+      ansible.builtin.copy:
+        src: "{{ playbook_dir }}/../../docker/compose/monitoring/grafana/dashboards/{{ item }}"
+        dest: "/opt/monitoring/grafana/provisioning/dashboards/json/{{ item }}"
+        mode: "0644"
+      loop:
+        - omada-overview.json
+        - omada-device-details.json
+
     - name: Download Node Exporter Full dashboard
       ansible.builtin.get_url:
         url: https://grafana.com/api/dashboards/1860/revisions/latest/download
@@ -251,5 +295,6 @@
           - alertmanager
           - blackbox-exporter
           - adguard-exporter
+          - omada-exporter
           - grafana
         state: restarted

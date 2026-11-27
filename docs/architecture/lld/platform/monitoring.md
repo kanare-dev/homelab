@@ -27,6 +27,10 @@ homelab の監視とアラート通知の仕組み。2026-10-22 の障害（[INC
                               v
                         adguard-exporter :9618 (コンテナ内のみ)
                           └─ HTTPS: adguard.lab.kanare.dev (Caddy 経由で AdGuard の API。クエリ数・ブロック率・応答時間)
+                              │ /metrics (60秒毎)
+                              v
+                        omada-exporter :9202 (コンテナ内のみ)
+                          └─ HTTPS: omada.lab.kanare.dev (Caddy 経由で Omada の API。機器・ポート・クライアント・WAN)
                               │ 発報
                               v
                         Alertmanager :9093 ──> Slack Incoming Webhook (#homelab-alerts)
@@ -47,6 +51,9 @@ homelab の監視とアラート通知の仕組み。2026-10-22 の障害（[INC
 | adguard-exporter | AdGuard Home の統計（クエリ数、ブロック率、上流の応答時間、上位のクライアント・ドメイン）を出す。ポートは公開しない（[ADR-0038](../../../adr/0038-adguard-stats-via-adguard-exporter.md)） | `docker/compose/monitoring/docker-compose.yml`、`prometheus.yml`（`adguard` ジョブ） |
 | AdGuard の exporter 用パスワード | 秘密情報。AdGuard の `exporter` ユーザー | `ansible/inventory/group_vars/all/secrets.sops.yml`（`adguard_exporter_password`、SOPS 暗号化。`vm-infra` と `vm-monitoring` の両方が使う） |
 | Grafana ダッシュボード「AdGuard Home」 | 状態、ブロック率、処理時間、クエリ数の推移、上流ごとの応答時間、上位のクライアント・ドメイン | `docker/compose/monitoring/grafana/dashboards/adguard.json`（`/d/homelab-adguard`） |
+| omada-exporter | Omada が管理する機器（ER605・SG2210P）、ポート、クライアント、WAN の状態を出す。ポートは公開しない（[ADR-0039](../../../adr/0039-omada-metrics-via-omada-exporter.md)） | `docker/compose/monitoring/docker-compose.yml`、`prometheus.yml`（`omada` ジョブ） |
+| Omada の exporter 用の認証情報 | 秘密情報。Omada の `exporter` ユーザー（Viewer）のパスワードと、Open API のアプリ `exporter` の Client ID・シークレット | `ansible/inventory/group_vars/monitoring/secrets.sops.yml`（`omada_exporter_password`、`omada_exporter_client_id`、`omada_exporter_client_secret`、SOPS 暗号化） |
+| Grafana ダッシュボード「Omada Overview」「Omada Device Details」 | 機器のオンライン・オフライン、CPU・メモリ・温度、ポートのリンクと送受信量、PoE、クライアント数と上位のクライアント、WAN の状態と遅延。Overview の機器の行から Device Details に移れる | `docker/compose/monitoring/grafana/dashboards/omada-overview.json`（`/d/omada-overview`）、`omada-device-details.json`（`/d/omada-device-details`） |
 | Prometheus | 収集・ルール評価。`retention.time=30d`、`retention.size=5GB` | `docker/compose/monitoring/prometheus/prometheus.yml`、`docker-compose.yml` |
 | アラートルール | 発報条件 | `docker/compose/monitoring/prometheus/alerts.yml` |
 | Alertmanager | 通知のグルーピング・送信 | `docker/compose/monitoring/alertmanager/alertmanager.yml` |
@@ -73,7 +80,7 @@ homelab の監視とアラート通知の仕組み。2026-10-22 の障害（[INC
 | AlertmanagerNotificationsFailing | Alertmanager → Slack の送信失敗が 10 分間に増加 | 5m | warning | Webhook 失効や Slack 障害。**Slack には届かない**ため、Alertmanager / Prometheus の画面でのみ確認できる |
 | PveVmIoError | VM が `io-error` | 1m | critical | ストレージ枯渇による VM 一時停止 |
 | PveVmStopped | `onboot=1` の VM が running でない | 3m | critical | VM のシャットダウン・クラッシュ・手動停止（vm-infra / vm-apps / vm-monitoring / vm-code が対象） |
-| TargetDown | scrape 先が応答しない（vm-dev と、`homeassistant`・`adguard` ジョブを除く） | 3m | critical | VM 内 OS の停止・node_exporter 停止・ネットワーク断 |
+| TargetDown | scrape 先が応答しない（vm-dev と、`homeassistant`・`adguard`・`omada` ジョブを除く） | 3m | critical | VM 内 OS の停止・node_exporter 停止・ネットワーク断 |
 | HostDiskUsageHigh / Critical | ファイルシステム > 80% / 90% | 10m / 5m | warning / critical | ゲスト・ホストのディスク逼迫 |
 | HostMemoryLow / Critical | 利用可能メモリ < 10% / 5%（`MemAvailable`） | 5m / 2m | warning / critical | OOM によるハングの予兆（vm-code で発生）。ホストと全 VM が対象 |
 | HostOomKilled | 10 分間に OOM killer が発動 | 0 | critical | OOM kill の発生。対象は `dmesg \| grep -i oom` で確認 |
@@ -94,6 +101,7 @@ homelab の監視とアラート通知の仕組み。2026-10-22 の障害（[INC
 | RoomSensorUnavailable | HA で温度・湿度のエンティティが利用できない（`homeassistant_entity_available == 0`） | 30m | warning | SwitchBot Cloud の障害、統合のトークン失効、Hub 2 の電源断。この間、湿度のアラートは鳴らない |
 | RoomSensorMissing | 湿度のメトリクスが Prometheus に無い | 30m | warning | HA の停止、`/api/prometheus` のトークン失効、UFW。この間、湿度のアラートは鳴らない |
 | AdGuardExporterFailing | adguard-exporter が応答しない、または AdGuard の API を読めない（`adguard_scrape_errors_total` が増えている） | 15m | warning | exporter の停止、`exporter` ユーザーの認証の失敗、Caddy・AdGuard の停止。この間、AdGuard Home のダッシュボードは更新されない。`DnsProbeFailed` の発報中は抑制する |
+| OmadaExporterFailing | omada-exporter が応答しない、または Omada の API を読めない collector がある（`omada_collector_last_scrape_completed` が 0） | 15m | warning | exporter の停止、`exporter` ユーザーか Open API の認証の失敗、Caddy・コントローラーの停止。この間、Omada のダッシュボードは更新されない。`DnsProbeFailed` と、Omada の画面の `ServiceProbeFailed` の発報中は抑制する |
 | Watchdog | 常に firing | - | none | 通知経路の死活確認。Slack には送らず、Healthchecks.io へ 5 分毎に送る（途絶えたら外部から通知） |
 
 ### 外形監視（blackbox）
@@ -161,6 +169,30 @@ AdGuard Home（vm-infra :3000）<── Caddy（https://adguard.lab.kanare.dev�
 - **DHCP のパネル**: ダッシュボードには DHCP の状態とリースの表があるが、DHCP は Omada が配っているので、AdGuard の DHCP は無効で（`adguard_dhcp_enabled` が 0。2026-11-27 に確認）、表は空になる。
 - **ダッシュボード**: exporter に付属のダッシュボード（v1.2.3）を、データソースの変数（`ds`）と `uid` だけ直して置いている。
 
+### Omada の機器・クライアントの状態
+
+Omada コントローラーが管理する機器（ER605・SG2210P）、スイッチのポート、クライアント、WAN の状態を、Prometheus に集めて Grafana で見る。判断は [ADR-0039](../../../adr/0039-omada-metrics-via-omada-exporter.md)。
+
+```text
+Omada コントローラー（vm-omada :8043）<── Caddy（https://omada.lab.kanare.dev）
+                                        ^ Web API（exporter ユーザー）と Open API（Client Credentials）
+                                        │ scrape のたびに読む
+                   omada-exporter（vm-monitoring。コンテナ内のみ :9202）
+                                        ^ 60 秒毎
+                                        │
+                   Prometheus（job omada）─> Grafana「Omada Overview」「Omada Device Details」
+```
+
+- **exporter**: コミュニティ製の `RCooLeR/omada_exporter`（OmadaBridge）を使う。元の `charlie-haley/omada_exporter` は 2024 年 8 月から更新が止まっているので、続けて保守されている派生を選んだ。コードを読んで確かめた v2.4.5 に、ダイジェストで固定している。更新するときは、新しい版のコードの差分を読み、通信先が Omada コントローラーだけであることを確かめてから、`docker-compose.yml` のダイジェストを書き換える。
+- **接続**: exporter は、Omada の API を Caddy 経由の HTTPS で読む。証明書は検証する（`OMADA_INSECURE` は使わない）。`vm-omada` の UFW は、`:8043` を Caddy（`10.77.20.10`）にだけ開いているので、`vm-monitoring` から直接は読めず、変える必要も無い。コンテナの DNS は、blackbox-exporter と同じく AdGuard（`10.77.20.10`）を指定している。
+- **認証**: 2 種類の認証情報を使う。(1) Omada のユーザー `exporter`（Viewer ロール、サイト `kanare-homelab`）で Web API にログインし、機器・ポート・アラート・コントローラーの状態を読む。(2) Open API のアプリ `exporter`（Client Credentials モード、Viewer ロール）でトークンを取り、クライアント・WAN・ISP を読む。値は SOPS（`group_vars/monitoring`）の `omada_exporter_password`、`omada_exporter_client_id`、`omada_exporter_client_secret` で管理する。exporter は環境変数でしか受け取れないので、`vm-monitoring` の playbook が `/opt/monitoring/omada-exporter/secrets.env`（root だけが読める 0600）に書き、compose の `env_file` で渡す。値を変えるときは、`sops` で差し替えて `make setup-monitoring` を実行する。
+- **操作しない**: exporter には、MQTT 経由で機器を再起動したり PoE を入れ直したりする機能がある。この機能は、MQTT と `OMADA_ALLOW_DEVICE_CONTROL` の両方を有効にしないと動かない。どちらも無効にしており、ユーザーとアプリも Viewer なので、設定は変えられない。
+- **公開しない**: `/metrics` には、端末の MAC アドレス、ホスト名、IP がラベルとして出る。exporter のエンドポイントには認証が無いので、ホストにポートを公開せず、Prometheus と同じ Docker ネットワークの中だけで使う。
+- **取る値**: 機器の状態（CPU、メモリ、稼働時間、送受信、ファームウェアの更新の有無、ER605 の温度）、ポート（リンクの状態、速度、送受信量、PoE の電力）、クライアント（接続数と、端末ごとの送受信量）、WAN と ISP（状態、遅延、速さ）、コントローラー（稼働時間、更新の有無、アラートの件数）である。端末ごとのメトリクスは残しているが、系列の数や、ラベルに載る端末の情報を見て、あとで止める（`OMADA_TRACK_CLIENT_METRICS=false`）ことがある。
+- **コントローラーへの負荷**: exporter は、Prometheus に読まれるたびにコントローラーの API を呼ぶ（結果を 5 秒だけ覚える）。コントローラーはメモリに余裕が無い（[INC-2026-11-09](../../../operations/incidents/2026-11-09-omada-memory-exhaustion.md)）ので、scrape は 60 秒毎にしている。動作確認では、Omada のコンテナのメモリと CPU に、目に見える変化は無かった（下の「動作確認の記録」）。
+- **通知**: 機器のオフラインや使用量には、まだ通知を付けていない。実測を見てから決める。状態が取れないことだけを `OmadaExporterFailing` で知らせる。exporter の停止は VM の停止ではないので、`TargetDown` の対象から外している（`adguard` と同じ理由）。
+- **ダッシュボード**: exporter に付属のダッシュボード（v2.4.5 の `bridge/docs/dashboards/dashboard.json` と `omada-device-details.json`）を、そのまま置いている。Overview から Device Details へのリンクが `uid` を使うので、`uid` は元のまま（`omada-overview`、`omada-device-details`）にした。データソースは、ダッシュボードの変数で既定のもの（Prometheus）を選ぶ。VPN、無線（AP）、DPI のパネルは、今は該当する機器や設定が無いので、空になる。
+
 ### 回線の疎通・遅延の監視
 
 家のインターネット回線が落ちた時と、建物側のネットワークが遅くなった時に気づけるようにする。判断は [ADR 0018](../../../adr/0018-internet-speed-monitoring.md)。
@@ -226,6 +258,7 @@ Ookla Speedtest は測定のたびに 30〜60 秒、回線を使い切る（1Gbp
 | homeassistant（センサー） | 2 エンティティ × 60 秒毎。Prometheus のデータ増加は数系列で軽微（TSDB の上限に含まれる） | `prometheus.yml`（`homeassistant` ジョブ）、`configuration.yaml`（`include_entities`） |
 | blackbox_icmp | 4 宛先 × 30 秒毎の ping。通信量はほぼゼロ。Prometheus のデータ増加は 10 系列程度（TSDB の上限に含まれる） | `prometheus.yml`（`blackbox_icmp` ジョブ） |
 | adguard（AdGuard の統計） | 30 秒毎。系列は、クライアント・上流・応答の状態の組み合わせの数だけ増える（ヒストグラムを含む）。上位のドメインはドメイン名がラベルに入るので、入れ替わるたびに系列が増える。導入した直後（2026-11-27）は 858 系列（メトリクス名 73 種類）で、Prometheus 全体（8,449）の約 1 割だった。クエリログの内容で入れ替わるので、数日後にもう一度測る（TSDB の上限に含まれる） | `prometheus.yml`（`adguard` ジョブ）、`docker-compose.yml`（`INTERVAL=30s`） |
+| omada（Omada の機器・クライアントの状態） | 60 秒毎。系列は、機器・ポート・クライアントの数だけ増える。端末ごとのメトリクスは 1 台あたり 4 系列で、端末が増えたり入れ替わったりすると増える。動作確認（2026-11-27）では、`omada_*` が 183 系列（機器 2 台、ポート 16、有線の端末 14 台）だった（TSDB の上限に含まれる） | `prometheus.yml`（`omada` ジョブ）、`docker-compose.yml`（`OMADA_TRACK_CLIENT_METRICS` で端末ごとの値を止められる） |
 | blackbox-exporter | Prometheus のデータ増加は 10 系列 × 数メトリクス程度で軽微（TSDB の上限に含まれる） | `prometheus.yml`（`scrape_interval: 30s`） |
 | Docker コンテナログ（monitoring / dns / reverse-proxy / homepage / homeassistant / n8n / freshrss） | 10MB × 3 ファイル | 各 `docker-compose.yml` の `x-logging` |
 | Home Assistant の履歴（recorder） | 10 日（既定の `purge_keep_days`）。データベースは `/opt/homeassistant/config` | Home Assistant の既定値（変更していない） |
@@ -248,6 +281,8 @@ Ookla Speedtest は測定のたびに 30〜60 秒、回線を使い切る（1Gbp
 | 2026-11-01 | 回線の疎通・遅延の監視（ICMP）を vm-monitoring にデプロイ（`make setup-monitoring`）。read-only の API で確認 | `blackbox_icmp` の 4 宛先すべてで `probe_success=1`。RTT は ルーター 1.0ms、建物の共用ルーター 2.1ms、8.8.8.8 が 7.8ms、1.1.1.1 が 10.7ms。`NET_RAW` の追加なしで ICMP が通った。発報中のアラートは `Watchdog` のみ。**回線断の実機テスト（`InternetDown` の発報）と Slack 画面の確認は未実施** |
 | 2026-11-27 | 室内の温度・湿度の監視を反映した（`make setup-apps`、`make setup-monitoring`）。read-only の API と、`channel="environment"` を付けた `TestAlert` で確認 | `homeassistant` ジョブは `up`。メトリクス名は想定どおりで、温度 23℃、湿度 40%。`room-environment` グループの 4 ルールは読み込まれ、すべて inactive。Grafana から ESP32 のダッシュボードが消え、「Room Environment」が追加された。`TestAlert` は Slack への送信に成功した（`alertmanager_notifications_total` が 1、失敗 0）。Prometheus の再起動直後は、最初の scrape まで `RoomSensorMissing` が pending になり、値が入ると解消した（`for: 30m` 内なので通知は出ない）。`#room-environment` に `TestAlert` が届いたことを、Slack の画面で確認した（ユーザー確認） |
 | 2026-11-27 | AdGuard Home の統計を反映した（`make setup-infra`、`make setup-monitoring`）。read-only の API で確認 | `exporter` ユーザーで、`https://adguard.lab.kanare.dev/control/status` が 200（誤ったパスワードでは 401）。`setup-infra` の 2 回目の実行では、ユーザーのタスクは変化なしだった。`adguard` ジョブは `up`、`adguard_scrape_errors_total` は 0。クエリ数は約 10.6 万件、ブロック率は 6.1%、平均の処理時間は約 12ms。AdGuard の DHCP は無効（0）。系列は 858。exporter のポートはホストに公開されていない。`AdGuardExporterFailing` と `TargetDown` は出ていない。Grafana のプロビジョニングはエラーなしで終わった。**ダッシュボードの画面は、まだ見ていない** |
+| 2026-11-27 | Omada の exporter（v2.4.5）の動作確認。`vm-monitoring` で、一時的なコンテナとして起動し、Prometheus のコンテナから `/metrics` を 60 秒ごとに 7 回読んだ（本番の compose には入れていない。確認のあとで消した） | コントローラー 6.3.0.111 で、Web API と Open API の両方の認証が通った（Open API は、最初はアプリのモードを誤っていて `-44106` で失敗した）。7 つの collector はすべて成功し、panic は 0。`omada_*` は 183 系列で、7 回とも変わらなかった。1 回の読み取りは、機器が 0.18〜0.37 秒、クライアントが 0.04〜0.09 秒。Omada のコンテナは、メモリが 1.891 → 1.892GiB（上限 2.5GiB）、CPU が 0.7〜1.5% で、目に見える変化は無かった。exporter 自身のメモリは 8.5MiB。本番への反映は、下の行 |
+| 2026-11-27 | Omada の exporter を反映した（`make setup-monitoring`）。read-only の API で確認 | `secrets.env` は root だけが読める（0600）。exporter のポートはホストに公開されていない。`omada` ジョブは `up`、系列は 196、有線のクライアントは 14 台。起動した直後の 1 回目の scrape では、全 collector の `omada_collector_last_scrape_completed` が 0 で、`OmadaExporterFailing` が pending になった。2 回目以降は 7 つとも 1 になり、`for: 15m` の内に解けた（通知は出ていない）。Grafana に「Omada Overview」「Omada Device Details」が入った。Omada のコンテナのメモリは 1.894GiB で、反映の前（1.891GiB）とほとんど変わらない。exporter は 9.1MiB。**ダッシュボードの画面は、まだ見ていない** |
 
 VM 停止の検知は、`TargetDown`（VM 内 OS の応答なし）が 3 分、`PveVmStopped`（PVE が見ている状態）が 3 分の待ち時間に、スクレイプ間隔と評価間隔が加わって、約 4 分で通知される。
 
@@ -391,6 +426,7 @@ Slack App の「Incoming Webhooks」で再発行し、`sops ansible/inventory/gr
 | RoomHumidityLow / High | 室内の湿度の異常。加湿・除湿・換気する。Grafana「Room Environment」で推移を見る |
 | RoomSensorUnavailable | HA の画面（設定 > デバイスとサービス）で SwitchBot Cloud の統合を確認する。Hub 2 の電源と Wi-Fi も確認する |
 | AdGuardExporterFailing | `docker logs adguard-exporter` を見る。`401` なら `exporter` ユーザーのパスワード（`make setup-infra` で AdGuard に反映されているか）、接続できなければ `https://adguard.lab.kanare.dev` を開いて Caddy と AdGuard を確かめる |
+| OmadaExporterFailing | `docker logs omada-exporter` を見る。`-44106` なら Open API の Client ID・シークレット（アプリのモードが Client か）、ログインの失敗なら `exporter` ユーザーのパスワード、接続できなければ `https://omada.lab.kanare.dev` を開いて Caddy とコントローラーを確かめる |
 | RoomSensorMissing | `https://prometheus.lab.kanare.dev/targets` で `homeassistant` ジョブを見る。401 ならトークン（`prometheus_ha_token`）、接続できなければ HA の停止か `vm-apps` の UFW |
 
 ## 関連
