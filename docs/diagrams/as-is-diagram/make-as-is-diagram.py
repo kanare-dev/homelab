@@ -300,6 +300,7 @@ def layout():
     h_mon = vm(20, sx + 340, A, "vm-monitoring", "10.77.20.11", "Ubuntu Server 24.04", [
         ("docker", [("monitoring/grafana.svg", svc("Grafana", ":3000")),
                     ("monitoring/prometheus.png", svc("Prometheus", ":9090")),
+                    ("monitoring/prometheus.png", svc("Alertmanager", ":9093")),
                     ("monitoring/prometheus.png", svc("blackbox-exporter", ":9115"))]),
         ("row", *NODE)])
     h_apps = vm(20, sx + 340, A + h_mon + 20, "vm-apps", "10.77.20.20", "Ubuntu Server 24.04", [
