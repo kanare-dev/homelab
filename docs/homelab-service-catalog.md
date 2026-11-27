@@ -180,6 +180,7 @@
 | --- | --- | --- | --- |
 | 見送り | WireGuard | 軽量 VPN プロトコル | [ADR 0005](adr/0005-tailscale-only-remote-access.md) |
 | 導入済み | Tailscale | WireGuard ベースのメッシュ VPN | [ADR 0005](adr/0005-tailscale-only-remote-access.md) |
+| 計画中 | tailscale/gitops-acl-action | Tailscale の ACL のポリシー（tailnet policy file）を、リポジトリのファイルから GitHub Actions で適用する（公式） | [ADR 0040](adr/0040-config-source-of-truth-by-location.md)、[未着手の項目](operations/roadmap/01-backlog.md) |
 | 未検討 | OpenVPN | オープンソース VPN | — |
 
 ### 4.5 ネットワーク管理
