@@ -92,7 +92,7 @@ AirPlay も Google Cast も、機器の発見に mDNS を使う。mDNS の呼び
 
 ## 通信ポリシー
 
-ファイアウォールの許可表を示す。**この表は設計上の目標である。現在は ACL を全許可のまま運用しており、この表の内容への絞り込みは、まだ行っていない**（[ADR-0029](../../adr/0029-stage3-acl-allow-all-then-tighten.md)）。2026-11-26 に、段階 3b の完了後の構成（管理系は Management）と、実機の通信（各ホストの UFW、Caddy と Prometheus の転送先、Management のホストの DNS・NTP）に合わせて、表を見直した。ルールの名前と説明の付け方は、[ACL の名前と説明の付け方](../lld/network/acl.md)に書いている。
+ファイアウォールの許可表を示す。**2026-11-27 に、ゲートウェイの ACL を、この表の内容に絞った**（[手順書 27](../../operations/runbooks/27-network-acl-tighten.md#実施の記録)。それまでは、[ADR-0029](../../adr/0029-stage3-acl-allow-all-then-tighten.md) のとおり全許可だった）。DMZ への通信（Management・Servers・Trusted → DMZ）は、DMZ に何も置いていないので、ルールをまだ作っておらず、今は拒否になる。2026-11-26 に、段階 3b の完了後の構成（管理系は Management）と、実機の通信（各ホストの UFW、Caddy と Prometheus の転送先、Management のホストの DNS・NTP）に合わせて、表を見直した。ルールの名前と説明の付け方は、[ACL の名前と説明の付け方](../lld/network/acl.md)に書いている。
 
 表は、送信元から宛先への新規接続の可否を示す。戻りの通信（確立済み）は常に許可する。**表にない組み合わせは拒否**（デフォルト拒否）。ICMP（ping）も同じ扱いで、許可するのは Trusted からだけである。
 

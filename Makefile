@@ -90,6 +90,9 @@ md-lint: ## Lint Markdown style (markdownlint-cli2, needs npx)
 md-links: ## Check internal Markdown links and anchors
 	python3 tools/check-md-links.py
 
+acl-check: ## Check the gateway ACL with real traffic from the Mac (Trusted, Tailscale off) and each host
+	python3 tools/acl-check.py
+
 sops-encrypted-check: ## Verify SOPS files are encrypted without decrypting them
 	@status=0; for f in $$(git ls-files '*/*.sops.yml' '*/*.sops.yaml'); do \
 		grep -q '^sops:' "$$f" && echo "OK   $$f" || { echo "FAIL $$f (not encrypted)"; status=1; }; \

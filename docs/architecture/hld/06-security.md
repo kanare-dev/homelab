@@ -112,9 +112,9 @@ Proxmox ホスト（`pve01`）には、ホストのファイアウォールが�
 
 ### セグメンテーション
 
-ネットワークは、Management（`10.77.10.0/24`）、Servers（`10.77.20.0/24`）、Trusted（`10.77.30.0/24`）、Lab（`10.77.40.0/24`）などの VLAN に分けている。ただし ACL は全許可のままで、絞り込みは未実施である（[ADR-0029](../../adr/0029-stage3-acl-allow-all-then-tighten.md)）。IoT、ゲスト、管理機器を分離する設計は、[第5章 ネットワーク](05-network.md)にまとめており、ACL を絞るときに適用する。
+ネットワークは、Management（`10.77.10.0/24`）、Servers（`10.77.20.0/24`）、Trusted（`10.77.30.0/24`）、Lab（`10.77.40.0/24`）などの VLAN に分けている。VLAN の間の通信は、ゲートウェイ（ER605）の ACL で、[第5章 ネットワーク](05-network.md#通信ポリシー)の許可表のとおりに絞っている（2026-11-27 に適用。[手順書 27](../../operations/runbooks/27-network-acl-tighten.md)）。Lab、IoT、Guests、DMZ からは、`vm-infra` の DNS を除いて、他の VLAN に入れない。Management には、Trusted から管理用のポートだけ、Servers から Caddy と Prometheus だけが入れる。
 
-ACL を絞ったあとも、UFW は残す。ACL は、VLAN の境界（信用しない VLAN の隔離）と、UFW の無い Management を守る。ホストごとのポートの絞り込みは、UFW を正とする。同じ VLAN の中の通信と、Tailscale の subnet router を経由する通信は、ACL を通らないので、UFW だけが守る（[ADR-0034](../../adr/0034-acl-for-vlan-boundaries-ufw-for-ports.md)）。
+ACL を絞ったあとも、UFW は残している。ACL は、VLAN の境界（信用しない VLAN の隔離）と、UFW の無い Management を守る。ホストごとのポートの絞り込みは、UFW を正とする。同じ VLAN の中の通信と、Tailscale の subnet router を経由する通信は、ACL を通らないので、UFW だけが守る（[ADR-0034](../../adr/0034-acl-for-vlan-boundaries-ufw-for-ports.md)）。
 
 ## 監査・検知
 

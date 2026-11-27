@@ -265,7 +265,7 @@ def layout():
     text("<b>LAN</b><br>10.77.0.0/16", 40, 180, 200, 40, align="center")
 
     icon("hardware/tplink-er605.png", 789, 219, 182, 61, max_px=700)  # 実寸の幅の比（ER605 158mm : SG2210P 209mm ≒ 0.76）。下端は 280 のまま
-    text(f"<b>TP-Link ER605 V2</b><br>{name_ip('rtr01', '10.77.10.1')} (VLAN10)<br>Gateway for each VLAN ({ip('10.77.&lt;VLAN&gt;.1')}), DHCP, ACL (allow all)", 1010, 200, 420, 80)
+    text(f"<b>TP-Link ER605 V2</b><br>{name_ip('rtr01', '10.77.10.1')} (VLAN10)<br>Gateway for each VLAN ({ip('10.77.&lt;VLAN&gt;.1')}), DHCP, ACL", 1010, 200, 420, 80)
     edge([(880, 280), (880, 380)], width=5)  # p1: trunk（太い線）
     text("ER605 p2 ⇔ SG2210P p1: trunk (untagged: VLAN10 / tagged: VLAN20,30,40,50,60,70)", 890, 320, 700, 40, cls="el")
 

@@ -114,8 +114,9 @@ def build():
     legend = "".join(f'<span><i style="color:var(--{k})">{ICON[k]}</i>{t}</span>' for k, t in (
         (A, "Allow"), (L, "Only what is needed"), (D, "Deny"), (S, "Same VLAN (not via the ACL)")))
     notes = ("Rows are the source, columns the destination. Only new connections are shown; return traffic is always allowed.<br>"
-             "This is the target policy for the gateway ACL. Ports on each host are restricted by its own UFW, "
+             "Applied to the gateway ACL on 2026-11-27. Ports on each host are restricted by its own UFW, "
              "so Trusted &rarr; Servers / Lab is allowed per VLAN.<br>"
+             "The rules into the DMZ are not created yet (nothing is in the DMZ), so that traffic is denied for now.<br>"
              "Traffic inside a VLAN and traffic through the Tailscale subnet router does not pass the ACL.")
     body = (f'<div class="canvas"><div class="card"><h1>Inter-VLAN traffic matrix</h1>'
             f'<p class="sub">Gateway ACL (rtr01) &middot; source &darr; / destination &rarr;</p>'

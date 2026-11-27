@@ -369,7 +369,7 @@ ER605 と SG2210P は同時に購入済みで、すでに繋いである（ER605
 ### 3-D. 確認
 
 - [ ] 各 VLAN の DHCP と名前解決（`*.lab.kanare.dev`）（Trusted と Lab は確認した。2026-11-17。IoT・Guests は端末なし）
-- [ ] 各 VLAN から Servers への接続（許可表のとおり）と、拒否すべき通信が拒否されること（Trusted と Lab → Servers は確認した。拒否は、ACL を絞る日）
+- [x] 各 VLAN から Servers への接続（許可表のとおり）と、拒否すべき通信が拒否されること（Trusted と Lab → Servers は 2026-11-17 に確認した。拒否は、ACL を絞った 2026-11-27 に確認した。[手順書 27](../runbooks/27-network-acl-tighten.md#実施の記録)）
 - [x] Caddy 経由の各サービス、Omada・Proxmox の管理画面（2026-11-17）
 - [x] Prometheus の全ターゲット、アラート（`GatewayUnreachable` は新しい IP に直す）（2026-11-17。`vm-dev` は起動したとき `up` を確認）
 - [ ] 外出先から Tailscale 経由で `vm-code`・`vm-dev` に入れる

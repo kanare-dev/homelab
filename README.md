@@ -65,6 +65,15 @@
 
 ハードウェアは Lenovo ThinkCentre M70q Tiny（i5-10400T / 24GB RAM / 256GB NVMe）。メモリの配分は [性能・拡張性](docs/architecture/hld/04-performance.md) を参照。
 
+VLAN の間の通信は、ゲートウェイの ACL で、次のマトリクスのとおりに絞っている。詳しくは[ネットワーク](docs/architecture/hld/05-network.md#通信ポリシー)の通信ポリシーを参照。
+
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/diagrams/acl-matrix/acl-matrix-dark.png">
+    <img alt="VLAN 間の通信マトリクス" src="docs/diagrams/acl-matrix/acl-matrix.png" width="720">
+  </picture>
+</p>
+
 ## Screenshots
 
 | Proxmox VE — VM 稼働状況 | Grafana — Node Exporter ダッシュボード |

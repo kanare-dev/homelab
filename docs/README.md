@@ -30,6 +30,7 @@ homelab/
 ├── docker/
 │   └── compose/            # dns / freshrss / homeassistant / homepage / monitoring / n8n / omada / reverse-proxy
 ├── tools/
+│   ├── acl-check.py        # ゲートウェイ ACL の許可と拒否を、実際の通信で確かめる（make acl-check）
 │   └── check-md-links.py   # Markdown の内部リンク検査
 └── docs/
     ├── architecture/       # 設計書
