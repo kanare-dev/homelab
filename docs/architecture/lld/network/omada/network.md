@@ -33,7 +33,7 @@ LAN のネットワークは、VLAN ごとに 1 つ作っている。すべて E
 | IoT | 50 | `10.77.50.1/24` | 有効。`.100`〜`.149` | `10.77.20.10`（手動） | 1440（24 時間） |
 | Guests | 60 | `10.77.60.1/24` | 有効。`.100`〜`.199` | `10.77.20.10`（手動） | 240（4 時間） |
 | DMZ | 70 | `10.77.70.1/24` | 無効 | — | — |
-| Blackhole | 999 | `10.77.99.1/24` | 無効 | — | — |
+| Blackhole | 999 | `10.77.99.1/24` → **なし（未適用）** | 無効 | — | — |
 
 - **既定のネットワーク**は Management(Default)（`primary` が `true`）である。2026-11-20 に、既定のネットワーク（VLAN1）を VLAN10 に統合した（[ADR-0032](../../../../adr/0032-merge-default-network-into-management-vlan10.md)）。Management の DHCP は、復旧ポート（SG2210P の p8）に繋いだ端末のためにある。
 - **配る DNS**: Management は、ルーター自身（`10.77.10.1`）を配る。`vm-infra` が止まっても、管理系の名前解決を止めないためである。ほかの VLAN は、AdGuard（`10.77.20.10`）だけを配り、予備の DNS（`1.1.1.1` など）は配らない（[ADR-0024](../../../../adr/0024-dhcp-dns-single-no-fallback.md)、[ADR-0027](../../../../adr/0027-servers-octet-bands-and-emergency-dns.md)）。2 番目の DNS（`sndDns`）は空である。
@@ -41,7 +41,8 @@ LAN のネットワークは、VLAN ごとに 1 つ作っている。すべて E
 - 配るドメイン名（`domain`）は設定していない。固定の割り当て（予約）は無い（[送信](transmission.md)）。
 - すべてのネットワークで、IGMP スヌーピング、MLD スヌーピング、DHCP L2 リレー、DHCP ガード、ポータル、レート制限は無効、IPv6 は設定していない。
 - `accessControlRule`（そのネットワークがアクセス制御のルールで使われているか）は、Blackhole だけ `false` である。値の意味は、仕様書の「Show AccessControlRule is enabled or not」以上は分からない（未確認）。
-- **ずれ（2026-11-28 に発見）**: 以前の文書は、Blackhole を「ER605 のポートには割り当てない」と書いていた。実機では、Blackhole の `interfaceIds` に、ほかのネットワークと同じく ER605 の LAN 側のポート p2〜p5 が入っている。SG2210P の p1 は、タグ付きから Blackhole（999）を除いているので、VLAN 999 の通信は ER605 に届かない。通信への影響は無い見込みである。文書と実機のどちらに合わせるかは、未決定である。
+- **Blackhole（未適用。2026-11-28 に決定）**: Blackhole は、使わないポートのネイティブに割り当てる「どこにも繋がらない VLAN」である。そのため、ゲートウェイを持たない、スイッチだけの VLAN にする。画面（LAN を編集）では、「DHCPサーバーデバイス」を「無し」にし、「デバイスポートを選択」で `rtr01` のポート（WAN/LAN2、WAN/LAN3、LAN4、LAN5）の選択をすべて外す。`sw01` の選択は変えない。手順は [手順書 28](../../../../operations/runbooks/28-omada-align-to-target.md) にある。
+  - 今は、DHCPサーバーデバイスが `rtr01` で、ER605 に `10.77.99.1/24` のゲートウェイがあり、`interfaceIds` に ER605 の LAN 側のポート p2〜p5 が入っている（2026-11-28 に Open API で発見。それまでの文書は「ER605 のポートには割り当てない」と書いていた）。仕組みの上では、VLAN 999 から ER605 を通って外に出られる。今これが起きないのは、SG2210P の p1 が、タグ付きから 999 を除いているからで、守りが p1 の設定 1 つだけになっている。ゲートウェイを無くして、二重に守る。
 
 ## WLAN
 
@@ -56,7 +57,7 @@ LAN のネットワークは、VLAN ごとに 1 つ作っている。すべて E
 | `upnp.enable` | `false` | UPnP | 外に何も公開しない方針なので、無効のままにする（2026-11-27 に画面でも確認） |
 | `dns-proxy.enable` | `false` | DNS プロキシの拡張（DNSSEC、DoH、DoT、DNS の上書き） | 使わない。名前解決は AdGuard（`vm-infra`）で行う |
 | `ddns` | なし | ダイナミック DNS | 使わない |
-| `igmp.enable` / `igmp.version` | `true` / `2` | WAN 側の IGMP プロキシ（IPTV 向け）と、その版 | 既定。IPTV は使わない。有効になっているが、使う機器は無い（無効にするかは未決定） |
+| `igmp.enable` / `igmp.version` | `true` → **`false`（未適用）** / `2` | WAN 側の IGMP プロキシ（IPTV 向け）と、その版 | IPTV は使わないので、無効にする（2026-11-28 に決定）。今は、初期値のまま有効になっている |
 | `lan-multicasts` | なし | LAN のマルチキャストの設定 | 使わない |
 | mDNS の中継 | 下の注 | | |
 

@@ -40,9 +40,10 @@ IP-Port グループは、サブネット（CIDR）の一覧と、ポートの�
 | --- | --- | --- | --- | --- | --- |
 | `All` | 標準（0） | Management(Default) | すべて許可（0） | `false` | p1、p2、p5〜p10（VLAN は、ポート側の「VLAN設定」で決める。[SG2210P](device-sw01.md#ポート)） |
 | `Disable` | 標準（0） | なし | すべてブロック（1） | `false` | なし |
-| `Management` | 標準（0） | Management(Default) | すべてブロック（1） | `false` | なし |
+| `Management` | 標準（0） | Management(Default) | すべてブロック（1） | `false` | なし（既定のネットワークに付く標準のプロファイル。下の注） |
 | `access-trusted` | 自作（2） | Trusted | すべてブロック（1） | `true` | p3（Buffalo）、p4（ディスプレイ） |
 
 - 4 つとも、PoE は「変えない」（`poe` が `2`）、スパニングツリーは有効（`Disable` を除く）、ポートの分離は無効、LLDP-MED は有効、802.1X は自動（`dot1x` が `2`）である。
 - `access-trusted` は、2026-11-11 に作った。ネイティブを Trusted(30) にし、タグ付きのネットワークは通さない（access ポート）。ポート側の「VLAN設定」を「プロファイルに従う」にしないと、プロファイルを選んでもネイティブが変わらない（2026-11-17 に確認）。
-- **ずれ（2026-11-28 に発見）**: 以前の文書は、標準のプロファイルを「Disable・All・Default」と書いていた。実機には `Default` が無く、`Management` がある。既定のネットワーク `Default` を `Management(Default)` に統合したとき（2026-11-20）に、名前が変わったと見込む（未確認）。どのポートにも割り当てていないので、通信には影響しない。
+- `Management` は、既定のネットワークに付いて Omada が自動で作る標準のプロファイル（`flag` が `0`）である。ネイティブが既定のネットワークで、タグ付きのネットワークを通さない。既定のネットワークは、もとは `Default`（VLAN1）だったが、2026-11-20 に Management（VLAN10）に統合し、名前を `Management(Default)` にした（[ADR-0032](../../../../adr/0032-merge-default-network-into-management-vlan10.md)、[手順書 25](../../../../operations/runbooks/25-merge-default-network-into-vlan10.md)）。プロファイルの名前も、これに合わせて `Default` から `Management` に変わったと見込む（変わった時点は確かめていない）。標準のプロファイルなので、消したり名前を変えたりせず、このままにする。どのポートにも割り当てていない。
+- 2026-11-28 までの文書は、標準のプロファイルを「Disable・All・Default」と書いていた（統合の前の名前のまま。2026-11-28 に直した）。
