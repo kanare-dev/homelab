@@ -312,7 +312,7 @@ def layout():
 
     y = sy
     # Management
-    h = vm(10, rx + 20, y + 50, "vm-omada", "10.77.10.3", "Ubuntu Server 24.04", [("row", "network/omada-controller.png", "Omada Controller")])
+    h = vm(10, rx + 20, y + 50, "vm-omada", "10.77.10.3", "Ubuntu Server 24.04", [("docker", [("network/omada-controller.png", svc("Omada Controller", ":8043"))]), ("row", *NODE)])
     mgmt_h = 50 + h + 20
     zone(10, rx, y, 340, mgmt_h)
     text("<b>VLAN10 Management</b>", rx + 10, y + 5, 320, 30)
