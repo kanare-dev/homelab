@@ -42,6 +42,11 @@ inhibit_rules:
       - alertname = "DnsProbeFailed"
     target_matchers:
       - alertname = "ServiceProbeFailed"
+  # DNS が応答しない間は、AdGuard の統計が取れないことも通知しない（原因は同じ）
+  - source_matchers:
+      - alertname = "DnsProbeFailed"
+    target_matchers:
+      - alertname = "AdGuardExporterFailing"
   # 回線断の間は、外の名前解決・遅延・パケットロスが必ず失敗する。回線断の 1 通にまとめる
   - source_matchers:
       - alertname = "InternetDown"

@@ -43,6 +43,7 @@
 | [0035](0035-network-device-names-by-role.md) | ネットワーク機器のホスト名は、型番ではなく役割と番号で付ける | 採用 | 2026-11-27 |
 | [0036](0036-a-record-for-every-fixed-ip-host.md) | 固定 IP を持つホストには、すべてホスト名の A レコードを付ける | 採用 | 2026-11-27 |
 | [0037](0037-room-sensors-via-home-assistant-prometheus.md) | 室内の温度・湿度は Home Assistant の Prometheus 連携で集め、既存の Alertmanager から通知する | 採用 | 2026-11-27 |
+| [0038](0038-adguard-stats-via-adguard-exporter.md) | AdGuard Home の統計は adguard-exporter で集め、Caddy 経由の HTTPS で読む | 採用 | 2026-11-27 |
 
 ## 書き方
 

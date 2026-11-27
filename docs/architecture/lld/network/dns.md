@@ -27,6 +27,8 @@ AdGuard Home は、クライアントからの DNS クエリをすべて受け�
 
 - Web UI: <http://10.77.20.10:3000> と <https://adguard.lab.kanare.dev>
 - 設定ファイル: `/opt/dns/adguard/conf/AdGuardHome.yaml`
+- ユーザー: 運用者のユーザーと、統計を読む exporter 専用の `exporter`。`exporter` は、`playbooks/infra.yml` が SOPS の `adguard_exporter_password` から bcrypt のハッシュを作って書く。AdGuard には読み取り専用の権限が無いので、どちらも管理者である（[ADR-0038](../../../adr/0038-adguard-stats-via-adguard-exporter.md)）。
+- 統計: `vm-monitoring` の adguard-exporter が、Caddy 経由の HTTPS で API を読み、Grafana の「AdGuard Home」ダッシュボードに出す（[監視・アラート](../platform/monitoring.md#adguard-home-の統計)）。
 - fallback DNS: `1.1.1.1` と `9.9.9.9`。upstream（CoreDNS と Unbound）がすべて失敗したときだけ使う。2026-10-22 に、Unbound が約 3 分間応答せず、インターネット全体の名前解決が止まったので、追加した（`playbooks/infra.yml` で設定している）。
 
 ### CoreDNS
@@ -100,7 +102,7 @@ AdGuard の fallback DNS が使われるのは、upstream に**接続できな�
 
 全 VM のホスト DNS は、AdGuard ではなくルーター（各 VLAN のゲートウェイ。Servers は `10.77.20.1`、Lab は `10.77.40.1`）を指している。そのため VM 内のホストから `*.lab.kanare.dev` は引けない。AdGuard の障害時にも、Slack 通知・apt・`docker pull` が使えるようにするため。判断の記録: [ADR 0007](../../../adr/0007-vm-host-dns-is-router.md)。
 
-AdGuard を使いたいコンテナは `docker-compose.yml` の `dns:` で個別に指定する（例: blackbox-exporter、n8n、FreshRSS）。
+AdGuard を使いたいコンテナは `docker-compose.yml` の `dns:` で個別に指定する（例: blackbox-exporter、adguard-exporter、n8n、FreshRSS）。
 
 ## 管理画面（Omada コントローラー）
 
