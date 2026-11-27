@@ -34,12 +34,12 @@
 | [0026](0026-vmid-from-vlan-and-octet.md) | VMID は `VLAN ID × 100 + 第 4 オクテット` にし、付け替えは VM の作り直しに合わせる | 採用（未適用） | 2026-11-09 |
 | [0027](0027-servers-octet-bands-and-emergency-dns.md) | Servers の第 4 オクテットを役割の帯で分け、緊急用プールの DNS はルーターにする | 採用（未適用） | 2026-11-09 |
 | [0028](0028-defer-management-vlan10.md) | 段階 3 では管理系を今の LAN に残し、VLAN10 化は別の段階にする | 採用（未適用。段階 3b の順序は → 0031） | 2026-11-09 |
-| [0029](0029-stage3-acl-allow-all-then-tighten.md) | 段階 3 は ACL を全許可のまま切り替え、絞るのは別の日にする | 採用（未適用） | 2026-11-10 |
+| [0029](0029-stage3-acl-allow-all-then-tighten.md) | 段階 3 は ACL を全許可のまま切り替え、絞るのは別の日にする | 採用 | 2026-11-10 |
 | [0030](0030-stage3-no-rollback-deadline.md) | 段階 3 は戻す時刻を決めず、完了するまで作業する | 採用（未適用） | 2026-11-10 |
 | [0031](0031-stage3b-devices-before-controller.md) | 段階 3b は、機器を先に VLAN10 へ移し、そのあとコントローラーを移す | 採用（未適用） | 2026-11-19 |
 | [0032](0032-merge-default-network-into-management-vlan10.md) | 既定のネットワークを Management（VLAN10）に統合し、VLAN1 を使わない | 採用（実施済み） | 2026-11-19 |
 | [0033](0033-docs-first-by-change-type-and-diagram-order.md) | 文書の更新は、変更の種類で「先」か「同時」かを分け、構成図は to-be を先に、as-is は実機の変更ごとに更新する | 採用 | 2026-11-20 |
-| [0034](0034-acl-for-vlan-boundaries-ufw-for-ports.md) | ゲートウェイの ACL は VLAN の境界と UFW の無い宛先を守り、ポートの絞り込みは UFW を正とする | 採用（未適用） | 2026-11-26 |
+| [0034](0034-acl-for-vlan-boundaries-ufw-for-ports.md) | ゲートウェイの ACL は VLAN の境界と UFW の無い宛先を守り、ポートの絞り込みは UFW を正とする | 採用 | 2026-11-26 |
 | [0035](0035-network-device-names-by-role.md) | ネットワーク機器のホスト名は、型番ではなく役割と番号で付ける | 採用 | 2026-11-27 |
 | [0036](0036-a-record-for-every-fixed-ip-host.md) | 固定 IP を持つホストには、すべてホスト名の A レコードを付ける | 採用 | 2026-11-27 |
 | [0037](0037-room-sensors-via-home-assistant-prometheus.md) | 室内の温度・湿度は Home Assistant の Prometheus 連携で集め、既存の Alertmanager から通知する | 採用 | 2026-11-27 |

@@ -94,37 +94,39 @@ TP-Link ER605 V2。製品の仕様とファームウェアは[ER605 の資料](.
 | 70 | DMZ | `10.77.70.1/24` | なし |
 | 999 | Blackhole | `10.77.99.1/24` | なし（ER605 のポートには割り当てない。使わないポートの native） |
 
-### ゲートウェイの ACL（未適用）
+### ゲートウェイの ACL
 
-**この節の値は、ACL を絞る日に作る予定のもので、まだ作っていない**（2026-11-26 時点。今は全許可で、リハーサルの `rh-` のルール 7 件が無効のまま残っている）。方針は[通信ポリシー](../../hld/05-network.md#通信ポリシー)と [ADR-0034](../../../adr/0034-acl-for-vlan-boundaries-ufw-for-ports.md)、名前の付け方は [ACL の名前と説明の付け方](acl.md)、作る手順は[手順書 27](../../../operations/runbooks/27-network-acl-tighten.md)にある。画面の場所は、Settings > Network Security > ACL の「Gateway ACL」（LAN → LAN）である。
+**2026-11-27 に、この節の値で ACL を絞った**（[手順書 27](../../../operations/runbooks/27-network-acl-tighten.md#実施の記録)。それまでは全許可だった）。方針は[通信ポリシー](../../hld/05-network.md#通信ポリシー)と [ADR-0034](../../../adr/0034-acl-for-vlan-boundaries-ufw-for-ports.md)、名前の付け方は [ACL の名前と説明の付け方](acl.md)にある。画面の場所は、サイト > 構成 > ネットワーク設定 > セキュリティ > ACL の「ゲートウェイ ACL」（方向は LAN → LAN）である。リハーサルの `rh-` のルール 7 件は、同じ日に削除した。
 
-ルールから参照するグループを、先に作る（Settings > Profiles > Groups。6.3 のメニューの名前は未確認）。
+ルールから参照するグループを、先に作る（ルールの作成画面の「＋作成」からも作れる）。IP-Port グループは、サブネット（CIDR）の一覧と、ポートの一覧を別々に持ち、ポートはグループの全サブネットにかかる。範囲（`10.77.10.2-10.77.10.9`）は書けない。そのため、ホストごとにポートが違うものは、グループを分けた（許可の範囲は、分ける前の設計と同じ）。
 
-| グループ名 | 種類 | 中身 |
-| --- | --- | --- |
-| `grp-vm-infra` | IP グループ | `10.77.20.10/32` |
-| `grp-vm-monitoring` | IP グループ | `10.77.20.11/32` |
-| `grp-mgmt-caddy` | IP-Port グループ | `10.77.10.3/32` の 8043、`10.77.10.10/32` の 8006 |
-| `grp-mgmt-metrics` | IP-Port グループ | `10.77.10.3/32` と `10.77.10.10/32` の 9100 |
-| `grp-mgmt-admin` | IP-Port グループ | `10.77.10.10/32` の 8006 と 22、`10.77.10.3/32` の 22 |
-| `grp-mgmt-devices-web` | IP-Port グループ | `10.77.10.2`〜`10.77.10.9` の 80 と 443（範囲を書けなければ、`10.77.10.0/29` と `10.77.10.8/31`。[ACL の名前と説明の付け方](acl.md)） |
-| `grp-lab-access` | IP-Port グループ | `10.77.40.0/24` の 22、80、443 |
-| `grp-lab-mosh` | IP-Port グループ | `10.77.40.0/24` の 60000〜61000 |
-| `grp-lab-metrics` | IP-Port グループ | `10.77.40.0/24` の 9100 |
-| `grp-dns` | IP-Port グループ | `10.77.20.10/32` の 53 |
+| グループ名 | 種類 | サブネット | ポート |
+| --- | --- | --- | --- |
+| `grp-vm-infra` | IP グループ | `10.77.20.10/32` | — |
+| `grp-vm-monitoring` | IP グループ | `10.77.20.11/32` | — |
+| `grp-mgmt-omada-ui` | IP-Port グループ | `10.77.10.3/32` | 8043 |
+| `grp-mgmt-pve-ui` | IP-Port グループ | `10.77.10.10/32` | 8006 |
+| `grp-mgmt-metrics` | IP-Port グループ | `10.77.10.3/32`、`10.77.10.10/32` | 9100 |
+| `grp-mgmt-pve-admin` | IP-Port グループ | `10.77.10.10/32` | 8006、22 |
+| `grp-mgmt-omada-ssh` | IP-Port グループ | `10.77.10.3/32` | 22 |
+| `grp-mgmt-devices-web` | IP-Port グループ | `10.77.10.0/29`、`10.77.10.8/31`（機器の帯 `.2`〜`.9` を含む。[ACL の名前と説明の付け方](acl.md)） | 80、443 |
+| `grp-lab-access` | IP-Port グループ | `10.77.40.0/24` | 22、80、443 |
+| `grp-lab-mosh` | IP-Port グループ | `10.77.40.0/24` | 60000-61000 |
+| `grp-lab-metrics` | IP-Port グループ | `10.77.40.0/24` | 9100 |
+| `grp-dns` | IP-Port グループ | `10.77.20.10/32` | 53 |
 
-ルールは、上から順に評価される。表の順に作る。
+ルールは、上から順に評価される。表の順に作る。一覧に表示されるのは「説明」の欄なので、名前（`130-servers-to-mgmt-caddy` など）を説明の欄に入れた。1 件のルールの宛先には、グループを複数選べる。プロトコルも複数選べる（「TCP & UDP」と表示される）。
 
 | 名前 | 動作 | プロトコル | 送信元 | 宛先 |
 | --- | --- | --- | --- | --- |
-| `130-servers-to-mgmt-caddy` | 許可 | TCP | `grp-vm-infra` | `grp-mgmt-caddy` |
+| `130-servers-to-mgmt-caddy` | 許可 | TCP | `grp-vm-infra` | `grp-mgmt-omada-ui`、`grp-mgmt-pve-ui` |
 | `131-servers-to-mgmt-metrics` | 許可 | TCP | `grp-vm-monitoring` | `grp-mgmt-metrics` |
 | `140-servers-to-lab-ssh` | 許可 | TCP | `grp-vm-infra` | `grp-lab-access` |
 | `141-servers-to-lab-metrics` | 許可 | TCP | `grp-vm-monitoring` | `grp-lab-metrics` |
 | `142-servers-to-lab-mosh` | 許可 | UDP | `grp-vm-infra` | `grp-lab-mosh` |
 | `150-trusted-to-servers` | 許可 | すべて | ネットワーク Trusted | ネットワーク Servers |
 | `151-trusted-to-lab` | 許可 | すべて | ネットワーク Trusted | ネットワーク Lab |
-| `153-trusted-to-mgmt` | 許可 | TCP | ネットワーク Trusted | `grp-mgmt-admin` |
+| `153-trusted-to-mgmt` | 許可 | TCP | ネットワーク Trusted | `grp-mgmt-pve-admin`、`grp-mgmt-omada-ssh` |
 | `154-trusted-to-mgmt-devices` | 許可 | TCP | ネットワーク Trusted | `grp-mgmt-devices-web` |
 | `156-trusted-to-mgmt-icmp` | 許可 | ICMP | ネットワーク Trusted | ネットワーク Management |
 | `160-trusted-to-iot` | 許可 | すべて | ネットワーク Trusted | ネットワーク IoT |
@@ -139,10 +141,11 @@ TP-Link ER605 V2。製品の仕様とファームウェアは[ER605 の資料](.
 | `960-deny-from-guests` | 拒否 | すべて | ネットワーク Guests | !ネットワーク Guests |
 | `970-deny-from-dmz` | 拒否 | すべて | ネットワーク DMZ | !ネットワーク DMZ |
 
-- 説明の欄は、[ACL の名前と説明の付け方](acl.md)の例の文を使う。
-- Trusted → DMZ（Web・SSH）と、Servers → DMZ（ログの取得）は、DMZ に何も置いていないので、作らない。DMZ に機器を置くときに足す。
-- **未確認（6.3）**: プロトコルの選択肢（「TCP と UDP」を 1 件で選べるか、ICMP だけを選べるか）と、送信元に IP グループ、宛先に IP-Port グループを選べるか。選べない組み合わせは、ルールを分ける。
-- **未確認**: `!ネットワーク` の拒否が、WAN 側のプライベートアドレス（建物の共用ルーター `172.22.0.1`）宛の通信も止めるか。リハーサルでは、インターネット（`1.1.1.1`）宛が止まらないことだけを確かめた。止める場合、Prometheus の `building-router` の監視（Servers から）に影響する。`pve01` の DNS は、2026-11-26 にルーター（`10.77.10.1`）に変えたので、影響しない（[Proxmox ホスト](../platform/proxmox-host.md)）。
+- 戻りの通信（確立済み）は、ルールが無くても通る（2026-11-27 に確認。拒否を有効にした VLAN へ、許可した向きから SSH で入れた）。
+- Trusted → DMZ（Web・SSH）、Servers → DMZ（ログの取得）、Management → DMZ（管理用ポート）は、DMZ に何も置いていないので、作らない（今は末尾の拒否に当たる）。DMZ に機器を置くときに足す。
+- **確認済み（2026-11-27）**: プロトコルは、ICMP だけも、TCP と UDP の両方も選べる。送信元に IP グループ、宛先に IP-Port グループを選べる。
+- **確認済み（2026-11-27）**: `!ネットワーク` の拒否は、WAN 側のプライベートアドレス（建物の共用ルーター `172.22.0.1`）宛の通信を止めない。`vm-monitoring` から `172.22.0.1` への ping は、`920` を有効にしたあとも通り、Prometheus の `building-router` の監視は `up` のままだった。
+- 確かめ方: Mac（Tailscale をオフ）と各ホストから、許可と拒否の両方を 35 件流して確かめた（[手順書 27](../../../operations/runbooks/27-network-acl-tighten.md#実施の記録)）。
 
 ### ER605 の管理・その他
 
@@ -207,6 +210,7 @@ TP-Link SG2210P V5.30。製品の仕様は[SG2210P の資料](../hardware/sg2210
 
 | 日付 | 内容 |
 | --- | --- |
+| 2026-11-27 | [ER605] **ゲートウェイ ACL を絞った**（[手順書 27](../../../operations/runbooks/27-network-acl-tighten.md)）。グループ 12 件と許可のルール 14 件を作り、末尾の拒否 7 件を DMZ・Guests・IoT、Lab、Servers、Trusted、Management の順に 1 件ずつ足した。リハーサルの `rh-` の 7 件は削除した。**予測が外れた点:** IP-Port グループはポートを全サブネットにかけ、範囲も書けないので、`grp-mgmt-caddy` と `grp-mgmt-admin` を 2 つずつに分けた（10 件 → 12 件。許可の範囲は同じ）。`!ネットワーク` は、WAN 側の `172.22.0.1` 宛を止めなかった |
 | 2026-11-27 | [コントローラー] 監視用に、ユーザー `exporter`（Viewer）と、Open API のアプリ `exporter`（Client Credentials、Viewer）を作った（運用者の作業。[ADR-0039](../../../adr/0039-omada-metrics-via-omada-exporter.md)） |
 | 2026-11-27 | [確認] ER605（`rtr01`）の UPnP が無効であることを、コントローラーの画面で確かめた（運用者の報告。画面の写し） |
 | 2026-11-27 | [コントローラー] デバイス名を `er605` → `rtr01`、`sg2210p` → `sw01` に変えた（運用者の報告。[ADR-0035](../../../adr/0035-network-device-names-by-role.md)） |
