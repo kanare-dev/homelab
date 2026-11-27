@@ -15,6 +15,8 @@
 | `ansible/inventory/group_vars/apps/secrets.sops.yml` | `homepage_proxmox_token`, `homepage_adguard_password`, `homepage_healthchecks_api_key`, `homepage_ha_token`, `n8n_encryption_key` | Homepage のウィジェット（Healthchecks は読み取り専用キー、HA は長期アクセストークン `homepage`）、n8n の認証情報の暗号化 |
 | `terraform/proxmox/secrets.sops.yml` | `proxmox_api_token_secret` | Terraform の Proxmox 認証 |
 
+GitHub Actions の Secrets: Tailscale の ACL を適用するワークフロー（`.github/workflows/tailscale.yml`）は、`TS_OAUTH_ID`、`TS_AUDIENCE`、`TS_TAILNET` を、リポジトリの Actions の Secrets から読む。認証はフェデレーテッド ID（OIDC）なので、どれも、それだけでは tailnet を操作できない値である。作り直す手順は、非公開の台帳に記録する。
+
 SOPS に入れないシークレット: Home Assistant の統合のトークン（SwitchBot Cloud、Spotify の Client ID / Secret）は、HA の画面に直接入力して `.storage/` にだけ保存する。再発行の手段は非公開の台帳に記録する。
 
 仕組み:
