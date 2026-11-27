@@ -90,6 +90,9 @@ md-lint: ## Lint Markdown style (markdownlint-cli2, needs npx)
 md-links: ## Check internal Markdown links and anchors
 	python3 tools/check-md-links.py
 
+omada-export: ## Export the Omada controller settings (Open API, read-only) to docs/architecture/lld/network/omada/snapshot/
+	python3 tools/omada-export.py
+
 acl-check: ## Check the gateway ACL with real traffic from the Mac (Trusted, Tailscale off) and each host
 	python3 tools/acl-check.py
 

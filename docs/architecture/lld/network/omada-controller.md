@@ -1,6 +1,6 @@
 # Omada コントローラーと管理対象機器（ER605・SG2210P）
 
-Omada コントローラー（`vm-omada`）と、それが管理する ER605・SG2210P の詳細設計。将来は AP も、ここで一元管理する。設定の大半はコントローラーの中にあり、Git では管理しない（Open API でのコード化は[検討中](../../../operations/roadmap/01-backlog.md)）。**この文書を、コントローラーと ER605・SG2210P の設定値の正とする。** 製品の仕様は[ER605](../hardware/er605.md)・[SG2210P](../hardware/sg2210p.md)の資料、VLAN の設計は[第5章 ネットワーク](../../hld/05-network.md)、移行の経緯は[移行計画](../../../operations/roadmap/10-er605-sg2210p-migration-plan.md)にある。
+Omada コントローラー（`vm-omada`）と、それが管理する ER605・SG2210P の詳細設計。将来は AP も、ここで一元管理する。設定の大半はコントローラーの中にあり、コードでは管理できない（[ADR-0040](../../../adr/0040-config-source-of-truth-by-location.md)）。**この文書を、コントローラーと ER605・SG2210P の設定値の正とする。** 実機の設定値は、Open API で取り出して [`omada/snapshot/`](omada/snapshot/) に置いており、この文書とのずれを確かめるのに使う（[ADR-0041](../../../adr/0041-omada-settings-exported-by-open-api.md)。[下の節](#open-api-と設定値の書き出し)）。 製品の仕様は[ER605](../hardware/er605.md)・[SG2210P](../hardware/sg2210p.md)の資料、VLAN の設計は[第5章 ネットワーク](../../hld/05-network.md)、移行の経緯は[移行計画](../../../operations/roadmap/10-er605-sg2210p-migration-plan.md)にある。
 
 > [!NOTE]
 > 作成日は 2026-11-03。**秘密の値（管理者のパスワード、バックアップの暗号化の鍵、TP-Link ID のパスワード）と、機器の MAC アドレスは書かない**（リポジトリは公開）。Keychain の名前は `private/secrets-inventory.md`（台帳）にある。
@@ -8,6 +8,7 @@ Omada コントローラー（`vm-omada`）と、それが管理する ER605・S
 ## 運用
 
 - コントローラーまたは機器（ER605・SG2210P）の設定を変えたら、**同じ変更でこの文書を更新**し、[変更履歴](#変更履歴)に 1 行足す。
+- 設定を変えたあとは、`make omada-export` で実機の値を取り出し、`git diff` で、変わった値が意図したものだけかを確かめる。書き出した値（`omada/snapshot/`）も、同じ変更でコミットする。
 - 設定を変えたあとは、手動バックアップを取る。画面の Settings > Maintenance の「Backup & Restore」で保存する（メニューの名前は 6.3 で未確認）。保存先は iCloud Drive の `homelab/`（暗号化なし。運用者が受け入れ。[バックログ](../../../operations/roadmap/01-backlog.md)）。ファイル名は `omada-bk-YYYYMMDD.cfg`（案）。直近の 3 世代ほどを残す。
 - 自動バックアップは、毎週日曜 03:00（`vm-omada` の `/opt/omada/data/autobackup`）。VM のディスクの中なので、VM が壊れると一緒に失われる。
 - 画面には、`https://omada.lab.kanare.dev`（Caddy が `10.77.10.3:8043` に転送する）で入る。Caddy が使えないときは、`ssh -L 8043:localhost:8043 vm-omada` のあと `https://localhost:8043` で入る。
@@ -23,6 +24,33 @@ Omada コントローラー（`vm-omada`）と、それが管理する ER605・S
 | 反映 | `make setup-omada` |
 | ポート | 管理 HTTPS 8043、管理 HTTP 8088、ポータル 8843。機器との通信は UDP 29810（自動検出）、TCP 29811〜29816。UFW で絞る（`ansible/inventory/group_vars/omada/vars.yml`） |
 | 監視 | `node_exporter` を Prometheus が見ている（`TargetDown`）。画面（HTTPS）は、`https://omada.lab.kanare.dev` を blackbox で外形監視している（2026-11-06 から）。管理する機器・ポート・クライアントの状態は、`vm-monitoring` の omada-exporter が API を読み、Grafana で見る（[ADR-0039](../../../adr/0039-omada-metrics-via-omada-exporter.md)、[監視・アラート](../platform/monitoring.md#omada-の機器クライアントの状態)） |
+
+## Open API と設定値の書き出し
+
+コントローラーの Open API で、設定値を読み取りだけで取り出す（[ADR-0041](../../../adr/0041-omada-settings-exported-by-open-api.md)）。
+
+| 項目 | 値 |
+| --- | --- |
+| スクリプト | `tools/omada-export.py`（`make omada-export`）。Mac で動かす。GET だけを呼ぶ |
+| 書き出し先 | [`omada/snapshot/`](omada/snapshot/)。画面のメニューの区分ごとに 1 ファイル（`general`、`network`、`authentication`、`security`、`transmission`、`profiles`、`vpn`、`controller`）と、機器ごとのファイル（`device-rtr01`、`device-sw01`）、機器の一覧（`devices`） |
+| 認証 | omada-exporter 用の Open API のアプリ `exporter`（Client Credentials、Viewer）。Client ID とシークレットは SOPS（`group_vars/monitoring` の `omada_exporter_client_id`、`omada_exporter_client_secret`）にあり、スクリプトが `sops -d` で読む。値は画面にもファイルにも出さない |
+| 落とす値 | 秘密の値（パスワード、鍵など）、シリアル番号、実行のたびに変わる値（状態、統計、時刻）。機器の MAC アドレスは機器の名前（`rtr01`、`sw01`）に、機器でない MAC は `<mac>` に置き換える。ACL などがほかの設定を ID で指すところには、`<ID> (<名前>)` の形で名前を添える |
+| 仕様書 | コントローラーの `/v3/api-docs/00 All`（認証なしで取れる。窓口は約 1900） |
+| 読めない窓口 | バックアップのスケジュール（Viewer では権限が足りない）。mDNS は、呼び方を確かめていないので、まだ取り出していない |
+
+### Viewer の権限で機器のパスワードが読める（危険）
+
+Open API の Viewer の権限でも、サイトのデバイスアカウント（ER605・SG2210P に共通の管理者。サイト設定 > デバイスアカウント）のパスワードが、伏せ字にされずに平文で返る（`/sites/{siteId}/device-account`。2026-11-28 に確認）。Viewer は「見るだけ」の権限だが、機器の管理者のパスワードまで読めることになる。
+
+このクライアントの認証情報は、`vm-monitoring` の `/opt/monitoring/omada-exporter/secrets.env`（root だけが読める）と、SOPS にある。`vm-monitoring` が乗っ取られると、認証情報が漏れ、そこから機器の管理者のパスワードも漏れる。
+
+今の守りは、次のとおりである。
+
+- ゲートウェイの ACL で、Servers（`vm-monitoring` を含む）から Management の機器（ER605・SG2210P）の SSH と画面への通信を止めている。`vm-monitoring` から Management に届くのは、Proxmox と `vm-omada` の 9100 番だけである（[ゲートウェイの ACL](#ゲートウェイの-acl)）。パスワードが漏れても、Servers からは機器に入れない。
+- 機器は、コントローラーに採用されているあいだ、本体の画面では設定を変えられない。
+- `tools/omada-export.py` は、パスワードを書き出す前に落とす。
+
+残る危険は、パスワードが漏れたあと、Trusted や Management の端末から機器に入られることである。対策の案（未決定）は、機器のパスワードを定期的に変えること、Open API のクライアントの権限を、ほかの絞り方（サイト単位の権限など）で狭められないか確かめることである。
 
 ## 設定値（現在）
 
@@ -210,6 +238,7 @@ TP-Link SG2210P V5.30。製品の仕様は[SG2210P の資料](../hardware/sg2210
 
 | 日付 | 内容 |
 | --- | --- |
+| 2026-11-28 | [文書] Open API で設定値を取り出す `tools/omada-export.py` を作り、`omada/snapshot/` に書き出した（[ADR-0041](../../../adr/0041-omada-settings-exported-by-open-api.md)）。Viewer の権限でデバイスアカウントのパスワードが平文で読めることを、危険として記録した |
 | 2026-11-27 | [ER605] **ゲートウェイ ACL を絞った**（[手順書 27](../../../operations/runbooks/27-network-acl-tighten.md)）。グループ 12 件と許可のルール 14 件を作り、末尾の拒否 7 件を DMZ・Guests・IoT、Lab、Servers、Trusted、Management の順に 1 件ずつ足した。リハーサルの `rh-` の 7 件は削除した。**予測が外れた点:** IP-Port グループはポートを全サブネットにかけ、範囲も書けないので、`grp-mgmt-caddy` と `grp-mgmt-admin` を 2 つずつに分けた（10 件 → 12 件。許可の範囲は同じ）。`!ネットワーク` は、WAN 側の `172.22.0.1` 宛を止めなかった |
 | 2026-11-27 | [コントローラー] 監視用に、ユーザー `exporter`（Viewer）と、Open API のアプリ `exporter`（Client Credentials、Viewer）を作った（運用者の作業。[ADR-0039](../../../adr/0039-omada-metrics-via-omada-exporter.md)） |
 | 2026-11-27 | [確認] ER605（`rtr01`）の UPnP が無効であることを、コントローラーの画面で確かめた（運用者の報告。画面の写し） |

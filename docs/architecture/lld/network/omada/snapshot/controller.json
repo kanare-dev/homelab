@@ -1,0 +1,56 @@
+{
+  "device-mgmt": {
+    "appDiscovery": true,
+    "webControlHttp": true,
+    "webControlHttps": true
+  },
+  "general": {
+    "dst": {
+      "enable": false,
+      "end": {
+        "day": 7,
+        "hour": 0,
+        "minute": 0,
+        "month": 1,
+        "serial": 1
+      },
+      "endTime": 0,
+      "lastEnd": 0,
+      "lastStart": 0,
+      "mode": 0,
+      "nextEnd": 0,
+      "nextStart": 0,
+      "start": {
+        "day": 7,
+        "hour": 0,
+        "minute": 0,
+        "month": 1,
+        "serial": 1
+      },
+      "startTime": 0
+    },
+    "name": "kanare-homelab",
+    "region": "Japan",
+    "timeZone": "Asia/Tokyo"
+  },
+  "retention": {
+    "clientDataTrendEnable": false,
+    "clientHistory": 31,
+    "clientsDataEnable": false,
+    "daily": 90,
+    "fiveMin": 2,
+    "hourly": 7,
+    "knownClient": 1,
+    "log": 31,
+    "portalAuth": 31,
+    "rogueAp": 31,
+    "tenMin": 2,
+    "weekly": 180,
+    "widsData": 31
+  },
+  "syslog": {
+    "enable": false,
+    "port": 514
+  },
+  "webhook": []
+}

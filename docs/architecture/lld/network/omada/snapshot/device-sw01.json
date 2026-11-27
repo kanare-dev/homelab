@@ -1,0 +1,411 @@
+{
+  "general-config": {
+    "jumbo": 1518,
+    "jumboFollowSite": true,
+    "lagHashAlgFollowSite": true,
+    "ledSetting": 2,
+    "name": "sw01",
+    "sdm": {
+      "inUse": "omada",
+      "templates": [
+        {
+          "apps": [
+            {
+              "category": 0,
+              "num": 512
+            },
+            {
+              "category": 1,
+              "num": 32
+            },
+            {
+              "category": 3,
+              "num": 0
+            },
+            {
+              "category": 4,
+              "num": 0
+            }
+          ],
+          "name": "omada"
+        },
+        {
+          "apps": [
+            {
+              "category": 0,
+              "num": 512
+            },
+            {
+              "category": 1,
+              "num": 0
+            },
+            {
+              "category": 3,
+              "num": 0
+            },
+            {
+              "category": 4,
+              "num": 0
+            }
+          ],
+          "name": "omada-enterpriseV4"
+        },
+        {
+          "apps": [
+            {
+              "category": 0,
+              "num": 64
+            },
+            {
+              "category": 1,
+              "num": 256
+            },
+            {
+              "category": 3,
+              "num": 0
+            },
+            {
+              "category": 4,
+              "num": 0
+            }
+          ],
+          "name": "omada-enterpriseV6"
+        },
+        {
+          "apps": [
+            {
+              "category": 0,
+              "num": 128
+            },
+            {
+              "category": 1,
+              "num": 64
+            },
+            {
+              "category": 3,
+              "num": 61
+            },
+            {
+              "category": 4,
+              "num": 55
+            }
+          ],
+          "name": "omada-enterpriseMix"
+        }
+      ]
+    },
+    "snmp": {
+      "type": 0
+    },
+    "tagIds": []
+  },
+  "interfaces": [
+    {
+      "interfaceId": 10,
+      "interfaceType": 1,
+      "name": "Management",
+      "vlanInterface": {
+        "id": "6aedc4ce54553e13832c9689",
+        "ip": {
+          "fallback": false,
+          "gateway": "10.77.10.1",
+          "ip": "10.77.10.2",
+          "mode": 0,
+          "netmask": "255.255.255.0",
+          "preDns": "10.77.10.1"
+        },
+        "ipv6": {
+          "dnsMode": 0,
+          "mode": "dynamic"
+        },
+        "ipv6Enable": true,
+        "mode": 0,
+        "mvlan": true,
+        "name": "Management",
+        "resource": 0,
+        "vlan": 10
+      }
+    },
+    {
+      "interfaceId": 20,
+      "interfaceType": 1,
+      "name": "Servers",
+      "vlanInterface": {
+        "id": "6af45e5e0d0a372bedf53cda",
+        "ip": {
+          "fallback": true,
+          "fallbackIp": "192.168.0.1",
+          "fallbackMask": "255.255.255.0",
+          "mode": 1,
+          "useFixedAddr": false
+        },
+        "ipv6Enable": false,
+        "mode": 0,
+        "mvlan": false,
+        "name": "Servers",
+        "resource": 0,
+        "vlan": 20
+      }
+    },
+    {
+      "interfaceId": 30,
+      "interfaceType": 1,
+      "name": "Trusted",
+      "vlanInterface": {
+        "id": "6aedd12454553e13832c9822",
+        "ip": {
+          "fallback": true,
+          "fallbackIp": "192.168.0.1",
+          "fallbackMask": "255.255.255.0",
+          "mode": 1,
+          "useFixedAddr": false
+        },
+        "ipv6Enable": false,
+        "mode": 0,
+        "mvlan": false,
+        "name": "Trusted",
+        "resource": 0,
+        "vlan": 30
+      }
+    },
+    {
+      "interfaceId": 40,
+      "interfaceType": 1,
+      "name": "Lab",
+      "vlanInterface": {
+        "id": "6af45f110d0a372bedf53cfe",
+        "ip": {
+          "fallback": true,
+          "fallbackIp": "192.168.0.1",
+          "fallbackMask": "255.255.255.0",
+          "mode": 1,
+          "useFixedAddr": false
+        },
+        "ipv6Enable": false,
+        "mode": 0,
+        "mvlan": false,
+        "name": "Lab",
+        "resource": 0,
+        "vlan": 40
+      }
+    },
+    {
+      "interfaceId": 50,
+      "interfaceType": 1,
+      "name": "IoT",
+      "vlanInterface": {
+        "id": "6aedd17b54553e13832c984b",
+        "ip": {
+          "fallback": true,
+          "fallbackIp": "192.168.0.1",
+          "fallbackMask": "255.255.255.0",
+          "mode": 1,
+          "useFixedAddr": false
+        },
+        "ipv6Enable": false,
+        "mode": 0,
+        "mvlan": false,
+        "name": "IoT",
+        "resource": 0,
+        "vlan": 50
+      }
+    },
+    {
+      "interfaceId": 60,
+      "interfaceType": 1,
+      "name": "Guests",
+      "vlanInterface": {
+        "id": "6af45f5a0d0a372bedf53d14",
+        "ip": {
+          "fallback": true,
+          "fallbackIp": "192.168.0.1",
+          "fallbackMask": "255.255.255.0",
+          "mode": 1,
+          "useFixedAddr": false
+        },
+        "ipv6Enable": false,
+        "mode": 0,
+        "mvlan": false,
+        "name": "Guests",
+        "resource": 0,
+        "vlan": 60
+      }
+    },
+    {
+      "interfaceId": 70,
+      "interfaceType": 1,
+      "name": "DMZ",
+      "vlanInterface": {
+        "id": "6af45f960d0a372bedf53d22",
+        "ip": {
+          "fallback": true,
+          "fallbackIp": "192.168.0.1",
+          "fallbackMask": "255.255.255.0",
+          "mode": 1,
+          "useFixedAddr": false
+        },
+        "ipv6Enable": false,
+        "mode": 0,
+        "mvlan": false,
+        "name": "DMZ",
+        "resource": 0,
+        "vlan": 70
+      }
+    },
+    {
+      "interfaceId": 999,
+      "interfaceType": 1,
+      "name": "Blackhole",
+      "vlanInterface": {
+        "id": "6b00468be7ed9d29bb7b1fa5",
+        "ip": {
+          "fallback": true,
+          "fallbackIp": "192.168.0.1",
+          "fallbackMask": "255.255.255.0",
+          "mode": 1,
+          "useFixedAddr": false
+        },
+        "ipv6Enable": false,
+        "mode": 0,
+        "mvlan": false,
+        "name": "Blackhole",
+        "resource": 0,
+        "vlan": 999
+      }
+    }
+  ],
+  "networks": [
+    {
+      "id": "6b00468be7ed9d29bb7b1fa5",
+      "ip": {
+        "fallback": true,
+        "fallbackIp": "192.168.0.1",
+        "fallbackMask": "255.255.255.0",
+        "mode": 1,
+        "useFixedAddr": false
+      },
+      "ipv6": {},
+      "ipv6Enable": false,
+      "mode": 0,
+      "mvlan": false,
+      "name": "Blackhole",
+      "vlan": 999
+    },
+    {
+      "id": "6af45f960d0a372bedf53d22",
+      "ip": {
+        "fallback": true,
+        "fallbackIp": "192.168.0.1",
+        "fallbackMask": "255.255.255.0",
+        "mode": 1,
+        "useFixedAddr": false
+      },
+      "ipv6": {},
+      "ipv6Enable": false,
+      "mode": 0,
+      "mvlan": false,
+      "name": "DMZ",
+      "vlan": 70
+    },
+    {
+      "id": "6af45f5a0d0a372bedf53d14",
+      "ip": {
+        "fallback": true,
+        "fallbackIp": "192.168.0.1",
+        "fallbackMask": "255.255.255.0",
+        "mode": 1,
+        "useFixedAddr": false
+      },
+      "ipv6": {},
+      "ipv6Enable": false,
+      "mode": 0,
+      "mvlan": false,
+      "name": "Guests",
+      "vlan": 60
+    },
+    {
+      "id": "6aedd17b54553e13832c984b",
+      "ip": {
+        "fallback": true,
+        "fallbackIp": "192.168.0.1",
+        "fallbackMask": "255.255.255.0",
+        "mode": 1,
+        "useFixedAddr": false
+      },
+      "ipv6": {},
+      "ipv6Enable": false,
+      "mode": 0,
+      "mvlan": false,
+      "name": "IoT",
+      "vlan": 50
+    },
+    {
+      "id": "6af45f110d0a372bedf53cfe",
+      "ip": {
+        "fallback": true,
+        "fallbackIp": "192.168.0.1",
+        "fallbackMask": "255.255.255.0",
+        "mode": 1,
+        "useFixedAddr": false
+      },
+      "ipv6": {},
+      "ipv6Enable": false,
+      "mode": 0,
+      "mvlan": false,
+      "name": "Lab",
+      "vlan": 40
+    },
+    {
+      "id": "6aedc4ce54553e13832c9689",
+      "ip": {
+        "fallback": false,
+        "gateway": "10.77.10.1",
+        "ip": "10.77.10.2",
+        "mode": 0,
+        "netmask": "255.255.255.0",
+        "preDns": "10.77.10.1"
+      },
+      "ipv6": {
+        "dnsMode": 0,
+        "mode": "dynamic"
+      },
+      "ipv6Enable": true,
+      "mode": 0,
+      "mvlan": true,
+      "name": "Management",
+      "vlan": 10
+    },
+    {
+      "id": "6af45e5e0d0a372bedf53cda",
+      "ip": {
+        "fallback": true,
+        "fallbackIp": "192.168.0.1",
+        "fallbackMask": "255.255.255.0",
+        "mode": 1,
+        "useFixedAddr": false
+      },
+      "ipv6": {},
+      "ipv6Enable": false,
+      "mode": 0,
+      "mvlan": false,
+      "name": "Servers",
+      "vlan": 20
+    },
+    {
+      "id": "6aedd12454553e13832c9822",
+      "ip": {
+        "fallback": true,
+        "fallbackIp": "192.168.0.1",
+        "fallbackMask": "255.255.255.0",
+        "mode": 1,
+        "useFixedAddr": false
+      },
+      "ipv6": {},
+      "ipv6Enable": false,
+      "mode": 0,
+      "mvlan": false,
+      "name": "Trusted",
+      "vlan": 30
+    }
+  ]
+}

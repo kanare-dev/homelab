@@ -77,7 +77,7 @@
   - 文書は「あるべき姿」、抽出は「実際の姿」。**差分が、ドリフト（実機と文書のずれ）**。抽出スクリプトで実際の値を出し、設計書と比べる。
   - 抽出の方法（2026-11-20 の調べ。**未検証**）:
     - **Omada のバックアップファイル（`.cfg`）からは、おすすめしない。** 先頭がランダムに見える並びで（`PK` でも gzip でもない）、暗号化か独自形式の可能性が高い（中身は読んでいない）。復号の方法は、公開されていない。管理者の認証情報や Wi-Fi のパスワードも入る。
-    - 候補: (1) **Open API**（公式。読み取り専用のクライアントを作り、認証情報は SOPS）。取得範囲（LAN、Wi-Fi、ポートのプロファイル、ACL）は**未確認**。スキーマが公開されていて、バージョンが変わっても壊れにくい。(2) `vm-omada` の MongoDB を、読み取りで直接見る。全部取れるが、内部のスキーマ（非公開）で、バージョンで壊れやすい。(3) 併用（取れる分は自動、残りは手書き）。**まず、Open API の取得範囲を調べる**。バックログの「設定のコード化」の項目（上）と、同じ API。
+    - **Omada は決定（2026-11-28、[ADR-0041](../../adr/0041-omada-settings-exported-by-open-api.md)）**: Open API で取り出し（`tools/omada-export.py`、`make omada-export`）、`docs/architecture/lld/network/omada/snapshot/` に置いて Git で管理する。Viewer のクライアントで、バックアップのスケジュール以外は読めた。パラメーターシート（`omada-controller.md`）は、書き出した値を元に、画面の区分ごとに整える（未着手）。以前の候補（Open API、MongoDB、併用）は、ADR の代替案に移した。
     - AdGuard Home: 2026-11-27 に確かめると、Ansible が書き換えるのは 4 項目（上流の DNS、フォールバック、クエリログの保持期間、exporter のユーザー）だけで、ほかは画面の値だった（以前は「Ansible で配っている」と書いていたが、誤り）。設定ファイル全体を Ansible のテンプレートにする（[ADR-0040](../../adr/0040-config-source-of-truth-by-location.md)。下の項目）。
     - Tailscale: ACL は、公式の GitOps（`tailscale/gitops-acl-action`）で、リポジトリのファイル（HuJSON）にする（[ADR-0040](../../adr/0040-config-source-of-truth-by-location.md)。下の項目）。**文書が先**の運用に、そのまま乗る。
   - 抽出した値の扱い（リポジトリは公開）: MAC アドレス、認証情報、Wi-Fi のパスワード、アカウントのハッシュは、**抽出の段階で落とす**（既存の決まり: 機器の MAC は書かない）。抽出した値は、手書きの文書と分けて置く案（例: `generated/`）。置き場所は、今の `docs/architecture/lld/` と `docs/architecture/lld/hardware/` を広げる案（新しい階層は作らない）。**未決**。

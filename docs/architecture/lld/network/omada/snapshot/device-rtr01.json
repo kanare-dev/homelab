@@ -1,0 +1,56 @@
+{
+  "general-config": {
+    "ledSetting": 2,
+    "location": {},
+    "name": "rtr01",
+    "rememberDevice": 2,
+    "snmp": {
+      "contact": "",
+      "location": ""
+    },
+    "tagIds": []
+  },
+  "ports": [
+    {
+      "mode": 0,
+      "name": "WAN1",
+      "physicalType": 0,
+      "port": 1,
+      "type": 0
+    },
+    {
+      "mode": 1,
+      "name": "WAN/LAN2",
+      "physicalType": 0,
+      "port": 2,
+      "type": 1
+    },
+    {
+      "mode": 1,
+      "name": "WAN/LAN3",
+      "physicalType": 0,
+      "port": 3,
+      "type": 1
+    },
+    {
+      "mode": 1,
+      "name": "LAN4",
+      "physicalType": 0,
+      "port": 4,
+      "type": 2
+    },
+    {
+      "mode": 1,
+      "name": "LAN5",
+      "physicalType": 0,
+      "port": 5,
+      "type": 2
+    },
+    {
+      "mode": -1,
+      "name": "USB Modem",
+      "port": 6,
+      "type": 4
+    }
+  ]
+}

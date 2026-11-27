@@ -1,0 +1,616 @@
+{
+  "acl-config-mode": {
+    "mode": 0
+  },
+  "attack-defense": {
+    "existIcmpTimestampRequestReject": true,
+    "existLargePingThreshold": false,
+    "existTcpScanReject": false,
+    "featureDescription": [
+      {
+        "changeable": true,
+        "feature": "attackDefense_largePing",
+        "featureState": 0
+      },
+      {
+        "changeable": true,
+        "feature": "attackDefense_tcpScanReject",
+        "featureState": 0
+      },
+      {
+        "changeable": true,
+        "feature": "attackDefense_icmpTimestampRequest",
+        "featureState": 0
+      }
+    ],
+    "icmpConnEnable": false,
+    "icmpConnLimit": 1500,
+    "icmpSrcEnable": false,
+    "icmpSrcLimit": 600,
+    "icmpTimestampRequestReject": true,
+    "largePingEnable": false,
+    "pingDeathEnable": true,
+    "pingWanEnable": true,
+    "specifiedOption": {
+      "noOperationEnable": true,
+      "recordRouteEnable": true,
+      "securityEnable": true,
+      "streamEnable": true,
+      "timestampEnable": true
+    },
+    "specifiedOptionEnable": true,
+    "supportIcmpTimestampRequestReject": true,
+    "supportLargePingThreshold": true,
+    "supportTcpScanReject": true,
+    "tcpConnEnable": false,
+    "tcpConnLimit": 10000,
+    "tcpFinNoAckEnable": true,
+    "tcpScanEnable": true,
+    "tcpScanReject": false,
+    "tcpSrcEnable": false,
+    "tcpSrcLimit": 4000,
+    "tcpSynFinEnable": true,
+    "udpConnEnable": false,
+    "udpConnLimit": 12000,
+    "udpSrcEnable": false,
+    "udpSrcLimit": 6000,
+    "winNukeAttackEnable": true
+  },
+  "eap-acls": [],
+  "firewall": {
+    "broadcastPing": false,
+    "icmp": 30,
+    "other": 600,
+    "receiveRedirects": false,
+    "sendRedirects": true,
+    "synCookies": true,
+    "tcpClose": 10,
+    "tcpCloseWait": 60,
+    "tcpEstablished": 7440,
+    "tcpFinWait": 120,
+    "tcpLastAck": 30,
+    "tcpSynReceive": 60,
+    "tcpSynSent": 120,
+    "tcpTimeWait": 120,
+    "udpOther": 60,
+    "udpStream": 180
+  },
+  "gateway-acls": [
+    {
+      "description": "130-servers-to-mgmt-caddy",
+      "destinationIds": [
+        "6b098c9aa878955b39adb1d7 (grp-mgmt-omada-ui)",
+        "6b098cb1a878955b39adb1e1 (grp-mgmt-pve-ui)"
+      ],
+      "destinationType": 2,
+      "direction": {
+        "lanToLan": true,
+        "lanToWan": false,
+        "vpnInIds": [],
+        "wanInIds": []
+      },
+      "id": "6b098e88a878955b39adb2ba",
+      "index": 1,
+      "policy": 1,
+      "protocols": [
+        6
+      ],
+      "sourceIds": [
+        "6b098c68a878955b39adb1c7 (grp-vm-infra)"
+      ],
+      "sourceType": 1,
+      "stateMode": 0,
+      "syslog": false
+    },
+    {
+      "description": "131-servers-to-mgmt-metrics",
+      "destinationIds": [
+        "6b098ce5a878955b39adb225 (grp-mgmt-metrics)"
+      ],
+      "destinationType": 2,
+      "direction": {
+        "lanToLan": true,
+        "lanToWan": false,
+        "vpnInIds": [],
+        "wanInIds": []
+      },
+      "id": "6b098eaea878955b39adb2bf",
+      "index": 2,
+      "policy": 1,
+      "protocols": [
+        6
+      ],
+      "sourceIds": [
+        "6b098c7ea878955b39adb1cf (grp-vm-monitoring)"
+      ],
+      "sourceType": 1,
+      "stateMode": 0,
+      "syslog": false
+    },
+    {
+      "description": "140-servers-to-lab-ssh",
+      "destinationIds": [
+        "6b098d71a878955b39adb253 (grp-lab-access)"
+      ],
+      "destinationType": 2,
+      "direction": {
+        "lanToLan": true,
+        "lanToWan": false,
+        "vpnInIds": [],
+        "wanInIds": []
+      },
+      "id": "6b098ec6a878955b39adb2e4",
+      "index": 3,
+      "policy": 1,
+      "protocols": [
+        6
+      ],
+      "sourceIds": [
+        "6b098c68a878955b39adb1c7 (grp-vm-infra)"
+      ],
+      "sourceType": 1,
+      "stateMode": 0,
+      "syslog": false
+    },
+    {
+      "description": "141-servers-to-lab-metrics",
+      "destinationIds": [
+        "6b098daba878955b39adb265 (grp-lab-metrics)"
+      ],
+      "destinationType": 2,
+      "direction": {
+        "lanToLan": true,
+        "lanToWan": false,
+        "vpnInIds": [],
+        "wanInIds": []
+      },
+      "id": "6b098eefa878955b39adb2ea",
+      "index": 4,
+      "policy": 1,
+      "protocols": [
+        6
+      ],
+      "sourceIds": [
+        "6b098c7ea878955b39adb1cf (grp-vm-monitoring)"
+      ],
+      "sourceType": 1,
+      "stateMode": 0,
+      "syslog": false
+    },
+    {
+      "description": "142-servers-to-lab-mosh",
+      "destinationIds": [
+        "6b098d93a878955b39adb25d (grp-lab-mosh)"
+      ],
+      "destinationType": 2,
+      "direction": {
+        "lanToLan": true,
+        "lanToWan": false,
+        "vpnInIds": [],
+        "wanInIds": []
+      },
+      "id": "6b098f0da878955b39adb307",
+      "index": 5,
+      "policy": 1,
+      "protocols": [
+        17
+      ],
+      "sourceIds": [
+        "6b098c68a878955b39adb1c7 (grp-vm-infra)"
+      ],
+      "sourceType": 1,
+      "stateMode": 0,
+      "syslog": false
+    },
+    {
+      "description": "150-trusted-to-servers",
+      "destinationIds": [
+        "6af45e5e0d0a372bedf53cda (Servers)"
+      ],
+      "destinationType": 0,
+      "direction": {
+        "lanToLan": true,
+        "lanToWan": false,
+        "vpnInIds": [],
+        "wanInIds": []
+      },
+      "id": "6b098f2ca878955b39adb341",
+      "index": 6,
+      "policy": 1,
+      "protocols": [
+        256
+      ],
+      "sourceIds": [
+        "6aedd12454553e13832c9822 (Trusted)"
+      ],
+      "sourceType": 0,
+      "stateMode": 0,
+      "syslog": false
+    },
+    {
+      "description": "151-trusted-to-lab",
+      "destinationIds": [
+        "6af45f110d0a372bedf53cfe (Lab)"
+      ],
+      "destinationType": 0,
+      "direction": {
+        "lanToLan": true,
+        "lanToWan": false,
+        "vpnInIds": [],
+        "wanInIds": []
+      },
+      "id": "6b098f43a878955b39adb348",
+      "index": 7,
+      "policy": 1,
+      "protocols": [
+        256
+      ],
+      "sourceIds": [
+        "6aedd12454553e13832c9822 (Trusted)"
+      ],
+      "sourceType": 0,
+      "stateMode": 0,
+      "syslog": false
+    },
+    {
+      "description": "153-trusted-to-mgmt",
+      "destinationIds": [
+        "6b098d0da878955b39adb22d (grp-mgmt-pve-admin)",
+        "6b098d23a878955b39adb239 (grp-mgmt-omada-ssh)"
+      ],
+      "destinationType": 2,
+      "direction": {
+        "lanToLan": true,
+        "lanToWan": false,
+        "vpnInIds": [],
+        "wanInIds": []
+      },
+      "id": "6b098f54a878955b39adb34d",
+      "index": 8,
+      "policy": 1,
+      "protocols": [
+        6
+      ],
+      "sourceIds": [
+        "6aedd12454553e13832c9822 (Trusted)"
+      ],
+      "sourceType": 0,
+      "stateMode": 0,
+      "syslog": false
+    },
+    {
+      "description": "154-trusted-to-mgmt-devices",
+      "destinationIds": [
+        "6b098d54a878955b39adb244 (grp-mgmt-devices-web)"
+      ],
+      "destinationType": 2,
+      "direction": {
+        "lanToLan": true,
+        "lanToWan": false,
+        "vpnInIds": [],
+        "wanInIds": []
+      },
+      "id": "6b098f7da878955b39adb356",
+      "index": 9,
+      "policy": 1,
+      "protocols": [
+        6
+      ],
+      "sourceIds": [
+        "6aedd12454553e13832c9822 (Trusted)"
+      ],
+      "sourceType": 0,
+      "stateMode": 0,
+      "syslog": false
+    },
+    {
+      "description": "156-trusted-to-mgmt-icmp",
+      "destinationIds": [
+        "6ae995d254553e13832c7388 (Management(Default))"
+      ],
+      "destinationType": 0,
+      "direction": {
+        "lanToLan": true,
+        "lanToWan": false,
+        "vpnInIds": [],
+        "wanInIds": []
+      },
+      "id": "6b098faca878955b39adb35f",
+      "index": 10,
+      "policy": 1,
+      "protocols": [
+        1
+      ],
+      "sourceIds": [
+        "6aedd12454553e13832c9822 (Trusted)"
+      ],
+      "sourceType": 0,
+      "stateMode": 0,
+      "syslog": false
+    },
+    {
+      "description": "160-trusted-to-iot",
+      "destinationIds": [
+        "6aedd17b54553e13832c984b (IoT)"
+      ],
+      "destinationType": 0,
+      "direction": {
+        "lanToLan": true,
+        "lanToWan": false,
+        "vpnInIds": [],
+        "wanInIds": []
+      },
+      "id": "6b098fe1a878955b39adb372",
+      "index": 11,
+      "policy": 1,
+      "protocols": [
+        256
+      ],
+      "sourceIds": [
+        "6aedd12454553e13832c9822 (Trusted)"
+      ],
+      "sourceType": 0,
+      "stateMode": 0,
+      "syslog": false
+    },
+    {
+      "description": "170-lab-to-servers-dns",
+      "destinationIds": [
+        "6b098dcca878955b39adb26f (grp-dns)"
+      ],
+      "destinationType": 2,
+      "direction": {
+        "lanToLan": true,
+        "lanToWan": false,
+        "vpnInIds": [],
+        "wanInIds": []
+      },
+      "id": "6b098ff8a878955b39adb379",
+      "index": 12,
+      "policy": 1,
+      "protocols": [
+        6,
+        17
+      ],
+      "sourceIds": [
+        "6af45f110d0a372bedf53cfe (Lab)"
+      ],
+      "sourceType": 0,
+      "stateMode": 0,
+      "syslog": false
+    },
+    {
+      "description": "171-iot-to-servers-dns",
+      "destinationIds": [
+        "6b098dcca878955b39adb26f (grp-dns)"
+      ],
+      "destinationType": 2,
+      "direction": {
+        "lanToLan": true,
+        "lanToWan": false,
+        "vpnInIds": [],
+        "wanInIds": []
+      },
+      "id": "6b099012a878955b39adb37e",
+      "index": 13,
+      "policy": 1,
+      "protocols": [
+        6,
+        17
+      ],
+      "sourceIds": [
+        "6aedd17b54553e13832c984b (IoT)"
+      ],
+      "sourceType": 0,
+      "stateMode": 0,
+      "syslog": false
+    },
+    {
+      "description": "172-guests-to-servers-dns",
+      "destinationIds": [
+        "6b098dcca878955b39adb26f (grp-dns)"
+      ],
+      "destinationType": 2,
+      "direction": {
+        "lanToLan": true,
+        "lanToWan": false,
+        "vpnInIds": [],
+        "wanInIds": []
+      },
+      "id": "6b099052a878955b39adb3b6",
+      "index": 14,
+      "policy": 1,
+      "protocols": [
+        6,
+        17
+      ],
+      "sourceIds": [
+        "6af45f5a0d0a372bedf53d14 (Guests)"
+      ],
+      "sourceType": 0,
+      "stateMode": 0,
+      "syslog": false
+    },
+    {
+      "description": "910-deny-from-mgmt",
+      "destinationIds": [
+        "6ae995d254553e13832c7388 (Management(Default))"
+      ],
+      "destinationType": 11,
+      "direction": {
+        "lanToLan": true,
+        "lanToWan": false,
+        "vpnInIds": [],
+        "wanInIds": []
+      },
+      "id": "6b0993f6a878955b39adb4ec",
+      "index": 15,
+      "policy": 0,
+      "protocols": [
+        256
+      ],
+      "sourceIds": [
+        "6ae995d254553e13832c7388 (Management(Default))"
+      ],
+      "sourceType": 0,
+      "stateMode": 0,
+      "syslog": false
+    },
+    {
+      "description": "920-deny-from-servers",
+      "destinationIds": [
+        "6af45e5e0d0a372bedf53cda (Servers)"
+      ],
+      "destinationType": 11,
+      "direction": {
+        "lanToLan": true,
+        "lanToWan": false,
+        "vpnInIds": [],
+        "wanInIds": []
+      },
+      "id": "6b0991cea878955b39adb43f",
+      "index": 16,
+      "policy": 0,
+      "protocols": [
+        256
+      ],
+      "sourceIds": [
+        "6af45e5e0d0a372bedf53cda (Servers)"
+      ],
+      "sourceType": 0,
+      "stateMode": 0,
+      "syslog": false
+    },
+    {
+      "description": "930-deny-from-trusted",
+      "destinationIds": [
+        "6aedd12454553e13832c9822 (Trusted)"
+      ],
+      "destinationType": 11,
+      "direction": {
+        "lanToLan": true,
+        "lanToWan": false,
+        "vpnInIds": [],
+        "wanInIds": []
+      },
+      "id": "6b09935da878955b39adb491",
+      "index": 17,
+      "policy": 0,
+      "protocols": [
+        256
+      ],
+      "sourceIds": [
+        "6aedd12454553e13832c9822 (Trusted)"
+      ],
+      "sourceType": 0,
+      "stateMode": 0,
+      "syslog": false
+    },
+    {
+      "description": "940-deny-from-lab",
+      "destinationIds": [
+        "6af45f110d0a372bedf53cfe (Lab)"
+      ],
+      "destinationType": 11,
+      "direction": {
+        "lanToLan": true,
+        "lanToWan": false,
+        "vpnInIds": [],
+        "wanInIds": []
+      },
+      "id": "6b09914ba878955b39adb402",
+      "index": 18,
+      "policy": 0,
+      "protocols": [
+        256
+      ],
+      "sourceIds": [
+        "6af45f110d0a372bedf53cfe (Lab)"
+      ],
+      "sourceType": 0,
+      "stateMode": 0,
+      "syslog": false
+    },
+    {
+      "description": "950-deny-from-iot",
+      "destinationIds": [
+        "6aedd17b54553e13832c984b (IoT)"
+      ],
+      "destinationType": 11,
+      "direction": {
+        "lanToLan": true,
+        "lanToWan": false,
+        "vpnInIds": [],
+        "wanInIds": []
+      },
+      "id": "6b099108a878955b39adb3d5",
+      "index": 19,
+      "policy": 0,
+      "protocols": [
+        256
+      ],
+      "sourceIds": [
+        "6aedd17b54553e13832c984b (IoT)"
+      ],
+      "sourceType": 0,
+      "stateMode": 0,
+      "syslog": false
+    },
+    {
+      "description": "960-deny-from-guests",
+      "destinationIds": [
+        "6af45f5a0d0a372bedf53d14 (Guests)"
+      ],
+      "destinationType": 11,
+      "direction": {
+        "lanToLan": true,
+        "lanToWan": false,
+        "vpnInIds": [],
+        "wanInIds": []
+      },
+      "id": "6b0990eca878955b39adb3d0",
+      "index": 20,
+      "policy": 0,
+      "protocols": [
+        256
+      ],
+      "sourceIds": [
+        "6af45f5a0d0a372bedf53d14 (Guests)"
+      ],
+      "sourceType": 0,
+      "stateMode": 0,
+      "syslog": false
+    },
+    {
+      "description": "970-deny-from-dmz",
+      "destinationIds": [
+        "6af45f960d0a372bedf53d22 (DMZ)"
+      ],
+      "destinationType": 11,
+      "direction": {
+        "lanToLan": true,
+        "lanToWan": false,
+        "vpnInIds": [],
+        "wanInIds": []
+      },
+      "id": "6b0990d9a878955b39adb3c4",
+      "index": 21,
+      "policy": 0,
+      "protocols": [
+        256
+      ],
+      "sourceIds": [
+        "6af45f960d0a372bedf53d22 (DMZ)"
+      ],
+      "sourceType": 0,
+      "stateMode": 0,
+      "syslog": false
+    }
+  ],
+  "ip-mac-binds": [],
+  "ips": {
+    "enable": false
+  },
+  "switch-acls": [],
+  "url-filters-gateway": []
+}

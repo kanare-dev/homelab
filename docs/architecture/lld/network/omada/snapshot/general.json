@@ -1,0 +1,63 @@
+{
+  "device-account": {
+    "username": "admin"
+  },
+  "led": {
+    "enable": true
+  },
+  "lldp": {
+    "lldp": {
+      "enable": true
+    }
+  },
+  "ntp": {
+    "ntpEnable": true
+  },
+  "reboot-schedules": null,
+  "remote-logging": {
+    "remoteLog": {
+      "enable": false,
+      "moreClientLog": false,
+      "port": 514,
+      "resource": 0
+    }
+  },
+  "site": {
+    "dst": {
+      "enable": false,
+      "end": {},
+      "endTime": 0,
+      "lastEnd": 0,
+      "lastStart": 0,
+      "mode": 0,
+      "nextEnd": 0,
+      "nextStart": 0,
+      "start": {},
+      "startTime": 0
+    },
+    "name": "kanare-homelab",
+    "ntpEnable": true,
+    "ntpServers": [
+      "ntp.nict.jp"
+    ],
+    "region": "Japan",
+    "scenario": "General",
+    "siteId": "6ae995d254553e13832c737d",
+    "supportES": true,
+    "supportL2": true,
+    "timeZone": "Asia/Tokyo",
+    "type": 0
+  },
+  "snmp": {
+    "contact": "",
+    "location": "",
+    "snmpV1V2CEnable": false,
+    "snmpV3Enable": false
+  },
+  "ssh": {
+    "layer3Access": false,
+    "sshEnable": false,
+    "sshServerPort": 22
+  },
+  "upgrade-schedules": null
+}

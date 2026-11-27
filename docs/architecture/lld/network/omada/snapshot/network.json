@@ -1,0 +1,472 @@
+{
+  "ddns": [],
+  "dns-proxy": {
+    "enable": false,
+    "existDnsOverride": false,
+    "supportDnsOverride": true
+  },
+  "igmp": {
+    "enable": true,
+    "featureDescription": [
+      {
+        "changeable": true,
+        "feature": "iptv_igmp_wan",
+        "featureState": 0
+      },
+      {
+        "changeable": true,
+        "feature": "iptv_virtualWan",
+        "featureState": 0
+      },
+      {
+        "changeable": true,
+        "feature": "iptv_dsLiteAndMapE",
+        "featureState": 2
+      }
+    ],
+    "version": 2,
+    "wanPortId": "1_424ccb5737324a039d44f4c38da2df78"
+  },
+  "internet": {
+    "enable": true,
+    "enableModified": true,
+    "gatewayMac": "rtr01",
+    "interval": 2,
+    "lteIntervalTips": false,
+    "lteWanSettings": [],
+    "omadacId": "bb19f179c31a2c98c64c4a45141107db",
+    "osgPortInfo": {
+      "preOsgModel": 56,
+      "preOsgModelName": "ER605 v2.30",
+      "realOsgModel": "ER605 v2.30"
+    },
+    "portUuids": [
+      "1_424ccb5737324a039d44f4c38da2df78"
+    ],
+    "siteId": "6ae995d254553e13832c737d",
+    "supportAllWan": true,
+    "supportCustomInterval": true,
+    "supportDhcpOptions": true,
+    "supportDiscreteWan": false,
+    "supportDsLite": true,
+    "supportDsl": false,
+    "supportDualSim": 0,
+    "supportIpv6NonAddress": true,
+    "supportLte": false,
+    "supportMapE": true,
+    "supportMaxWanNum": 4,
+    "supportMssClamping": true,
+    "supportNetworkIsolation": true,
+    "supportPppoeMru": true,
+    "supportVirtualWan": true,
+    "supportWanMultipleIp": true,
+    "unit": 0,
+    "usbLteSettings": [],
+    "wanLoadBalance": {},
+    "wanPortSettings": [
+      {
+        "portId": "1_424ccb5737324a039d44f4c38da2df78",
+        "portName": "WAN1",
+        "wanPortIpv4Setting": {
+          "ipv4Dhcp": {
+            "dhcpOptions": [],
+            "mtu": 1500,
+            "unicastDhcp": false,
+            "wanMultipleIps": []
+          },
+          "ipv4Dslite": {},
+          "ipv4Ipoa": {},
+          "ipv4L2tp": {},
+          "ipv4Mape": {},
+          "ipv4Pppoa": {},
+          "ipv4Pppoe": {},
+          "ipv4Pptp": {},
+          "ipv4Static": {},
+          "protoType": 1,
+          "qosTagEnable": false,
+          "vlanId": 0,
+          "vlanPriority": 0
+        },
+        "wanPortIpv6Setting": {
+          "enable": false,
+          "ipv6Dynamic": {},
+          "ipv6Pppoe": {},
+          "ipv6Static": {},
+          "ipv6Tunnel": {}
+        },
+        "wanPortMacSetting": {
+          "mac": "<mac>",
+          "method": 0
+        }
+      }
+    ]
+  },
+  "lan-multicasts": [],
+  "lan-networks": [
+    {
+      "accessControlRule": true,
+      "allLan": false,
+      "application": 0,
+      "dhcpGuard": {
+        "enable": false
+      },
+      "dhcpL2RelayEnable": false,
+      "dhcpSettingsVO": {
+        "dhcpns": "manual",
+        "enable": true,
+        "ipRangeEnd": 172821247,
+        "ipRangeStart": 172820992,
+        "ipaddrEnd": "10.77.10.250",
+        "ipaddrStart": "10.77.10.240",
+        "leasetime": 60,
+        "options": [],
+        "priDns": "10.77.10.1"
+      },
+      "dhcpv6Guard": {
+        "enable": false
+      },
+      "gatewaySubnet": "10.77.10.1/24",
+      "id": "6ae995d254553e13832c7388",
+      "igmpSnoopEnable": false,
+      "interfaceIds": [
+        "2_37a04af422264287acb804a5dbf895b3",
+        "3_15d1ef264ec149598c2fcc0ea42c5dd5",
+        "4_773a41d3d3c04ee9b80864abc728ac47",
+        "5_39aaa9f9de78406cbb447451f6ae4067"
+      ],
+      "lanNetworkIpv6Config": {
+        "enable": 0,
+        "proto": 0
+      },
+      "mldSnoopEnable": false,
+      "name": "Management(Default)",
+      "portal": false,
+      "primary": true,
+      "purpose": 1,
+      "qosQueueEnable": false,
+      "rateLimit": false,
+      "vlan": 10,
+      "vlanType": 0
+    },
+    {
+      "accessControlRule": true,
+      "allLan": false,
+      "application": 0,
+      "dhcpGuard": {
+        "enable": false
+      },
+      "dhcpL2RelayEnable": false,
+      "dhcpSettingsVO": {
+        "dhcpns": "manual",
+        "enable": true,
+        "ipRangeEnd": 172826367,
+        "ipRangeStart": 172826112,
+        "ipaddrEnd": "10.77.30.199",
+        "ipaddrStart": "10.77.30.100",
+        "leasetime": 2880,
+        "options": [],
+        "priDns": "10.77.20.10"
+      },
+      "dhcpv6Guard": {
+        "enable": false
+      },
+      "gatewaySubnet": "10.77.30.1/24",
+      "id": "6aedd12454553e13832c9822",
+      "igmpSnoopEnable": false,
+      "interfaceIds": [
+        "2_37a04af422264287acb804a5dbf895b3",
+        "3_15d1ef264ec149598c2fcc0ea42c5dd5",
+        "4_773a41d3d3c04ee9b80864abc728ac47",
+        "5_39aaa9f9de78406cbb447451f6ae4067"
+      ],
+      "lanNetworkIpv6Config": {
+        "enable": 0,
+        "proto": 0
+      },
+      "mldSnoopEnable": false,
+      "name": "Trusted",
+      "portal": false,
+      "primary": false,
+      "purpose": 1,
+      "qosQueueEnable": false,
+      "rateLimit": false,
+      "vlan": 30,
+      "vlanType": 0
+    },
+    {
+      "accessControlRule": true,
+      "allLan": false,
+      "application": 0,
+      "dhcpGuard": {
+        "enable": false
+      },
+      "dhcpL2RelayEnable": false,
+      "dhcpSettingsVO": {
+        "dhcpns": "manual",
+        "enable": true,
+        "ipRangeEnd": 172831487,
+        "ipRangeStart": 172831232,
+        "ipaddrEnd": "10.77.50.149",
+        "ipaddrStart": "10.77.50.100",
+        "leasetime": 1440,
+        "options": [],
+        "priDns": "10.77.20.10"
+      },
+      "dhcpv6Guard": {
+        "enable": false
+      },
+      "gatewaySubnet": "10.77.50.1/24",
+      "id": "6aedd17b54553e13832c984b",
+      "igmpSnoopEnable": false,
+      "interfaceIds": [
+        "2_37a04af422264287acb804a5dbf895b3",
+        "3_15d1ef264ec149598c2fcc0ea42c5dd5",
+        "4_773a41d3d3c04ee9b80864abc728ac47",
+        "5_39aaa9f9de78406cbb447451f6ae4067"
+      ],
+      "lanNetworkIpv6Config": {
+        "enable": 0,
+        "proto": 0
+      },
+      "mldSnoopEnable": false,
+      "name": "IoT",
+      "portal": false,
+      "primary": false,
+      "purpose": 1,
+      "qosQueueEnable": false,
+      "rateLimit": false,
+      "vlan": 50,
+      "vlanType": 0
+    },
+    {
+      "accessControlRule": true,
+      "allLan": false,
+      "application": 0,
+      "dhcpGuard": {
+        "enable": false
+      },
+      "dhcpL2RelayEnable": false,
+      "dhcpSettingsVO": {
+        "dhcpns": "auto",
+        "enable": false,
+        "ipRangeEnd": 172823807,
+        "ipRangeStart": 172823552,
+        "leasetime": 120,
+        "options": []
+      },
+      "dhcpv6Guard": {
+        "enable": false
+      },
+      "gatewaySubnet": "10.77.20.1/24",
+      "id": "6af45e5e0d0a372bedf53cda",
+      "igmpSnoopEnable": false,
+      "interfaceIds": [
+        "2_37a04af422264287acb804a5dbf895b3",
+        "3_15d1ef264ec149598c2fcc0ea42c5dd5",
+        "4_773a41d3d3c04ee9b80864abc728ac47",
+        "5_39aaa9f9de78406cbb447451f6ae4067"
+      ],
+      "lanNetworkIpv6Config": {
+        "enable": 0,
+        "proto": 0
+      },
+      "mldSnoopEnable": false,
+      "name": "Servers",
+      "portal": false,
+      "primary": false,
+      "purpose": 1,
+      "qosQueueEnable": false,
+      "rateLimit": false,
+      "vlan": 20,
+      "vlanType": 0
+    },
+    {
+      "accessControlRule": true,
+      "allLan": false,
+      "application": 0,
+      "dhcpGuard": {
+        "enable": false
+      },
+      "dhcpL2RelayEnable": false,
+      "dhcpSettingsVO": {
+        "dhcpns": "manual",
+        "enable": true,
+        "ipRangeEnd": 172828927,
+        "ipRangeStart": 172828672,
+        "ipaddrEnd": "10.77.40.149",
+        "ipaddrStart": "10.77.40.100",
+        "leasetime": 1440,
+        "options": [],
+        "priDns": "10.77.20.10"
+      },
+      "dhcpv6Guard": {
+        "enable": false
+      },
+      "gatewaySubnet": "10.77.40.1/24",
+      "id": "6af45f110d0a372bedf53cfe",
+      "igmpSnoopEnable": false,
+      "interfaceIds": [
+        "2_37a04af422264287acb804a5dbf895b3",
+        "3_15d1ef264ec149598c2fcc0ea42c5dd5",
+        "4_773a41d3d3c04ee9b80864abc728ac47",
+        "5_39aaa9f9de78406cbb447451f6ae4067"
+      ],
+      "lanNetworkIpv6Config": {
+        "enable": 0,
+        "proto": 0
+      },
+      "mldSnoopEnable": false,
+      "name": "Lab",
+      "portal": false,
+      "primary": false,
+      "purpose": 1,
+      "qosQueueEnable": false,
+      "rateLimit": false,
+      "vlan": 40,
+      "vlanType": 0
+    },
+    {
+      "accessControlRule": true,
+      "allLan": false,
+      "application": 0,
+      "dhcpGuard": {
+        "enable": false
+      },
+      "dhcpL2RelayEnable": false,
+      "dhcpSettingsVO": {
+        "dhcpns": "manual",
+        "enable": true,
+        "ipRangeEnd": 172834047,
+        "ipRangeStart": 172833792,
+        "ipaddrEnd": "10.77.60.199",
+        "ipaddrStart": "10.77.60.100",
+        "leasetime": 240,
+        "options": [],
+        "priDns": "10.77.20.10"
+      },
+      "dhcpv6Guard": {
+        "enable": false
+      },
+      "gatewaySubnet": "10.77.60.1/24",
+      "id": "6af45f5a0d0a372bedf53d14",
+      "igmpSnoopEnable": false,
+      "interfaceIds": [
+        "2_37a04af422264287acb804a5dbf895b3",
+        "3_15d1ef264ec149598c2fcc0ea42c5dd5",
+        "4_773a41d3d3c04ee9b80864abc728ac47",
+        "5_39aaa9f9de78406cbb447451f6ae4067"
+      ],
+      "lanNetworkIpv6Config": {
+        "enable": 0,
+        "proto": 0
+      },
+      "mldSnoopEnable": false,
+      "name": "Guests",
+      "portal": false,
+      "primary": false,
+      "purpose": 1,
+      "qosQueueEnable": false,
+      "rateLimit": false,
+      "vlan": 60,
+      "vlanType": 0
+    },
+    {
+      "accessControlRule": true,
+      "allLan": false,
+      "application": 0,
+      "dhcpGuard": {
+        "enable": false
+      },
+      "dhcpL2RelayEnable": false,
+      "dhcpSettingsVO": {
+        "dhcpns": "auto",
+        "enable": false,
+        "ipRangeEnd": 172836607,
+        "ipRangeStart": 172836352,
+        "leasetime": 120,
+        "options": []
+      },
+      "dhcpv6Guard": {
+        "enable": false
+      },
+      "gatewaySubnet": "10.77.70.1/24",
+      "id": "6af45f960d0a372bedf53d22",
+      "igmpSnoopEnable": false,
+      "interfaceIds": [
+        "2_37a04af422264287acb804a5dbf895b3",
+        "3_15d1ef264ec149598c2fcc0ea42c5dd5",
+        "4_773a41d3d3c04ee9b80864abc728ac47",
+        "5_39aaa9f9de78406cbb447451f6ae4067"
+      ],
+      "lanNetworkIpv6Config": {
+        "enable": 0,
+        "proto": 0
+      },
+      "mldSnoopEnable": false,
+      "name": "DMZ",
+      "portal": false,
+      "primary": false,
+      "purpose": 1,
+      "qosQueueEnable": false,
+      "rateLimit": false,
+      "vlan": 70,
+      "vlanType": 0
+    },
+    {
+      "accessControlRule": false,
+      "allLan": false,
+      "application": 0,
+      "dhcpGuard": {
+        "enable": false
+      },
+      "dhcpL2RelayEnable": false,
+      "dhcpSettingsVO": {
+        "dhcpns": "auto",
+        "enable": false,
+        "ipRangeEnd": 172844031,
+        "ipRangeStart": 172843776,
+        "leasetime": 120,
+        "options": []
+      },
+      "dhcpv6Guard": {
+        "enable": false
+      },
+      "gatewaySubnet": "10.77.99.1/24",
+      "id": "6b00468be7ed9d29bb7b1fa5",
+      "igmpSnoopEnable": false,
+      "interfaceIds": [
+        "2_37a04af422264287acb804a5dbf895b3",
+        "3_15d1ef264ec149598c2fcc0ea42c5dd5",
+        "4_773a41d3d3c04ee9b80864abc728ac47",
+        "5_39aaa9f9de78406cbb447451f6ae4067"
+      ],
+      "lanNetworkIpv6Config": {
+        "enable": 0,
+        "proto": 0
+      },
+      "mldSnoopEnable": false,
+      "name": "Blackhole",
+      "portal": false,
+      "primary": false,
+      "purpose": 1,
+      "qosQueueEnable": false,
+      "rateLimit": false,
+      "vlan": 999,
+      "vlanType": 0
+    }
+  ],
+  "upnp": {
+    "enable": false,
+    "supportByDsLiteAndMapE": false
+  },
+  "wlans": [
+    {
+      "clone": false,
+      "name": "既定",
+      "primary": true,
+      "resource": 0,
+      "site": "6ae995d254553e13832c737d",
+      "wlanId": "6ae995d254553e13832c7397"
+    }
+  ]
+}
