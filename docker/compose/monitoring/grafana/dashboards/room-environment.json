@@ -5,15 +5,15 @@
     "homelab",
     "environment"
   ],
-  "description": "室内の温度・湿度（SwitchBot Hub 2 → SwitchBot Cloud → Home Assistant → Prometheus）。HA が SwitchBot Cloud をポーリングして更新するので、値は数分おきにしか変わらない。",
+  "description": "室内の温度・湿度と不快指数（SwitchBot Hub 2 → SwitchBot Cloud → Home Assistant → Prometheus）。HA が SwitchBot Cloud をポーリングして更新するので、値は数分おきにしか変わらない。",
   "schemaVersion": 39,
-  "version": 1,
+  "version": 2,
   "editable": true,
   "graphTooltip": 1,
   "timezone": "browser",
   "refresh": "1m",
   "time": {
-    "from": "now-7d",
+    "from": "now-24h",
     "to": "now"
   },
   "templating": {
@@ -38,9 +38,9 @@
   "panels": [
     {
       "id": 1,
-      "type": "stat",
-      "title": "湿度（現在）",
-      "description": "SwitchBot Hub 2。35% 未満または 70% 超が 1 時間続くと Slack（warning）に通知する。",
+      "type": "gauge",
+      "title": "湿度",
+      "description": "SwitchBot Hub 2。35〜70% が緑。外側（オレンジ）の状態が 1 時間続くと #room-environment に通知する。",
       "datasource": {
         "type": "prometheus",
         "uid": "${ds}"
@@ -48,8 +48,8 @@
       "gridPos": {
         "x": 0,
         "y": 0,
-        "w": 6,
-        "h": 5
+        "w": 8,
+        "h": 8
       },
       "targets": [
         {
@@ -58,9 +58,9 @@
             "uid": "${ds}"
           },
           "expr": "homeassistant_sensor_humidity_percent{entity=\"sensor.switchbot_hub_2_humidity\"}",
-          "instant": true,
           "legendFormat": "",
-          "refId": "A"
+          "refId": "A",
+          "instant": true
         }
       ],
       "options": {
@@ -71,16 +71,22 @@
           "fields": "",
           "values": false
         },
-        "colorMode": "value",
-        "graphMode": "area",
-        "textMode": "value",
-        "justifyMode": "center"
+        "showThresholdMarkers": true,
+        "showThresholdLabels": true,
+        "minVizHeight": 75,
+        "minVizWidth": 75,
+        "sizing": "auto"
       },
       "fieldConfig": {
         "defaults": {
           "unit": "percent",
           "decimals": 0,
+          "min": 0,
+          "max": 100,
           "noValue": "取得できない",
+          "color": {
+            "mode": "thresholds"
+          },
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -97,25 +103,26 @@
                 "value": 70
               }
             ]
-          }
+          },
+          "mappings": []
         },
         "overrides": []
       }
     },
     {
       "id": 2,
-      "type": "stat",
-      "title": "温度（現在）",
-      "description": "SwitchBot Hub 2。温度は通知しない（見るだけ）。",
+      "type": "gauge",
+      "title": "温度",
+      "description": "SwitchBot Hub 2。18〜28℃ を緑にしている（目安。通知はしない）。",
       "datasource": {
         "type": "prometheus",
         "uid": "${ds}"
       },
       "gridPos": {
-        "x": 6,
+        "x": 8,
         "y": 0,
-        "w": 6,
-        "h": 5
+        "w": 8,
+        "h": 8
       },
       "targets": [
         {
@@ -124,9 +131,9 @@
             "uid": "${ds}"
           },
           "expr": "homeassistant_sensor_temperature_celsius{entity=\"sensor.switchbot_hub_2_temperature\"}",
-          "instant": true,
           "legendFormat": "",
-          "refId": "A"
+          "refId": "A",
+          "instant": true
         }
       ],
       "options": {
@@ -137,16 +144,22 @@
           "fields": "",
           "values": false
         },
-        "colorMode": "value",
-        "graphMode": "area",
-        "textMode": "value",
-        "justifyMode": "center"
+        "showThresholdMarkers": true,
+        "showThresholdLabels": true,
+        "minVizHeight": 75,
+        "minVizWidth": 75,
+        "sizing": "auto"
       },
       "fieldConfig": {
         "defaults": {
           "unit": "celsius",
           "decimals": 1,
+          "min": 0,
+          "max": 40,
           "noValue": "取得できない",
+          "color": {
+            "mode": "thresholds"
+          },
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -163,25 +176,110 @@
                 "value": 28
               }
             ]
-          }
+          },
+          "mappings": []
         },
         "overrides": []
       }
     },
     {
       "id": 3,
-      "type": "stat",
-      "title": "湿度（24 時間の最小）",
-      "description": "",
+      "type": "gauge",
+      "title": "不快指数",
+      "description": "0.81T + 0.01H(0.99T − 14.3) + 46.3。60〜75 が快適（緑）。55 未満は寒い、80 以上は暑い。通知はしない。",
       "datasource": {
         "type": "prometheus",
         "uid": "${ds}"
       },
       "gridPos": {
-        "x": 12,
+        "x": 16,
         "y": 0,
+        "w": 8,
+        "h": 8
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${ds}"
+          },
+          "expr": "(0.81 * homeassistant_sensor_temperature_celsius{entity=\"sensor.switchbot_hub_2_temperature\"}) + on(instance) ((0.01 * homeassistant_sensor_humidity_percent{entity=\"sensor.switchbot_hub_2_humidity\"}) * on(instance) (0.99 * homeassistant_sensor_temperature_celsius{entity=\"sensor.switchbot_hub_2_temperature\"} - 14.3)) + 46.3",
+          "legendFormat": "",
+          "refId": "A",
+          "instant": true
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdMarkers": true,
+        "showThresholdLabels": true,
+        "minVizHeight": 75,
+        "minVizWidth": 75,
+        "sizing": "auto"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none",
+          "decimals": 0,
+          "min": 40,
+          "max": 95,
+          "noValue": "取得できない",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              },
+              {
+                "color": "light-blue",
+                "value": 55
+              },
+              {
+                "color": "green",
+                "value": 60
+              },
+              {
+                "color": "yellow",
+                "value": 75
+              },
+              {
+                "color": "orange",
+                "value": 80
+              },
+              {
+                "color": "red",
+                "value": 85
+              }
+            ]
+          },
+          "mappings": []
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 4,
+      "type": "stat",
+      "title": "湿度（24 時間の最小）",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${ds}"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 8,
         "w": 6,
-        "h": 5
+        "h": 4
       },
       "targets": [
         {
@@ -190,9 +288,9 @@
             "uid": "${ds}"
           },
           "expr": "min_over_time(homeassistant_sensor_humidity_percent{entity=\"sensor.switchbot_hub_2_humidity\"}[24h])",
-          "instant": true,
           "legendFormat": "",
-          "refId": "A"
+          "refId": "A",
+          "instant": true
         }
       ],
       "options": {
@@ -204,7 +302,7 @@
           "values": false
         },
         "colorMode": "value",
-        "graphMode": "area",
+        "graphMode": "none",
         "textMode": "value",
         "justifyMode": "center"
       },
@@ -212,73 +310,7 @@
         "defaults": {
           "unit": "percent",
           "decimals": 0,
-          "noValue": "取得できない",
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "orange",
-                "value": null
-              },
-              {
-                "color": "green",
-                "value": 35
-              },
-              {
-                "color": "orange",
-                "value": 70
-              }
-            ]
-          }
-        },
-        "overrides": []
-      }
-    },
-    {
-      "id": 4,
-      "type": "stat",
-      "title": "湿度（24 時間の最大）",
-      "description": "",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${ds}"
-      },
-      "gridPos": {
-        "x": 18,
-        "y": 0,
-        "w": 6,
-        "h": 5
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${ds}"
-          },
-          "expr": "max_over_time(homeassistant_sensor_humidity_percent{entity=\"sensor.switchbot_hub_2_humidity\"}[24h])",
-          "instant": true,
-          "legendFormat": "",
-          "refId": "A"
-        }
-      ],
-      "options": {
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "colorMode": "value",
-        "graphMode": "area",
-        "textMode": "value",
-        "justifyMode": "center"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "percent",
-          "decimals": 0,
-          "noValue": "取得できない",
+          "noValue": "—",
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -302,6 +334,413 @@
     },
     {
       "id": 5,
+      "type": "stat",
+      "title": "湿度（24 時間の最大）",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${ds}"
+      },
+      "gridPos": {
+        "x": 6,
+        "y": 8,
+        "w": 6,
+        "h": 4
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${ds}"
+          },
+          "expr": "max_over_time(homeassistant_sensor_humidity_percent{entity=\"sensor.switchbot_hub_2_humidity\"}[24h])",
+          "legendFormat": "",
+          "refId": "A",
+          "instant": true
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "value",
+        "graphMode": "none",
+        "textMode": "value",
+        "justifyMode": "center"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "decimals": 0,
+          "noValue": "—",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "orange",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 35
+              },
+              {
+                "color": "orange",
+                "value": 70
+              }
+            ]
+          }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 6,
+      "type": "stat",
+      "title": "温度（24 時間の最小）",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${ds}"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 8,
+        "w": 6,
+        "h": 4
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${ds}"
+          },
+          "expr": "min_over_time(homeassistant_sensor_temperature_celsius{entity=\"sensor.switchbot_hub_2_temperature\"}[24h])",
+          "legendFormat": "",
+          "refId": "A",
+          "instant": true
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "value",
+        "graphMode": "none",
+        "textMode": "value",
+        "justifyMode": "center"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "celsius",
+          "decimals": 1,
+          "noValue": "—",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 18
+              },
+              {
+                "color": "orange",
+                "value": 28
+              }
+            ]
+          }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 7,
+      "type": "stat",
+      "title": "温度（24 時間の最大）",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${ds}"
+      },
+      "gridPos": {
+        "x": 18,
+        "y": 8,
+        "w": 6,
+        "h": 4
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${ds}"
+          },
+          "expr": "max_over_time(homeassistant_sensor_temperature_celsius{entity=\"sensor.switchbot_hub_2_temperature\"}[24h])",
+          "legendFormat": "",
+          "refId": "A",
+          "instant": true
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "value",
+        "graphMode": "none",
+        "textMode": "value",
+        "justifyMode": "center"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "celsius",
+          "decimals": 1,
+          "noValue": "—",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 18
+              },
+              {
+                "color": "orange",
+                "value": 28
+              }
+            ]
+          }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 8,
+      "type": "state-timeline",
+      "title": "湿度の区分",
+      "description": "35% 未満が乾燥、70% 超が高湿（通知のしきい値と同じ）。",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${ds}"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 12,
+        "w": 12,
+        "h": 5
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${ds}"
+          },
+          "expr": "homeassistant_sensor_humidity_percent{entity=\"sensor.switchbot_hub_2_humidity\"}",
+          "legendFormat": "湿度",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "showValue": "auto",
+        "mergeValues": true,
+        "alignValue": "center",
+        "rowHeight": 0.8,
+        "legend": {
+          "showLegend": true,
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [
+            {
+              "type": "range",
+              "options": {
+                "from": null,
+                "to": 34.999,
+                "result": {
+                  "text": "乾燥",
+                  "color": "orange",
+                  "index": 0
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 35,
+                "to": 70,
+                "result": {
+                  "text": "適正",
+                  "color": "green",
+                  "index": 1
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 70.001,
+                "to": null,
+                "result": {
+                  "text": "高湿",
+                  "color": "blue",
+                  "index": 2
+                }
+              }
+            }
+          ],
+          "custom": {
+            "lineWidth": 0,
+            "fillOpacity": 80
+          }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 9,
+      "type": "state-timeline",
+      "title": "不快指数の区分",
+      "description": "日本で一般に使う区分を 6 段階にまとめた。60〜75 が快適。",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${ds}"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 12,
+        "w": 12,
+        "h": 5
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${ds}"
+          },
+          "expr": "(0.81 * homeassistant_sensor_temperature_celsius{entity=\"sensor.switchbot_hub_2_temperature\"}) + on(instance) ((0.01 * homeassistant_sensor_humidity_percent{entity=\"sensor.switchbot_hub_2_humidity\"}) * on(instance) (0.99 * homeassistant_sensor_temperature_celsius{entity=\"sensor.switchbot_hub_2_temperature\"} - 14.3)) + 46.3",
+          "legendFormat": "不快指数",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "showValue": "auto",
+        "mergeValues": true,
+        "alignValue": "center",
+        "rowHeight": 0.8,
+        "legend": {
+          "showLegend": true,
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [
+            {
+              "type": "range",
+              "options": {
+                "from": null,
+                "to": 54.999,
+                "result": {
+                  "text": "寒い",
+                  "color": "blue",
+                  "index": 0
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 55,
+                "to": 59.999,
+                "result": {
+                  "text": "肌寒い",
+                  "color": "light-blue",
+                  "index": 1
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 60,
+                "to": 74.999,
+                "result": {
+                  "text": "快適",
+                  "color": "green",
+                  "index": 2
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 75,
+                "to": 79.999,
+                "result": {
+                  "text": "やや暑い",
+                  "color": "yellow",
+                  "index": 3
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 80,
+                "to": 84.999,
+                "result": {
+                  "text": "暑い",
+                  "color": "orange",
+                  "index": 4
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 85,
+                "to": null,
+                "result": {
+                  "text": "非常に暑い",
+                  "color": "red",
+                  "index": 5
+                }
+              }
+            }
+          ],
+          "custom": {
+            "lineWidth": 0,
+            "fillOpacity": 80
+          }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 10,
       "type": "timeseries",
       "title": "湿度",
       "description": "色の帯は通知の範囲（35% 未満・70% 超）。",
@@ -311,9 +750,9 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 5,
+        "y": 17,
         "w": 24,
-        "h": 9
+        "h": 8
       },
       "targets": [
         {
@@ -343,17 +782,18 @@
       "fieldConfig": {
         "defaults": {
           "unit": "percent",
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "blue"
+          },
           "custom": {
             "lineWidth": 2,
             "fillOpacity": 10,
             "spanNulls": true,
+            "gradientMode": "opacity",
             "thresholdsStyle": {
               "mode": "line+area"
             }
-          },
-          "color": {
-            "mode": "fixed",
-            "fixedColor": "blue"
           },
           "thresholds": {
             "mode": "absolute",
@@ -373,25 +813,26 @@
             ]
           },
           "min": 0,
-          "max": 100
+          "max": 100,
+          "decimals": 0
         },
         "overrides": []
       }
     },
     {
-      "id": 6,
+      "id": 11,
       "type": "timeseries",
       "title": "温度",
-      "description": "",
+      "description": "点線は目安の範囲（18〜28℃）。",
       "datasource": {
         "type": "prometheus",
         "uid": "${ds}"
       },
       "gridPos": {
         "x": 0,
-        "y": 14,
+        "y": 25,
         "w": 24,
-        "h": 9
+        "h": 8
       },
       "targets": [
         {
@@ -421,18 +862,37 @@
       "fieldConfig": {
         "defaults": {
           "unit": "celsius",
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "blue"
+          },
           "custom": {
             "lineWidth": 2,
             "fillOpacity": 10,
             "spanNulls": true,
+            "gradientMode": "opacity",
             "thresholdsStyle": {
-              "mode": "off"
+              "mode": "dashed"
             }
           },
-          "color": {
-            "mode": "fixed",
-            "fixedColor": "blue"
-          }
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "transparent",
+                "value": null
+              },
+              {
+                "color": "blue",
+                "value": 18
+              },
+              {
+                "color": "orange",
+                "value": 28
+              }
+            ]
+          },
+          "decimals": 1
         },
         "overrides": []
       }
