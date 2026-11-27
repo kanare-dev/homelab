@@ -152,12 +152,7 @@
   ESP32 → MQTT → HomeAssistant → Prometheus → Grafana
   ```
 
-- [ ] **検討中**: SwitchBot Hub 2 の温度・湿度（将来は CO2 濃度）を監視し、しきい値を超えたら Slack にアラートを送る（2026-11-09、運用者の希望）。**採用は未決定**。
-  - 今の状態: Home Assistant が SwitchBot Cloud 経由で値を取得し（`sensor.switchbot_hub_2_temperature` / `sensor.switchbot_hub_2_humidity`）、Homepage のウィジェットが HA から表示している（[Homepage](../../architecture/lld/apps/homepage.md)、[Home Assistant](../../architecture/lld/apps/home-assistant.md)）。**現在値を見るだけで、履歴もアラートも無い**。
-  - CO2: 今の Hub 2 では取れない前提（運用者の話。機種の仕様は未確認）。CO2 に対応するセンサーを足したときに、同じ仕組みに載せる（機種は未定）。
-  - 方法の候補（**未調査・未検証**）: Home Assistant の Prometheus 連携でセンサーの値を Prometheus に出し、`alerts.yml` にルールを足す。既存の Alertmanager から Slack に送る経路をそのまま使え、Grafana に履歴も出る。上の ESP32 の流れ（HA → Prometheus → Grafana）と同じ経路にできる。
-  - 決めること: 温度・湿度・CO2 のしきい値と継続時間、HA の認証情報（長期アクセストークン）の置き場所（SOPS）、SwitchBot Cloud のポーリング間隔（反応が遅い。API の上限は 1 日 10,000 回）で足りるか、センサーの値が途絶えたときの扱い（欠測の検知）。
-  - 採用を決めたら、設計書（[監視・アラート](../../architecture/lld/platform/monitoring.md)、[Home Assistant](../../architecture/lld/apps/home-assistant.md)）と ADR に移す。
+- [ ] CO2 濃度の監視。今の SwitchBot Hub 2 では取れない前提（運用者の話。機種の仕様は未確認）。CO2 に対応するセンサーを足したら、温度・湿度と同じ仕組み（[ADR-0037](../../adr/0037-room-sensors-via-home-assistant-prometheus.md)）に載せる。機種としきい値は未定。
 
 - [ ] IP カメラ + Frigate の導入
 - [ ] メディアサーバーの導入（Jellyfin / Plex / Emby）

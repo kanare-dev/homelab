@@ -358,7 +358,7 @@
 | 状況 | ツール | 説明 | 根拠・備考 |
 | --- | --- | --- | --- |
 | 導入済み | homeassistant/home-assistant | スマートホーム統合プラットフォーム | [Home Assistant](architecture/lld/apps/home-assistant.md) |
-| 検討中 | Home Assistant の Prometheus 連携（組み込み） | SwitchBot Hub 2 の温度・湿度（将来は CO2）を Prometheus に出し、Slack にアラートを送る。未検証 | [バックログ](operations/roadmap/01-backlog.md) |
+| 導入済み | Home Assistant の Prometheus 連携（組み込み） | SwitchBot Hub 2 の温度・湿度（将来は CO2）を Prometheus に出し、湿度の異常を Slack に通知する | [ADR-0037](adr/0037-room-sensors-via-home-assistant-prometheus.md)、[監視・アラート](architecture/lld/platform/monitoring.md#室内の温度湿度) |
 | 計画中 | blakeblackshear/frigate | NVR・AI 物体検知 | [未着手の項目](operations/roadmap/01-backlog.md) |
 | 未検討 | koush/scrypted | カメラ・デバイスの HomeKit ブリッジ | — |
 | 未検討 | oznu/homebridge | HomeKit ブリッジ | — |
@@ -488,7 +488,7 @@
 | リモートアクセス | Tailscale | WireGuard（見送り）、OpenVPN（未検討）、Omada Cloud（検討中。Omada コントローラーの管理画面だけ） |
 | メトリクス監視 | Prometheus + Grafana | Netdata（未検討）、Glances・Telegraf + InfluxDB（見送り） |
 | Omada のメトリクス取得 | 未決定（検討中: omada_exporter（コミュニティ製）、Open API の自前 exporter） | 移行（段階 1〜3）のあとに検討 |
-| センサー（温度・湿度・CO2）の監視 | 未決定（検討中: Home Assistant の Prometheus 連携 + Alertmanager） | 現在は Homepage のウィジェットで現在値を見るだけ |
+| センサー（温度・湿度・CO2）の監視 | Home Assistant の Prometheus 連携 + Prometheus + Alertmanager + Grafana（[ADR 0037](adr/0037-room-sensors-via-home-assistant-prometheus.md)） | HA のオートメーションで直接通知、Grafana のアラート、SwitchBot 用の exporter（採らなかった理由は ADR 0037 の代替案）、ESP32 + MQTT（計画中） |
 | コンテナ・プロセス別のメモリ監視 | 未決定（`vm-omada` だけ。検討中: cAdvisor、process-exporter） | 入れずに `docker stats` で見る案もある |
 | 回線の疎通・遅延の監視 | blackbox-exporter（ICMP）+ Prometheus + Grafana（計画中） | Speedtest 系: speedtest-exporter（見送り）、MySpeed、LibreSpeed（未検討） |
 | 死活監視・ステータスページ | blackbox-exporter + Alertmanager | Uptime Kuma（見送り） |

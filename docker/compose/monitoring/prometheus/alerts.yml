@@ -156,8 +156,10 @@ groups:
   - name: availability
     rules:
       # vm-dev は onboot=false で手動起動のため除外（停止検知は PveVmStopped が onboot=1 のみ対象）
+      # homeassistant（センサーの値の取得）も除外する。VM の停止ではないのに critical になり、
+      # 同じ host（vm-apps）の外形監視を抑制してしまうため。取得の失敗は RoomSensorMissing が担当する
       - alert: TargetDown
-        expr: up{instance!="vm-dev"} == 0
+        expr: up{instance!="vm-dev",job!="homeassistant"} == 0
         for: 3m
         labels:
           severity: critical
@@ -316,3 +318,46 @@ groups:
         annotations:
           summary: "インターネットへの ping の遅延が平常の 3 倍超（{{ $value | humanizeDuration }}）"
           description: "1.1.1.1 への RTT が、7 日間の中央値の 3 倍かつ 100ms を超えている。建物側の混雑を疑う。「建物の共用ルーター」の遅延も高ければ建物内、低ければその先。"
+
+  # 室内の温度・湿度（SwitchBot Hub 2 → SwitchBot Cloud → Home Assistant → Prometheus）
+  - name: room-environment
+    rules:
+      # 冬の乾燥。換気や加湿器の一時的な変化で鳴らないよう、1 時間続いたら通知する
+      - alert: RoomHumidityLow
+        expr: homeassistant_sensor_humidity_percent{entity="sensor.switchbot_hub_2_humidity"} < 35
+        for: 1h
+        labels:
+          severity: warning
+        annotations:
+          summary: "室内の湿度が {{ $value | printf \"%.0f\" }}%（35% 未満が 1 時間続いている）"
+          description: "乾燥している。加湿器を使う。Grafana「Room Environment」で推移を見る。"
+
+      # 夏の結露・カビ。入浴や料理の一時的な上昇で鳴らないよう、1 時間続いたら通知する
+      - alert: RoomHumidityHigh
+        expr: homeassistant_sensor_humidity_percent{entity="sensor.switchbot_hub_2_humidity"} > 70
+        for: 1h
+        labels:
+          severity: warning
+        annotations:
+          summary: "室内の湿度が {{ $value | printf \"%.0f\" }}%（70% 超が 1 時間続いている）"
+          description: "結露やカビの原因になる。除湿・換気する。Grafana「Room Environment」で推移を見る。"
+
+      # HA は動いているが、センサーの値を取れていない（SwitchBot Cloud の障害、トークンの失効、Hub の電源断）
+      - alert: RoomSensorUnavailable
+        expr: homeassistant_entity_available{entity=~"sensor.switchbot_hub_2_(temperature|humidity)"} == 0
+        for: 30m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Home Assistant で {{ $labels.entity }} が利用できない"
+          description: "SwitchBot Cloud の統合を HA の画面（設定 > デバイスとサービス）で確認する。Hub 2 の電源と Wi-Fi も確認する。この間、湿度のアラートは鳴らない。"
+
+      # Prometheus に値が届いていない（HA の停止、/api/prometheus のトークン失効、UFW、設定の誤り）
+      - alert: RoomSensorMissing
+        expr: absent(homeassistant_sensor_humidity_percent{entity="sensor.switchbot_hub_2_humidity"})
+        for: 30m
+        labels:
+          severity: warning
+        annotations:
+          summary: "室内の湿度のメトリクスが Prometheus に無い"
+          description: "Prometheus の Targets で job=homeassistant の状態を確認する（401 ならトークン、接続できなければ HA の停止か UFW）。この間、湿度のアラートは鳴らない。"

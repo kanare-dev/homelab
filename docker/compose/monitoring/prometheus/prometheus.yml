@@ -60,6 +60,24 @@ scrape_configs:
       - source_labels: ["host"]
         target_label: instance
 
+  # 室内の温度・湿度（SwitchBot Hub 2）。Home Assistant の Prometheus 連携から取る。
+  # HA は SwitchBot Cloud をポーリングして値を更新するので、短い間隔で取っても意味がない。
+  # トークンは Ansible が SOPS（prometheus_ha_token）から /etc/prometheus/ha_token に置く
+  - job_name: "homeassistant"
+    metrics_path: /api/prometheus
+    scrape_interval: 60s
+    authorization:
+      credentials_file: /etc/prometheus/ha_token
+    static_configs:
+      - targets: ["10.77.20.20:8123"]   # vm-apps（Home Assistant。host ネットワーク）
+        labels:
+          env: "homelab"
+          host: "vm-apps"
+          service: "homeassistant"
+    relabel_configs:
+      - target_label: instance
+        replacement: "homeassistant"
+
   # 外形監視: Caddy 経由の HTTPS サービス（URL・証明書の期限）。
   # host は背後の VM。TargetDown と同じ host で抑制する（alertmanager.yml）。
   - job_name: "blackbox_http"

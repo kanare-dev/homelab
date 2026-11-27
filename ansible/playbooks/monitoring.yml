@@ -72,6 +72,24 @@
           heartbeat_ping_url が未設定。ansible/inventory/group_vars/monitoring/secrets.sops.yml に
           sops で追加すること（docs/architecture/lld/platform/monitoring.md の「外部 Heartbeat」参照）。
 
+    - name: Fail early if Home Assistant token for Prometheus is not in secrets
+      ansible.builtin.assert:
+        that:
+          - prometheus_ha_token is defined
+          - prometheus_ha_token | length > 0
+        fail_msg: >-
+          prometheus_ha_token が未設定。Home Assistant で長期アクセストークン（prometheus）を作り、
+          ansible/inventory/group_vars/monitoring/secrets.sops.yml に sops で追加すること
+          （docs/architecture/lld/platform/monitoring.md の「室内の温度・湿度」参照）。
+
+    # prometheus コンテナ（nobody）が読めるよう 0644。slack_webhook_url と同じ理由
+    - name: Deploy Home Assistant token for Prometheus
+      ansible.builtin.copy:
+        content: "{{ prometheus_ha_token }}"
+        dest: /opt/monitoring/prometheus/ha_token
+        mode: "0644"
+      no_log: true
+
     - name: Create blackbox config directory
       ansible.builtin.file:
         path: /opt/monitoring/blackbox
@@ -153,17 +171,24 @@
         dest: /opt/monitoring/grafana/provisioning/dashboards/json/internet-connectivity.json
         mode: "0644"
 
+    - name: Copy room environment dashboard
+      ansible.builtin.copy:
+        src: "{{ playbook_dir }}/../../docker/compose/monitoring/grafana/dashboards/room-environment.json"
+        dest: /opt/monitoring/grafana/provisioning/dashboards/json/room-environment.json
+        mode: "0644"
+
     - name: Download Node Exporter Full dashboard
       ansible.builtin.get_url:
         url: https://grafana.com/api/dashboards/1860/revisions/latest/download
         dest: /opt/monitoring/grafana/provisioning/dashboards/json/node-exporter-full.json
         mode: "0644"
 
-    - name: Download ESP32 environment dashboard
-      ansible.builtin.get_url:
-        url: https://raw.githubusercontent.com/kanare-dev/iot-env-monitor/main/infra/grafana/dashboards/environment.json
-        dest: /opt/monitoring/grafana/provisioning/dashboards/json/esp32-environment.json
-        mode: "0644"
+    # ESP32 の温湿度ダッシュボードは、Home Assistant から取る「Room Environment」に置き換えた。
+    # ファイルを消すと、Grafana のプロビジョニング（disableDeletion: false）がダッシュボードも消す
+    - name: Remove retired ESP32 environment dashboard
+      ansible.builtin.file:
+        path: /opt/monitoring/grafana/provisioning/dashboards/json/esp32-environment.json
+        state: absent
 
     - name: Start monitoring stack
       community.docker.docker_compose_v2:
