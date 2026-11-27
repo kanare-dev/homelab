@@ -57,6 +57,8 @@ IoT・Guests・DMZ には端末が無いので、その VLAN からの拒否は�
 
 ## 3. 末尾の拒否を、1 件ずつ足す
 
+各段階で、`python3 tools/acl-check.py --deny <有効にした VLAN>` を流すと、下の確認項目の多くを自動で確かめられる（例: 3-2 のあとは `--deny dmz,guests,iot,lab`）。手順 1 の前に `--deny none` で流し、すべて届くことを確かめておく。
+
 各ルールは、[設定値](../../architecture/lld/network/omada-controller.md#ゲートウェイの-acl)の表のとおりに作る（送信元はその VLAN、宛先は「!ネットワーク」でその VLAN）。足したら、下の確認を行い、問題が無ければ次に進む。
 
 ### 3-1. DMZ、Guests、IoT（`970`、`960`、`950`）
@@ -137,7 +139,7 @@ Mac（Tailscale をオフ）と iPhone（Wi-Fi、Tailscale をオフ）で確か
 
 **2026-11-27 に実施した。** 末尾の拒否 7 件まで足し終え、ACL は[通信ポリシー](../../architecture/hld/05-network.md#通信ポリシー)の内容になった。段階 3 の完了（2026-11-17）から 10 日で、期限の目安（2 週間）に収まった。通信が止まったサービスは無く、Prometheus の 30 ターゲットは、作業の間ずっと `up` で、アラートは `Watchdog` だけだった。
 
-確認には、許可と拒否の組み合わせを 35 件並べたテストを使った。送信元は、Mac（Trusted。Tailscale をオフ）、`vm-infra`・`vm-monitoring`（Servers）、`vm-dev`（Lab）、`pve01`・`vm-omada`（Management）で、TCP の接続、ping、DNS（UDP と TCP）を試した。各ケースの期待する結果は、許可のルールに当たるかと、送信元の VLAN の `9xx` が有効かで決まる。そのため、`9xx` を 1 件足すたびに、同じテストを流した。最初に全許可のまま流して、35 件すべてが届くことを確かめた。これで、拒否を期待するケースがあとで届かなくなったとき、UFW ではなく ACL が止めたと言える。各段階で、35 件すべてが期待どおりだった。
+確認には、許可と拒否の組み合わせを 35 件並べたテスト（`tools/acl-check.py`。今の本番の状態は `make acl-check` で確かめられる）を使った。送信元は、Mac（Trusted。Tailscale をオフ）、`vm-infra`・`vm-monitoring`（Servers）、`vm-dev`（Lab）、`pve01`・`vm-omada`（Management）で、TCP の接続、ping、DNS（UDP と TCP）を試した。各ケースの期待する結果は、許可のルールに当たるかと、送信元の VLAN の `9xx` が有効かで決まる。そのため、`9xx` を 1 件足すたびに、同じテストを流した。最初に全許可のまま流して、35 件すべてが届くことを確かめた。これで、拒否を期待するケースがあとで届かなくなったとき、UFW ではなく ACL が止めたと言える。各段階で、35 件すべてが期待どおりだった。
 
 - 3-1（DMZ・Guests・IoT）: 端末が無いので、止まった通信は無い。
 - 3-2（Lab）: `vm-dev` から Servers の 443、Management への ping と SSH、Mac への ping が止まった。DNS（`170`）、ゲートウェイ自身、インターネット、Lab へ入る通信（`140`・`141`・`151`）は通った。

@@ -145,7 +145,7 @@ TP-Link ER605 V2。製品の仕様とファームウェアは[ER605 の資料](.
 - Trusted → DMZ（Web・SSH）、Servers → DMZ（ログの取得）、Management → DMZ（管理用ポート）は、DMZ に何も置いていないので、作らない（今は末尾の拒否に当たる）。DMZ に機器を置くときに足す。
 - **確認済み（2026-11-27）**: プロトコルは、ICMP だけも、TCP と UDP の両方も選べる。送信元に IP グループ、宛先に IP-Port グループを選べる。
 - **確認済み（2026-11-27）**: `!ネットワーク` の拒否は、WAN 側のプライベートアドレス（建物の共用ルーター `172.22.0.1`）宛の通信を止めない。`vm-monitoring` から `172.22.0.1` への ping は、`920` を有効にしたあとも通り、Prometheus の `building-router` の監視は `up` のままだった。
-- 確かめ方: Mac（Tailscale をオフ）と各ホストから、許可と拒否の両方を 35 件流して確かめた（[手順書 27](../../../operations/runbooks/27-network-acl-tighten.md#実施の記録)）。
+- 確かめ方: Mac（Tailscale をオフ）と各ホストから、許可と拒否の両方を 35 件流す `make acl-check`（`tools/acl-check.py`）で確かめた（[手順書 27](../../../operations/runbooks/27-network-acl-tighten.md#実施の記録)）。コントローラーや機器を作り直したあとは、ACL が全許可に戻っていないかを、これで確かめる。**ルールを変えたら、スクリプトのケースも同じ変更で直す。**
 
 ### ER605 の管理・その他
 
