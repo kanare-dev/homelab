@@ -326,8 +326,11 @@ groups:
       - alert: RoomHumidityLow
         expr: homeassistant_sensor_humidity_percent{entity="sensor.switchbot_hub_2_humidity"} < 35
         for: 1h
+        # 35%・70% の前後を行き来して、発報と解消が何度も届かないよう、解消を 30 分待つ
+        keep_firing_for: 30m
         labels:
           severity: warning
+          channel: environment   # 室内環境用チャンネルに送る（alertmanager.yml）
         annotations:
           summary: "室内の湿度が {{ $value | printf \"%.0f\" }}%（35% 未満が 1 時間続いている）"
           description: "乾燥している。加湿器を使う。Grafana「Room Environment」で推移を見る。"
@@ -336,8 +339,11 @@ groups:
       - alert: RoomHumidityHigh
         expr: homeassistant_sensor_humidity_percent{entity="sensor.switchbot_hub_2_humidity"} > 70
         for: 1h
+        # 35%・70% の前後を行き来して、発報と解消が何度も届かないよう、解消を 30 分待つ
+        keep_firing_for: 30m
         labels:
           severity: warning
+          channel: environment   # 室内環境用チャンネルに送る（alertmanager.yml）
         annotations:
           summary: "室内の湿度が {{ $value | printf \"%.0f\" }}%（70% 超が 1 時間続いている）"
           description: "結露やカビの原因になる。除湿・換気する。Grafana「Room Environment」で推移を見る。"

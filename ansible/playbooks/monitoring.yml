@@ -63,6 +63,15 @@
           slack_webhook_url_warning が未設定。ansible/inventory/group_vars/monitoring/secrets.sops.yml に
           sops で追加すること（docs/operations/runbooks/05-slack-alerts.md参照）。
 
+    - name: Fail early if Slack webhook URL for room environment is not in secrets
+      ansible.builtin.assert:
+        that:
+          - slack_webhook_url_environment is defined
+          - slack_webhook_url_environment | length > 0
+        fail_msg: >-
+          slack_webhook_url_environment が未設定。ansible/inventory/group_vars/monitoring/secrets.sops.yml に
+          sops で追加すること（docs/operations/runbooks/05-slack-alerts.md参照）。
+
     - name: Fail early if heartbeat ping URL is not in secrets
       ansible.builtin.assert:
         that:
@@ -127,6 +136,14 @@
       ansible.builtin.copy:
         content: "{{ slack_webhook_url_warning }}"
         dest: /opt/monitoring/alertmanager/slack_webhook_url_warning
+        mode: "0644"
+      no_log: true
+
+    # slack_webhook_url と同じ理由で 0644
+    - name: Deploy Slack webhook URL for room environment
+      ansible.builtin.copy:
+        content: "{{ slack_webhook_url_environment }}"
+        dest: /opt/monitoring/alertmanager/slack_webhook_url_environment
         mode: "0644"
       no_log: true
 

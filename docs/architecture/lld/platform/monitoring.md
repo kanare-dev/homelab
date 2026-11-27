@@ -45,7 +45,7 @@ homelab の監視とアラート通知の仕組み。2026-10-22 の障害（[INC
 | Alertmanager | 通知のグルーピング・送信 | `docker/compose/monitoring/alertmanager/alertmanager.yml` |
 | 外部 Heartbeat | `Watchdog` を Healthchecks.io へ 5 分毎に送る。途絶えたら外部から通知（[ADR-0010](../../../adr/0010-external-heartbeat.md)） | `alertmanager.yml`（`heartbeat` receiver）、`ansible/playbooks/monitoring.yml` |
 | Heartbeat ping URL | 秘密情報 | `ansible/inventory/group_vars/monitoring/secrets.sops.yml`（`heartbeat_ping_url`、SOPS 暗号化） |
-| Slack Webhook URL（critical 用 / warning 用） | 秘密情報 | `ansible/inventory/group_vars/monitoring/secrets.sops.yml`（`slack_webhook_url` / `slack_webhook_url_warning`、SOPS 暗号化） |
+| Slack Webhook URL（critical 用 / warning 用 / 室内環境用） | 秘密情報 | `ansible/inventory/group_vars/monitoring/secrets.sops.yml`（`slack_webhook_url` / `slack_webhook_url_warning` / `slack_webhook_url_environment`、SOPS 暗号化） |
 | Grafana ダッシュボード「Internet Connectivity」 | ping の遅延（ルーター・建物の共用ルーター・インターネット）、疎通、通知しきい値 | `docker/compose/monitoring/grafana/dashboards/internet-connectivity.json`（`/d/homelab-internet-connectivity`） |
 | Home Assistant の Prometheus 連携 | SwitchBot Hub 2 の温度・湿度を `/api/prometheus` で出す（2 エンティティだけ）。Prometheus の `homeassistant` ジョブが 60 秒毎に取る（[ADR-0037](../../../adr/0037-room-sensors-via-home-assistant-prometheus.md)） | `docker/compose/homeassistant/config/configuration.yaml`、`prometheus.yml` |
 | Home Assistant のトークン | 秘密情報。HA の長期アクセストークン `prometheus` | `ansible/inventory/group_vars/monitoring/secrets.sops.yml`（`prometheus_ha_token`、SOPS 暗号化） |
@@ -83,7 +83,7 @@ homelab の監視とアラート通知の仕組み。2026-10-22 の障害（[INC
 | GatewayUnreachable | ルーター（`10.77.20.1`。Servers のゲートウェイ）に ping が通らない | 2m | critical | ルーターの停止、LAN の断、PVE の NIC 停止 |
 | InternetPacketLoss | `1.1.1.1` と `8.8.8.8` の**両方**で、パケットロスが 10 分間で 10% 超（ルーター自身に届かない間は評価しない） | 10m | warning | 回線の不安定（建物側の混雑など） |
 | InternetLatencyHigh | `1.1.1.1` への RTT（10 分平均）が 100ms 超かつ 7 日間の中央値の 3 倍超（平常値が溜まるまで評価しない） | 15m | warning | 回線・建物側のネットワークの遅延増加 |
-| RoomHumidityLow / High | 室内の湿度（SwitchBot Hub 2）が 35% 未満 / 70% 超 | 1h | warning | 冬の乾燥 / 夏の結露・カビ |
+| RoomHumidityLow / High | 室内の湿度（SwitchBot Hub 2）が 35% 未満 / 70% 超。解消は 30 分待つ（`keep_firing_for`） | 1h | warning | 冬の乾燥 / 夏の結露・カビ。**室内環境用チャンネル**に送る |
 | RoomSensorUnavailable | HA で温度・湿度のエンティティが利用できない（`homeassistant_entity_available == 0`） | 30m | warning | SwitchBot Cloud の障害、統合のトークン失効、Hub 2 の電源断。この間、湿度のアラートは鳴らない |
 | RoomSensorMissing | 湿度のメトリクスが Prometheus に無い | 30m | warning | HA の停止、`/api/prometheus` のトークン失効、UFW。この間、湿度のアラートは鳴らない |
 | Watchdog | 常に firing | - | none | 通知経路の死活確認。Slack には送らず、Healthchecks.io へ 5 分毎に送る（途絶えたら外部から通知） |
@@ -113,7 +113,7 @@ SwitchBot Hub 2 の温度と湿度を、Home Assistant 経由で Prometheus に�
 SwitchBot Hub 2 ─> SwitchBot Cloud <─(ポーリング)─ Home Assistant（vm-apps :8123）
                                                     │ /api/prometheus（トークン prometheus）
                                                     v
-                                     Prometheus（vm-monitoring。60 秒毎）─> Alertmanager ─> Slack（warning 用）
+                                     Prometheus（vm-monitoring。60 秒毎）─> Alertmanager ─> Slack（室内環境用）
                                                     │
                                                     └─> Grafana「Room Environment」
 ```
@@ -121,7 +121,8 @@ SwitchBot Hub 2 ─> SwitchBot Cloud <─(ポーリング)─ Home Assistant（v
 - **値の取り方**: Home Assistant の Prometheus 連携（`configuration.yaml` の `prometheus:`）が、`include_entities` に書いた 2 つのエンティティだけを出す。メトリクスは `homeassistant_sensor_humidity_percent` と `homeassistant_sensor_temperature_celsius` で、`entity` ラベルにエンティティ ID が入る。
 - **接続**: Prometheus は、Caddy を通さずに `10.77.20.20:8123` を直接 scrape する。`vm-infra` が止まっても、値は途絶えない。`vm-apps` の UFW で、8123 を `vm-monitoring`（`10.77.20.11`）にも許可している。
 - **認証**: `/api/prometheus` には、Home Assistant の長期アクセストークン（`prometheus`）が要る。Ansible が SOPS の `prometheus_ha_token` を `/opt/monitoring/prometheus/ha_token` に置き、Prometheus が `credentials_file` で読む。トークンは、HA のプロフィール画面（セキュリティ）で作る。HA のユーザーを作り直すと失われるので、そのときは作り直して `sops` で差し替える。
-- **通知**: 湿度が 35% 未満（乾燥）、または 70% 超（結露・カビ）の状態が 1 時間続くと、warning として通知する。換気や入浴による一時的な変化では鳴らない。温度は通知しない。しきい値は `alerts.yml` の `room-environment` グループで変える。
+- **通知**: 湿度が 35% 未満（乾燥）、または 70% 超（結露・カビ）の状態が 1 時間続くと、warning として通知する。換気や入浴による一時的な変化では鳴らない。しきい値の前後を値が行き来しても、発報と解消が何度も届かないよう、解消の判定を 30 分待つ（`keep_firing_for: 30m`）。温度は通知しない。しきい値は `alerts.yml` の `room-environment` グループで変える。
+- **通知先**: 湿度の通知は、homelab の障害ではなく、加湿・除湿をするための生活の通知である。homelab の warning に混ぜると、冬は毎日届いてインフラの通知が埋もれるので、ラベル `channel: environment` を付けて、室内環境用のチャンネル（receiver `slack-environment`）に送る。一方、センサーの欠測（`RoomSensorUnavailable` / `RoomSensorMissing`）は、HA やトークン、UFW など homelab の側で直すものなので、warning 用のチャンネルに送る。
 - **欠測**: 値が途絶えた間は、湿度のアラートが鳴らない。そこで、HA でエンティティが利用できない状態（`RoomSensorUnavailable`）と、Prometheus に値が無い状態（`RoomSensorMissing`）も、30 分続いたら通知する。
 - **`TargetDown` からの除外**: `homeassistant` ジョブは `TargetDown` の対象から外している。HA の scrape の失敗は VM の停止ではなく、critical にすると、同じ `host`（`vm-apps`）の外形監視（`ServiceProbeFailed`）まで抑制してしまうためである。失敗は `RoomSensorMissing` で通知される。
 - **限界**: HA は SwitchBot Cloud をポーリングして値を更新するので、値は数分おきにしか変わらない。SwitchBot Cloud が止まると値が取れない（`RoomSensorUnavailable`）。
@@ -177,6 +178,7 @@ Ookla Speedtest は測定のたびに 30〜60 秒、回線を使い切る（1Gbp
   | --- | --- | --- |
   | critical | critical 用チャンネル（receiver `slack-critical`） | 1 時間毎 |
   | それ以外（warning など） | warning 用チャンネル（receiver `slack-warning`） | 24 時間毎 |
+  | 例外: ラベル `channel="environment"`（室内の湿度） | 室内環境用チャンネル（receiver `slack-environment`） | 24 時間毎 |
 
   過剰割当の解消待ちのように、すぐには直せない warning が続いても、再通知は 1 日 1 通で、critical のチャンネルには出ない。Slack のスレッドにまとめることは、Alertmanager 標準の Slack 通知が対応していないため見送った（自作の中継が要り、保守が重い）。
 - 解消時は `[RESOLVED]` を送る。
@@ -335,7 +337,7 @@ curl -XPOST https://alertmanager.lab.kanare.dev/api/v2/alerts -H 'Content-Type: 
 
 ### Webhook URL の再発行・変更
 
-Slack App の「Incoming Webhooks」で再発行し、`sops ansible/inventory/group_vars/monitoring/secrets.sops.yml` で `slack_webhook_url`（critical 用）または `slack_webhook_url_warning`（warning 用）を更新して `monitoring.yml` を再実行する。漏えいが疑われる場合は Slack 側で旧 URL を先に削除する。
+Slack App の「Incoming Webhooks」で再発行し、`sops ansible/inventory/group_vars/monitoring/secrets.sops.yml` で `slack_webhook_url`（critical 用）、`slack_webhook_url_warning`（warning 用）、または `slack_webhook_url_environment`（室内環境用）を更新して `monitoring.yml` を再実行する。漏えいが疑われる場合は Slack 側で旧 URL を先に削除する。
 
 ## アラート発報時の対応
 
