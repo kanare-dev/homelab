@@ -158,7 +158,7 @@ AdGuard Home（vm-infra :3000）<── Caddy（https://adguard.lab.kanare.dev�
 - **公開しない**: `/metrics` には、どの端末がどのドメインを引いたかが出る。exporter のエンドポイントには認証が無いので、ホストにポートを公開せず、Prometheus と同じ Docker ネットワークの中だけで使う。`DEBUG` は有効にしない（pprof のデバッグ用の画面が開く）。
 - **取る値**: exporter は、30 秒ごとに AdGuard の統計（`/control/stats`）と、クエリログの直近 1,000 件を読む。ブロック率と上位のクライアント・ドメインは、AdGuard の統計の期間（AdGuard の設定）の累計である。応答時間は、クエリログから、クライアントと上流ごとのヒストグラムにしている。
 - **通知**: 統計の値（ブロック率や応答時間）には、まだ通知を付けていない。実測を見てから決める。統計が取れないことだけを `AdGuardExporterFailing` で知らせる。exporter の停止は VM の停止ではないので、`TargetDown` の対象から外している（critical にすると、同じ `host`（`vm-monitoring`）の外形監視を抑制してしまう）。
-- **DHCP のパネル**: ダッシュボードには DHCP の状態とリースの表があるが、DHCP は Omada が配っているので、AdGuard の DHCP は無効で、表は空になる（未確認）。
+- **DHCP のパネル**: ダッシュボードには DHCP の状態とリースの表があるが、DHCP は Omada が配っているので、AdGuard の DHCP は無効で（`adguard_dhcp_enabled` が 0。2026-11-27 に確認）、表は空になる。
 - **ダッシュボード**: exporter に付属のダッシュボード（v1.2.3）を、データソースの変数（`ds`）と `uid` だけ直して置いている。
 
 ### 回線の疎通・遅延の監視
@@ -225,7 +225,7 @@ Ookla Speedtest は測定のたびに 30〜60 秒、回線を使い切る（1Gbp
 | Prometheus TSDB | 30 日 または 5GB | `docker/compose/monitoring/docker-compose.yml`（5GB は暫定値。実測で調整） |
 | homeassistant（センサー） | 2 エンティティ × 60 秒毎。Prometheus のデータ増加は数系列で軽微（TSDB の上限に含まれる） | `prometheus.yml`（`homeassistant` ジョブ）、`configuration.yaml`（`include_entities`） |
 | blackbox_icmp | 4 宛先 × 30 秒毎の ping。通信量はほぼゼロ。Prometheus のデータ増加は 10 系列程度（TSDB の上限に含まれる） | `prometheus.yml`（`blackbox_icmp` ジョブ） |
-| adguard（AdGuard の統計） | 30 秒毎。系列は、クライアント・上流・応答の状態の組み合わせの数だけ増える（ヒストグラムを含む）。上位のドメインはドメイン名がラベルに入るので、入れ替わるたびに系列が増える。**導入後に実測する**（TSDB の上限に含まれる） | `prometheus.yml`（`adguard` ジョブ）、`docker-compose.yml`（`INTERVAL=30s`） |
+| adguard（AdGuard の統計） | 30 秒毎。系列は、クライアント・上流・応答の状態の組み合わせの数だけ増える（ヒストグラムを含む）。上位のドメインはドメイン名がラベルに入るので、入れ替わるたびに系列が増える。導入した直後（2026-11-27）は 858 系列（メトリクス名 73 種類）で、Prometheus 全体（8,449）の約 1 割だった。クエリログの内容で入れ替わるので、数日後にもう一度測る（TSDB の上限に含まれる） | `prometheus.yml`（`adguard` ジョブ）、`docker-compose.yml`（`INTERVAL=30s`） |
 | blackbox-exporter | Prometheus のデータ増加は 10 系列 × 数メトリクス程度で軽微（TSDB の上限に含まれる） | `prometheus.yml`（`scrape_interval: 30s`） |
 | Docker コンテナログ（monitoring / dns / reverse-proxy / homepage / homeassistant / n8n / freshrss） | 10MB × 3 ファイル | 各 `docker-compose.yml` の `x-logging` |
 | Home Assistant の履歴（recorder） | 10 日（既定の `purge_keep_days`）。データベースは `/opt/homeassistant/config` | Home Assistant の既定値（変更していない） |
@@ -247,6 +247,7 @@ Ookla Speedtest は測定のたびに 30〜60 秒、回線を使い切る（1Gbp
 | 2026-10-24 | 外形監視の導入。vm-apps の `homepage` コンテナを `docker stop`（実機テスト） | 約 3.5 分後に `ServiceProbeFailed`（`https://home.lab.kanare.dev`）が Alertmanager で firing。起動後 1 分以内に解消。初回デプロイ時は vm-monitoring の DNS（ルーター）が `lab.kanare.dev` を引けず全 HTTPS が失敗したため、コンテナの `dns:` を AdGuard に指定して解決。Slack 画面の確認は未実施 |
 | 2026-11-01 | 回線の疎通・遅延の監視（ICMP）を vm-monitoring にデプロイ（`make setup-monitoring`）。read-only の API で確認 | `blackbox_icmp` の 4 宛先すべてで `probe_success=1`。RTT は ルーター 1.0ms、建物の共用ルーター 2.1ms、8.8.8.8 が 7.8ms、1.1.1.1 が 10.7ms。`NET_RAW` の追加なしで ICMP が通った。発報中のアラートは `Watchdog` のみ。**回線断の実機テスト（`InternetDown` の発報）と Slack 画面の確認は未実施** |
 | 2026-11-27 | 室内の温度・湿度の監視を反映した（`make setup-apps`、`make setup-monitoring`）。read-only の API と、`channel="environment"` を付けた `TestAlert` で確認 | `homeassistant` ジョブは `up`。メトリクス名は想定どおりで、温度 23℃、湿度 40%。`room-environment` グループの 4 ルールは読み込まれ、すべて inactive。Grafana から ESP32 のダッシュボードが消え、「Room Environment」が追加された。`TestAlert` は Slack への送信に成功した（`alertmanager_notifications_total` が 1、失敗 0）。Prometheus の再起動直後は、最初の scrape まで `RoomSensorMissing` が pending になり、値が入ると解消した（`for: 30m` 内なので通知は出ない）。`#room-environment` に `TestAlert` が届いたことを、Slack の画面で確認した（ユーザー確認） |
+| 2026-11-27 | AdGuard Home の統計を反映した（`make setup-infra`、`make setup-monitoring`）。read-only の API で確認 | `exporter` ユーザーで、`https://adguard.lab.kanare.dev/control/status` が 200（誤ったパスワードでは 401）。`setup-infra` の 2 回目の実行では、ユーザーのタスクは変化なしだった。`adguard` ジョブは `up`、`adguard_scrape_errors_total` は 0。クエリ数は約 10.6 万件、ブロック率は 6.1%、平均の処理時間は約 12ms。AdGuard の DHCP は無効（0）。系列は 858。exporter のポートはホストに公開されていない。`AdGuardExporterFailing` と `TargetDown` は出ていない。Grafana のプロビジョニングはエラーなしで終わった。**ダッシュボードの画面は、まだ見ていない** |
 
 VM 停止の検知は、`TargetDown`（VM 内 OS の応答なし）が 3 分、`PveVmStopped`（PVE が見ている状態）が 3 分の待ち時間に、スクレイプ間隔と評価間隔が加わって、約 4 分で通知される。
 
