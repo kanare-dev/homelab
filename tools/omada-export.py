@@ -39,7 +39,7 @@ VOLATILE_KEY = re.compile(
     r"needUpgrade|upgradeTime|createTime|updateTime|modifyTime|timestamp|.*Timestamp|time|"
     r"temp|temperature|poePower|poeRemain.*|load|loadRate|connectedTime|ipStatus|onlineTime|"
     r"wanUpTime|internetState|online|isOnline|adoptFailType|totalRows|currentPage|currentSize|"
-    r"detailStatus|portOnlineStatus|wanOnlineStatus)$"
+    r"detailStatus|portOnlineStatus|wanOnlineStatus|portStatus|connectedStatus|switchStatusCategory)$"
 )
 MAC_RE = re.compile(r"\b[0-9A-Fa-f]{2}(?:[-:][0-9A-Fa-f]{2}){5}\b")
 
@@ -128,6 +128,7 @@ def main():
     # ACL などが ID で指すネットワークとグループに、名前を添えるための表
     names = {n["id"]: n["name"] for n in api.get(f"{S}/lan-networks?{PAGE}")}
     names.update({g["groupId"]: g["name"] for g in api.get(f"{S}/profiles/groups") if "groupId" in g})
+    names.update({x["id"]: x["name"] for x in api.get(f"/openapi/v2/{{omadacId}}/sites/{site}/lan-profiles?{PAGE}")})
 
     # 画面のメニューの区分ごとに 1 ファイルにする（サイト > 構成 > ネットワーク設定）
     groups = {
@@ -164,6 +165,8 @@ def main():
         },
         "profiles": {  # プロファイル
             "groups": f"{S}/profiles/groups",
+            # スイッチのポートのプロファイル（デバイス設定 > ポートプロファイル）。v2 は VLAN の設定の有無も返す
+            "lan-profiles": f"/openapi/v2/{{omadacId}}/sites/{site}/lan-profiles?{PAGE}",
         },
         "vpn": {
             "site-to-site": f"{S}/vpn/site-to-site-vpns?{PAGE}", "wireguard": f"{S}/vpn/wireguards?{PAGE}",
@@ -175,22 +178,39 @@ def main():
         },
     }
     # 機器ごとの設定（ファイル名は機器の名前）
+    meta = {}
     for d in devices:
         mac, name, kind = d["mac"], d["name"], d.get("type")
         if kind == "gateway":
             groups[f"device-{name}"] = {"general-config": f"{S}/gateways/{mac}/general-config",
                                         "ports": f"{S}/gateways/{mac}/ports"}
         elif kind == "switch":
+            meta[f"device-{name}"] = {"switch-mac": mac}
             groups[f"device-{name}"] = {"general-config": f"{S}/switches/{mac}/general-config",
                                         "networks": f"{S}/switches/{mac}/networks?{PAGE}",
-                                        "interfaces": f"{S}/switches/{mac}/interfaces?{PAGE}"}
+                                        "interfaces": f"{S}/switches/{mac}/interfaces?{PAGE}",
+                                        "ports": f"{S}/switches/ports/overview?{PAGE}"}
     groups["devices"] = {"devices": f"{S}/devices?{PAGE}"}
 
     out.mkdir(parents=True, exist_ok=True)
     # 書き出しは JSON だけ。README.md など、ほかのファイルには触れない
     errors = 0
     for name, paths in groups.items():
-        data = {k: clean(api.get(path), macs, names) for k, path in paths.items()}
+        data = {}
+        for k, path in paths.items():
+            r = api.get(path)
+            if k == "ports" and isinstance(r, list):  # サイト全体の一覧なので、この機器のポートだけにする
+                dev = name.removeprefix("device-")
+                r = [x for x in r if x.get("switchName") == dev]
+            data[k] = clean(r, macs, names)
+        if "switch-mac" in meta.get(name, {}):
+            # ネットワーク（VLAN）ごとに、どのポートをネイティブ・タグ付きで通るか。ポートの一覧にはタグの中身が無い
+            mac = meta[name]["switch-mac"]
+            nets = api.get(f"{S}/switches/{mac}/port-lag-networks?{PAGE}")
+            data["vlan-membership"] = {
+                f"{n['vlan']} {n['name']}": clean(api.get(f"{S}/switches/{mac}/port-lag-networks/{n['id']}/vlan/{n['vlan']}"), macs, names)
+                for n in (nets if isinstance(nets, list) else [])
+            }
         errors += sum(1 for v in data.values() if isinstance(v, dict) and "_error" in v)
         (out / f"{name}.json").write_text(json.dumps(data, ensure_ascii=False, indent=2, sort_keys=True) + "\n")
     print(f"{len(groups)} ファイルを {out} に書き出した（取れなかった窓口: {errors}）")

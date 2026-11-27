@@ -13,7 +13,8 @@
 | [DNS](network/dns.md) | AdGuard Home・Unbound・CoreDNS の 3 層構成 |
 | [リバースプロキシと TLS](network/reverse-proxy-tls.md) | Caddy による入口と、Let's Encrypt の証明書 |
 | [IP アドレス一覧](network/ip-addresses.md) | アドレスの範囲、VLAN、ホスト、FQDN の宛先、DHCP。**IP アドレスの正** |
-| [Omada コントローラー](network/omada-controller.md) | `vm-omada` の構成、サイトの設定値、バックアップの運用、Omada Cloud。管理対象の ER605・SG2210P の設定値 |
+| [Omada コントローラー](network/omada-controller.md) | `vm-omada` の構成、バックアップの運用、Open API、変更履歴 |
+| [Omada のパラメーターシート](network/omada/README.md) | コントローラーと ER605・SG2210P の設定値（画面の区分ごと）と、Open API の書き出し（`snapshot/`） |
 | [Buffalo WSR-1800AX4P](network/wsr-1800ax4p.md) | AP モードで使う Wi-Fi の入口の設定値 |
 
 ### platform/: 基盤の運用

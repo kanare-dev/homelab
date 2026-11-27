@@ -40,7 +40,7 @@ ER605 と SG2210P を入れて VLAN に分けた**最終形（to-be）**。管�
 
 - スタイル（方眼、フォント、ライト・ダーク、線のラベルの縁取り）は、to-be の構成図と同じ。フォントは [`fonts/`](fonts/)（共通）を使う。
 - **Buffalo のポート**: 図は INTERNET ポートで描き、「INTERNET※」と注記した。取扱説明書（2026-11-06 に確認）に、AP モードの接続ポートの指定はなく、公式 FAQ では、ブリッジモードで INTERNET も LAN として動くとある（[Buffalo の資料](../architecture/lld/hardware/wsr-1800ax4p.md)）。
-- ER605 のポートの種類（p1 が WAN、p2・p3 が WAN/LAN、p4・p5 が LAN）は、運用者が本体で確認した値。[ER605 の資料](../architecture/lld/hardware/er605.md)と、[ER605 の設定](../architecture/lld/network/omada-controller.md#er605-のポート)にも書いた。
+- ER605 のポートの種類（p1 が WAN、p2・p3 が WAN/LAN、p4・p5 が LAN）は、運用者が本体で確認した値。[ER605 の資料](../architecture/lld/hardware/er605.md)と、[ER605 の設定](../architecture/lld/network/omada/device-rtr01.md#ポート)にも書いた。
 - 配線を変えたら（ポートの割り当て、ケーブルの付け替え）、同じ変更で、スクリプトの「配置」と、移行計画・設計書のポート表を直す。
 
 ### 現状の構成図（`as-is-diagram/`）

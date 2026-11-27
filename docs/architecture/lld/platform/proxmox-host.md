@@ -15,7 +15,7 @@ Proxmox ホスト（`pve01`）の、ホスト単体の設定値（詳細設計�
 | NTP | chrony。`ntp.nict.jp` と `time.google.com`（VM と同じ `ntp_servers`）。Debian の既定の `pool 2.debian.pool.ntp.org` は、コメントにして止めている。2026-11-26 までは、既定の pool だった | Ansible（`ansible/roles/proxmox`。`/etc/chrony/sources.d/homelab.sources`） |
 | ホストのファイアウォール | 無い。Proxmox ファイアウォールは無効、UFW は入っていない（2026-11-26 に確認）。Management への通信は、ゲートウェイの ACL で絞る（[ADR-0034](../../../adr/0034-acl-for-vlan-boundaries-ufw-for-ports.md)） | |
 | OS | Proxmox VE 9.1.7（Debian 13 ベース。カーネル 6.17.2-1-pve。2026-11-08 に確認） | |
-| 物理 NIC | `nic0`（Intel I219、ドライバ `e1000e`）1 つ。スイッチへのポートは SG2210P の p2。全 VLAN をタグ付きで通す trunk にしている | [SG2210P のポート](../network/omada-controller.md#sg2210p-のポート) |
+| 物理 NIC | `nic0`（Intel I219、ドライバ `e1000e`）1 つ。スイッチへのポートは SG2210P の p2。全 VLAN をタグ付きで通す trunk にしている | [SG2210P のポート](../network/omada/device-sw01.md#ポート) |
 | NIC のオフロード | `nic0` の TSO・GSO・GRO を無効にする（`e1000e` の送信停止への対処。[INC-2026-10-25](../../../operations/incidents/2026-10-25-nic-hardware-unit-hang.md)）。`/etc/network/interfaces` の `post-up` と、実行中の NIC への適用の両方 | Ansible（`ansible/roles/proxmox`） |
 | Web UI | `https://pve.lab.kanare.dev`（Caddy → `10.77.10.10:8006`）。サブスクリプションの警告ポップアップを除去している（[INC-2026-10-22-b](../../../operations/incidents/2026-10-22-pve-webui-broken-by-ansible-patch.md)。パッケージ更新で戻ったら、Ansible を再実行する） | Ansible |
 | ストレージ | 256GB NVMe。`local-lvm`（thin pool `pve/data`）約 155GiB を、全 VM のディスクが共有する。割当は pool の約 1.05 倍（2026-11-05） | 割当の正は `terraform/proxmox/terraform.tfvars`。経緯は [INC-2026-10-22](../../../operations/incidents/2026-10-22-lvm-thin-exhaustion.md) |

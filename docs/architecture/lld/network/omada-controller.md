@@ -1,13 +1,13 @@
 # Omada コントローラーと管理対象機器（ER605・SG2210P）
 
-Omada コントローラー（`vm-omada`）と、それが管理する ER605・SG2210P の詳細設計。将来は AP も、ここで一元管理する。設定の大半はコントローラーの中にあり、コードでは管理できない（[ADR-0040](../../../adr/0040-config-source-of-truth-by-location.md)）。**この文書を、コントローラーと ER605・SG2210P の設定値の正とする。** 実機の設定値は、Open API で取り出して [`omada/snapshot/`](omada/snapshot/) に置いており、この文書とのずれを確かめるのに使う（[ADR-0041](../../../adr/0041-omada-settings-exported-by-open-api.md)。[下の節](#open-api-と設定値の書き出し)）。 製品の仕様は[ER605](../hardware/er605.md)・[SG2210P](../hardware/sg2210p.md)の資料、VLAN の設計は[第5章 ネットワーク](../../hld/05-network.md)、移行の経緯は[移行計画](../../../operations/roadmap/10-er605-sg2210p-migration-plan.md)にある。
+Omada コントローラー（`vm-omada`）と、それが管理する ER605・SG2210P の詳細設計。将来は AP も、ここで一元管理する。設定の大半はコントローラーの中にあり、コードでは管理できない（[ADR-0040](../../../adr/0040-config-source-of-truth-by-location.md)）。この文書には、構成、運用、Open API、変更履歴を書く。**設定値の正は、画面の区分ごとの[パラメーターシート](#パラメーターシート)（`omada/`）とする。** 実機の設定値は、Open API で取り出して [`omada/snapshot/`](omada/snapshot/) に置いており、パラメーターシートとのずれを確かめるのに使う（[ADR-0041](../../../adr/0041-omada-settings-exported-by-open-api.md)。[下の節](#open-api-と設定値の書き出し)）。 製品の仕様は[ER605](../hardware/er605.md)・[SG2210P](../hardware/sg2210p.md)の資料、VLAN の設計は[第5章 ネットワーク](../../hld/05-network.md)、移行の経緯は[移行計画](../../../operations/roadmap/10-er605-sg2210p-migration-plan.md)にある。
 
 > [!NOTE]
 > 作成日は 2026-11-03。**秘密の値（管理者のパスワード、バックアップの暗号化の鍵、TP-Link ID のパスワード）と、機器の MAC アドレスは書かない**（リポジトリは公開）。Keychain の名前は `private/secrets-inventory.md`（台帳）にある。
 
 ## 運用
 
-- コントローラーまたは機器（ER605・SG2210P）の設定を変えたら、**同じ変更でこの文書を更新**し、[変更履歴](#変更履歴)に 1 行足す。
+- コントローラーまたは機器（ER605・SG2210P）の設定を変えたら、**同じ変更で[パラメーターシート](#パラメーターシート)を更新**し、この文書の[変更履歴](#変更履歴)に 1 行足す。手順は [`omada/README.md`](omada/README.md#更新のしかた) にある。
 - 設定を変えたあとは、`make omada-export` で実機の値を取り出し、`git diff` で、変わった値が意図したものだけかを確かめる。書き出した値（`omada/snapshot/`）も、同じ変更でコミットする。
 - 設定を変えたあとは、手動バックアップを取る。画面の Settings > Maintenance の「Backup & Restore」で保存する（メニューの名前は 6.3 で未確認）。保存先は iCloud Drive の `homelab/`（暗号化なし。運用者が受け入れ。[バックログ](../../../operations/roadmap/01-backlog.md)）。ファイル名は `omada-bk-YYYYMMDD.cfg`（案）。直近の 3 世代ほどを残す。
 - 自動バックアップは、毎週日曜 03:00（`vm-omada` の `/opt/omada/data/autobackup`）。VM のディスクの中なので、VM が壊れると一緒に失われる。
@@ -46,179 +46,36 @@ Open API の Viewer の権限でも、サイトのデバイスアカウント（
 
 今の守りは、次のとおりである。
 
-- ゲートウェイの ACL で、Servers（`vm-monitoring` を含む）から Management の機器（ER605・SG2210P）の SSH と画面への通信を止めている。`vm-monitoring` から Management に届くのは、Proxmox と `vm-omada` の 9100 番だけである（[ゲートウェイの ACL](#ゲートウェイの-acl)）。パスワードが漏れても、Servers からは機器に入れない。
+- ゲートウェイの ACL で、Servers（`vm-monitoring` を含む）から Management の機器（ER605・SG2210P）の SSH と画面への通信を止めている。`vm-monitoring` から Management に届くのは、Proxmox と `vm-omada` の 9100 番だけである（[ゲートウェイ ACL](omada/security.md#ゲートウェイ-acl)）。パスワードが漏れても、Servers からは機器に入れない。
 - 機器は、コントローラーに採用されているあいだ、本体の画面では設定を変えられない。
 - `tools/omada-export.py` は、パスワードを書き出す前に落とす。
 
 残る危険は、パスワードが漏れたあと、Trusted や Management の端末から機器に入られることである。対策の案（未決定）は、機器のパスワードを定期的に変えること、Open API のクライアントの権限を、ほかの絞り方（サイト単位の権限など）で狭められないか確かめることである。
 
-## 設定値（現在）
+## パラメーターシート
 
-| 項目 | 値 |
+コントローラーと機器の設定値は、画面のメニューの区分ごとに、[`omada/`](omada/README.md) の文書に書いている。**この文書群を、設定値の正とする。** 実機の値は、Open API で取り出して [`omada/snapshot/`](omada/snapshot/) に置き、文書とのずれを確かめるのに使う。
+
+| 文書 | 内容 |
 | --- | --- |
-| ユーザー（Accounts） | ローカルユーザー `homelab-owner`（Owner。日常に使う）と `homelab-admin`（Super Admin。予備）。Cloud User（TP-Link ID 名義の Owner。**名前は変更できない仕様**）は Omada Cloud 用。パスワードは Keychain（名前は台帳）。**ローカルユーザーの名前を、メールアドレスの形にしない**（下の注）。ほかに、監視用の `exporter`（Viewer。サイト `kanare-homelab`。2026-11-27 に作成。パスワードは SOPS の `omada_exporter_password`。[ADR-0039](../../../adr/0039-omada-metrics-via-omada-exporter.md)） |
-| サイト | 1 つ。名前は `kanare-homelab`（2026-11-06 に決めた） |
-| LAN・VLAN のネットワーク | [ER605 の設定値](#er605ルーター)に書いている（コントローラーの Settings > Wired Networks > LAN で作る） |
-| mDNS の中継（Settings > 一般設定 > mDNS） | ルール `mdns-trusted-iot`（**無効**のまま）。Bonjour サービスは AirPlay と Google Cast（一覧に無いので、`Google Cast` / `_googlecast._tcp.local` を追加した。サービス ID は `_A._B.local` の形）。バンド VLAN は「VLAN ID 別」、サービスネットワーク VLAN は 50（IoT）、クライアントネットワーク VLAN は 30（Trusted）。有効にして実機で確かめるのは、テレビを IoT に移すとき。Google Cast が中継できるか、`_googlezone._tcp` などの追加が要るかは、そのとき確認する |
-| スイッチのポートプロファイル（デバイス設定 > ポートプロファイル） | 標準の Disable・All・Default のほかに、`access-trusted`（VLAN 設定オン、ネイティブネットワーク Trusted(30)、ネットワークタグ設定は全てブロック。PoE は機器の設定を保持）。p3（Buffalo）と p4（ディスプレイ）に割り当てている（「VLAN設定」は「プロファイルに従う」） |
-| 採用している機器 | ER605（JP 版 2.4.2）と SG2210P（5.30.7）。2026-11-06 に採用した。デバイス名は、役割と番号（`rtr01`、`sw01`。AP は `ap01`）。2026-11-27 に、型番ベースの小文字（`er605`、`sg2210p`）から変えた（[ADR-0035](../../../adr/0035-network-device-names-by-role.md)）（2026-11-03 に、ER605 を一度採用して更新し、取り外していた） |
-| Omada Cloud（クラウドアクセス） | **有効**（試用中。最終的に無効にするかもしれない。[外部サービスの表](../../hld/05-network.md#外部サービスへの依存)）。TP-Link ID は台帳 |
-| Open API（Settings > Platform Integration > Open API） | アプリ `exporter`（Client Credentials モード、Viewer ロール。2026-11-27 に作成）。omada-exporter が、クライアント・WAN・ISP を読むのに使う。Client ID とシークレットは SOPS（`omada_exporter_client_id`、`omada_exporter_client_secret`）。最初は Authorization Code モードで作ってしまい、トークンの取得が `-44106` で失敗したので、Client モードに直した |
-| 時刻（NTP） | サイトの設定（Site Settings）の NTP に `ntp.nict.jp`（2026-11-06 に設定。ER605・SG2210P に配られる時刻） |
-| 地域（タイムゾーン） | (UTC+09:00) 大阪、札幌、東京（2026-11-06 に確認） |
-| コントローラー本体の NTP | 指定する欄が無い（6.3.0.111。2026-11-06 に確認）。時刻は、`vm-omada` の OS（`systemd-timesyncd`、`ntp.nict.jp` など）に従う見込み（未確認） |
-| 機器のファームウェアの自動更新 | 未確認。有効だと、機器（ER605・SG2210P）が自動で更新・再起動する。更新の時機を自分で決めたいので、無効のままにしたい |
-
-> [!NOTE]
-> Cloud Access が有効だと、ログイン画面に **TP-Link ID と同じ名前**（メール形式）を入力すると、ローカルユーザーではなくクラウド側で認証され、Cloud User のセッションになる（ログは `cloud tenant login strategy`）。このセッションは、ユーザーごとの設定（言語・テーマ・24 時間表記）を保存できず、`Account unauthorized`（`-90021`）になる。ローカルユーザーの名前を別の名前（`@` を含まない）にすると、`local tenant login strategy` で入れて保存できる。2026-11-09 に、ローカルの Owner を `homelab-owner` に改名して確認した。
+| [一般設定](omada/general.md) | サイト名、NTP、デバイスアカウント、SSH、SNMP、リモートログ、mDNS の中継 |
+| [ネットワーク](omada/network.md) | WAN、LAN（VLAN ごとのネットワークと DHCP）、WLAN、UPnP などのサービス |
+| [認証](omada/authentication.md) | ポータル、802.1X、MAC ベース認証（使わない） |
+| [セキュリティ](omada/security.md) | ゲートウェイ ACL、ファイアウォール、攻撃の防御 |
+| [送信](omada/transmission.md) | ルーティング、NAT、DHCP の予約、QoS（ほとんど使わない） |
+| [プロファイル](omada/profiles.md) | ACL のグループ、スイッチのポートプロファイル |
+| [VPN](omada/vpn.md) | 使わない（Tailscale を使う） |
+| [コントローラー](omada/controller.md) | アカウント、Open API のアプリ、データの保持、機器へのアクセス |
+| [ER605（rtr01）](omada/device-rtr01.md) | ポート、機器の設定 |
+| [SG2210P（sw01）](omada/device-sw01.md) | ポートと VLAN、管理 IP、機器の設定 |
 
 ## ER605（ルーター）
 
-TP-Link ER605 V2。製品の仕様とファームウェアは[ER605 の資料](../hardware/er605.md)にある。
-
-家のルーター（NAT と、各 VLAN のゲートウェイ・DHCP・ACL）である。集合住宅の共用ルーターの下に置く（二重 NAT）。既定のネットワークは Management（VLAN10、`10.77.10.0/24`）で、VLAN1 は使わない（[ADR-0032](../../../adr/0032-merge-default-network-into-management-vlan10.md)）。設定はコントローラーから行い、本体の画面は使えない。
-
-### ER605 のポート
-
-| ポート | 接続先 | 備考 |
-| --- | --- | --- |
-| p1（WAN） | 壁の LAN ポート（ケーブル A） | 接続済み（2026-11-06）。MAC クローンなしで IP を取れた |
-| p2（WAN/LAN） | SG2210P の p1 | 接続済み。LAN として動いている（最初から LAN。2026-11-06 に確認） |
-| p3（WAN/LAN） | 使わない（段階 1・2 の確認のとき、Mac を一時的に繋いだ） | |
-| p4〜p5（LAN） | 使わない | |
-
-ポートの種類は、p1 が WAN 専用、p2 と p3 が WAN/LAN の切り替え、p4 と p5 が LAN 専用（運用者が本体で確認。2026-11-06）。
-
-### WAN
-
-| 項目 | 値 |
-| --- | --- |
-| 接続方法 | DHCP（上流は建物の共用ルーター。`172.22.0.0/21` の範囲の見込み）。2026-11-06 に、ER605 を繋いで IP を取れた |
-| MAC アドレス | 既定（MAC クローンは不要だった。上流は、MAC で絞っていない。2026-11-06 に確認） |
-| IPv6 | 使わない（[ADR-0017](../../../adr/0017-ipv6-disabled.md)）。設定値は未確認 |
-
-### LAN と DHCP
-
-| 項目 | 値 |
-| --- | --- |
-| LAN 側 IP アドレス | `10.77.10.1` / `255.255.255.0`（VLAN10、名前 `Management(Default)`。[ADR-0032](../../../adr/0032-merge-default-network-into-management-vlan10.md)） |
-| DHCP サーバー | 使用する。範囲 `10.77.10.240`〜`10.77.10.250`（復旧ポート p8 に繋いだ端末向け）、リース 60 分 |
-| 配る DNS | ルーター（`10.77.10.1`）。`1.1.1.1` は併記しない（[ADR-0024](../../../adr/0024-dhcp-dns-single-no-fallback.md)）。ER605 の DNS プロキシが外部の名前を引く。内部の名前（`*.lab.kanare.dev`）は引けないので、IP で入る |
-| 配るドメイン名 | 配らない |
-| 固定割り当て（予約） | なし（Buffalo の固定リース 1 件は、移さない。[移行計画](../../../operations/roadmap/10-er605-sg2210p-migration-plan.md)） |
-
-### VLAN のネットワーク
-
-コントローラー（Settings > Wired Networks > LAN）で作っている。ER605 の LAN ポート（WAN/LAN2・WAN/LAN3・LAN4・LAN5）に割り当てている。Servers・Lab・Trusted には、ホストと端末を繋いでいる。既定のネットワークは Management（VLAN10）で、VLAN1 は使わない（上の「LAN と DHCP」）。
-
-| VLAN | 名前 | ゲートウェイ | DHCP |
-| --- | --- | --- | --- |
-| 10 | Management | `10.77.10.1/24` | `.240–.250`、リース 60 分、DNS `10.77.10.1` |
-| 20 | Servers | `10.77.20.1/24` | なし |
-| 30 | Trusted | `10.77.30.1/24` | `.100–.199`、リース 48 時間、DNS `10.77.20.10` |
-| 40 | Lab | `10.77.40.1/24` | `.100–.149`、リース 24 時間、DNS `10.77.20.10` |
-| 50 | IoT | `10.77.50.1/24` | `.100–.149`、リース 24 時間、DNS `10.77.20.10` |
-| 60 | Guests | `10.77.60.1/24` | `.100–.199`、リース 4 時間、DNS `10.77.20.10` |
-| 70 | DMZ | `10.77.70.1/24` | なし |
-| 999 | Blackhole | `10.77.99.1/24` | なし（ER605 のポートには割り当てない。使わないポートの native） |
-
-### ゲートウェイの ACL
-
-**2026-11-27 に、この節の値で ACL を絞った**（[手順書 27](../../../operations/runbooks/27-network-acl-tighten.md#実施の記録)。それまでは全許可だった）。方針は[通信ポリシー](../../hld/05-network.md#通信ポリシー)と [ADR-0034](../../../adr/0034-acl-for-vlan-boundaries-ufw-for-ports.md)、名前の付け方は [ACL の名前と説明の付け方](acl.md)にある。画面の場所は、サイト > 構成 > ネットワーク設定 > セキュリティ > ACL の「ゲートウェイ ACL」（方向は LAN → LAN）である。リハーサルの `rh-` のルール 7 件は、同じ日に削除した。
-
-ルールから参照するグループを、先に作る（ルールの作成画面の「＋作成」からも作れる）。IP-Port グループは、サブネット（CIDR）の一覧と、ポートの一覧を別々に持ち、ポートはグループの全サブネットにかかる。範囲（`10.77.10.2-10.77.10.9`）は書けない。そのため、ホストごとにポートが違うものは、グループを分けた（許可の範囲は、分ける前の設計と同じ）。
-
-| グループ名 | 種類 | サブネット | ポート |
-| --- | --- | --- | --- |
-| `grp-vm-infra` | IP グループ | `10.77.20.10/32` | — |
-| `grp-vm-monitoring` | IP グループ | `10.77.20.11/32` | — |
-| `grp-mgmt-omada-ui` | IP-Port グループ | `10.77.10.3/32` | 8043 |
-| `grp-mgmt-pve-ui` | IP-Port グループ | `10.77.10.10/32` | 8006 |
-| `grp-mgmt-metrics` | IP-Port グループ | `10.77.10.3/32`、`10.77.10.10/32` | 9100 |
-| `grp-mgmt-pve-admin` | IP-Port グループ | `10.77.10.10/32` | 8006、22 |
-| `grp-mgmt-omada-ssh` | IP-Port グループ | `10.77.10.3/32` | 22 |
-| `grp-mgmt-devices-web` | IP-Port グループ | `10.77.10.0/29`、`10.77.10.8/31`（機器の帯 `.2`〜`.9` を含む。[ACL の名前と説明の付け方](acl.md)） | 80、443 |
-| `grp-lab-access` | IP-Port グループ | `10.77.40.0/24` | 22、80、443 |
-| `grp-lab-mosh` | IP-Port グループ | `10.77.40.0/24` | 60000-61000 |
-| `grp-lab-metrics` | IP-Port グループ | `10.77.40.0/24` | 9100 |
-| `grp-dns` | IP-Port グループ | `10.77.20.10/32` | 53 |
-
-ルールは、上から順に評価される。表の順に作る。一覧に表示されるのは「説明」の欄なので、名前（`130-servers-to-mgmt-caddy` など）を説明の欄に入れた。1 件のルールの宛先には、グループを複数選べる。プロトコルも複数選べる（「TCP & UDP」と表示される）。
-
-| 名前 | 動作 | プロトコル | 送信元 | 宛先 |
-| --- | --- | --- | --- | --- |
-| `130-servers-to-mgmt-caddy` | 許可 | TCP | `grp-vm-infra` | `grp-mgmt-omada-ui`、`grp-mgmt-pve-ui` |
-| `131-servers-to-mgmt-metrics` | 許可 | TCP | `grp-vm-monitoring` | `grp-mgmt-metrics` |
-| `140-servers-to-lab-ssh` | 許可 | TCP | `grp-vm-infra` | `grp-lab-access` |
-| `141-servers-to-lab-metrics` | 許可 | TCP | `grp-vm-monitoring` | `grp-lab-metrics` |
-| `142-servers-to-lab-mosh` | 許可 | UDP | `grp-vm-infra` | `grp-lab-mosh` |
-| `150-trusted-to-servers` | 許可 | すべて | ネットワーク Trusted | ネットワーク Servers |
-| `151-trusted-to-lab` | 許可 | すべて | ネットワーク Trusted | ネットワーク Lab |
-| `153-trusted-to-mgmt` | 許可 | TCP | ネットワーク Trusted | `grp-mgmt-pve-admin`、`grp-mgmt-omada-ssh` |
-| `154-trusted-to-mgmt-devices` | 許可 | TCP | ネットワーク Trusted | `grp-mgmt-devices-web` |
-| `156-trusted-to-mgmt-icmp` | 許可 | ICMP | ネットワーク Trusted | ネットワーク Management |
-| `160-trusted-to-iot` | 許可 | すべて | ネットワーク Trusted | ネットワーク IoT |
-| `170-lab-to-servers-dns` | 許可 | TCP と UDP | ネットワーク Lab | `grp-dns` |
-| `171-iot-to-servers-dns` | 許可 | TCP と UDP | ネットワーク IoT | `grp-dns` |
-| `172-guests-to-servers-dns` | 許可 | TCP と UDP | ネットワーク Guests | `grp-dns` |
-| `910-deny-from-mgmt` | 拒否 | すべて | ネットワーク Management | !ネットワーク Management |
-| `920-deny-from-servers` | 拒否 | すべて | ネットワーク Servers | !ネットワーク Servers |
-| `930-deny-from-trusted` | 拒否 | すべて | ネットワーク Trusted | !ネットワーク Trusted |
-| `940-deny-from-lab` | 拒否 | すべて | ネットワーク Lab | !ネットワーク Lab |
-| `950-deny-from-iot` | 拒否 | すべて | ネットワーク IoT | !ネットワーク IoT |
-| `960-deny-from-guests` | 拒否 | すべて | ネットワーク Guests | !ネットワーク Guests |
-| `970-deny-from-dmz` | 拒否 | すべて | ネットワーク DMZ | !ネットワーク DMZ |
-
-- 戻りの通信（確立済み）は、ルールが無くても通る（2026-11-27 に確認。拒否を有効にした VLAN へ、許可した向きから SSH で入れた）。
-- Trusted → DMZ（Web・SSH）、Servers → DMZ（ログの取得）、Management → DMZ（管理用ポート）は、DMZ に何も置いていないので、作らない（今は末尾の拒否に当たる）。DMZ に機器を置くときに足す。
-- **確認済み（2026-11-27）**: プロトコルは、ICMP だけも、TCP と UDP の両方も選べる。送信元に IP グループ、宛先に IP-Port グループを選べる。
-- **確認済み（2026-11-27）**: `!ネットワーク` の拒否は、WAN 側のプライベートアドレス（建物の共用ルーター `172.22.0.1`）宛の通信を止めない。`vm-monitoring` から `172.22.0.1` への ping は、`920` を有効にしたあとも通り、Prometheus の `building-router` の監視は `up` のままだった。
-- 確かめ方: Mac（Tailscale をオフ）と各ホストから、許可と拒否の両方を 35 件流す `make acl-check`（`tools/acl-check.py`）で確かめた（[手順書 27](../../../operations/runbooks/27-network-acl-tighten.md#実施の記録)）。コントローラーや機器を作り直したあとは、ACL が全許可に戻っていないかを、これで確かめる。**ルールを変えたら、スクリプトのケースも同じ変更で直す。**
-
-### ER605 の管理・その他
-
-| 項目 | 値 |
-| --- | --- |
-| Omada でのデバイス名 | `rtr01`（サイト `kanare-homelab`。2026-11-27 に `er605` から変更。[ADR-0035](../../../adr/0035-network-device-names-by-role.md)） |
-| ファームウェア | JP 版 2.4.2 Build 20260511 Rel.77362（2026-11-03 に更新。2026-11-06 の採用のあとも、同じ版） |
-| 管理者アカウント | パスワードは Keychain（`homelab / er605 admin`） |
-| ローカル DNS（Domain Name、Alias Domain Name） | 登録しない（名前解決は `vm-infra` の CoreDNS） |
-| NTP | `ntp.nict.jp`（コントローラーのサイトの設定から配る。2026-11-06） |
-| UPnP | **無効**（2026-11-27 に確認。デバイス > `rtr01` > 設定 > アドバンス > UPnP）。外に何も公開しない方針なので、無効のままにする |
-| 時刻、ファイアウォール | 未確認 |
+TP-Link ER605 V2（`rtr01`、`10.77.10.1`）。家のルーターで、NAT と、各 VLAN のゲートウェイ・DHCP・ACL を受け持つ。集合住宅の共用ルーターの下に置く（二重 NAT）。製品の仕様は [ER605 の資料](../hardware/er605.md)、設定値は [ER605（rtr01）](omada/device-rtr01.md)、[ネットワーク](omada/network.md)、[セキュリティ](omada/security.md)にある。
 
 ## SG2210P（スイッチ）
 
-TP-Link SG2210P V5.30。製品の仕様は[SG2210P の資料](../hardware/sg2210p.md)にある。
-
-有線のハブを兼ねる PoE+ スイッチである。ER605 の p2 に繋ぎ、Proxmox（p2）、Buffalo（p3）、ディスプレイ（p4）を収める。VLAN の trunk と access を設定している。設定はコントローラーから行う。
-
-### SG2210P のポート
-
-| ポート | 接続先 | 備考 |
-| --- | --- | --- |
-| p1 | ER605 の p2 | アップリンク。**native Management(10)**（untagged VLAN10）、タグ付きは Servers(20)〜DMZ(70) のカスタム（`Blackhole` は除く。VLAN 999 を ER605 に流さないため）（2026-11-20〜） |
-| p2 | Proxmox | trunk。**native `Blackhole`(999)**、タグ付きは Management(10)・Servers(20)・Trusted(30)・Lab(40)・IoT(50)・Guests(60)・DMZ(70) のカスタム（2026-11-20〜）。**タグ付きに Management を必ず含める**（含めないと、VLAN10 が untagged になり、Proxmox・`vm-omada` に届かなくなる。2026-11-20 の実績） |
-| p3 | Buffalo（AP） | **access VLAN30（untagged）**。プロファイル `access-trusted`、「VLAN設定」は「プロファイルに従う」（2026-11-17〜） |
-| p4 | メインディスプレイ（Dell U2725QE） | **access VLAN30（untagged）**。p3 と同じ（2026-11-17〜） |
-| p5–p7 | 空き | p5 から前詰めで、AP・カメラなどに使う（全ポートが PoE+）。**native `Blackhole`、タグ全ブロック**（2026-11-20〜。どこにも繋がらない） |
-| p8 | **復旧ポート**（旧称: 緊急用の入口。決定 2026-11-10 は p6。**2026-11-19 に p8 に変更**。空きを連続させるため） | **native Management(10)**（untagged VLAN10）、タグ全許可（2026-11-20〜）。DHCP は、復旧用の範囲 `10.77.10.240`〜`.250`（ER605 が生きているとき） |
-| p9–p10 | SFP（使わない） | |
-
-注: 2026-11-20 より前は、p1・p2・p5〜p8 が、ネイティブ Default(1)・タグ全許可だった（VLAN1。空きポートでも、タグ付きの通信は、すべての VLAN に入れた）。
-
-ポートの VLAN の方針は、[第5章 ネットワーク](../../hld/05-network.md#配置の方針)にある。
-
-### SG2210P の管理
-
-| 項目 | 値 |
-| --- | --- |
-| Omada でのデバイス名 | `sw01`（サイト `kanare-homelab`。2026-11-27 に `sg2210p` から変更。[ADR-0035](../../../adr/0035-network-device-names-by-role.md)） |
-| NTP | `ntp.nict.jp`（コントローラーのサイトの設定から配る。2026-11-06） |
-| ファームウェア | 5.30.7。**最新**（2026-11-06 に、採用したあと、コントローラーの画面で確認。サポートページの V5.30 の一覧で、5.30.7（Build 20260509、2026-06-11 掲載）が最新。日本語ページも同じ一覧で、地域の表記は UN だけ）。更新はしていない |
-| 管理 IP | **`10.77.10.2/24`（VLAN10、静的。ゲートウェイ・DNS は `10.77.10.1`）。** 管理 VLAN のインターフェースは `Management(Default)`（VLAN10）の 1 つだけ（旧 VLAN1 のインターフェースは、2026-11-20 になくなった）。コントローラーへの接続は、`10.77.10.3` 宛て |
-| PoE | 全ポート 802.3af/at。電力予算は 61W 前後。段階 4 まで、給電する機器はない |
-| IGMP スヌーピング、STP、ストームコントロール | 未確認 |
+TP-Link SG2210P V5.30（`sw01`、`10.77.10.2`）。有線のハブを兼ねる PoE+ スイッチで、ER605 の p2 に繋ぎ、Proxmox（p2）、Buffalo（p3）、ディスプレイ（p4）を収める。p8 は復旧ポートである。製品の仕様は [SG2210P の資料](../hardware/sg2210p.md)、設定値は [SG2210P（sw01）](omada/device-sw01.md)にある。
 
 ## 見直したい項目・未確認
 
@@ -226,9 +83,10 @@ TP-Link SG2210P V5.30。製品の仕様は[SG2210P の資料](../hardware/sg2210
 - Omada Cloud を使い続けるか。
 - 設定のコード化（Open API、コミュニティ製の Terraform プロバイダー）。
 - 機器のファームウェアの自動更新が、無効になっているかを確認する（有効なら、無効にするか決める）。
-- ER605: 採用後の設定値（LAN、DHCP、NTP・時刻、ファイアウォール）を、コントローラーの画面から書き写し直す（採用のあと、LAN と DHCP が変わっていないことは、2026-11-06 に確認した）。
+- ER605 の LAN、DHCP、NTP、ファイアウォールの値は、2026-11-28 に Open API で確かめて、パラメーターシートに書いた。
 - ER605: 管理者アカウント（コントローラーが機器に入るためのアカウント）が、初期値のままではないこと。
-- SG2210P: 採用後の設定値（IGMP スヌーピング、STP、ストームコントロールなど）を、コントローラーの画面から書き写し直す。
+- SG2210P: IGMP スヌーピング、STP の細かい設定、ストームコントロールは、まだ書き出していない（API の窓口を確かめる）。
+- 未適用（2026-11-28 に決定）: SG2210P の SFP ポート（p9・p10）を塞ぐ（[SG2210P](omada/device-sw01.md#ポート)）。WAN の IGMP プロキシを無効にする（[ネットワーク](omada/network.md#そのほかのサービス)）。LAN の Blackhole を、ゲートウェイを持たない VLAN にする（[ネットワーク](omada/network.md#lan)）。手順は[手順書 28](../../../operations/runbooks/28-omada-align-to-target.md)。
 - SG2210P: 新しいファームウェアが出たか（サポートページの V5.30 の一覧で確認する。更新するときは、手順の確認が通ってから別の機会に行い、地域は、コントローラーが表示する今の版に合わせる）。
 
 - ER605 で確認済み（2026-11-06）: p2 は最初から LAN として動いた。上流は MAC で絞っていない（MAC クローンなしで IP を取れた）。
@@ -238,6 +96,7 @@ TP-Link SG2210P V5.30。製品の仕様は[SG2210P の資料](../hardware/sg2210
 
 | 日付 | 内容 |
 | --- | --- |
+| 2026-11-28 | [文書] 設定値を、画面の区分ごとのパラメーターシート（`omada/`）に移した。値は Open API の書き出しで確かめた。`omada-export.py` に、スイッチのポート、ポートプロファイル、VLAN ごとのポートを足した。**ずれを 2 つ見つけた**（LAN の Blackhole が ER605 のポートに割り当たっている、ポートプロファイル `Default` が `Management` になっている） |
 | 2026-11-28 | [文書] Open API で設定値を取り出す `tools/omada-export.py` を作り、`omada/snapshot/` に書き出した（[ADR-0041](../../../adr/0041-omada-settings-exported-by-open-api.md)）。Viewer の権限でデバイスアカウントのパスワードが平文で読めることを、危険として記録した |
 | 2026-11-27 | [ER605] **ゲートウェイ ACL を絞った**（[手順書 27](../../../operations/runbooks/27-network-acl-tighten.md)）。グループ 12 件と許可のルール 14 件を作り、末尾の拒否 7 件を DMZ・Guests・IoT、Lab、Servers、Trusted、Management の順に 1 件ずつ足した。リハーサルの `rh-` の 7 件は削除した。**予測が外れた点:** IP-Port グループはポートを全サブネットにかけ、範囲も書けないので、`grp-mgmt-caddy` と `grp-mgmt-admin` を 2 つずつに分けた（10 件 → 12 件。許可の範囲は同じ）。`!ネットワーク` は、WAN 側の `172.22.0.1` 宛を止めなかった |
 | 2026-11-27 | [コントローラー] 監視用に、ユーザー `exporter`（Viewer）と、Open API のアプリ `exporter`（Client Credentials、Viewer）を作った（運用者の作業。[ADR-0039](../../../adr/0039-omada-metrics-via-omada-exporter.md)） |
