@@ -49,7 +49,7 @@ homelab の監視とアラート通知の仕組み。2026-10-22 の障害（[INC
 | Grafana ダッシュボード「Internet Connectivity」 | ping の遅延（ルーター・建物の共用ルーター・インターネット）、疎通、通知しきい値 | `docker/compose/monitoring/grafana/dashboards/internet-connectivity.json`（`/d/homelab-internet-connectivity`） |
 | Home Assistant の Prometheus 連携 | SwitchBot Hub 2 の温度・湿度を `/api/prometheus` で出す（2 エンティティだけ）。Prometheus の `homeassistant` ジョブが 60 秒毎に取る（[ADR-0037](../../../adr/0037-room-sensors-via-home-assistant-prometheus.md)） | `docker/compose/homeassistant/config/configuration.yaml`、`prometheus.yml` |
 | Home Assistant のトークン | 秘密情報。HA の長期アクセストークン `prometheus` | `ansible/inventory/group_vars/monitoring/secrets.sops.yml`（`prometheus_ha_token`、SOPS 暗号化） |
-| Grafana ダッシュボード「Room Environment」 | 室内の温度・湿度の現在値と推移、湿度の通知しきい値 | `docker/compose/monitoring/grafana/dashboards/room-environment.json`（`/d/homelab-room-environment`） |
+| Grafana ダッシュボード「Room Environment」 | 室内の温度・湿度・不快指数のゲージ、24 時間の最小・最大、湿度と不快指数の区分（乾燥・適正・高湿、寒い〜暑い）の推移、温度・湿度のグラフ。ゲージの色は湿度の通知しきい値（35%・70%）と揃えている | `docker/compose/monitoring/grafana/dashboards/room-environment.json`（`/d/homelab-room-environment`） |
 | Grafana ダッシュボード「Storage / Thin Pool」 | pool とVM ディスク別の割当、増加ペース、VM 稼働状態 | `docker/compose/monitoring/grafana/dashboards/storage.json`（`/d/homelab-storage`） |
 | デプロイ | | `ansible/playbooks/monitoring.yml`（vm-monitoring）、`ansible/playbooks/proxmox.yml`（pve） |
 
@@ -126,6 +126,7 @@ SwitchBot Hub 2 ─> SwitchBot Cloud <─(ポーリング)─ Home Assistant（v
 - **欠測**: 値が途絶えた間は、湿度のアラートが鳴らない。そこで、HA でエンティティが利用できない状態（`RoomSensorUnavailable`）と、Prometheus に値が無い状態（`RoomSensorMissing`）も、30 分続いたら通知する。
 - **`TargetDown` からの除外**: `homeassistant` ジョブは `TargetDown` の対象から外している。HA の scrape の失敗は VM の停止ではなく、critical にすると、同じ `host`（`vm-apps`）の外形監視（`ServiceProbeFailed`）まで抑制してしまうためである。失敗は `RoomSensorMissing` で通知される。
 - **限界**: HA は SwitchBot Cloud をポーリングして値を更新するので、値は数分おきにしか変わらない。SwitchBot Cloud が止まると値が取れない（`RoomSensorUnavailable`）。
+- **不快指数**: ダッシュボードでは、温度 T と湿度 H から `0.81T + 0.01H(0.99T − 14.3) + 46.3` を PromQL で計算して表示する。60〜75 を快適とし、日本で一般に使う区分を 6 段階（寒い・肌寒い・快適・やや暑い・暑い・非常に暑い）にまとめた。見るためだけの値で、通知はしない。
 - **センサーを足すとき**: `configuration.yaml` の `include_entities` にエンティティを足し、必要なら `alerts.yml` とダッシュボードにも足す（将来の CO2 など）。
 - **ESP32 のダッシュボード**: 以前は、別のリポジトリ（`iot-env-monitor`）の ESP32 用ダッシュボードを置いていたが、ESP32 を止めて表示するものが無かったので、2026-11-27 に「Room Environment」に置き換えた。`monitoring.yml` が `esp32-environment.json` を消し、Grafana のプロビジョニングがダッシュボードを消す。
 
