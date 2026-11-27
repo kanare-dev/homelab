@@ -26,10 +26,11 @@ AdGuard Home は、クライアントからの DNS クエリをすべて受け�
 クエリの転送先（upstream）は、名前によって振り分ける。`lab.kanare.dev` は CoreDNS（127.0.0.1:5353）に、それ以外は Unbound（127.0.0.1:5335）に転送する。
 
 - Web UI: <http://10.77.20.10:3000> と <https://adguard.lab.kanare.dev>
-- 設定ファイル: `/opt/dns/adguard/conf/AdGuardHome.yaml`
-- ユーザー: 運用者のユーザーと、統計を読む exporter 専用の `exporter`。`exporter` は、`playbooks/infra.yml` が SOPS の `adguard_exporter_password` から bcrypt のハッシュを作って書く。AdGuard には読み取り専用の権限が無いので、どちらも管理者である（[ADR-0038](../../../adr/0038-adguard-stats-via-adguard-exporter.md)）。
+- 設定ファイル: `/opt/dns/adguard/conf/AdGuardHome.yaml`。**テンプレート [`ansible/playbooks/templates/AdGuardHome.yaml.j2`](../../../../ansible/playbooks/templates/AdGuardHome.yaml.j2) が正**で、`playbooks/infra.yml` が配る（[ADR-0040](../../../adr/0040-config-source-of-truth-by-location.md)。2026-11-28 から）。画面で変えた設定は、次に Ansible を流すと上書きされるので、設定はテンプレートで変える。テンプレートの出力は、AdGuard 自身が書き出す形と同じにしてあり、AdGuard が設定を書き直しても差分が出ない。ブロックリストは、AdGuard DNS filter と AdAway Default Blocklist の 2 つ。
+- 版: `v0.107.73` にダイジェストで固定している（`docker/compose/dns/docker-compose.yml`）。版を上げると設定の形式（`schema_version`）が変わることがあるので、上げるときは、新しい版が書き出したファイルに合わせてテンプレートも直す。
+- ユーザー: 運用者の `kanare` と、統計を読む exporter 専用の `exporter`。パスワードは SOPS（`adguard_admin_password`、`adguard_exporter_password`）にあり、`playbooks/infra.yml` が bcrypt のハッシュにしてテンプレートに入れる。ホストにある今のハッシュがパスワードと合えば使い続ける（bcrypt は作るたびに値が変わり、毎回差分が出るため）。`kanare` のパスワードは、Homepage の AdGuard のウィジェットも使う。AdGuard には読み取り専用の権限が無いので、どちらも管理者である（[ADR-0038](../../../adr/0038-adguard-stats-via-adguard-exporter.md)）。
 - 統計: `vm-monitoring` の adguard-exporter が、Caddy 経由の HTTPS で API を読み、Grafana の「AdGuard Home」ダッシュボードに出す（[監視・アラート](../platform/monitoring.md#adguard-home-の統計)）。
-- fallback DNS: `1.1.1.1` と `9.9.9.9`。upstream（CoreDNS と Unbound）がすべて失敗したときだけ使う。2026-10-22 に、Unbound が約 3 分間応答せず、インターネット全体の名前解決が止まったので、追加した（`playbooks/infra.yml` で設定している）。
+- fallback DNS: `1.1.1.1` と `9.9.9.9`。upstream（CoreDNS と Unbound）がすべて失敗したときだけ使う。2026-10-22 に、Unbound が約 3 分間応答せず、インターネット全体の名前解決が止まったので、追加した（テンプレートで設定している）。
 
 ### CoreDNS
 
@@ -144,11 +145,13 @@ ansible/
 │   └── tasks/main.yml           # インストール・設定タスク
 ├── inventory/group_vars/infra/
 │   └── vars.yml                 # dns_records, coredns_listen_* を定義
-└── playbooks/infra.yml          # DNS スタックのデプロイ・AdGuard upstream 設定
+└── playbooks/
+    ├── infra.yml                # DNS スタックのデプロイ、AdGuard の設定の配置
+    └── templates/AdGuardHome.yaml.j2  # AdGuard Home の設定（正）
 
 docker/compose/dns/
 ├── docker-compose.yml           # AdGuard Home + Unbound
-├── adguard/conf/                # AdGuardHome.yaml (サーバー上で管理)
+├── adguard/conf/                # AdGuardHome.yaml（Ansible がテンプレートから配る）
 └── unbound/
     ├── unbound.conf             # Unbound 設定
     └── root.hints               # ルートヒント (IANA)

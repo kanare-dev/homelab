@@ -16,7 +16,9 @@ services:
       - ./unbound:/opt/unbound/etc/unbound
 
   adguardhome:
-    image: adguard/adguardhome:latest
+    # 版を固定する。版を上げて設定の形式（schema_version）が変わると、AdGuard が設定ファイルを書き直し、
+    # テンプレート（ansible/playbooks/templates/AdGuardHome.yaml.j2）とずれる。上げるときは、テンプレートも直す（ADR-0040）
+    image: adguard/adguardhome:v0.107.73@sha256:7fbf01d73ecb7a32d2d9e6cef8bf88e64bd787889ca80a1e8bce30cd4c084442
     container_name: adguardhome
     logging: *default-logging
     restart: unless-stopped

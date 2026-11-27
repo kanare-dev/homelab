@@ -93,135 +93,56 @@
         - work
         - conf
 
+    # AdGuard の設定は、テンプレートが正（ADR-0040）。画面で変えた設定は、次に流すと上書きされる。
+    # bcrypt のハッシュは作るたびに値が変わるので、ホストにある今のハッシュが SOPS のパスワードと
+    # 合えば使い続け、合わないとき（新しいホスト、パスワードの変更）だけ作り直す。読むだけのタスク
+    - name: Compute AdGuard password hashes
+      ansible.builtin.shell:
+        cmd: |
+          python3 - << 'PYEOF'
+          import bcrypt, json, os, yaml
+
+          config_path = '/opt/dns/adguard/conf/AdGuardHome.yaml'
+          current = {}
+          if os.path.exists(config_path):
+              with open(config_path) as f:
+                  config = yaml.safe_load(f) or {}
+              current = {u.get('name'): u.get('password', '') for u in config.get('users') or []}
+
+          result = {}
+          for name, env in (('kanare', 'ADGUARD_ADMIN_PASSWORD'), ('exporter', 'ADGUARD_EXPORTER_PASSWORD')):
+              password = os.environ[env].encode()
+              hashed = current.get(name, '')
+              if not (hashed and bcrypt.checkpw(password, hashed.encode())):
+                  hashed = bcrypt.hashpw(password, bcrypt.gensalt(rounds=10)).decode()
+              result[name] = hashed
+          print(json.dumps(result))
+          PYEOF
+      environment:
+        ADGUARD_ADMIN_PASSWORD: "{{ adguard_admin_password }}"
+        ADGUARD_EXPORTER_PASSWORD: "{{ adguard_exporter_password }}"
+      register: adguard_password_hashes_raw
+      changed_when: false
+      check_mode: false  # 読むだけなので、check モードでも実行して、テンプレートの差分を出せるようにする
+      no_log: true
+
+    - name: Deploy AdGuard config
+      ansible.builtin.template:
+        src: templates/AdGuardHome.yaml.j2
+        dest: /opt/dns/adguard/conf/AdGuardHome.yaml
+        owner: root
+        group: root
+        mode: "0600"
+      vars:
+        adguard_password_hashes: "{{ adguard_password_hashes_raw.stdout | from_json }}"
+      diff: false  # パスワードのハッシュを差分に出さない
+      notify: Restart dns stack
+
     - name: Deploy dns stack
       community.docker.docker_compose_v2:
         project_src: /opt/dns
         state: present
       tags: [logging]
-
-    - name: Configure AdGuard upstream DNS
-      ansible.builtin.shell:
-        cmd: |
-          python3 - << 'PYEOF'
-          import yaml, sys, os
-
-          config_path = '/opt/dns/adguard/conf/AdGuardHome.yaml'
-          if not os.path.exists(config_path):
-              sys.exit(0)
-
-          with open(config_path, 'r') as f:
-              config = yaml.safe_load(f)
-
-          desired = [
-              '[/lab.kanare.dev/]127.0.0.1:5353',
-              '127.0.0.1:5335',
-          ]
-          if config.get('dns', {}).get('upstream_dns') == desired:
-              sys.exit(0)
-
-          config.setdefault('dns', {})['upstream_dns'] = desired
-          with open(config_path, 'w') as f:
-              yaml.dump(config, f, default_flow_style=False, allow_unicode=True)
-          print('changed')
-          PYEOF
-      register: adguard_upstream
-      changed_when: "'changed' in adguard_upstream.stdout"
-      notify: Restart dns stack
-
-    # Unbound が数分応答しないと、インターネット全体が引けなくなる（2026-10-22 に実際に発生）。
-    # upstream が全て失敗したときだけ使う
-    - name: Configure AdGuard fallback DNS
-      ansible.builtin.shell:
-        cmd: |
-          python3 - << 'PYEOF'
-          import yaml, sys, os
-
-          config_path = '/opt/dns/adguard/conf/AdGuardHome.yaml'
-          if not os.path.exists(config_path):
-              sys.exit(0)
-
-          with open(config_path, 'r') as f:
-              config = yaml.safe_load(f)
-
-          desired = ['1.1.1.1', '9.9.9.9']
-          if config.get('dns', {}).get('fallback_dns') == desired:
-              sys.exit(0)
-
-          config.setdefault('dns', {})['fallback_dns'] = desired
-          with open(config_path, 'w') as f:
-              yaml.dump(config, f, default_flow_style=False, allow_unicode=True)
-          print('changed')
-          PYEOF
-      register: adguard_fallback
-      changed_when: "'changed' in adguard_fallback.stdout"
-      notify: Restart dns stack
-
-    # INC-2026-10-22: クエリログが 90 日保持で 1.2GB まで増えていた。7 日に短縮する
-    - name: Limit AdGuard query log retention
-      ansible.builtin.shell:
-        cmd: |
-          python3 - << 'PYEOF'
-          import yaml, sys, os
-
-          config_path = '/opt/dns/adguard/conf/AdGuardHome.yaml'
-          if not os.path.exists(config_path):
-              sys.exit(0)
-
-          with open(config_path, 'r') as f:
-              config = yaml.safe_load(f)
-
-          desired = '{{ adguard_querylog_interval }}'
-          if config.get('querylog', {}).get('interval') == desired:
-              sys.exit(0)
-
-          config.setdefault('querylog', {})['interval'] = desired
-          with open(config_path, 'w') as f:
-              yaml.dump(config, f, default_flow_style=False, allow_unicode=True)
-          print('changed')
-          PYEOF
-      register: adguard_querylog
-      changed_when: "'changed' in adguard_querylog.stdout"
-      notify: Restart dns stack
-      tags: [logging]
-
-    # vm-monitoring の adguard-exporter が API を読むためのユーザー（ADR-0038）。
-    # AdGuard には読み取り専用の権限が無いので、管理者のユーザーを exporter 専用に分ける。
-    # パスワードが SOPS の値と合わないときだけ、bcrypt のハッシュを書き直す（ローテーションもこれで反映される）
-    - name: Configure AdGuard user for the exporter
-      ansible.builtin.shell:
-        cmd: |
-          python3 - << 'PYEOF'
-          import bcrypt, os, sys, yaml
-
-          config_path = '/opt/dns/adguard/conf/AdGuardHome.yaml'
-          if not os.path.exists(config_path):
-              sys.exit(0)
-
-          with open(config_path, 'r') as f:
-              config = yaml.safe_load(f)
-
-          password = os.environ['ADGUARD_EXPORTER_PASSWORD'].encode()
-          users = config.get('users') or []
-          user = next((u for u in users if u.get('name') == 'exporter'), None)
-          if user and bcrypt.checkpw(password, user.get('password', '').encode()):
-              sys.exit(0)
-
-          hashed = bcrypt.hashpw(password, bcrypt.gensalt(rounds=10)).decode()
-          if user:
-              user['password'] = hashed
-          else:
-              users.append({'name': 'exporter', 'password': hashed})
-          config['users'] = users
-          with open(config_path, 'w') as f:
-              yaml.dump(config, f, default_flow_style=False, allow_unicode=True)
-          print('changed')
-          PYEOF
-      environment:
-        ADGUARD_EXPORTER_PASSWORD: "{{ adguard_exporter_password }}"
-      register: adguard_exporter_user
-      changed_when: "'changed' in adguard_exporter_user.stdout"
-      no_log: true
-      notify: Restart dns stack
 
     # --- Tailscale ---
     - name: Check if Tailscale is already installed

@@ -30,7 +30,7 @@ LAN 内サービスへのリンクと、状態のウィジェットを 1 画面�
 | タイル / 情報 | 取得元 | 認証 |
 | --- | --- | --- |
 | Proxmox VE | `https://pve.lab.kanare.dev`（Caddy 経由。API トークン `homepage@pve!homepage-token`） | SOPS（`homepage_proxmox_token`） |
-| AdGuard Home | `http://10.77.20.10:3000` | SOPS（`homepage_adguard_password`） |
+| AdGuard Home | `http://10.77.20.10:3000` | SOPS（`group_vars/all` の `adguard_admin_password`。AdGuard の管理者 `kanare` と共通） |
 | Hosts（`pve01`、`vm-infra`、`vm-monitoring`、`vm-apps`、`vm-code`） | Prometheus の `node_exporter` から、CPU・メモリ・ディスク（`/`）の使用率を出す（アイコンは Ubuntu、`pve01` は Proxmox）。手動起動の `vm-dev` は、停止中に値が取れないため含めない。Grafana のダッシュボードと同じ元データで、こちらは現在値の一覧向き | なし |
 | Prometheus | `https://prometheus.lab.kanare.dev`。監視対象の up / down 数。手動起動の `vm-dev` は down に数えない（`TargetDown` と同じ条件） | なし |
 | Alertmanager | 同上（ウィジェットの種類は `prometheusmetric`）。Prometheus の `ALERTS` から、発報中（`Watchdog` を除く）と保留中の件数を出す。Alertmanager 専用のウィジェットはないため | なし |
