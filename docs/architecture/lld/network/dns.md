@@ -212,7 +212,7 @@ ansible-playbook playbooks/infra.yml
 | Subnet route | Admin Console で `10.77.20.0/24`、`10.77.40.0/24` を承認済み |
 | Key expiry | vm-infra は無効化（期限切れで外出先から繋がらなくなるのを防ぐ） |
 | Split DNS | Admin Console → DNS → Nameserver `100.118.14.37`、Restrict to domain `lab.kanare.dev` |
-| ACL のポリシー | [`tailscale/policy.hujson`](../../../../tailscale/policy.hujson) が正。main に入ると、GitHub Actions（`.github/workflows/tailscale.yml`、公式の `tailscale/gitops-acl-action`）が適用する。Admin Console では編集しない（[ADR-0040](../../../adr/0040-config-source-of-truth-by-location.md)）。中身は既定のまま（すべての通信を許可） |
+| ACL のポリシー | [`tailscale/policy.hujson`](../../../../tailscale/policy.hujson) が正。main に入ると、GitHub Actions（`.github/workflows/tailscale.yml`、公式の `tailscale/gitops-acl-action`）が適用する。Admin Console での編集は、Settings > Policy file management の「Prevent edits in the admin console」で止めている（External reference はリポジトリのファイル。[ADR-0040](../../../adr/0040-config-source-of-truth-by-location.md)）。中身は既定のまま（すべての通信を許可） |
 
 - `--accept-dns=false`: vm-infra 自身が AdGuard を DNS として使うため、Tailscale に resolv.conf を書き換えさせない。
 - ACL のポリシーには、メールアドレスを書かない（リポジトリは公開）。利用者は `autogroup:`、端末はタグで書く。GitHub Actions の認証は、フェデレーテッド ID（GitHub の OIDC、スコープ `policy_file`）で、長期間有効な秘密の値を置かない。pull_request では検査（`test`）だけを行い、main への push で適用（`apply`）する。
