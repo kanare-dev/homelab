@@ -407,5 +407,453 @@
       "name": "Trusted",
       "vlan": 30
     }
-  ]
+  ],
+  "ports": [
+    {
+      "configMlagDad": false,
+      "configMlagPeerLink": false,
+      "configStack": false,
+      "disable": false,
+      "nativeNetworkId": "6ae995d254553e13832c7388 (Management(Default))",
+      "networkMode": 1,
+      "networkTagsSetting": 2,
+      "operation": "switching",
+      "oswStandPort": {
+        "port": 1,
+        "slot": 0,
+        "unit": 1
+      },
+      "poe": 1,
+      "poeDisplayType": 4,
+      "port": 1,
+      "portName": "Port1",
+      "profileId": "6ae995d254553e13832c7389 (All)",
+      "profileName": "All",
+      "profileOverrideEnable": false,
+      "profileType": 0,
+      "site": "6ae995d254553e13832c737d",
+      "supportPoe": true,
+      "switchMac": "sw01",
+      "switchName": "sw01",
+      "switchSupportPoe": 1,
+      "tagIds": [],
+      "type": 1
+    },
+    {
+      "configMlagDad": false,
+      "configMlagPeerLink": false,
+      "configStack": false,
+      "disable": false,
+      "nativeNetworkId": "6b00468be7ed9d29bb7b1fa5 (Blackhole)",
+      "networkMode": 1,
+      "networkTagsSetting": 2,
+      "operation": "switching",
+      "oswStandPort": {
+        "port": 2,
+        "slot": 0,
+        "unit": 1
+      },
+      "poe": 1,
+      "poeDisplayType": 4,
+      "port": 2,
+      "portName": "Port2",
+      "profileId": "6ae995d254553e13832c7389 (All)",
+      "profileName": "All",
+      "profileOverrideEnable": false,
+      "profileType": 0,
+      "site": "6ae995d254553e13832c737d",
+      "supportPoe": true,
+      "switchMac": "sw01",
+      "switchName": "sw01",
+      "switchSupportPoe": 1,
+      "tagIds": [],
+      "type": 1
+    },
+    {
+      "configMlagDad": false,
+      "configMlagPeerLink": false,
+      "configStack": false,
+      "disable": false,
+      "nativeNetworkId": "6aedd12454553e13832c9822 (Trusted)",
+      "networkMode": 0,
+      "networkTagsSetting": 1,
+      "operation": "switching",
+      "oswStandPort": {
+        "port": 3,
+        "slot": 0,
+        "unit": 1
+      },
+      "poe": 1,
+      "poeDisplayType": 4,
+      "port": 3,
+      "portName": "Port3",
+      "profileId": "6af4630e0d0a372bedf53d62 (access-trusted)",
+      "profileName": "access-trusted",
+      "profileOverrideEnable": false,
+      "profileType": 2,
+      "site": "6ae995d254553e13832c737d",
+      "supportPoe": true,
+      "switchMac": "sw01",
+      "switchName": "sw01",
+      "switchSupportPoe": 1,
+      "tagIds": [],
+      "type": 1
+    },
+    {
+      "configMlagDad": false,
+      "configMlagPeerLink": false,
+      "configStack": false,
+      "disable": false,
+      "nativeNetworkId": "6aedd12454553e13832c9822 (Trusted)",
+      "networkMode": 0,
+      "networkTagsSetting": 1,
+      "operation": "switching",
+      "oswStandPort": {
+        "port": 4,
+        "slot": 0,
+        "unit": 1
+      },
+      "poe": 1,
+      "poeDisplayType": 4,
+      "port": 4,
+      "portName": "Port4",
+      "profileId": "6af4630e0d0a372bedf53d62 (access-trusted)",
+      "profileName": "access-trusted",
+      "profileOverrideEnable": false,
+      "profileType": 2,
+      "site": "6ae995d254553e13832c737d",
+      "supportPoe": true,
+      "switchMac": "sw01",
+      "switchName": "sw01",
+      "switchSupportPoe": 1,
+      "tagIds": [],
+      "type": 1
+    },
+    {
+      "configMlagDad": false,
+      "configMlagPeerLink": false,
+      "configStack": false,
+      "disable": false,
+      "nativeNetworkId": "6b00468be7ed9d29bb7b1fa5 (Blackhole)",
+      "networkMode": 0,
+      "networkTagsSetting": 1,
+      "operation": "switching",
+      "oswStandPort": {
+        "port": 5,
+        "slot": 0,
+        "unit": 1
+      },
+      "poe": 1,
+      "poeDisplayType": 4,
+      "port": 5,
+      "portName": "Port5",
+      "profileId": "6ae995d254553e13832c7389 (All)",
+      "profileName": "All",
+      "profileOverrideEnable": false,
+      "profileType": 0,
+      "site": "6ae995d254553e13832c737d",
+      "supportPoe": true,
+      "switchMac": "sw01",
+      "switchName": "sw01",
+      "switchSupportPoe": 1,
+      "tagIds": [],
+      "type": 1
+    },
+    {
+      "configMlagDad": false,
+      "configMlagPeerLink": false,
+      "configStack": false,
+      "disable": false,
+      "nativeNetworkId": "6b00468be7ed9d29bb7b1fa5 (Blackhole)",
+      "networkMode": 0,
+      "networkTagsSetting": 1,
+      "operation": "switching",
+      "oswStandPort": {
+        "port": 6,
+        "slot": 0,
+        "unit": 1
+      },
+      "poe": 1,
+      "poeDisplayType": 4,
+      "port": 6,
+      "portName": "Port6",
+      "profileId": "6ae995d254553e13832c7389 (All)",
+      "profileName": "All",
+      "profileOverrideEnable": false,
+      "profileType": 0,
+      "site": "6ae995d254553e13832c737d",
+      "supportPoe": true,
+      "switchMac": "sw01",
+      "switchName": "sw01",
+      "switchSupportPoe": 1,
+      "tagIds": [],
+      "type": 1
+    },
+    {
+      "configMlagDad": false,
+      "configMlagPeerLink": false,
+      "configStack": false,
+      "disable": false,
+      "nativeNetworkId": "6b00468be7ed9d29bb7b1fa5 (Blackhole)",
+      "networkMode": 0,
+      "networkTagsSetting": 1,
+      "operation": "switching",
+      "oswStandPort": {
+        "port": 7,
+        "slot": 0,
+        "unit": 1
+      },
+      "poe": 1,
+      "poeDisplayType": 4,
+      "port": 7,
+      "portName": "Port7",
+      "profileId": "6ae995d254553e13832c7389 (All)",
+      "profileName": "All",
+      "profileOverrideEnable": false,
+      "profileType": 0,
+      "site": "6ae995d254553e13832c737d",
+      "supportPoe": true,
+      "switchMac": "sw01",
+      "switchName": "sw01",
+      "switchSupportPoe": 1,
+      "tagIds": [],
+      "type": 1
+    },
+    {
+      "configMlagDad": false,
+      "configMlagPeerLink": false,
+      "configStack": false,
+      "disable": false,
+      "nativeNetworkId": "6ae995d254553e13832c7388 (Management(Default))",
+      "networkMode": 1,
+      "networkTagsSetting": 0,
+      "operation": "switching",
+      "oswStandPort": {
+        "port": 8,
+        "slot": 0,
+        "unit": 1
+      },
+      "poe": 1,
+      "poeDisplayType": 4,
+      "port": 8,
+      "portName": "Port8",
+      "profileId": "6ae995d254553e13832c7389 (All)",
+      "profileName": "All",
+      "profileOverrideEnable": false,
+      "profileType": 0,
+      "site": "6ae995d254553e13832c737d",
+      "supportPoe": true,
+      "switchMac": "sw01",
+      "switchName": "sw01",
+      "switchSupportPoe": 1,
+      "tagIds": [],
+      "type": 1
+    },
+    {
+      "configMlagDad": false,
+      "configMlagPeerLink": false,
+      "configStack": false,
+      "disable": false,
+      "nativeNetworkId": "6ae995d254553e13832c7388 (Management(Default))",
+      "networkMode": 1,
+      "networkTagsSetting": 0,
+      "operation": "switching",
+      "oswStandPort": {
+        "port": 9,
+        "slot": 0,
+        "unit": 1
+      },
+      "poe": 1,
+      "poeDisplayType": -1,
+      "port": 9,
+      "portName": "Port9",
+      "profileId": "6ae995d254553e13832c7389 (All)",
+      "profileName": "All",
+      "profileOverrideEnable": false,
+      "profileType": 0,
+      "site": "6ae995d254553e13832c737d",
+      "supportPoe": false,
+      "switchMac": "sw01",
+      "switchName": "sw01",
+      "switchSupportPoe": 1,
+      "tagIds": [],
+      "type": 3
+    },
+    {
+      "configMlagDad": false,
+      "configMlagPeerLink": false,
+      "configStack": false,
+      "disable": false,
+      "nativeNetworkId": "6ae995d254553e13832c7388 (Management(Default))",
+      "networkMode": 1,
+      "networkTagsSetting": 0,
+      "operation": "switching",
+      "oswStandPort": {
+        "port": 10,
+        "slot": 0,
+        "unit": 1
+      },
+      "poe": 1,
+      "poeDisplayType": -1,
+      "port": 10,
+      "portName": "Port10",
+      "profileId": "6ae995d254553e13832c7389 (All)",
+      "profileName": "All",
+      "profileOverrideEnable": false,
+      "profileType": 0,
+      "site": "6ae995d254553e13832c737d",
+      "supportPoe": false,
+      "switchMac": "sw01",
+      "switchName": "sw01",
+      "switchSupportPoe": 1,
+      "tagIds": [],
+      "type": 3
+    }
+  ],
+  "vlan-membership": {
+    "10 Management(Default)": {
+      "ipaddr": "10.77.10.2",
+      "mode": 0,
+      "nativeLags": [],
+      "nativePorts": [
+        1,
+        8,
+        9,
+        10
+      ],
+      "tagLags": [],
+      "tagPorts": [
+        2
+      ],
+      "untagLags": [],
+      "untagPorts": [
+        1,
+        1,
+        8,
+        9,
+        10
+      ],
+      "vlan": 10
+    },
+    "20 Servers": {
+      "nativeLags": [],
+      "nativePorts": [],
+      "tagLags": [],
+      "tagPorts": [
+        1,
+        2,
+        8,
+        9,
+        10
+      ],
+      "untagLags": [],
+      "untagPorts": [],
+      "vlan": 20
+    },
+    "30 Trusted": {
+      "nativeLags": [],
+      "nativePorts": [
+        3,
+        4
+      ],
+      "tagLags": [],
+      "tagPorts": [
+        1,
+        2,
+        8,
+        9,
+        10
+      ],
+      "untagLags": [],
+      "untagPorts": [
+        3,
+        4
+      ],
+      "vlan": 30
+    },
+    "40 Lab": {
+      "nativeLags": [],
+      "nativePorts": [],
+      "tagLags": [],
+      "tagPorts": [
+        1,
+        2,
+        8,
+        9,
+        10
+      ],
+      "untagLags": [],
+      "untagPorts": [],
+      "vlan": 40
+    },
+    "50 IoT": {
+      "nativeLags": [],
+      "nativePorts": [],
+      "tagLags": [],
+      "tagPorts": [
+        1,
+        2,
+        8,
+        9,
+        10
+      ],
+      "untagLags": [],
+      "untagPorts": [],
+      "vlan": 50
+    },
+    "60 Guests": {
+      "nativeLags": [],
+      "nativePorts": [],
+      "tagLags": [],
+      "tagPorts": [
+        1,
+        2,
+        8,
+        9,
+        10
+      ],
+      "untagLags": [],
+      "untagPorts": [],
+      "vlan": 60
+    },
+    "70 DMZ": {
+      "nativeLags": [],
+      "nativePorts": [],
+      "tagLags": [],
+      "tagPorts": [
+        1,
+        2,
+        8,
+        9,
+        10
+      ],
+      "untagLags": [],
+      "untagPorts": [],
+      "vlan": 70
+    },
+    "999 Blackhole": {
+      "nativeLags": [],
+      "nativePorts": [
+        2,
+        5,
+        6,
+        7
+      ],
+      "tagLags": [],
+      "tagPorts": [
+        8,
+        9,
+        10
+      ],
+      "untagLags": [],
+      "untagPorts": [
+        2,
+        2,
+        5,
+        6,
+        7
+      ],
+      "vlan": 999
+    }
+  }
 }
