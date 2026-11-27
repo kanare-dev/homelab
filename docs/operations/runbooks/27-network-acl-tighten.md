@@ -2,7 +2,7 @@
 
 段階 3 のあと全許可のまま運用している ER605 のゲートウェイ ACL（LAN → LAN）を、[通信ポリシー](../../architecture/hld/05-network.md#通信ポリシー)の内容に絞る（[ADR-0029](../../adr/0029-stage3-acl-allow-all-then-tighten.md)、[ADR-0034](../../adr/0034-acl-for-vlan-boundaries-ufw-for-ports.md)）。[段階 3 の当日の作業](21-network-cutover-stage-3.md)の手順 8 を、この手順書で置き換える。
 
-- 作るルールとグループの値は、[Omada コントローラーの設定値](../../architecture/lld/network/omada-controller.md#ゲートウェイの-acl)を正とする。名前と説明の付け方は、[ACL の名前と説明の付け方](../../architecture/lld/network/acl.md)にある。
+- 作るルールとグループの値は、[Omada コントローラーの設定値](../../architecture/lld/network/omada/security.md#ゲートウェイ-acl)を正とする。名前と説明の付け方は、[ACL の名前と説明の付け方](../../architecture/lld/network/acl.md)にある。
 - **文書が先**の変更である（[ADR-0033](../../adr/0033-docs-first-by-change-type-and-diagram-order.md)）。この手順書と設定値をマージしてから、実機を変える。
 - 期限の目安は、段階 3 の完了（2026-11-17）から 2 週間以内（決定 2026-11-11）。
 - 所要時間は、確認を含めて 2 時間ほどの見込み（未確認）。止まるのは、絞り間違えた通信だけである。
@@ -31,7 +31,7 @@ IoT・Guests・DMZ には端末が無いので、その VLAN からの拒否は�
 
 ## 0. 前の日までに
 
-- [x] この手順書と、[設定値](../../architecture/lld/network/omada-controller.md#ゲートウェイの-acl)の PR をマージした（2026-11-26。#43）。
+- [x] この手順書と、[設定値](../../architecture/lld/network/omada/security.md#ゲートウェイ-acl)の PR をマージした（2026-11-26。#43）。
 - [x] Homepage の Proxmox ウィジェットを、Caddy 経由（`https://pve.lab.kanare.dev`）に変えて、値が取れることを確かめた（2026-11-26）。
 - [x] `pve01` の DNS をルーター（`10.77.10.1`）に、NTP を `ntp_servers` に変えた（2026-11-26。#44。[Proxmox ホスト](../../architecture/lld/platform/proxmox-host.md)）。
 
@@ -40,7 +40,7 @@ IoT・Guests・DMZ には端末が無いので、その VLAN からの拒否は�
 復旧ポートと画面の確認（1・2）は、前の日ではなく、当日の最初に行う（運用者の判断。2026-11-26）。どちらも実機を変えないので、当日に回しても、作業の順番は崩れない。
 
 1. **復旧ポート p8 から、Omada の画面に入れる**ことを確かめる。Mac を p8 に繋ぐと、DHCP で `10.77.10.240`〜`.250` を受け取り、`https://10.77.10.3:8043` が開く。p8 と `vm-omada` は同じ VLAN（Management）なので、ACL を通らない。`vm-omada` の UFW は、`10.77.10.0/24` からの 8043 を許可している。**入れなければ、ここで作業をやめる**（絞り間違えたときの戻り道が無いため）。確かめたら、Mac を元の接続に戻す。
-2. 6.3 の画面（サイト > 構成 > ネットワーク設定 > セキュリティ > ACL の「ゲートウェイ ACL」）で、グループ（IP グループ、IP-Port グループ）が作れること、ACL のプロトコルに ICMP と「TCP と UDP」を選べること、送信元・宛先にグループを選べることを確かめる（保存はしない）。選べないものがあれば、その場でルールを分ける（例: 「TCP と UDP」が選べなければ、TCP と UDP の 2 件にする）。分けたルールは、下の「実施の記録」に書き、実施のあとに[設定値](../../architecture/lld/network/omada-controller.md#ゲートウェイの-acl)の表を直す。通信の許可の範囲は変えないので、文書が先の原則（[ADR-0033](../../adr/0033-docs-first-by-change-type-and-diagram-order.md)）から外れない。
+2. 6.3 の画面（サイト > 構成 > ネットワーク設定 > セキュリティ > ACL の「ゲートウェイ ACL」）で、グループ（IP グループ、IP-Port グループ）が作れること、ACL のプロトコルに ICMP と「TCP と UDP」を選べること、送信元・宛先にグループを選べることを確かめる（保存はしない）。選べないものがあれば、その場でルールを分ける（例: 「TCP と UDP」が選べなければ、TCP と UDP の 2 件にする）。分けたルールは、下の「実施の記録」に書き、実施のあとに[設定値](../../architecture/lld/network/omada/security.md#ゲートウェイ-acl)の表を直す。通信の許可の範囲は変えないので、文書が先の原則（[ADR-0033](../../adr/0033-docs-first-by-change-type-and-diagram-order.md)）から外れない。
 3. Omada のバックアップ（設定とサイト）を取り、iCloud Drive に日付つきで保存する。
 4. `vm-dev` を起動する: `ssh root@10.77.10.10 "qm start 121"`。起動したら、Prometheus のターゲットが `up` になることを見る。
 5. 今の状態を控える。Prometheus の全ターゲットが `up`、アラートが `Watchdog` だけであること。Homepage の各ウィジェットに値が出ていること。
@@ -49,7 +49,7 @@ IoT・Guests・DMZ には端末が無いので、その VLAN からの拒否は�
 
 ## 2. グループと許可のルールを作る
 
-1. [設定値](../../architecture/lld/network/omada-controller.md#ゲートウェイの-acl)の表のとおりに、グループを 10 件作る。
+1. [設定値](../../architecture/lld/network/omada/security.md#ゲートウェイ-acl)の表のとおりに、グループを 10 件作る。
 2. 許可のルール（`130`〜`172`）を、表の順に作り、有効にする。
 3. 一覧の順番が、表と同じであることを確かめる。
 
@@ -59,7 +59,7 @@ IoT・Guests・DMZ には端末が無いので、その VLAN からの拒否は�
 
 各段階で、`python3 tools/acl-check.py --deny <有効にした VLAN>` を流すと、下の確認項目の多くを自動で確かめられる（例: 3-2 のあとは `--deny dmz,guests,iot,lab`）。手順 1 の前に `--deny none` で流し、すべて届くことを確かめておく。
 
-各ルールは、[設定値](../../architecture/lld/network/omada-controller.md#ゲートウェイの-acl)の表のとおりに作る（送信元はその VLAN、宛先は「!ネットワーク」でその VLAN）。足したら、下の確認を行い、問題が無ければ次に進む。
+各ルールは、[設定値](../../architecture/lld/network/omada/security.md#ゲートウェイ-acl)の表のとおりに作る（送信元はその VLAN、宛先は「!ネットワーク」でその VLAN）。足したら、下の確認を行い、問題が無ければ次に進む。
 
 ### 3-1. DMZ、Guests、IoT（`970`、`960`、`950`）
 
@@ -127,7 +127,7 @@ Mac（Tailscale をオフ）と iPhone（Wi-Fi、Tailscale をオフ）で確か
 
 ## 実施のあとに直す文書
 
-- [Omada コントローラーの設定値](../../architecture/lld/network/omada-controller.md#ゲートウェイの-acl): 節の見出しと本文の「未適用」を外し、未確認の項目の結果を書き、変更履歴に 1 行足す。
+- [Omada コントローラーの設定値](../../architecture/lld/network/omada/security.md#ゲートウェイ-acl): 節の見出しと本文の「未適用」を外し、未確認の項目の結果を書き、変更履歴に 1 行足す。
 - [通信ポリシー](../../architecture/hld/05-network.md#通信ポリシー)と[第6章 セキュリティ](../../architecture/hld/06-security.md#セグメンテーション): 「ACL は全許可のまま」の記述を、絞った日付に直す。
 - [ADR-0029](../../adr/0029-stage3-acl-allow-all-then-tighten.md) と [ADR-0034](../../adr/0034-acl-for-vlan-boundaries-ufw-for-ports.md): ステータスの「未適用」を外す（[ADR の一覧](../../adr/README.md)も）。
 - [移行計画](../roadmap/10-er605-sg2210p-migration-plan.md)の確認項目（各 VLAN から Servers への接続と、拒否すべき通信）と、[構成レビューの改善案](../roadmap/11-design-review-ideas.md)の #2 の状況。
