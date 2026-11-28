@@ -73,7 +73,7 @@ VM の IP は Terraform（`terraform.tfvars`）で固定する。VMID の規則�
 | ルーター（`rtr01`） | — | — | `10.77.10.1`（ER605） | 10 | VLAN10 のゲートウェイ。既定のネットワークと同じ（[ADR-0032](../../../adr/0032-merge-default-network-into-management-vlan10.md)） |
 | Managed Switch（`sw01`、SG2210P） | — | — | `10.77.10.2` | 10 | 静的 |
 | Omada コントローラー（`vm-omada`） | 112 | 1003 | `10.77.10.3` | 10 | NIC 1 枚（VLAN10） |
-| AP（`ap01`） | — | — | `10.77.10.4–.9` | 10 | 採番は購入後に確定する。Buffalo を退役させたら、`ap01` の名前を引き継ぐ（[ADR-0035](../../../adr/0035-network-device-names-by-role.md)） |
+| AP（`ap01`、EAP653） | — | — | `10.77.10.4`（未適用） | 10 | 2026-11-28 に決定（[ADR-0043](../../../adr/0043-ap-on-p3-native-management.md)）。段階 4 で Buffalo と差し替え、`ap01` の名前を引き継ぐ（[ADR-0035](../../../adr/0035-network-device-names-by-role.md)）。採用のときは緊急用プールから IP を受け取り、採用したあとに固定にする |
 | Proxmox（`pve01`） | — | — | `10.77.10.10` | 10 | タグ付きの `vmbr0.10`。ホスト名は `pve01`（2026-11-24 に `pve` から変更。[手順書 26](../../../operations/runbooks/26-rename-pve-host-to-pve01.md)）。FQDN `pve01.lab.kanare.dev` も `10.77.10.10` |
 | `vm-infra` | 111 | 2010 | `10.77.20.10` | 20 | DNS、Caddy、Tailscale |
 | `vm-monitoring` | 113 | 2011 | `10.77.20.11` | 20 | |
