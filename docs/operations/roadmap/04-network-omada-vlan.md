@@ -53,7 +53,7 @@
 ### 段階 4: AP（EAP）
 
 - [x] AP の機種を選ぶ。**2026-11-28 に、運用者が EAP653（Wi-Fi 6、AX3000、PoE+ 給電）を購入した**（[EAP653 の資料](../../architecture/lld/hardware/eap653.md)）。技適の表示は、本体のラベルで確かめる
-- [ ] AP を設置し、SSID と VLAN を対応させる（設置場所は電波の届き方で決める）
+- [ ] AP を設置し、SSID と VLAN を対応させる（設置場所は電波の届き方で決める）。手順は[手順書 29](../runbooks/29-network-stage-4-ap.md)
   - SSID は 3 つで始める（検討中）: Trusted（VLAN30）/ IoT（VLAN50、2.4GHz のみ、クライアント間分離）/ Guest（VLAN60、クライアント間分離、LAN 向けは全遮断）
   - SSID は、`Onda`（Trusted。`WPA2-PSK/WPA3-SAE`）、`Onda-IoT`、`Onda-Guest` にする（[ADR-0045](../../adr/0045-ssid-onda-transition-and-no-iot-isolation.md)、2026-11-28 に決定）。Omada では WPA3 だけのモードを選べないので、`Onda-Forte` はやめた。設定値は [Omada のパラメーターシート](../../architecture/lld/network/omada/network.md#ssid未適用)に未適用で書いた
   - Lab（VLAN40）の SSID は、無線で繋ぐ検証機が出てから追加する。SSID を増やすとビーコンの電波オーバーヘッドが増えるため、最小構成で始める
