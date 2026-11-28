@@ -65,6 +65,20 @@ FQDN ごとの宛先（IP とポート）は、[IP アドレス一覧](../lld/ne
 
 Caddy 経由の FQDN には、証明書を FQDN ごとに取得する（[リバースプロキシと TLS](../lld/network/reverse-proxy-tls.md)）。
 
+## SSID の命名規約
+
+Wi-Fi の SSID は、共通の `Onda` に、ハイフンと接尾辞を続けて名付ける（[ADR-0042](../../adr/0042-ssid-names-by-vlan.md)）。接尾辞のない `Onda` は Trusted に入る。接尾辞には、その SSID が入る VLAN の英語の名前を使う。ただし、Guests は来客が読む名前なので、単数の `Guest` にする。`Forte` だけは例外で、Trusted の WPA3 版を表す。名前には ASCII の英字、数字、ハイフンだけを使い、空白は入れず、32 バイト以内にする。Management、Servers、DMZ の SSID は出さない。
+
+| SSID | VLAN | 暗号化 | 状態 |
+| --- | --- | --- | --- |
+| `Onda` | 30 Trusted | WPA2 Personal | 使用中（Buffalo） |
+| `Onda-Forte` | 30 Trusted | WPA3 Personal | 使用中（Buffalo） |
+| `Onda-IoT` | 50 IoT | WPA2 Personal | AP（EAP653）の導入時に作る |
+| `Onda-Guest` | 60 Guests | WPA2 Personal | AP（EAP653）の導入時に作る |
+| `Onda-Lab` | 40 Lab | 未定 | 無線で繋ぐ検証機が出たときに作る |
+
+パスフレーズは SSID ごとに変え、台帳に記録する。
+
 ## 配置の方針
 
 - **Proxmox ホストは Management に置く。** 管理面（`:8006`）が VM と同じネットワークに載らない。ホストの IP は、タグ付きの `vmbr0.10`（`10.77.10.10/24`）に付ける。`vmbr0` は VLAN-aware で、IP を持たない。手順は[手順書 24](../../operations/runbooks/24-pve-move-to-vmbr0-10.md)にある。
