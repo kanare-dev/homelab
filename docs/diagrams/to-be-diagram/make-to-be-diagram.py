@@ -285,7 +285,7 @@ def layout():
     text("ER605 p2 ⇔ SG2210P p1: trunk (untagged: VLAN10 / tagged: VLAN20,30,40,50,60,70)", 890, 320, 700, 40, cls="el")
 
     icon("hardware/tplink-sg2210p.png", 760, 380, 240, 80, max_px=700)
-    text(f"<b>TP-Link SG2210P</b><br>{name_ip('sw01', '10.77.10.2')} (VLAN10)<br>p1: rtr01 / p2: pve01 / p4: Dell U2725QE / p7: ap01 (PoE+)<br>p3, p5, p6: spare (PoE, native Blackhole) / p8: recovery port (native VLAN10)", 1010, 380, 690, 80)
+    text(f"<b>TP-Link SG2210P</b><br>{name_ip('sw01', '10.77.10.2')} (VLAN10)<br>p1: rtr01 / p2: pve01 / p3: ap01 (PoE+) / p4: Dell U2725QE<br>p5–p7: spare (PoE, native Blackhole) / p8: recovery port (native VLAN10)", 1010, 380, 690, 80)
 
     # Proxmox ---------------------------------------------------------------------------
     gx, gy = 40, 640
@@ -361,12 +361,12 @@ def layout():
     row(*NODE, gx + 20, gy + gh - 50, 220)
 
     # AP / Trusted / IoT / Guests ------------------------------------------------------
-    # AP（EAP653）は Management（VLAN10）の機器で、スイッチの p7 から trunk で SSID ごとの VLAN を受ける。
+    # AP（EAP653）は Management（VLAN10）の機器で、スイッチの p3 から trunk で SSID ごとの VLAN を受ける。
     # AP はスイッチと VLAN の枠の間に置き、SSID ごとの VLAN の枠には、Wi-Fi のアイコン（SSID）から端末をぶら下げる。
     tx, ty = 1120, 640
     ax, ay = 1330, 500                                  # AP のアイコンの中心（x）と上端（y）
-    edge([(960, 460), (960, 480), (ax, 480), (ax, ay)], width=5)  # p7: trunk（太い線）
-    text("p7: trunk (native: VLAN10 / tagged: VLAN30,50,60)", 970, 484, 340, 40, cls="el")
+    edge([(960, 460), (960, 480), (ax, 480), (ax, ay)], width=5)  # p3: trunk（太い線）
+    text("p3: trunk (native: VLAN10 / tagged: VLAN30,50,60)", 970, 484, 340, 40, cls="el")
     icon("hardware/omada-eap.png", ax - 30, ay, 60, 60, max_px=300)
     text(f"<b>TP-Link Omada EAP653</b><br>{name_ip('ap01', '10.77.10.4')} (VLAN10)<br>"
          "SSID → VLAN: Onda, Onda-Forte → 30<br>Onda-IoT (2.4 GHz) → 50 / Onda-Guest → 60", ax + 45, ay - 10, 330, 90)
