@@ -152,7 +152,9 @@
 
 - [ ] CO2 濃度の監視。今の SwitchBot Hub 2 では取れない前提（運用者の話。機種の仕様は未確認）。CO2 に対応するセンサーを足したら、温度・湿度と同じ仕組み（[ADR-0037](../../adr/0037-room-sensors-via-home-assistant-prometheus.md)）に載せる。機種としきい値は未定。
 
-- [ ] IP カメラ + Frigate の導入
+- [ ] IP カメラ + Frigate の導入。**2026-11-28 に、運用者がカメラ（Tapo C200。[資料](../../architecture/lld/hardware/tapo-c200.md)）を購入した。** C200 は 2.4GHz の Wi-Fi にしか繋がらないので、AP（EAP653）の段階 4（[04](04-network-omada-vlan.md#段階-4-apeap)）で `Onda-IoT` を出してから、IoT に置く。
+  - 録画の方針（2026-11-28、運用者の希望）: **ストレージの基盤ができるまでは、録画を最小限にする。** 案（**検討中**）は、常時録画をせず、人などを検知したときのクリップとスナップショットだけを、数日（例: 3〜7 日）残す形。録画は、Frigate 専用の小さな仮想ディスク（例: 20GB）に置き、Frigate が容量を使い切っても、ほかの VM に響かないようにする（thin pool が枯れた [INC-2026-10-22](../incidents/2026-10-22-lvm-thin-exhaustion.md) があるため）。今の thin pool（約 155GiB）は、割り当てがほぼ埋まっているので、ディスクを足すと `LvmThinPoolOverprovisioned`（1.5 倍）までの余裕がどれだけ残るかを確かめる。ストレージの基盤（2.5 インチのベイに SSD か HDD を足す、NAS など）ができたら、常時録画と保存期間を見直す。
+  - 決めること（未決）: Frigate を置く VM（`vm-apps` に同居か、専用の VM か）。物体検知を CPU だけで動かすか、ホストの Intel UHD 630 を VM に渡して OpenVINO を使うか。Servers → IoT の許可（Frigate からカメラの RTSP `554` だけ。ACL の変更なので文書が先）。カメラのインターネットへの通信を、初期設定のあとに止めるか。RTSP 用のカメラのアカウントを SOPS に置くか。Home Assistant との連携。
 - [ ] メディアサーバーの導入（Jellyfin / Plex / Emby）
 - [ ] テレビの統合
 
