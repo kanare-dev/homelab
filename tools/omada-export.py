@@ -31,7 +31,8 @@ PAGE = "page=1&pageSize=1000"
 
 # 書き出す前に落とすキー（大文字小文字を区別しない、部分一致）
 # 機器を特定できる値（シリアル番号）も落とす
-DROP_KEY = re.compile(r"pass(word|phrase)?$|pwd|secret|psk|privatekey|private_key|token|community|presharedkey|^sn$|serialnumber", re.I)
+# SSID のパスフレーズは pskSetting.securityKey にある。pskSetting ごと落とすと WPA モードも消えるので、鍵だけを落とす
+DROP_KEY = re.compile(r"pass(word|phrase)?$|pwd|secret|^psk$|securitykey|privatekey|private_key|token|community|presharedkey|^sn$|serialnumber", re.I)
 # 実行のたびに変わる値（状態、統計、時刻）。設定ではないので落とす
 VOLATILE_KEY = re.compile(
     r"^(status|statusCategory|uptime|upTime|lastSeen|lastSeenTime|cpuUtil|memUtil|clientNum|clients|"
@@ -190,6 +191,16 @@ def main():
                                         "networks": f"{S}/switches/{mac}/networks?{PAGE}",
                                         "interfaces": f"{S}/switches/{mac}/interfaces?{PAGE}",
                                         "ports": f"{S}/switches/ports/overview?{PAGE}"}
+        elif kind == "ap":
+            groups[f"device-{name}"] = {k: f"{S}/aps/{mac}/{k}" for k in (
+                "general-config", "ip-setting", "vlan", "radio-config", "trunk-setting",
+                "management-wlan", "lldp", "load-balance")}
+    # SSID は WLAN グループの中にある。一覧には設定の一部しか無いので、SSID ごとに詳細を読む
+    wlans = api.get(f"{S}/wireless-network/wlans?{PAGE}")
+    for w in wlans if isinstance(wlans, list) else []:
+        ssids = api.get(f"{S}/wireless-network/wlans/{w['wlanId']}/ssids?{PAGE}")
+        for x in ssids if isinstance(ssids, list) else []:
+            groups["network"][f"ssid {x['name']}"] = f"{S}/wireless-network/wlans/{w['wlanId']}/ssids/{x['ssidId']}"
     groups["devices"] = {"devices": f"{S}/devices?{PAGE}"}
 
     out.mkdir(parents=True, exist_ok=True)
