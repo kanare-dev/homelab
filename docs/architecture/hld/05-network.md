@@ -67,14 +67,15 @@ Caddy 経由の FQDN には、証明書を FQDN ごとに取得する（[リバ�
 
 ## SSID の命名規約
 
-Wi-Fi の SSID は、共通の `Onda` に、ハイフンと接尾辞を続けて名付ける（[ADR-0042](../../adr/0042-ssid-names-by-vlan.md)）。接尾辞のない `Onda` は Trusted に入る。接尾辞には、その SSID が入る VLAN の英語の名前を使う。ただし、Guests は来客が読む名前なので、単数の `Guest` にする。`Forte` だけは例外で、Trusted の WPA3 版を表す。名前には ASCII の英字、数字、ハイフンだけを使い、空白は入れず、32 バイト以内にする。Management、Servers、DMZ の SSID は出さない。
+Wi-Fi の SSID は、共通の `Onda` に、ハイフンと接尾辞を続けて名付ける（[ADR-0042](../../adr/0042-ssid-names-by-vlan.md)、[ADR-0045](../../adr/0045-ssid-onda-transition-and-no-iot-isolation.md)）。接尾辞のない `Onda` は Trusted に入る。接尾辞には、その SSID が入る VLAN の英語の名前を使う。ただし、Guests は来客が読む名前なので、単数の `Guest` にする。名前には ASCII の英字、数字、ハイフンだけを使い、空白は入れず、32 バイト以内にする。Management、Servers、DMZ の SSID は出さない。
 
-| SSID | VLAN | 暗号化 | 状態 |
+Trusted は、WPA2 と WPA3 を兼ねる `Onda` の 1 つだけにする。Omada では、2.4GHz と 5GHz で WPA3 だけのモードを選べないため、以前の WPA3 用の `Onda-Forte` はやめた（ADR-0045）。
+
+| SSID | VLAN | WPA モード | 状態 |
 | --- | --- | --- | --- |
-| `Onda` | 30 Trusted | WPA2 Personal | 使用中（Buffalo） |
-| `Onda-Forte` | 30 Trusted | WPA3 Personal | 使用中（Buffalo） |
-| `Onda-IoT` | 50 IoT | WPA2 Personal | AP（EAP653）の導入時に作る |
-| `Onda-Guest` | 60 Guests | WPA2 Personal | AP（EAP653）の導入時に作る |
+| `Onda` | 30 Trusted | `WPA2-PSK/WPA3-SAE`（PMF は対応） | Buffalo では WPA2 で使用中。AP（EAP653）の導入時に移す |
+| `Onda-IoT` | 50 IoT | `WPA2-PSK`（2.4GHz のみ。端末どうしは分離しない） | AP（EAP653）の導入時に作る |
+| `Onda-Guest` | 60 Guests | `WPA2-PSK` | AP（EAP653）の導入時に作る。端末どうしの分離（ゲストネットワーク）は、実機で試してから決める |
 | `Onda-Lab` | 40 Lab | 未定 | 無線で繋ぐ検証機が出たときに作る |
 
 パスフレーズは SSID ごとに変え、台帳に記録する。

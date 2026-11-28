@@ -43,7 +43,7 @@ Wi-Fi で繋ぐ、首振り（パン・チルト）の屋内カメラ。2026-11-
 
 | 項目 | 内容 |
 | --- | --- |
-| 繋ぐ先 | 2.4GHz の Wi-Fi だけなので、EAP653 の `Onda-IoT`（VLAN50 IoT）に繋ぐ（[ADR-0042](../../../adr/0042-ssid-names-by-vlan.md)）。Buffalo には VLAN が無いので、AP を入れる前に繋ぐと Trusted に入る |
+| 繋ぐ先 | 2.4GHz の Wi-Fi だけなので、EAP653 の `Onda-IoT`（VLAN50 IoT）に繋ぐ（[ADR-0045](../../../adr/0045-ssid-onda-transition-and-no-iot-isolation.md)）。Buffalo には VLAN が無いので、AP を入れる前に繋ぐと Trusted に入る |
 | 初期設定 | Tapo アプリで行う。製品ページの注記では、DHCP で、インターネットに繋がる Wi-Fi が必要とされる。TP-Link のクラウドのアカウントが要るかは未確認 |
 | インターネット | 初期設定のあと、インターネットを止めても RTSP が動くかは、公式の記載がない（未確認）。止めるかは、Frigate の導入で決める |
 | Frigate からの通信 | Servers → IoT は、今は全部拒否している（[第5章 ネットワーク](../../hld/05-network.md#通信ポリシー)）。Frigate からカメラの `554` への通信だけを、許可表に足す必要がある |

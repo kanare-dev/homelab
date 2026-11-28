@@ -69,8 +69,8 @@ API の呼び方を確かめていないので、書き出していない。値�
 
 | 項目 | 値 | 理由・備考 |
 | --- | --- | --- |
-| ルール | `mdns-trusted-iot`（**無効**） | テレビを IoT に移すときに有効にして、実機で確かめる |
-| Bonjour サービス | AirPlay と Google Cast | Google Cast は一覧に無いので、`Google Cast` / `_googlecast._tcp.local` を追加した（サービス ID は `_A._B.local` の形）。`_googlezone._tcp` などの追加が要るかは、有効にするときに確かめる |
+| ルール | `mdns-trusted-iot`（**無効** → **有効（未適用）**） | 段階 4 で、テレビを `Onda-IoT` に移すときに有効にして、実機で確かめる（[ロードマップ 04](../../../../operations/roadmap/04-network-omada-vlan.md#段階-4-apeap)） |
+| Bonjour サービス | AirPlay | **2026-11-28 に画面（ルールの編集）で見ると、選ばれていたのは AirPlay だけだった**。この文書は「AirPlay と Google Cast」と書いていた（ずれ）。テレビが Google TV なら Google Cast も要るので、有効にするときに足すかを決める。Google Cast は一覧に無いので、`Google Cast` / `_googlecast._tcp.local` を追加した（サービス ID は `_A._B.local` の形）。`_googlezone._tcp` などの追加が要るかは、有効にするときに確かめる |
 | バンド VLAN | VLAN ID 別 | |
 | サービスネットワーク VLAN | 50（IoT） | 機器（テレビなど）を置く側 |
 | クライアントネットワーク VLAN | 30（Trusted） | 操作する端末の側 |

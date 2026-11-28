@@ -55,7 +55,7 @@
 - [x] AP の機種を選ぶ。**2026-11-28 に、運用者が EAP653（Wi-Fi 6、AX3000、PoE+ 給電）を購入した**（[EAP653 の資料](../../architecture/lld/hardware/eap653.md)）。技適の表示は、本体のラベルで確かめる
 - [ ] AP を設置し、SSID と VLAN を対応させる（設置場所は電波の届き方で決める）
   - SSID は 3 つで始める（検討中）: Trusted（VLAN30）/ IoT（VLAN50、2.4GHz のみ、クライアント間分離）/ Guest（VLAN60、クライアント間分離、LAN 向けは全遮断）
-  - SSID の名前は、命名規約（[ADR-0042](../../adr/0042-ssid-names-by-vlan.md)、2026-11-28 に決定）に従い、`Onda`・`Onda-Forte`（Trusted）、`Onda-IoT`、`Onda-Guest` にする
+  - SSID は、`Onda`（Trusted。`WPA2-PSK/WPA3-SAE`）、`Onda-IoT`、`Onda-Guest` にする（[ADR-0045](../../adr/0045-ssid-onda-transition-and-no-iot-isolation.md)、2026-11-28 に決定）。Omada では WPA3 だけのモードを選べないので、`Onda-Forte` はやめた。設定値は [Omada のパラメーターシート](../../architecture/lld/network/omada/network.md#ssid未適用)に未適用で書いた
   - Lab（VLAN40）の SSID は、無線で繋ぐ検証機が出てから追加する。SSID を増やすとビーコンの電波オーバーヘッドが増えるため、最小構成で始める
   - Management（VLAN10）と Servers（VLAN20）は有線のみ。SSID は出さない
 - [ ] Buffalo を退役または予備にする
@@ -65,9 +65,12 @@
 - **AP のポートと IP は決めた（2026-11-28、[ADR-0043](../../adr/0043-ap-on-p3-native-management.md)）**: SG2210P の p3（Buffalo と差し替える）を trunk にし、ネイティブを Management（VLAN10）、タグ付きを Trusted・IoT・Guests にする。IP は `10.77.10.4`。
   - **検討中**: AP を外したケーブルに PC を挿すと Management に入れるので、物理的に触られる心配が出たら、ネイティブを `Blackhole` にし、AP の管理 VLAN をタグ付きの 10 にする（2 段階で切り替える。ADR-0043 の代替案）。
 - パラメーターシート（p3、AP、SSID、WLAN）は、画面で項目と選択肢を確かめてから書く（[ADR-0044](../../adr/0044-verify-parameters-on-screen-before-writing.md)）。AP の設定（SSID、管理 VLAN、IP）は、EAP653 をコントローラーに採用するまで画面に出ない項目がある。採用の前に確かめられない項目は、手順書に「未確認」で書き、採用したあとに確かめる
-- 移行の手順。`Onda` と `Onda-Forte` を、Buffalo と同じ名前・同じパスフレーズで EAP653 に出せば、端末はつなぎ直さずに移れる。p3 で差し替えるので、Buffalo を止めてから EAP653 を出す（並行して動かす時間は作らない）。EAP653 の SSID と VLAN は、コントローラーで先に作っておき、採用した直後に配られるようにする
+- 移行の手順。`Onda` を、Buffalo と同じ名前・同じパスフレーズで EAP653 に出せば、`Onda` の端末はつなぎ直さずに移れる。今 `Onda-Forte` に繋いでいる端末は、`Onda` につなぎ直す。p3 で差し替えるので、Buffalo を止めてから EAP653 を出す（並行して動かす時間は作らない）。EAP653 の SSID と VLAN は、コントローラーで先に作っておき、採用した直後に配られるようにする
 - `Onda-IoT` に移す機器（テレビ、SwitchBot Hub 2、Tapo C200）と、移す順序。テレビを移すときに、Trusted ↔ IoT の mDNS の中継を確かめる
 - Guests の SSID を、段階 4 で同時に出すか、来客の予定ができてから出すか
+- **検討中**: `Onda-Guest` で「ゲストネットワーク」（端末どうしの分離）を有効にするか。画面の説明では、無線の端末どうしの通信を止める。ほかにプライベートアドレスへの通信も止めるか（Guests の端末が `vm-infra` の DNS を引けなくなるか）は、公式の資料で確かめられなかった。段階 4 で、有効にして DNS が引けるかを試してから決める
+- **検討中**: IoT の中の端末どうしの通信を絞るか（[ADR-0045](../../adr/0045-ssid-onda-transition-and-no-iot-isolation.md) で受け入れたリスク）。AP を採用したあとに、(1) `Onda-IoT` でゲストネットワークを有効にして、DNS、Frigate からカメラへの RTSP、AirPlay が動くかを試す、(2) EAP の ACL などで IoT の中の通信を絞れるかを見る
+- mDNS の中継のルール（`mdns-trusted-iot`）は、Bonjour サービスが AirPlay だけになっていた（2026-11-28 に画面で確認）。テレビが Google Cast を使うなら、有効にするときに足す（[一般設定](../../architecture/lld/network/omada/general.md#mdns-の中継)）
 
 ## 関連する検討
 

@@ -1,6 +1,6 @@
 # 0042. Wi-Fi の SSID は `Onda-<VLAN の名前>` で付ける
 
-- ステータス: 採用（実機への適用は、AP（EAP653）を導入する段階 4 で行う）
+- ステータス: 置き換え済み（→ [ADR-0045](0045-ssid-onda-transition-and-no-iot-isolation.md)。命名規約は引き継ぎ、`Onda-Forte` の例外を外した）
 - 日付: 2026-11-28
 
 ## 背景
