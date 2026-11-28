@@ -62,9 +62,9 @@
 
 段階 4 で決めること（**検討中**。2026-11-28 に書き出した）:
 
-- AP を繋ぐポート。計画（[移行計画](10-er605-sg2210p-migration-plan.md#段階-4-の後)）では SG2210P の p7（PoE）。ポートは trunk にし、native を Management（VLAN10）、tagged を Trusted・IoT・Guests にする案。native を Management にすると、AP が工場出荷の状態でもコントローラーに見つかる。AP の管理 VLAN をタグ付きにする案もあるが、採用のときに迷いやすいので、native を第一案にする
+- AP を繋ぐポート。**SG2210P の p3 にする**（2026-11-28、運用者の提案。以前の計画は p7）。p3 は今、Buffalo が access（VLAN30）で使っている。Buffalo を外し、同じケーブル（B）で EAP653 を繋ぐので、新しいケーブルが要らず、AP の置き場所も今の Buffalo の位置から始められる（電波の届き方は、今と同じ場所なら分かっている）。p5〜p7 は予備のまま残る。そのかわり、Buffalo と EAP653 を並べて動かす時間は作れない。p3 の設定（access → trunk）と機器の差し替えを同時に行うので、その間は Wi-Fi が止まる。戻すときは、p3 を access（VLAN30）に戻し、Buffalo を挿し直す。ポートは trunk にし、native を Management（VLAN10）、tagged を Trusted・IoT・Guests にする案。native を Management にすると、AP が工場出荷の状態でもコントローラーに見つかる。AP の管理 VLAN をタグ付きにする案もあるが、採用のときに迷いやすいので、native を第一案にする
 - AP の IP。Management の `.4–.9` の帯（[IP アドレス一覧](../../architecture/lld/network/ip-addresses.md)）のうち、`10.77.10.4` を第一案にする
-- 移行の手順。`Onda` と `Onda-Forte` を、Buffalo と同じ名前・同じパスフレーズで EAP653 に出せば、端末はつなぎ直さずに移れる。Buffalo と EAP653 で同じ SSID を同時に出す時間を作るか、Buffalo を止めてから出すかを決める
+- 移行の手順。`Onda` と `Onda-Forte` を、Buffalo と同じ名前・同じパスフレーズで EAP653 に出せば、端末はつなぎ直さずに移れる。p3 で差し替えるので、Buffalo を止めてから EAP653 を出す（並行して動かす時間は作らない）。EAP653 の SSID と VLAN は、コントローラーで先に作っておき、採用した直後に配られるようにする
 - `Onda-IoT` に移す機器（テレビ、SwitchBot Hub 2、Tapo C200）と、移す順序。テレビを移すときに、Trusted ↔ IoT の mDNS の中継を確かめる
 - Guests の SSID を、段階 4 で同時に出すか、来客の予定ができてから出すか
 

@@ -107,7 +107,7 @@ IP は変えない。Buffalo の Wi-Fi 設定は今のままなので、端末�
 
 2026-11-11 の時点では、段階 4 は当面来ない見込みで、段階 3 を当面の完成形としていた。**2026-11-28 に、運用者が EAP653 を購入したので、段階 4 を進める。** それまでは、Buffalo を Trusted の AP として使い続ける。
 
-AP を SG2210P の p7（PoE）に繋ぎ、SSID を 3 つ（Trusted / IoT / Guest）にする。詳細は [04 の段階 4](04-network-omada-vlan.md#段階-4-apeap)。テレビは IoT の SSID に移し、そのとき Trusted ↔ IoT の mDNS 中継を実機で確認する。
+AP を SG2210P の p3 に繋ぎ（Buffalo と差し替える。2026-11-28 に、p7 から変えた。理由は [04 の段階 4](04-network-omada-vlan.md#段階-4-apeap)）、SSID を 3 つ（Trusted / IoT / Guest）にする。詳細は [04 の段階 4](04-network-omada-vlan.md#段階-4-apeap)。テレビは IoT の SSID に移し、そのとき Trusted ↔ IoT の mDNS 中継を実機で確認する。
 
 ## ケーブルと電源
 
