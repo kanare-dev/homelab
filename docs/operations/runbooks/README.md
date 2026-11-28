@@ -38,5 +38,6 @@
 | Proxmox ホストの名前を `pve01` に変える（将来のホスト増設のため。実施済み 2026-11-24。管理画面は `pve.lab.kanare.dev` のまま） | [ホスト名の変更](26-rename-pve-host-to-pve01.md) |
 | ゲートウェイの ACL を、通信ポリシーの内容に絞る（ADR-0029、ADR-0034。実施済み 2026-11-27） | [ACL を絞る](27-network-acl-tighten.md) |
 | Omada の設定を、パラメーターシートのあるべき姿にそろえる（IGMP、SFP ポート、Blackhole。未実施） | [あるべき姿にそろえる](28-omada-align-to-target.md) |
+| Buffalo を EAP653 に置き換え、SSID ごとに VLAN を出す（段階 4。未実施） | [段階 4 の作業](29-network-stage-4-ap.md) |
 
 障害の記録は [incidents/](../incidents/README.md)。
