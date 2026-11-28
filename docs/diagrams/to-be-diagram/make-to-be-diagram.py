@@ -131,6 +131,23 @@ def ethernet_svg(color):
             f'stroke-linecap="round" stroke-linejoin="round">{body}</g></svg>')
 
 
+def camera_svg(color):
+    """監視カメラ（Lucide の cctv。線画）。"""
+    return ('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="' + color + '" stroke-width="1.6" '
+            'stroke-linecap="round" stroke-linejoin="round">'
+            '<path d="M16.75 12h3.632a1 1 0 0 1 .894 1.447l-2.034 4.069a1 1 0 0 1-1.708.134l-2.124-2.97"/>'
+            '<path d="M17.106 9.053a1 1 0 0 1 .447 1.341l-3.106 6.211a1 1 0 0 1-1.342.447L3.61 12.3a2.92 2.92 0 0 1-1.3-3.91'
+            'L3.69 5.6a2.92 2.92 0 0 1 3.92-1.3z"/><path d="M2 19h3.76a2 2 0 0 0 1.8-1.1L9 15"/><path d="M2 21v-4"/>'
+            '<path d="M7 9h.01"/></svg>')
+
+
+def phone_svg(color):
+    """スマートフォン（Lucide の smartphone。線画）。"""
+    return ('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="' + color + '" stroke-width="1.6" '
+            'stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/>'
+            '<path d="M12 18h.01"/></svg>')
+
+
 def mono_pair(make):
     """ライト（墨色）とダーク（明るい灰）の両方を作る。"""
     return (make("#2b3140"), make("#e4e7ee"))
@@ -268,7 +285,7 @@ def layout():
     text("ER605 p2 ⇔ SG2210P p1: trunk (untagged: VLAN10 / tagged: VLAN20,30,40,50,60,70)", 890, 320, 700, 40, cls="el")
 
     icon("hardware/tplink-sg2210p.png", 760, 380, 240, 80, max_px=700)
-    text(f"<b>TP-Link SG2210P</b><br>{name_ip('sw01', '10.77.10.2')} (VLAN10)<br>p1: rtr01 / p2: pve01 / p3: ap01 / p4: Dell U2725QE<br>p5–p7: spare (PoE, native Blackhole) / p8: recovery port (native VLAN10)", 1010, 380, 690, 80)
+    text(f"<b>TP-Link SG2210P</b><br>{name_ip('sw01', '10.77.10.2')} (VLAN10)<br>p1: rtr01 / p2: pve01 / p3: ap01 (PoE+) / p4: Dell U2725QE<br>p5–p7: spare (PoE, native Blackhole) / p8: recovery port (native VLAN10)", 1010, 380, 690, 80)
 
     # Proxmox ---------------------------------------------------------------------------
     gx, gy = 40, 640
@@ -343,16 +360,21 @@ def layout():
     text("nic0", 830, 635, 60, 20)
     row(*NODE, gx + 20, gy + gh - 50, 220)
 
-    # Trusted / IoT / Guests ----------------------------------------------------------
-    # VLAN30 は 1 つの枠。Dell のディスプレイ（有線。ノート PC は USB-C でディスプレイの NIC を使う）と
-    # Buffalo（AP）を枠の中に置き、端末はつながっている機器の下にぶら下げる（有線は実線、Wi-Fi は破線）。
+    # AP / Trusted / IoT / Guests ------------------------------------------------------
+    # AP（EAP653）は Management（VLAN10）の機器で、スイッチの p3 から trunk で SSID ごとの VLAN を受ける。
+    # AP はスイッチと VLAN の枠の間に置き、SSID ごとの VLAN の枠には、Wi-Fi のアイコン（SSID）から端末をぶら下げる。
     tx, ty = 1120, 640
+    ax, ay = 1330, 500                                  # AP のアイコンの中心（x）と上端（y）
+    edge([(960, 460), (960, 480), (ax, 480), (ax, ay)], width=5)  # p3: trunk（太い線）
+    text("p3: trunk (native: VLAN10 / tagged: VLAN30,50,60)", 970, 484, 340, 40, cls="el")
+    icon("hardware/omada-eap.png", ax - 30, ay, 60, 60, max_px=300)
+    text(f"<b>TP-Link Omada EAP653</b><br>{name_ip('ap01', '10.77.10.4')} (VLAN10)<br>"
+         "SSID → VLAN: Onda, Onda-Forte → 30<br>Onda-IoT (2.4 GHz) → 50 / Onda-Guest → 60", ax + 45, ay - 10, 330, 90)
+
     zone(30, tx, ty, 570, 320)
-    dx, ax = tx + 40, tx + 340                         # ディスプレイと AP のアイコンの中心（x）
+    dx, wx = tx + 40, tx + 340                          # ディスプレイと Wi-Fi（SSID）のアイコンの中心（x）
     edge([(910, 460), (910, 580), (dx, 580), (dx, ty + 57)], color="var(--l30)")  # p4: access VLAN30（VLAN の色）
     text("p4: access (untagged: VLAN30)", 920, 550, 260, 24, cls="el")
-    edge([(960, 460), (960, 500), (ax, 500), (ax, ty + 45)], color="var(--l30)")  # p3: access VLAN30（VLAN の色）
-    text("p3: access (untagged: VLAN30)", 1000, 470, 300, 24, cls="el")
     text("<b>VLAN30 Trusted</b>", dx + 16, ty + 5, 200, 30)  # 見出しは p4 の線の右
 
     # 有線: ディスプレイ（DHCP）に、ノート PC をぶら下げる
@@ -364,27 +386,32 @@ def layout():
         device(f"hardware/clients/{'macbook' if k == 0 else 'windows-laptop'}.png", label, dx + 12, cy - 30, 268, size=(52, 52))
     text("USB-C", dx + 6, ty + 118, 60, 20, cls="el")
 
-    # Wi-Fi: AP に、無線の端末をぶら下げる
-    icon("hardware/buffalo-ap.png", ax - 33, ty + 45, 66, 60, max_px=300)
-    icon(None, ax + 12, ty + 22, 24, 24, svg=mono_pair(wifi_svg), rotation=45)  # AP が Wi-Fi を出していることを示す
-    text(f"<b>Buffalo WSR-1800AX4P</b><br>{name_ip('ap01', '10.77.30.50')}<br>AP mode", ax + 40, ty + 45, 190, 60)
-    edge([(ax, ty + 105), (ax, ty + 275)], width=2, dash=True)
-    clients = [("iphone.png", f"<i>canales-iphone-14</i><br>{ip('DHCP')}<br>iPhone 14", False),
-               ("switchbot.png", f"<i>SwitchBot Hub 2</i><br>{ip('DHCP')}<br>To be moved to IoT", True),
-               ("tv.png", f"<i>TV (Wi-Fi)</i><br>{ip('DHCP')}<br>To be moved to IoT", False)]
-    for k, (ic, label, tile) in enumerate(clients):
-        cy = ty + 155 + 60 * k
-        edge([(ax, cy), (ax + 22, cy)], width=2, dash=True)
-        device(f"hardware/clients/{ic}", label, ax + 20, cy - 30, 210, size=(52, 52), tile=tile)
+    def ssid(x, y, name, clients, w):
+        """SSID（Wi-Fi のアイコン）に、無線の端末をぶら下げる。x は Wi-Fi のアイコンの中心。"""
+        icon(None, x - 14, y, 28, 28, svg=mono_pair(wifi_svg))
+        text(f"SSID: <b>{name}</b>", x + 22, y, w - 40, 28)
+        edge([(x, y + 32), (x, y + 32 + 60 * len(clients) - 30)], width=2, dash=True)
+        for k, (ic, label, tile, svg) in enumerate(clients):
+            cy = y + 62 + 60 * k
+            edge([(x, cy), (x + 22, cy)], width=2, dash=True)
+            device(ic and f"hardware/clients/{ic}", label, x + 20, cy - 30, w - 20, size=(44, 44), tile=tile, svg=svg)
+
+    edge([(ax, ay + 60), (ax, ty + 40), (wx, ty + 40), (wx, ty + 55)], width=2, dash=True)  # AP から Trusted の SSID へ
+    ssid(wx, ty + 57, "Onda / Onda-Forte", [("iphone.png", f"<i>canales-iphone-14</i><br>{ip('DHCP')}<br>iPhone 14", False, None)], 230)
 
     iy = ty + 320 + 20
-    zone(50, tx, iy, 275, 170)
-    text("<b>VLAN50 IoT</b> (unused)", tx + 10, iy + 5, 240, 30)
-    text("Used once an AP is added.<br>2.4 GHz only, client isolation", tx + 10, iy + 50, 240, 40)
-    zone(60, tx + 295, iy, 275, 170)
-    text("<b>VLAN60 Guests</b> (unused)", tx + 305, iy + 5, 240, 30)
-    device("", f"Guest devices<br>{ip('DHCP')}", tx + 305, iy + 50, 250, size=(40, 40), svg=mono_pair(wifi_svg))
-    text("Used once an AP is added.<br>Client isolation, no access to the LAN", tx + 305, iy + 120, 255, 40)
+    zone(50, tx, iy, 275, 300)
+    text("<b>VLAN50 IoT</b>", tx + 10, iy + 5, 240, 30)
+    ssid(tx + 30, iy + 45, "Onda-IoT", [
+        ("tv.png", f"<i>TV (Wi-Fi)</i><br>{ip('DHCP reserved')}", False, None),
+        ("switchbot.png", f"<i>SwitchBot Hub 2</i><br>{ip('DHCP')}", True, None),
+        (None, f"<i>Tapo C200</i><br>{ip('DHCP reserved')}<br>Camera (RTSP {ip(':554')})", False, mono_pair(camera_svg)),
+    ], 245)
+    text("2.4 GHz only, client isolation", tx + 10, iy + 255, 255, 30)
+    zone(60, tx + 295, iy, 275, 300)
+    text("<b>VLAN60 Guests</b>", tx + 305, iy + 5, 240, 30)
+    ssid(tx + 325, iy + 45, "Onda-Guest", [(None, f"Guest devices<br>{ip('DHCP')}", False, mono_pair(phone_svg))], 245)
+    text("Client isolation, no access to the LAN", tx + 305, iy + 255, 255, 30)
 
     # 右下: homelab の横長のロゴ（LAN の枠の中の空き。421 × 124）
     icon((str(LOGO / "logo-stack-light.svg"), str(LOGO / "logo-stack-dark.svg")), 1380, 1562, 300, 88)

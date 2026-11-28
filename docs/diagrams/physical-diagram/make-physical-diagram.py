@@ -94,8 +94,8 @@ def layout():
         (690, "p4", "v30", "Dell<br>access"),
         (770, "p5", "free", "予備"),
         (850, "p6", "free", "予備"),
-        (930, "p7", "free", "AP 用<br>PoE（将来）"),
-        (1010, "p8", "free", "AP 用<br>PoE（将来）"),
+        (930, "p7", "free", "予備"),
+        (1010, "p8", "free", "復旧ポート<br>VLAN10"),
         (1090, "p9", "free", "SFP<br>未使用"),
         (1170, "p10", "free", "SFP<br>未使用"),
     )

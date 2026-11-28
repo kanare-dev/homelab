@@ -364,7 +364,7 @@
 | --- | --- | --- | --- |
 | 導入済み | homeassistant/home-assistant | スマートホーム統合プラットフォーム | [Home Assistant](architecture/lld/apps/home-assistant.md) |
 | 導入済み | Home Assistant の Prometheus 連携（組み込み） | SwitchBot Hub 2 の温度・湿度（将来は CO2）を Prometheus に出し、湿度の異常を Slack に通知する | [ADR-0037](adr/0037-room-sensors-via-home-assistant-prometheus.md)、[監視・アラート](architecture/lld/platform/monitoring.md#室内の温度湿度) |
-| 計画中 | blakeblackshear/frigate | NVR・AI 物体検知 | [未着手の項目](operations/roadmap/01-backlog.md) |
+| 計画中 | blakeblackshear/frigate | NVR・AI 物体検知 | [未着手の項目](operations/roadmap/01-backlog.md#ホームオートメーション)。カメラ（[Tapo C200](architecture/lld/hardware/tapo-c200.md)）は購入済み。AP の段階 4 のあとに入れる。録画は、ストレージの基盤ができるまで最小限にする |
 | 未検討 | koush/scrypted | カメラ・デバイスの HomeKit ブリッジ | — |
 | 未検討 | oznu/homebridge | HomeKit ブリッジ | — |
 | 計画中 | eclipse-mosquitto/eclipse-mosquitto | MQTT ブローカー | [未着手の項目](operations/roadmap/01-backlog.md) |
