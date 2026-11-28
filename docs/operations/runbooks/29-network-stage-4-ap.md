@@ -117,9 +117,12 @@
 ## 6. 書き出しと文書の仕上げ
 
 1. `make omada-export` を流し、`git diff docs/architecture/lld/network/omada/snapshot/` で、次の差分だけが出ることを確かめる。
-   - `network.json`: SSID が 3 つ増える。
+   - `network.json`: `ssid Onda`、`ssid Onda-IoT`、`ssid Onda-Guest` の 3 つが増える。パスフレーズ（`pskSetting.securityKey`）は書き出されない。
    - `device-sw01.json`: p3 のネイティブが Management、タグがカスタム（30、50、60）になる。
-   - `devices.json`: EAP653（`ap01`、`10.77.10.4`）が増える。`device-ap01.json` が増える（書き出しのスクリプトが AP に対応していれば。対応していなければ、`tools/omada-export.py` を直す）。
+   - `devices.json`: EAP653（`ap01`、`10.77.10.4`）が増える。
+   - `device-ap01.json` が増える（一般設定、IP、VLAN、無線、LLDP など）。スクリプトは 2026-11-28 に AP と SSID に対応させたが、AP が無かったので、AP の窓口はまだ試していない。`_error` が出たら、窓口を直す。
+
+   書き出したファイルに、パスフレーズや MAC アドレスが残っていないことを、コミットの前に確かめる（`git diff` で `securityKey` と MAC の形の文字列を探す）。
 
    予想と違う差分が出たら、その値が何かを確かめてから、パラメーターシートに書く。
 2. パラメーターシートの「未適用」を外し、SSID の表に Open API のキーを足す。[変更履歴](../../architecture/lld/network/omada-controller.md#変更履歴)に 1 行足す。
