@@ -50,6 +50,28 @@ LAN のネットワークは、VLAN ごとに 1 つ作っている。すべて E
 | --- | --- | --- | --- |
 | `wlans[0].name` | `既定` | WLAN グループ | 既定。SSID は作っていない。Wi-Fi は、Omada の外の Buffalo（AP モード）が出している（[WSR-1800AX4P](../wsr-1800ax4p.md)） |
 
+### SSID（未適用）
+
+段階 4（AP の EAP653 の導入。[ロードマップ 04](../../../../operations/roadmap/04-network-omada-vlan.md#段階-4-apeap)）で作る SSID である。名前と WPA モードは [ADR-0045](../../../../adr/0045-ssid-onda-transition-and-no-iot-isolation.md) で決めた。
+
+画面の場所は、ネットワーク設定 > WLAN > SSID > SSID を追加（「新しいワイヤレスネットワークを作成」）である。2026-11-28 に、Claude がブラウザで画面を開き、下の項目があり、下の値を選べることを確かめた（保存はしていない。[ADR-0044](../../../../adr/0044-verify-parameters-on-screen-before-writing.md)）。SSID はサイトの設定なので、AP を採用する前に作れる。Open API のキーは、作ったあとに書き出して埋める。
+
+| 画面の項目 | `Onda` | `Onda-IoT` | `Onda-Guest` | 理由・備考 |
+| --- | --- | --- | --- | --- |
+| ネットワーク名 (SSID) | `Onda` | `Onda-IoT` | `Onda-Guest` | 命名規約（[第5章 ネットワーク](../../../hld/05-network.md#ssid-の命名規約)） |
+| バンド | 2.4GHz、5GHz | 2.4GHz のみ | 2.4GHz、5GHz | 6GHz も選べるが、EAP653 は対応しない。IoT の機器（Tapo C200 など）は 2.4GHz にしか対応しない |
+| デバイスの選択 | すべてのデバイス | すべてのデバイス | すべてのデバイス | AP は 1 台 |
+| ゲスト ネットワーク | 無効 | 無効 | **未決**（段階 4 で試す） | 端末どうしの分離は、この項目でしかかけられない。副作用（DNS が引けるか）が確かめられていないので、IoT は無効にする（ADR-0045） |
+| セキュリティ | WPA-Personal | WPA-Personal | WPA-Personal | 選択肢は、無し、WPA-Personal、WPA-Enterprise、RADIUS を使用しない PPSK、RADIUS を使用した PPSK |
+| セキュリティキー | 台帳 | 台帳 | 台帳 | SSID ごとに変える。`Onda` は Buffalo と同じにして、端末をそのまま移す |
+| 高度な設定 > バンドステアリング | サイト設定を使用 | サイト設定を使用 | サイト設定を使用 | 既定。サイトの設定の値は、まだ見ていない |
+| 高度な設定 > SSID ブロードキャスト | 有効 | 有効 | 有効 | 既定 |
+| 高度な設定 > IoT 接続の強化 | 無効 | 無効 | 無効 | 既定。画面の注記では、5GHz、6GHz、WPA3 のどれかを使う SSID では有効にできない。何をする機能かは未確認 |
+| 高度な設定 > VLAN | カスタム（ネットワーク別）: Trusted(30) | カスタム（ネットワーク別）: IoT(50) | カスタム（ネットワーク別）: Guests(60) | 「VLAN の追加」は、ネットワーク別と VLAN ID 別を選べる |
+| 高度な設定 > WPA モード | `WPA2-PSK/WPA3-SAE` | `WPA2-PSK` / AES | `WPA2-PSK` / AES | 選択肢は、WPA-PSK、WPA2-PSK、WPA/WPA2-PSK、WPA2-PSK/WPA3-SAE。WPA3 だけのモードは無い |
+| 高度な設定 > PMF | 対応 | 無効 | 無効 | 選択肢は、必須、対応、無効。WPA3 には PMF が要る。「必須」にすると WPA2 の端末が繋がらないので、`Onda` は「対応」にする。`WPA2-PSK` の既定は「無効」 |
+| 高度な設定 > 802.11r | 無効 | 無効 | 無効 | 既定。AP は 1 台なので、高速ローミングは要らない |
+
 ## そのほかのサービス
 
 | キー | 値 | 意味 | 理由・備考 |

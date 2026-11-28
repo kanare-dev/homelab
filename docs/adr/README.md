@@ -47,9 +47,10 @@
 | [0039](0039-omada-metrics-via-omada-exporter.md) | Omada の機器・クライアントの状態は omada-exporter（RCooLeR 版）で集め、Caddy 経由の HTTPS で読む | 採用 | 2026-11-27 |
 | [0040](0040-config-source-of-truth-by-location.md) | 設定値の正は置き場所で決め、Tailscale と AdGuard Home の設定はコードに移す | 採用 | 2026-11-27 |
 | [0041](0041-omada-settings-exported-by-open-api.md) | Omada の設定値は Open API で取り出してリポジトリに置き、文書とのずれを見る | 採用 | 2026-11-28 |
-| [0042](0042-ssid-names-by-vlan.md) | Wi-Fi の SSID は `Onda-<VLAN の名前>` で付ける | 採用 | 2026-11-28 |
+| [0042](0042-ssid-names-by-vlan.md) | Wi-Fi の SSID は `Onda-<VLAN の名前>` で付ける | 置き換え済み（→ 0045） | 2026-11-28 |
 | [0043](0043-ap-on-p3-native-management.md) | AP（EAP653）は SG2210P の p3 に繋ぎ、ネイティブを Management にし、IP を `10.77.10.4` にする | 採用 | 2026-11-28 |
 | [0044](0044-verify-parameters-on-screen-before-writing.md) | 「文書が先」の設定値は、実機の画面で項目と選択肢を確かめてから書く | 採用 | 2026-11-28 |
+| [0045](0045-ssid-onda-transition-and-no-iot-isolation.md) | Trusted の SSID は WPA2/WPA3 の `Onda` 1 つにし、IoT の SSID では端末どうしを分離しない | 採用 | 2026-11-28 |
 
 ## 書き方
 

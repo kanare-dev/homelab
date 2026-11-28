@@ -369,7 +369,7 @@ def layout():
     text("p3: trunk (native: VLAN10 / tagged: VLAN30,50,60)", 970, 484, 340, 40, cls="el")
     icon("hardware/omada-eap.png", ax - 30, ay, 60, 60, max_px=300)
     text(f"<b>TP-Link Omada EAP653</b><br>{name_ip('ap01', '10.77.10.4')} (VLAN10)<br>"
-         "SSID → VLAN: Onda, Onda-Forte → 30<br>Onda-IoT (2.4 GHz) → 50 / Onda-Guest → 60", ax + 45, ay - 10, 330, 90)
+         "SSID → VLAN: Onda (WPA2/WPA3) → 30<br>Onda-IoT (2.4 GHz) → 50 / Onda-Guest → 60", ax + 45, ay - 10, 330, 90)
 
     zone(30, tx, ty, 570, 320)
     dx, wx = tx + 40, tx + 340                          # ディスプレイと Wi-Fi（SSID）のアイコンの中心（x）
@@ -397,7 +397,7 @@ def layout():
             device(ic and f"hardware/clients/{ic}", label, x + 20, cy - 30, w - 20, size=(44, 44), tile=tile, svg=svg)
 
     edge([(ax, ay + 60), (ax, ty + 40), (wx, ty + 40), (wx, ty + 55)], width=2, dash=True)  # AP から Trusted の SSID へ
-    ssid(wx, ty + 57, "Onda / Onda-Forte", [("iphone.png", f"<i>canales-iphone-14</i><br>{ip('DHCP')}<br>iPhone 14", False, None)], 230)
+    ssid(wx, ty + 57, "Onda", [("iphone.png", f"<i>canales-iphone-14</i><br>{ip('DHCP')}<br>iPhone 14", False, None)], 230)
 
     iy = ty + 320 + 20
     zone(50, tx, iy, 275, 300)
@@ -407,11 +407,11 @@ def layout():
         ("switchbot.png", f"<i>SwitchBot Hub 2</i><br>{ip('DHCP')}", True, None),
         (None, f"<i>Tapo C200</i><br>{ip('DHCP reserved')}<br>Camera (RTSP {ip(':554')})", False, mono_pair(camera_svg)),
     ], 245)
-    text("2.4 GHz only, client isolation", tx + 10, iy + 255, 255, 30)
+    text("2.4 GHz only, no client isolation", tx + 10, iy + 255, 255, 30)
     zone(60, tx + 295, iy, 275, 300)
     text("<b>VLAN60 Guests</b>", tx + 305, iy + 5, 240, 30)
     ssid(tx + 325, iy + 45, "Onda-Guest", [(None, f"Guest devices<br>{ip('DHCP')}", False, mono_pair(phone_svg))], 245)
-    text("Client isolation, no access to the LAN", tx + 305, iy + 255, 255, 30)
+    text("Client isolation: to be tested<br>No access to the LAN (ACL)", tx + 305, iy + 245, 255, 44)
 
     # 右下: homelab の横長のロゴ（LAN の枠の中の空き。421 × 124）
     icon((str(LOGO / "logo-stack-light.svg"), str(LOGO / "logo-stack-dark.svg")), 1380, 1562, 300, 88)
