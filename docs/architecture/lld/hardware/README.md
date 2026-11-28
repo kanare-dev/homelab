@@ -10,6 +10,8 @@
 | TP-Link ER605 V2 | ルーター。VLAN ごとのゲートウェイ・DHCP・ACL | [er605](er605.md) | [Omada コントローラーと管理対象機器](../network/omada-controller.md#er605ルーター) |
 | TP-Link SG2210P | PoE+ スイッチ。trunk・access のポート | [sg2210p](sg2210p.md) | [Omada コントローラーと管理対象機器](../network/omada-controller.md#sg2210pスイッチ) |
 | Buffalo WSR-1800AX4P | Wi-Fi ルーター。今は AP モード | [wsr-1800ax4p](wsr-1800ax4p.md) | [Buffalo の設定](../network/wsr-1800ax4p.md) |
+| TP-Link Omada EAP653 | Wi-Fi 6 の AP。購入済みで、未設置（段階 4 で Buffalo と置き換える） | [eap653](eap653.md) | 設置したら、Omada のパラメーターシートに書く |
+| TP-Link Tapo C200 | Wi-Fi のカメラ。購入済みで、未設置（Frigate で使う） | [tapo-c200](tapo-c200.md) | 設置したら書く |
 
 機器ではないものは、次に置く。
 

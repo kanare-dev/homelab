@@ -1,6 +1,6 @@
 # Omada 導入・VLAN 化
 
-[ロードマップ](README.md)の大型計画である。ER605、SG2210P、EAP（AP）を使って Omada のネットワークを作り、VLAN で分離する。OPNsense は、別の大型計画（[OPNsense 導入](08-network-opnsense.md)）に分け、この計画が完了したあと、機器が買いやすくなってから進める。設計は完了しているが、機器はまだ購入しておらず、着手もしていない。
+[ロードマップ](README.md)の大型計画である。ER605、SG2210P、EAP（AP）を使って Omada のネットワークを作り、VLAN で分離する。OPNsense は、別の大型計画（[OPNsense 導入](08-network-opnsense.md)）に分け、この計画が完了したあと、機器が買いやすくなってから進める。段階 1〜3（ER605・SG2210P と VLAN）は 2026-11 に終えた。AP（EAP653）は 2026-11-28 に購入し、段階 4 はこれから行う。
 
 詳しい内容は、設計書と ADR に書いている。この文書には、進める順序とチェック項目だけを書く。
 
@@ -52,13 +52,21 @@
 
 ### 段階 4: AP（EAP）
 
-- [ ] AP の機種を選ぶ（Wi-Fi 6 世代の日本での入手性・価格・技適を、段階 3 の後に確認する）
+- [x] AP の機種を選ぶ。**2026-11-28 に、運用者が EAP653（Wi-Fi 6、AX3000、PoE+ 給電）を購入した**（[EAP653 の資料](../../architecture/lld/hardware/eap653.md)）。技適の表示は、本体のラベルで確かめる
 - [ ] AP を設置し、SSID と VLAN を対応させる（設置場所は電波の届き方で決める）
   - SSID は 3 つで始める（検討中）: Trusted（VLAN30）/ IoT（VLAN50、2.4GHz のみ、クライアント間分離）/ Guest（VLAN60、クライアント間分離、LAN 向けは全遮断）
   - SSID の名前は、命名規約（[ADR-0042](../../adr/0042-ssid-names-by-vlan.md)、2026-11-28 に決定）に従い、`Onda`・`Onda-Forte`（Trusted）、`Onda-IoT`、`Onda-Guest` にする
   - Lab（VLAN40）の SSID は、無線で繋ぐ検証機が出てから追加する。SSID を増やすとビーコンの電波オーバーヘッドが増えるため、最小構成で始める
   - Management（VLAN10）と Servers（VLAN20）は有線のみ。SSID は出さない
 - [ ] Buffalo を退役または予備にする
+
+段階 4 で決めること（**検討中**。2026-11-28 に書き出した）:
+
+- AP を繋ぐポート。計画（[移行計画](10-er605-sg2210p-migration-plan.md#段階-4-の後)）では SG2210P の p7（PoE）。ポートは trunk にし、native を Management（VLAN10）、tagged を Trusted・IoT・Guests にする案。native を Management にすると、AP が工場出荷の状態でもコントローラーに見つかる。AP の管理 VLAN をタグ付きにする案もあるが、採用のときに迷いやすいので、native を第一案にする
+- AP の IP。Management の `.4–.9` の帯（[IP アドレス一覧](../../architecture/lld/network/ip-addresses.md)）のうち、`10.77.10.4` を第一案にする
+- 移行の手順。`Onda` と `Onda-Forte` を、Buffalo と同じ名前・同じパスフレーズで EAP653 に出せば、端末はつなぎ直さずに移れる。Buffalo と EAP653 で同じ SSID を同時に出す時間を作るか、Buffalo を止めてから出すかを決める
+- `Onda-IoT` に移す機器（テレビ、SwitchBot Hub 2、Tapo C200）と、移す順序。テレビを移すときに、Trusted ↔ IoT の mDNS の中継を確かめる
+- Guests の SSID を、段階 4 で同時に出すか、来客の予定ができてから出すか
 
 ## 関連する検討
 
